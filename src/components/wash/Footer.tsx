@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import {motion} from 'framer-motion';
 
 interface FooterProps {
   onJoinWaitlist: () => void;
@@ -70,7 +70,7 @@ const Footer: React.FC<FooterProps> = ({ onJoinWaitlist }) => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <img src="/logo1.png" className="h-16 p-2"/>
+              <img src="/logo-wash.png" className="h-16 p-2"/>
               <p className="text-gray-400 leading-relaxed mb-6">
                 Premium subscription-based laundry service bringing convenience 
                 and quality to busy Nigerians across major cities.
@@ -179,25 +179,22 @@ const Footer: React.FC<FooterProps> = ({ onJoinWaitlist }) => {
           </motion.div>
         </div>
 
-        {/* Bottom Bar */}
-        <motion.div 
-          className="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          viewport={{ once: true }}
-        >
-          <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            © {currentYear} Jaranow. All rights reserved.
-          </p>
-          
-          <div className="flex items-center space-x-6 text-sm text-gray-400">
-            <span>Made with ❤️ in Nigeria</span>
-            <span>•</span>
-            <span>🌱 Eco-friendly practices</span>
-          </div>
-        </motion.div>
+
       </div>
+        <div className="border-t border-gray-800">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
+                    <div className="mb-4 md:mb-0">
+                        © 2025 Jaranow Technologies Limited. All rights reserved.
+                    </div>
+                    <div className="flex items-center space-x-6 text-sm text-gray-400">
+                        <span>Made with ❤️ in Nigeria</span>
+                        <span>•</span>
+                        <span>🌱 Eco-friendly practices</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </footer>
   );
 };

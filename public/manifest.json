@@ -1,25 +1,26 @@
 {
-  "short_name": "Jaranow wash",
-  "name": "Jaranow wash",
+  "short_name": "Jaranow",
+  "name": "Jaranow - Nigeria's First 10-Minute Grocery Delivery",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "/jaranow/favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "logo-192.png",
+      "src": "/jaranow/icon-192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "logo-512.png",
+      "src": "/jaranow/icon-512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#ff0023",
+  "background_color": "#ffffff",
+  "description": "Revolutionary AI-powered grocery delivery in 10 minutes. Order with voice, camera, or text."
 }

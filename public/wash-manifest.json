@@ -1,0 +1,26 @@
+{
+  "short_name": "Jaranow Wash",
+  "name": "Jaranow Wash - Premium Laundry Service",
+  "icons": [
+    {
+      "src": "/wash/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/wash/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/wash/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/wash",
+  "display": "standalone",
+  "theme_color": "#4f46e5",
+  "background_color": "#ffffff",
+  "description": "Premium subscription-based laundry service with doorstep pickup and delivery."
+}

@@ -50,7 +50,7 @@ const WaitlistForm: React.FC<WaitlistFormProps> = ({isOpen, onClose, selectedPla
                           clipRule="evenodd"/>
                 </svg>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Welcome to JaraNow Wash!</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Welcome to Jaranow wash!</h3>
             <p className="text-gray-600 mb-6">
                 You're now on our priority waitlist. We'll notify you as soon as we launch in your area.
             </p>

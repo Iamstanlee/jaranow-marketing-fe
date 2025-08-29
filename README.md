@@ -1,1 +1,1 @@
-# Jaranow Wash - Landing Page
+# Jaranow wash - Landing Page

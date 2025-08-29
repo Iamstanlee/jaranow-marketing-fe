@@ -57,7 +57,7 @@ const FAQ: React.FC = () => {
             Frequently Asked <span className="text-primary-600">Questions</span>
           </h2>
           <p className="text-xl text-gray-600">
-            Everything you need to know about JaraNow Wash's premium laundry service.
+            Everything you need to know about Jaranow wash's premium laundry service.
           </p>
         </motion.div>
 

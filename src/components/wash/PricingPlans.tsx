@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { SubscriptionPlan } from '../types';
-import { formatCurrency } from '../utils/formatters';
+import { SubscriptionPlan } from '../../types';
+import { formatCurrency } from '../../utils/formatters';
 
 interface PricingPlansProps {
   onSelectPlan: (planId: string) => void;

@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 import {AnimatePresence, motion} from 'framer-motion';
 import {useForm} from 'react-hook-form';
-import {WaitlistFormData} from '../types';
-import {useAirtable} from '../hooks/useAirtable';
-import {formatPhoneNumber, validatePhoneNumber} from '../utils/formatters';
+import {WaitlistFormData} from '../../types';
+import {useAirtable} from '../../hooks/useAirtable';
+import {formatPhoneNumber, validatePhoneNumber} from '../../utils/formatters';
 
 interface WaitlistFormProps {
     isOpen: boolean;

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {motion} from 'framer-motion';
-import {scrollToElement} from '../utils/formatters';
+import {motion, AnimatePresence} from 'framer-motion';
+import {scrollToElement} from '../../utils/formatters';
 
 interface NavigationProps {
     onJoinWaitlist: () => void;
@@ -9,6 +9,7 @@ interface NavigationProps {
 const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isProductsOpen, setIsProductsOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -23,6 +24,11 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
         {name: 'How It Works', href: '#how-it-works'},
         {name: 'Pricing', href: '#pricing'},
         {name: 'FAQ', href: '#faq'},
+    ];
+
+    const products = [
+        { href: '/', label: 'Grocery Delivery', description: '10-minute AI-powered delivery' },
+        { href: '/wash', label: 'Wash Service', description: 'Premium laundry subscription' },
     ];
 
     const handleNavClick = (href: string) => {
@@ -51,12 +57,57 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                         whileHover={{scale: 1.05}}
                         transition={{type: "spring", stiffness: 300}}
                     >
-                        <img src={isScrolled ? "/logo.png" : "/logo1.png"} className="h-16 p-2"/>
+                        <img src={isScrolled ? "/logo-wash.png" : "/logo-wash_inverted.png"} className="h-16 p-2"/>
                     </motion.div>
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:block">
                         <div className="ml-10 flex items-baseline space-x-8">
+                            {/* Products Dropdown */}
+                            <div className="relative">
+                                <button
+                                    onMouseEnter={() => setIsProductsOpen(true)}
+                                    onMouseLeave={() => setIsProductsOpen(false)}
+                                    className={`flex items-center space-x-1 px-3 py-2 text-sm font-medium transition-colors duration-300 hover:text-primary-600 ${
+                                        isScrolled ? 'text-gray-700' : 'text-white'
+                                    }`}
+                                >
+                                    <span>Products</span>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+
+                                <AnimatePresence>
+                                    {isProductsOpen && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 10 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
+                                            onMouseEnter={() => setIsProductsOpen(true)}
+                                            onMouseLeave={() => setIsProductsOpen(false)}
+                                        >
+                                            {products.map((product) => (
+                                                <a
+                                                    key={product.href}
+                                                    href={product.href}
+                                                    className="block px-4 py-3 hover:bg-gray-50 transition-colors duration-200"
+                                                >
+                                                    <div className="font-semibold text-gray-900 mb-1">
+                                                        {product.label}
+                                                    </div>
+                                                    <div className="text-sm text-gray-600">
+                                                        {product.description}
+                                                    </div>
+                                                </a>
+                                            ))}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+
                             {navItems.map((item) => (
                                 <button
                                     key={item.name}
@@ -126,15 +177,38 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                     transition={{duration: 0.2}}
                 >
                     <div className="px-2 pt-2 pb-3 space-y-1">
-                        {navItems.map((item) => (
-                            <button
-                                key={item.name}
-                                onClick={() => handleNavClick(item.href)}
-                                className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 rounded-md transition-colors duration-300"
-                            >
-                                {item.name}
-                            </button>
-                        ))}
+                        {/* Mobile Products Section */}
+                        <div className="px-3 py-2">
+                            <div className="font-semibold text-gray-900 mb-2">Products</div>
+                            {products.map((product) => (
+                                <a
+                                    key={product.href}
+                                    href={product.href}
+                                    className="block py-2 pl-4 pr-2 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    <div className="font-medium text-gray-900 text-sm">
+                                        {product.label}
+                                    </div>
+                                    <div className="text-xs text-gray-600">
+                                        {product.description}
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                        
+                        <div className="border-t border-gray-100 pt-2">
+                            {navItems.map((item) => (
+                                <button
+                                    key={item.name}
+                                    onClick={() => handleNavClick(item.href)}
+                                    className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 rounded-md transition-colors duration-300"
+                                >
+                                    {item.name}
+                                </button>
+                            ))}
+                        </div>
+
                         <button
                             onClick={() => {
                                 onJoinWaitlist();

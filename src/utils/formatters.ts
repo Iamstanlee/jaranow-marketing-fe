@@ -2,19 +2,11 @@ export const formatPhoneNumber = (value: string): string => {
   const cleaned = value.replace(/\D/g, '');
   
   if (cleaned.startsWith('234')) {
-    const formatted = cleaned.replace(/^234(\d{3})(\d{3})(\d{4})$/, '+234 $1 $2 $3');
-    return formatted;
+    return cleaned.replace(/^234(\d{3})(\d{3})(\d{4})$/, '+234 $1 $2 $3');
   }
-  
-  if (cleaned.startsWith('0')) {
-    const withoutLeadingZero = cleaned.substring(1);
-    const formatted = withoutLeadingZero.replace(/^(\d{3})(\d{3})(\d{4})$/, '+234 $1 $2 $3');
-    return formatted;
-  }
-  
-  if (cleaned.length === 10) {
-    const formatted = cleaned.replace(/^(\d{3})(\d{3})(\d{4})$/, '+234 $1 $2 $3');
-    return formatted;
+
+  if (cleaned.length >= 10) {
+    return cleaned.substring(cleaned.startsWith('0') ? 1 : 0).replace(/^(\d{3})(\d{3})(\d{4})$/, '+234 $1 $2 $3');
   }
   
   return value;

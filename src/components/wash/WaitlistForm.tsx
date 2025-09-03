@@ -58,7 +58,7 @@ const WaitlistForm: React.FC<WaitlistFormProps> = ({isOpen, onClose, selectedPla
                 <h4 className="font-semibold text-primary-700 mb-2">What happens next?</h4>
                 <ul className="text-sm text-gray-700 space-y-1">
                     <li>• Early access to download our app</li>
-                    <li>• Exclusive launch week discounts</li>
+                    <li>• Exclusive launch discounts</li>
                     <li>• First month 50% off</li>
                 </ul>
             </div>

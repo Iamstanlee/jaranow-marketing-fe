@@ -117,7 +117,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan }) => {
 
                   {plan.isPopular && (
                       <p className="text-center text-sm text-gray-500 mb-2">
-                        🎉 Early bird pricing - Save ₦3,000 for the first 6 months!
+                        🎉 Early bird pricing - Save ₦3,000 for the first 3 months!
                       </p>
                   )}
                   <motion.button

@@ -68,7 +68,7 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                                 <button
                                     onMouseEnter={() => setIsProductsOpen(true)}
                                     onMouseLeave={() => setIsProductsOpen(false)}
-                                    className={`flex items-center space-x-1 px-3 py-2 text-sm font-medium transition-colors duration-300 hover:text-primary-600 ${
+                                    className={`flex items-center space-x-1 text-sm font-medium transition-colors duration-300 hover:bg-white hover:text-primary-600 ${
                                         isScrolled ? 'text-gray-700' : 'text-white'
                                     }`}
                                 >
@@ -112,7 +112,7 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                                 <button
                                     key={item.name}
                                     onClick={() => handleNavClick(item.href)}
-                                    className={`px-3 py-2 text-sm font-medium transition-colors duration-300 hover:text-primary-600 ${
+                                    className={`text-sm font-medium transition-colors duration-300 hover:bg-white hover:text-primary-600 ${
                                         isScrolled ? 'text-gray-700' : 'text-white'
                                     }`}
                                 >
@@ -144,7 +144,7 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             className={`p-2 rounded-md transition-colors duration-300 ${
                                 isScrolled
-                                    ? 'text-gray-700 hover:text-primary-600'
+                                    ? 'text-gray-700 hover:bg-white hover:text-primary-600'
                                     : 'text-white hover:text-yellow-400'
                             }`}
                         >
@@ -202,7 +202,7 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                                 <button
                                     key={item.name}
                                     onClick={() => handleNavClick(item.href)}
-                                    className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 rounded-md transition-colors duration-300"
+                                    className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:bg-white hover:text-primary-600 hover:bg-gray-50 rounded-md transition-colors duration-300"
                                 >
                                     {item.name}
                                 </button>

@@ -12,7 +12,7 @@ const plans: SubscriptionPlan[] = [
     id: 'lite',
     name: 'Lite Plan',
     price: 9999,
-    currency: '₦',
+    currency: 'NGN',
     washCount: 2,
     maxClothes: 15,
     features: [
@@ -30,7 +30,7 @@ const plans: SubscriptionPlan[] = [
     id: 'premium',
     name: 'Premium Plan',
     price: 15999,
-    currency: '₦',
+    currency: 'NGN',
     washCount: 4,
     maxClothes: 15,
     isPopular: true,
@@ -50,7 +50,7 @@ const plans: SubscriptionPlan[] = [
 
 const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan }) => {
   return (
-    <section id="pricing" className="py-20 sm:py-24 bg-gray-50">
+    <section id="pricing" className="py-20 sm:py-24 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div 
           className="text-center mb-16"
@@ -72,7 +72,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan }) => {
           {plans.map((plan, index) => (
             <motion.div
               key={plan.id}
-              className={`relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 ${
+              className={`relative bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 ${
                 plan.isPopular ? 'border-2 border-primary-500' : 'border border-gray-200'
               }`}
               initial={{ opacity: 0, y: 20 }}
@@ -117,7 +117,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan }) => {
 
                   {plan.isPopular && (
                       <p className="text-center text-sm text-gray-500 mb-2">
-                        🎉 Early bird pricing - Save ₦3,000 for the first 3 months!
+                        🎉 Early bird pricing - Save NGN 3,000 for the first 3 months!
                       </p>
                   )}
                   <motion.button

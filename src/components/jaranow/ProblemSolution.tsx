@@ -67,7 +67,7 @@ const ProblemSolution: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-red-50 border border-red-100 rounded-xl p-6 text-center"
+                className="bg-red-100 border border-red-200 rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all duration-300"
               >
                 <div className="flex justify-center mb-3">
                   {problem.icon}
@@ -101,7 +101,7 @@ const ProblemSolution: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: index * 0.2 }}
                 viewport={{ once: true }}
-                className="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 border border-red-100"
+                className="bg-gradient-to-br from-red-100 to-pink-100 rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-red-200 shadow-lg"
               >
                 <div className="flex justify-center mb-6">
                   <div className="bg-white rounded-full p-4 shadow-lg">

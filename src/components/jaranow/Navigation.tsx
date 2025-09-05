@@ -39,7 +39,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
               <button
                 onMouseEnter={() => setIsProductsOpen(true)}
                 onMouseLeave={() => setIsProductsOpen(false)}
-                className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition-colors duration-200"
+                className="flex items-center space-x-1 text-gray-700 hover:bg-[#e6001f] hover:text-white transition-colors duration-200"
               >
                 <span>Products</span>
                 <ChevronDown className="w-4 h-4" />
@@ -79,7 +79,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
               <a
                 key={item.href}
                 href={item.href}
-                className="text-gray-700 hover:text-green-600 transition-colors duration-200"
+                className="text-gray-700 hover:bg-[#e6001f] hover:text-white transition-colors duration-200"
               >
                 {item.label}
               </a>
@@ -99,7 +99,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-700 hover:text-green-600 transition-colors duration-200"
+              className="text-gray-700 hover:bg-[#e6001f] hover:text-white transition-colors duration-200"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -140,7 +140,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
                   <a
                     key={item.href}
                     href={item.href}
-                    className="block text-gray-700 hover:text-green-600 transition-colors duration-200 px-2 py-2"
+                    className="block text-gray-700 hover:bg-[#e6001f] hover:text-white transition-colors duration-200 px-2 py-2"
                     onClick={() => setIsOpen(false)}
                   >
                     {item.label}

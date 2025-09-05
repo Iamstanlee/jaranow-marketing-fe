@@ -4,7 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add jaranow landing page" />
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add jaranow landing page">
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/FAQ.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/FAQ.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/Hero.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Hero.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/Navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Navigation.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/Pricing.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Pricing.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/ProblemSolution.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/ProblemSolution.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/wash/Navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/Navigation.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/wash/PricingPlans.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/PricingPlans.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/formatters.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/formatters.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tailwind.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/tailwind.config.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -35,26 +46,26 @@
     <option name="showMembers" value="true" />
     <option name="showScratchesAndConsoles" value="false" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/defconx1/Documents/DEV/beanslabs/jaranow/jaranow-wash-marketing-fe&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.start.executor&quot;: &quot;Run&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.sync&quot;,
-    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Users/defconx1/Documents/DEV/beanslabs/jaranow/jaranow-marketing-fe/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "ui-enhancement",
+    "last_opened_file_path": "/Users/defconx1/Documents/DEV/beanslabs/jaranow/jaranow-wash-marketing-fe",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.start.executor": "Run",
+    "settings.editor.selected.configurable": "settings.sync",
+    "show.migrate.to.gradle.popup": "false",
+    "ts.external.directory.path": "/Users/defconx1/Documents/DEV/beanslabs/jaranow/jaranow-marketing-fe/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/components/wash" />
@@ -98,6 +109,8 @@
       <workItem from="1756487603983" duration="34000" />
       <workItem from="1756487639860" duration="918000" />
       <workItem from="1756493252476" duration="735000" />
+      <workItem from="1756887364227" duration="1177000" />
+      <workItem from="1757070001286" duration="1823000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

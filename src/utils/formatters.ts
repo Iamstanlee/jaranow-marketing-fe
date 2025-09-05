@@ -26,7 +26,7 @@ export const validatePhoneNumber = (phone: string): boolean => {
   return false;
 };
 
-export const formatCurrency = (amount: number, currency: string = '₦'): string => {
+export const formatCurrency = (amount: number, currency: string = 'NGN'): string => {
   return `${currency}${amount.toLocaleString()}`;
 };
 

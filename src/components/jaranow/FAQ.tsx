@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Clock, Shield, Mic, MapPin, CreditCard, HelpCircle } from 'lucide-react';
+import React, {useState} from 'react';
+import {AnimatePresence, motion} from 'framer-motion';
+import {ChevronDown} from 'lucide-react';
 
 const FAQ: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -8,61 +8,51 @@ const FAQ: React.FC = () => {
   const faqs = [
     {
       category: "10-Minute Guarantee",
-      icon: <Clock className="w-6 h-6 text-[#ff0023]" />,
       question: "How do you guarantee 10-minute delivery?",
       answer: "We have strategically located micro-fulfillment centers throughout Gwarinpa with pre-stocked essential items. Our AI predicts demand patterns, and our logistics system optimizes routes for maximum efficiency. If we're ever late, your next delivery is free."
     },
     {
       category: "Jara AI Shopping",
-      icon: <Mic className="w-6 h-6 text-blue-600" />,
       question: "How accurate is the AI shopping assistant?",
       answer: "Jara AI has a 98% accuracy rate in understanding your shopping needs. It recognizes Nigerian brands, local products, and even understands context like 'ingredients for jollof rice.' The AI learns from each interaction to serve you better. If something's wrong, we fix it immediately."
     },
     {
       category: "Service Coverage",
-      icon: <MapPin className="w-6 h-6 text-purple-600" />,
       question: "Is Jaranow available in my area?",
       answer: "Currently, we serve Gwarinpa in Abuja with plans to expand to Dawaki, Maitama, Jahi, and Life Camp by Q2-Q3 2025. We're also launching in Lagos, Port Harcourt, and Kano in 2025. Join our waitlist to be notified when we reach your area."
     },
     {
       category: "Pricing & Payments",
-      icon: <CreditCard className="w-6 h-6 text-[#ff0023]" />,
       question: "Are there any hidden fees or surge pricing?",
-      answer: "No hidden fees, ever. You pay ₦1,000 service charge + ₦500 delivery fee = ₦1,500 total per order, plus the cost of your groceries (no markup). No surge pricing during peak hours, holidays, or bad weather. What you see is what you pay."
+      answer: "No hidden fees, ever. You pay NGN 1,000 service charge + NGN 500 delivery fee = NGN 1,500 total per order, plus the cost of your groceries (no markup). No surge pricing during peak hours, holidays, or bad weather. What you see is what you pay."
     },
     {
       category: "Payment Security",
-      icon: <Shield className="w-6 h-6 text-blue-600" />,
       question: "How secure are my payments and personal data?",
       answer: "We use bank-level encryption and are PCI DSS compliant. All transactions are processed through secure payment gateways. We never store your full card details, and your personal data is protected according to international privacy standards. Your trust is our priority."
     },
     {
       category: "Order Minimums",
-      icon: <HelpCircle className="w-6 h-6 text-gray-600" />,
       question: "Is there a minimum order value?",
-      answer: "No minimum order! Whether you need just a bottle of water or a full grocery haul, we'll deliver it in 10 minutes for the same ₦1,500 fee. Perfect for those emergency items or when you just need a few things."
+      answer: "No minimum order! Whether you need just a bottle of water or a full grocery haul, we'll deliver it in 10 minutes for the same NGN 1,500 fee. Perfect for those emergency items or when you just need a few things."
     },
     {
       category: "Product Quality",
-      icon: <Shield className="w-6 h-6 text-[#ff0023]" />,
       question: "What if I'm not satisfied with the products?",
       answer: "We guarantee fresh, quality products. If anything doesn't meet your standards, contact us immediately for a full refund or replacement. Our professional shoppers are trained to select the best items, and we have a 99.5% customer satisfaction rate."
     },
     {
       category: "Voice Ordering",
-      icon: <Mic className="w-6 h-6 text-blue-600" />,
       question: "What languages does Jara AI understand?",
       answer: "Jara understands English, Pidgin English, Hausa, Yoruba, and Igbo. You can mix languages in the same sentence - whatever feels natural to you. The AI is trained on Nigerian speech patterns and local product names."
     },
     {
       category: "Operating Hours",
-      icon: <Clock className="w-6 h-6 text-purple-600" />,
       question: "What are your operating hours?",
       answer: "We operate 24/7 in Gwarinpa! Yes, that means you can get groceries delivered at 2 AM if needed. Our night service covers emergencies, late-night cravings, and early morning needs. The 10-minute guarantee applies around the clock."
     },
     {
       category: "Technical Issues",
-      icon: <HelpCircle className="w-6 h-6 text-gray-600" />,
       question: "What if the app doesn't understand my request?",
       answer: "If Jara doesn't understand your request, you can rephrase it, take a photo of what you need, or type it out. Our customer support team is available 24/7 to help via phone or chat. We're constantly improving the AI based on user feedback."
     }
@@ -73,7 +63,7 @@ const FAQ: React.FC = () => {
   };
 
   return (
-    <section id="faq" className="py-20 bg-gray-50">
+      <section id="faq" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -98,14 +88,13 @@ const FAQ: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.05 }}
               viewport={{ once: true }}
-              className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300"
+              className="bg-white rounded-xl border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
             >
               <button
                 onClick={() => toggleFAQ(index)}
                 className="w-full px-6 py-6 text-left flex items-center justify-between hover:bg-gray-50 rounded-xl transition-colors duration-200"
               >
                 <div className="flex items-center space-x-4 flex-1">
-                  <div className="flex-shrink-0">{faq.icon}</div>
                   <div className="flex-1">
                     <div className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-1">
                       {faq.category}
@@ -134,11 +123,9 @@ const FAQ: React.FC = () => {
                     className="overflow-hidden"
                   >
                     <div className="px-6 pb-6">
-                      <div className="pl-10">
                         <p className="text-gray-700 leading-relaxed">
                           {faq.answer}
                         </p>
-                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -155,7 +142,8 @@ const FAQ: React.FC = () => {
           viewport={{ once: true }}
           className="text-center mt-16"
         >
-          <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-8 border border-red-100">
+          <div
+              className="bg-gradient-to-r from-red-100 to-pink-100 rounded-2xl p-8 border border-red-200 shadow-lg hover:shadow-xl transition-all duration-300">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
               Still Have Questions?
             </h3>

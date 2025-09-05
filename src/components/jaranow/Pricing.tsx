@@ -12,13 +12,13 @@ const Pricing: React.FC = () => {
   const pricingBreakdown = [
     {
       item: "Service Charge",
-      price: "₦1,000",
+      price: "NGN 1,000",
       description: "AI shopping, professional selection & packing",
       included: true
     },
     {
       item: "Delivery Fee", 
-      price: "₦500",
+      price: "NGN 500",
       description: "10-minute doorstep delivery guarantee",
       included: true
     },
@@ -36,7 +36,7 @@ const Pricing: React.FC = () => {
   ];
 
   return (
-    <section id="pricing" className="py-20 bg-gray-50">
+    <section id="pricing" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -61,7 +61,7 @@ const Pricing: React.FC = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
+            <div className="bg-white rounded-2xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
               <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
                 How Much Does It Cost?
               </h3>
@@ -103,8 +103,8 @@ const Pricing: React.FC = () => {
               {/* Total */}
               <div className="border-t-2 border-gray-200 pt-6">
                 <div className="flex items-center justify-between text-2xl font-bold">
-                  <span className="text-gray-900">Total per Order:</span>
-                  <span className="text-[#ff0023]">₦1,500</span>
+                  <span className="text-gray-900">Total Per Order:</span>
+                  <span className="text-[#ff0023]">NGN 1,500</span>
                 </div>
                 <p className="text-sm text-gray-600 mt-2 text-center">
                   Plus the cost of your groceries - no markup!
@@ -122,9 +122,9 @@ const Pricing: React.FC = () => {
             className="space-y-8"
           >
             {/* Benefits */}
-            <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
+            <div className="bg-white rounded-2xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
               <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                What You Get for ₦1,500
+                What You Get for NGN 1,500
               </h3>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -145,7 +145,7 @@ const Pricing: React.FC = () => {
             </div>
 
             {/* Payment Methods */}
-            <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl p-8 border border-red-100">
+            <div className="bg-gradient-to-br from-red-100 to-pink-100 rounded-2xl p-8 border border-red-200 shadow-lg hover:shadow-xl transition-all duration-300">
               <h3 className="text-xl font-bold text-gray-900 mb-6 text-center flex items-center justify-center space-x-2">
                 <Shield className="w-6 h-6 text-[#ff0023]" />
                 <span>Secure Payment Options</span>
@@ -186,14 +186,14 @@ const Pricing: React.FC = () => {
           className="mt-16 text-center"
         >
           <div className="bg-gradient-to-r from-[#ff0023] to-red-600 rounded-2xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-4">Is ₦1,500 Worth Your Time?</h3>
+            <h3 className="text-2xl font-bold mb-4">Is NGN 1,500 Worth Your Time?</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
               <div className="text-center">
                 <div className="text-3xl font-bold text-red-200 mb-2">2 Hours</div>
                 <div className="text-red-100">Time saved per shop</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-red-200 mb-2">₦750</div>
+                <div className="text-3xl font-bold text-red-200 mb-2">NGN 750</div>
                 <div className="text-red-100">Cost per hour saved</div>
               </div>
               <div className="text-center">

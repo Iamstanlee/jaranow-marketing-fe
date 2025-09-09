@@ -1,7 +1,7 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { SubscriptionPlan } from '../../types';
-import { formatCurrency } from '../../utils/formatters';
+import {motion} from 'framer-motion';
+import {SubscriptionPlan} from '../../types';
+import {formatCurrency} from '../../utils/formatters';
 
 interface PricingPlansProps {
   onSelectPlan: (planId: string) => void;
@@ -21,7 +21,6 @@ const plans: SubscriptionPlan[] = [
       '2 washes per month',
       'Max 15 clothes per wash',
       'Free pickup and delivery',
-      'Same-day service available',
       'Dedicated customer support',
       'Quality guarantee'
     ]
@@ -29,7 +28,7 @@ const plans: SubscriptionPlan[] = [
   {
     id: 'premium',
     name: 'Premium Plan',
-    price: 15999,
+    price: 17999,
     currency: 'NGN',
     washCount: 4,
     maxClothes: 15,
@@ -39,9 +38,9 @@ const plans: SubscriptionPlan[] = [
       'Iron and folding included',
       '4 washes per month',
       'Max 15 clothes per wash',
+      'Special clothing (suit, longdress, towel, duvet set, curtains)',
       'Free pickup and delivery',
       'Priority same-day service',
-      'Stain treatment included',
       'Dedicated premium support',
       'Quality guarantee'
     ]

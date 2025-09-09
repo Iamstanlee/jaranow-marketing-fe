@@ -4,18 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add jaranow landing page">
-      <change beforePath="$PROJECT_DIR$/src/components/jaranow/FAQ.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/FAQ.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/jaranow/Hero.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Hero.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/jaranow/Navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Navigation.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/jaranow/Pricing.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Pricing.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/jaranow/ProblemSolution.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/ProblemSolution.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/wash/Navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/Navigation.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/wash/PricingPlans.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/PricingPlans.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/formatters.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/formatters.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tailwind.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/tailwind.config.js" afterDir="false" />
-    </list>
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add jaranow landing page" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -52,7 +41,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "ui-enhancement",
+    "git-widget-placeholder": "main",
     "last_opened_file_path": "/Users/defconx1/Documents/DEV/beanslabs/jaranow/jaranow-wash-marketing-fe",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",

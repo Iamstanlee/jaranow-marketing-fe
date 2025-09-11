@@ -128,7 +128,7 @@ const HowItWorks: React.FC = () => {
               </div>
             </div>
             <p className="text-sm text-gray-500 mt-4">
-              *Express service available for urgent needs
+              *Express service available for premium subscribers
             </p>
           </div>
         </motion.div>

@@ -14,14 +14,14 @@ const plans: SubscriptionPlan[] = [
     price: 9999,
     currency: 'NGN',
     washCount: 2,
-    maxClothes: 15,
+    maxClothes: 12,
     features: [
       'Premium Machine wash',
       'Iron and folding included',
       '2 washes per month',
-      'Max 15 clothes per wash',
+      'Max 12 clothes per wash',
       'Free pickup and delivery',
-      'Dedicated customer support',
+      'Dedicated premium support',
       'Quality guarantee'
     ]
   },
@@ -30,13 +30,13 @@ const plans: SubscriptionPlan[] = [
     name: 'Premium Plan',
     price: 17999,
     currency: 'NGN',
-    washCount: 4,
+    washCount: 3,
     maxClothes: 15,
     isPopular: true,
     features: [
       'Premium Hand/Machine wash',
       'Iron and folding included',
-      '4 washes per month',
+      '3 washes per month',
       'Max 15 clothes per wash',
       'Special clothing (suit, longdress, towel, duvet set, curtains)',
       'Free pickup and delivery',
@@ -116,7 +116,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan }) => {
 
                   {plan.isPopular && (
                       <p className="text-center text-sm text-gray-500 mb-2">
-                        🎉 Early bird pricing - Save NGN 3,000 for the first 3 months!
+                        🎉 Early bird pricing - Save NGN 3,000 for the first 2 months!
                       </p>
                   )}
                   <motion.button
@@ -136,18 +136,6 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan }) => {
             </motion.div>
           ))}
         </div>
-
-        <motion.div 
-          className="text-center mt-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          viewport={{ once: true }}
-        >
-          <p className="text-gray-600">
-            <span className="font-semibold">Money-back guarantee:</span> Not satisfied? Get a full refund within 7 days.
-          </p>
-        </motion.div>
       </div>
     </section>
   );

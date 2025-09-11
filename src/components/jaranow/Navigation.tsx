@@ -27,7 +27,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
             <img src="/logo-brand.png" className="h-14 p-2"/>
-            <span className="text-xs bg-[#ff0023]/10 text-[#ff0023] px-2 py-1 rounded-full">
+            <span className="text-[8px] font-semibold bg-[#ff0023]/10 text-[#ff0023] px-2 py-1 rounded-full">
               10-MIN DELIVERY
             </span>
           </div>

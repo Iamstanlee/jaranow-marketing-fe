@@ -26,7 +26,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
-            <img src="/logo-brand.png" className="h-14 p-2"/>
+            <img src="/logo-brand.png" alt="Jaranow - AI-powered grocery delivery" className="h-14 p-2"/>
             <span className="text-[8px] font-semibold bg-[#ff0023]/10 text-[#ff0023] px-2 py-1 rounded-full">
               10-MIN DELIVERY
             </span>

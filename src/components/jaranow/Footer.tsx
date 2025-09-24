@@ -96,7 +96,7 @@ const Footer: React.FC<FooterProps> = ({onOrderNow}) => {
                         viewport={{once: true}}
                         className="lg:col-span-1"
                     >
-                        <img src="/logo-brand.png" className="h-14 p-2"/>
+                        <img src="/logo-brand.png" alt="Jaranow - 10-minute grocery delivery service logo" className="h-14 p-2"/>
                         <p className="text-gray-300 mb-6 leading-relaxed">
                             Nigeria's first 10-minute grocery delivery service. Revolutionary AI-powered shopping
                             with voice ordering, camera intelligence, and ultra-fast delivery.

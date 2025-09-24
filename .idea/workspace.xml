@@ -4,7 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add jaranow landing page" />
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Update pricing">
+      <change beforePath="$PROJECT_DIR$/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/robots.txt" beforeDir="false" afterPath="$PROJECT_DIR$/public/robots.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/fonts/GraphikWide-Bold.otf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/fonts/GraphikWide-Regular.otf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/Footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Footer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/Navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Navigation.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/wash/Footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/Footer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/wash/HowItWorks.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/HowItWorks.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/wash/Navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/Navigation.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/JaranowLanding.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/JaranowLanding.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/WashLanding.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/WashLanding.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,6 +33,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
 }</component>
@@ -101,6 +118,9 @@
       <workItem from="1756887364227" duration="1177000" />
       <workItem from="1757070001286" duration="1823000" />
       <workItem from="1757405389708" duration="296000" />
+      <workItem from="1757612658526" duration="1011000" />
+      <workItem from="1757659078440" duration="365000" />
+      <workItem from="1758721696773" duration="2254000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -126,7 +146,31 @@
       <option name="project" value="LOCAL" />
       <updated>1756536591272</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Update pricing">
+      <option name="closed" value="true" />
+      <created>1757613659000</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1757613659000</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Update pricing">
+      <option name="closed" value="true" />
+      <created>1757659158704</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1757659158704</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Update pricing">
+      <option name="closed" value="true" />
+      <created>1757659435936</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1757659435936</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -135,6 +179,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial commit" />
     <MESSAGE value="Add jaranow landing page" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add jaranow landing page" />
+    <MESSAGE value="Update pricing" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update pricing" />
   </component>
 </project>

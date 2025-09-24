@@ -4,7 +4,7 @@
 
 @font-face {
   font-family: 'GraphikWide';
-  src: url('./assets/fonts/GraphikWide-Regular.otf') format('opentype');
+  src: url('./assets/fonts/ClashGrotesk-Regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -12,7 +12,7 @@
 
 @font-face {
   font-family: 'GraphikWide';
-  src: url('./assets/fonts/GraphikWide-Bold.otf') format('opentype');
+  src: url('./assets/fonts/ClashGrotesk-Bold.otf') format('opentype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;

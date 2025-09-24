@@ -70,7 +70,7 @@ const Footer: React.FC<FooterProps> = ({ onJoinWaitlist }) => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <img src="/logo-wash.png" className="h-16 p-2"/>
+              <img src="/logo-wash.png" alt="Jaranow Wash - Premium laundry service logo" className="h-16 p-2"/>
               <p className="text-gray-400 leading-relaxed mb-6">
                 Premium subscription-based laundry service bringing convenience 
                 and quality to busy Nigerians across major cities.

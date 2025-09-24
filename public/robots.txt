@@ -14,3 +14,6 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Sitemap
+Sitemap: https://jaranow.com/sitemap.xml

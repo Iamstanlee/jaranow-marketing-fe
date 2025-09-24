@@ -7,7 +7,7 @@ const steps = [
     title: 'Schedule Pickup',
     description: 'Choose your convenient time slot through our app or website. We offer flexible scheduling 7 days a week.',
     icon: '📅',
-    details: ['Same-day pickup available', 'Flexible time slots', '7 days a week']
+    details: ['Same-day pickup available', 'Flexible time slots', '3 days a week']
   },
   {
     step: 2,

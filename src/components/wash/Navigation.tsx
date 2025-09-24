@@ -57,7 +57,7 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                         whileHover={{scale: 1.05}}
                         transition={{type: "spring", stiffness: 300}}
                     >
-                        <img src={isScrolled ? "/logo-wash.png" : "/logo-wash_inverted.png"} className="h-16 p-2"/>
+                        <img src={isScrolled ? "/logo-wash.png" : "/logo-wash_inverted.png"} alt="Jaranow Wash - Subscription laundry service" className="h-16 p-2"/>
                     </motion.div>
 
                     {/* Desktop Navigation */}

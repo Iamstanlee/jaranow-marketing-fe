@@ -19,7 +19,7 @@ const FAQ: React.FC = () => {
     {
       category: "Service Coverage",
       question: "Is Jaranow available in my area?",
-      answer: "Currently, we serve Gwarinpa in Abuja with plans to expand to Dawaki, Maitama, Jahi, and Life Camp by Q2-Q3 2025. We're also launching in Lagos, Port Harcourt, and Kano in 2025. Join our waitlist to be notified when we reach your area."
+      answer: "Currently, we serve Gwarinpa in Abuja with plans to expand to Dawaki, Maitama, Jahi, and Life Camp by Q2-Q3 2026. We're also launching in Lagos in 2026. Join our waitlist to be notified when we reach your area."
     },
     {
       category: "Pricing & Payments",

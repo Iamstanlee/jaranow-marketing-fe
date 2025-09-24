@@ -3,38 +3,54 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const faqs = [
   {
-    question: "Which cities do you currently serve?",
-    answer: "We're launching in Abuja first! More cities coming soon. Join our waitlist to be notified when we expand to your area."
+    question: "Which areas in Abuja do you deliver to?",
+    answer: "We offer FREE pickup and delivery in Gwarinpa, Kubwa, Dutse, Jahi, Life Camp, Maitama, Jabi, Mpape, and Katampe (Main & Extension). For other areas like Lugbe, Apo, Wuse, Garki, and Asokoro, we charge a shared delivery cost that's split among customers in your zone (capped at ₦3,000)."
   },
   {
-    question: "How does pickup and delivery work?",
-    answer: "Schedule through our app or website, and our trained professionals will collect your clothes at your preferred time. We deliver back to your doorstep within 2-3 business days."
+    question: "How do you calculate delivery costs for areas outside the free zones?",
+    answer: "For areas outside our free delivery zones, we use a cost-sharing model. The total delivery cost for your zone is divided by the number of scheduled pickups that day. For example, if 5 customers are scheduled in Lugbe and the zone cost is ₦8,000, each customer pays ₦1,600. The maximum you'll ever pay is ₦3,000 per delivery."
   },
   {
-    question: "What payment methods do you accept?",
-    answer: "We accept all major Nigerian payment methods including card payments, bank transfers, mobile money (USSD), and digital wallets. All transactions are secure and encrypted."
+    question: "What days can I schedule pickup and delivery?",
+    answer: "Lite Plan members can schedule pickups on Tuesdays and Saturdays, with delivery 48 hours later. Premium Plan members have more flexibility with pickups on Tuesdays, Thursdays, and Saturdays, plus priority same-day service when scheduled before 10 AM."
   },
   {
-    question: "Do you handle delicate fabrics and special items?",
-    answer: "Absolutely! Our Premium Plan includes expert hand-washing for delicate fabrics. We handle silk, wool, designer items, and provide professional stain treatment with care instructions."
+    question: "How quickly will I get my clothes back?",
+    answer: "Our standard turnaround is 48 hours. Premium subscribers can request same-day service when scheduled before 10 AM. We'll always confirm your delivery time during pickup and send you tracking updates via SMS and email."
   },
   {
-    question: "What if I'm not satisfied with the service?",
-    answer: "We offer a 100% money-back guarantee. If you're not completely satisfied, we'll re-clean your items for free or provide a full refund. Customer satisfaction is our priority."
+    question: "What happens if I'm not satisfied with the service?",
+    answer: "We offer a 100% satisfaction guarantee! If you're not completely happy, we'll re-clean your items for free or provide a full refund. Our customer success team will personally follow up within 2 hours of delivery to ensure everything meets your expectations."
   },
   {
-    question: "Can I cancel or modify my subscription anytime?",
-    answer: "Yes! No long-term contracts. You can pause, modify, or cancel your subscription anytime through the app or by contacting our customer support team."
+    question: "Can I pause or modify my subscription?",
+    answer: "Absolutely! Life happens, and we're flexible. You can pause your subscription anytime through the app or by calling us. You can also upgrade/downgrade between Lite and Premium plans, or adjust your pickup schedule to better fit your needs. No penalties, no hassles."
   },
   {
-    question: "How do you ensure the safety of my clothes?",
-    answer: "All items are tagged and tracked throughout the process. We provide insurance coverage for your items and have strict quality control measures. Lost or damaged items are fully compensated."
+    question: "How do I know where my clothes are during the cleaning process?",
+    answer: "Every item is tagged with a unique ID when we pick it up. You'll receive SMS and email updates at each stage: pickup confirmed, cleaning in progress, quality check complete, and out for delivery. You can also track your order real-time through our mobile app."
   },
   {
-    question: "Do you offer same-day service?",
-    answer: "Yes! Same-day service is available for urgent needs with our Express option (additional charges apply). Regular service is 2-3 business days with our standard plans."
+    question: "What if my clothes get damaged or lost?",
+    answer: "While extremely rare, we're fully insured for such incidents. We take photos during pickup, handle each item with expert care, and have strict quality control processes. If anything happens, we'll compensate you fairly and immediately investigate to prevent future occurrences."
+  },
+  {
+    question: "Do I need to be home during pickup and delivery?",
+    answer: "Not necessarily! We can arrange pickup from your doorman, security, or a trusted neighbor. Just let us know your preferred arrangement when scheduling. We'll always confirm the plan with you and send real-time updates when our team is en route."
+  },
+  {
+    question: "How do I contact customer support if I need help?",
+    answer: "We're here to help! You can reach us via phone (7 AM - 8 PM, Mon-Sat), WhatsApp (response within 15 minutes), email (response within 2 hours), or in-app chat. Every customer gets a dedicated success manager during their first month for personalized support."
+  },
+  {
+    question: "Can I request specific handling for delicate or expensive items?",
+    answer: "Yes! Premium Plan members get expert care for suits, formal wear, duvets, curtains, and other special items. For both plans, you can add special instructions during scheduling or mention them to our pickup team. We're trained in professional fabric care for all garment types."
+  },
+  {
+    question: "What happens if you miss my scheduled pickup?",
+    answer: "If we miss your pickup (which is extremely rare), we'll contact you within 30 minutes to reschedule, complete the pickup within 24 hours, and provide a service credit as an apology. Your satisfaction is our priority, and we'll make it right immediately."
   }
-];
+]
 
 const FAQ: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);

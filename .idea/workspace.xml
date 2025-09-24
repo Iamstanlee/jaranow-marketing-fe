@@ -4,20 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Update pricing">
-      <change beforePath="$PROJECT_DIR$/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/robots.txt" beforeDir="false" afterPath="$PROJECT_DIR$/public/robots.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/fonts/GraphikWide-Bold.otf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/fonts/GraphikWide-Regular.otf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/jaranow/Footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Footer.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/jaranow/Navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Navigation.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/wash/Footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/Footer.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/wash/HowItWorks.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/HowItWorks.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/wash/Navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/Navigation.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/JaranowLanding.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/JaranowLanding.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/WashLanding.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/WashLanding.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Update pricing" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -120,7 +107,7 @@
       <workItem from="1757405389708" duration="296000" />
       <workItem from="1757612658526" duration="1011000" />
       <workItem from="1757659078440" duration="365000" />
-      <workItem from="1758721696773" duration="2254000" />
+      <workItem from="1758721696773" duration="2498000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

@@ -40,7 +40,7 @@ const faqs = [
   },
   {
     question: "How do I contact customer support if I need help?",
-    answer: "We're here to help! You can reach us via phone (7 AM - 8 PM, Mon-Sat), WhatsApp (response within 15 minutes), email (response within 2 hours), or in-app chat. Every customer gets a dedicated success manager during their first month for personalized support."
+    answer: "We're here to help! You can reach us via phone (7 AM - 8 PM, Mon-Sat), WhatsApp (response within 15 minutes), email (response within 2 hours), or in-app chat. Every customer gets a dedicated success manager during their first month for personalized support. Also check out our <a href='/' class='text-primary-600 hover:text-primary-700 underline font-medium'>10-minute grocery delivery service</a>!"
   },
   {
     question: "Can I request specific handling for delicate or expensive items?",
@@ -116,8 +116,7 @@ const FAQ: React.FC = () => {
                     className="overflow-hidden"
                   >
                     <div className="px-8 pb-6">
-                      <p className="text-gray-600 leading-relaxed">
-                        {faq.answer}
+                      <p className="text-gray-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: faq.answer }}>
                       </p>
                     </div>
                   </motion.div>

@@ -23,12 +23,14 @@ const Footer: React.FC<FooterProps> = ({onOrderNow}) => {
         company: [
             {name: 'How It Works', href: '#how-it-works'},
             {name: 'Pricing', href: '#pricing'},
-            {name: 'Service Areas', href: '#service-areas'}
+            {name: 'Service Areas', href: '#service-areas'},
+            {name: 'Wash Service', href: '/wash', description: 'Premium laundry subscription'}
         ],
         support: [
             {name: 'FAQ', href: '#faq'},
             {name: 'Customer Support', href: 'mailto:support@jaranow.com'},
             {name: 'Report an Issue', href: 'tel:+2349038622012'},
+            {name: 'All Services', href: '/', description: 'View all Jaranow services'}
         ],
         legal: [
             {name: 'Privacy Policy', href: '/privacy'},

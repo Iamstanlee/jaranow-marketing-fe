@@ -40,8 +40,8 @@ const Footer: React.FC<FooterProps> = ({ onJoinWaitlist }) => {
 
   const companyLinks = [
     { name: 'About Us', href: '#' },
+    { name: 'Grocery Delivery', href: '/' },
     { name: 'Careers', href: '#' },
-    { name: 'Press', href: '#' },
     { name: 'Blog', href: '#' }
   ];
 
@@ -52,9 +52,10 @@ const Footer: React.FC<FooterProps> = ({ onJoinWaitlist }) => {
   ];
 
   const supportLinks = [
-    { name: 'Help Center', href: '#' },
+    { name: 'Help Center', href: '#faq' },
     { name: 'Contact Us', href: 'mailto:hello@jaranow.com' },
-    { name: 'WhatsApp', href: 'https://wa.me/2349038622012' }
+    { name: 'WhatsApp', href: 'https://wa.me/2349038622012' },
+    { name: 'All Services', href: '/' }
   ];
 
   return (

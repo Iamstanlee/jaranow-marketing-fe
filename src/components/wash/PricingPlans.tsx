@@ -11,7 +11,7 @@ const plans: SubscriptionPlan[] = [
   {
     id: 'lite',
     name: 'Lite Plan',
-    price: 9999,
+    price: 14999,
     currency: 'NGN',
     washCount: 2,
     maxClothes: 12,
@@ -28,7 +28,7 @@ const plans: SubscriptionPlan[] = [
   {
     id: 'premium',
     name: 'Premium Plan',
-    price: 17999,
+    price: 24999,
     currency: 'NGN',
     washCount: 3,
     maxClothes: 15,
@@ -136,6 +136,100 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan }) => {
             </motion.div>
           ))}
         </div>
+
+        {/* Custom Pricing Section */}
+        <motion.div
+          className="mt-16 max-w-4xl mx-auto"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          viewport={{ once: true }}
+        >
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+            <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-8 text-center">
+              <h3 className="text-3xl font-bold text-white mb-2">Custom Pricing</h3>
+              <p className="text-gray-300">Pay only for what you need - simple and flexible</p>
+            </div>
+
+            <div className="p-8 md:p-12">
+              <div className="text-center mb-8">
+                <div className="flex items-baseline justify-center mb-4">
+                  <span className="text-5xl sm:text-6xl font-bold text-gray-900">
+                    {formatCurrency(700)}
+                  </span>
+                  <span className="text-gray-500 ml-3 text-xl">/unit</span>
+                </div>
+                <p className="text-gray-600 text-lg">No commitment, pay as you go</p>
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-6 mb-8">
+                <h4 className="font-bold text-gray-900 text-lg mb-4">Unit Counting</h4>
+                <div className="space-y-3">
+                  <div className="flex items-start">
+                    <div className="bg-primary-100 rounded-lg px-3 py-1 mr-4 flex-shrink-0">
+                      <span className="font-bold text-primary-700">1 unit</span>
+                    </div>
+                    <div>
+                      <p className="text-gray-900 font-semibold">Regular items</p>
+                      <p className="text-gray-600 text-sm">Shirts, trousers, dresses, skirts, tops, etc.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="bg-primary-100 rounded-lg px-3 py-1 mr-4 flex-shrink-0">
+                      <span className="font-bold text-primary-700">2 units</span>
+                    </div>
+                    <div>
+                      <p className="text-gray-900 font-semibold">Special items</p>
+                      <p className="text-gray-600 text-sm">Suits, long dresses, towels, duvet sets, curtains</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <ul className="space-y-3 mb-8">
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-green-500 mt-1 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-gray-700">Premium wash, iron and folding included</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-green-500 mt-1 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-gray-700">Free pickup and delivery</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-green-500 mt-1 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-gray-700">No monthly commitment required</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-green-500 mt-1 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-gray-700">Perfect for occasional washing needs</span>
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 text-green-500 mt-1 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-gray-700">Quality guarantee</span>
+                </li>
+              </ul>
+
+              <motion.button
+                onClick={() => onSelectPlan('custom')}
+                className="w-full py-4 px-6 rounded-xl font-semibold text-lg bg-gray-900 hover:bg-gray-800 text-white transition-all duration-300"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Get Started with Custom Pricing
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

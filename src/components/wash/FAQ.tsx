@@ -4,11 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const faqs = [
   {
     question: "Which areas in Abuja do you deliver to?",
-    answer: "We offer FREE pickup and delivery in Gwarinpa, Kubwa, Dutse, Jahi, Life Camp, Maitama, Jabi, Mpape, and Katampe (Main & Extension). For other areas like Lugbe, Apo, Wuse, Garki, and Asokoro, we charge a shared delivery cost that's split among customers in your zone (capped at ₦3,000)."
-  },
-  {
-    question: "How do you calculate delivery costs for areas outside the free zones?",
-    answer: "For areas outside our free delivery zones, we use a cost-sharing model. The total delivery cost for your zone is divided by the number of scheduled pickups that day. For example, if 5 customers are scheduled in Lugbe and the zone cost is ₦8,000, each customer pays ₦1,600. The maximum you'll ever pay is ₦3,000 per delivery."
+    answer: "We deliver to all areas across Abuja with FREE pickup and delivery! Whether you're in Gwarinpa, Kubwa, Dutse, Jahi, Life Camp, Maitama, Jabi, Mpape, Katampe, Lugbe, Apo, Wuse, Garki, Asokoro, or any other location in Abuja, we've got you covered with complimentary pickup and delivery service."
   },
   {
     question: "What days can I schedule pickup and delivery?",

@@ -51,7 +51,7 @@ const Hero: React.FC<HeroProps> = ({ onJoinWaitlist }) => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Join the Waitlist - Early Access
+                Schedule Laundry Pickup
               </motion.button>
               
               <div className="text-blue-100 text-sm">

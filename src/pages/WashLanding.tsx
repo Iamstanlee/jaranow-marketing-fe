@@ -11,10 +11,15 @@ import Testimonials from '../components/wash/Testimonials';
 import FAQ from '../components/wash/FAQ';
 import Footer from '../components/wash/Footer';
 import WaitlistForm from '../components/wash/WaitlistForm';
+import { scrollToElement } from '../utils/formatters';
 
 const WashLanding: React.FC = () => {
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | undefined>();
+
+  const scrollToPricing = () => {
+    scrollToElement('pricing');
+  };
 
   const openWaitlist = (planId?: string) => {
     setSelectedPlan(planId);
@@ -112,10 +117,10 @@ const WashLanding: React.FC = () => {
         </script>
       </Helmet>
       
-      <Navigation onJoinWaitlist={() => openWaitlist()} />
-      
+      <Navigation onJoinWaitlist={scrollToPricing} />
+
       <main>
-        <Hero onJoinWaitlist={() => openWaitlist()} />
+        <Hero onJoinWaitlist={scrollToPricing} />
         
         <Benefits />
         
@@ -124,7 +129,7 @@ const WashLanding: React.FC = () => {
         </motion.div>
         
         <motion.div id="pricing">
-          <PricingPlans onSelectPlan={(planId) => openWaitlist(planId)} />
+          <PricingPlans />
         </motion.div>
         
         <Testimonials />
@@ -134,7 +139,7 @@ const WashLanding: React.FC = () => {
         </motion.div>
       </main>
 
-      <Footer onJoinWaitlist={() => openWaitlist()} />
+      <Footer onJoinWaitlist={scrollToPricing} />
 
       <WaitlistForm
         isOpen={isWaitlistOpen}

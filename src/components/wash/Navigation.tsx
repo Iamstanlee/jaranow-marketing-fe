@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {motion, AnimatePresence} from 'framer-motion';
-import {scrollToElement} from '../../utils/formatters';
+import {scrollToElement} from "../../utils/formatters";
 
 interface NavigationProps {
     onJoinWaitlist: () => void;
@@ -134,7 +134,7 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                             whileHover={{scale: 1.05}}
                             whileTap={{scale: 0.95}}
                         >
-                            Join Waitlist
+                            Schedule Laundry Pickup
                         </motion.button>
                     </div>
 
@@ -216,7 +216,7 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                             }}
                             className="block w-full text-left px-3 py-2 text-base font-medium bg-primary-600 text-white hover:bg-primary-700 rounded-md transition-colors duration-300"
                         >
-                            Join Waitlist
+                            Schedule Laundry Pickup
                         </button>
                     </div>
                 </motion.div>

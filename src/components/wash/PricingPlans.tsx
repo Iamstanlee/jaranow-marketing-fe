@@ -4,7 +4,7 @@ import {SubscriptionPlan} from '../../types';
 import {formatCurrency} from '../../utils/formatters';
 
 interface PricingPlansProps {
-  onSelectPlan: (planId: string) => void;
+  onSelectPlan?: (planId: string) => void;
 }
 
 const plans: SubscriptionPlan[] = [
@@ -47,7 +47,37 @@ const plans: SubscriptionPlan[] = [
   }
 ];
 
-const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan }) => {
+const PricingPlans: React.FC<PricingPlansProps> = () => {
+  const phoneNumber = '2349038622012';
+
+  const handlePlanSelect = (plan: SubscriptionPlan) => {
+    const message = `Hi Jaranow! I'm interested in scheduling laundry pickup for the _${plan.name}_ (NGN${plan.price.toLocaleString()}/month).
+
+${plan.name} Details:
+• ${plan.features.join('\n• ')}
+
+I'd like to get started. When is the next available pickup?`;
+
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const handleCustomPlanSelect = () => {
+    const message = `Hi Jaranow! I'm interested in scheduling laundry pickup for the _Custom Pricing Plan_ (NGN700/unit).
+
+Custom Plan Details:
+• Pay as you go - no monthly commitment
+• 1 unit = regular items (shirts, trousers, etc.)
+• 2 units = special items (suits, dresses, towels, etc.)
+• Premium wash, iron and folding included
+• Free pickup and delivery
+
+I'd like to get started. When is the next available pickup?`;
+
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <section id="pricing" className="py-20 sm:py-24 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -120,7 +150,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan }) => {
                       </p>
                   )}
                   <motion.button
-                    onClick={() => onSelectPlan(plan.id)}
+                      onClick={() => handlePlanSelect(plan)}
                     className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
                       plan.isPopular
                         ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-lg hover:shadow-xl'
@@ -220,7 +250,7 @@ const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan }) => {
               </ul>
 
               <motion.button
-                onClick={() => onSelectPlan('custom')}
+                  onClick={handleCustomPlanSelect}
                 className="w-full py-4 px-6 rounded-xl font-semibold text-lg bg-gray-900 hover:bg-gray-800 text-white transition-all duration-300"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}

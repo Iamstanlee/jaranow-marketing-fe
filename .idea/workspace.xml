@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Enhance page speed &amp; SEO" />
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Enhance page speed &amp; SEO">
+      <change beforePath="$PROJECT_DIR$/src/components/wash/Hero.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/Hero.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/wash/HowItWorks.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/HowItWorks.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/wash/Navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/Navigation.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/wash/PricingPlans.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/PricingPlans.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/WashLanding.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/WashLanding.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -116,6 +122,8 @@
       <workItem from="1760316071305" duration="605000" />
       <workItem from="1760366240813" duration="388000" />
       <workItem from="1761023977913" duration="2673000" />
+      <workItem from="1761113993275" duration="266000" />
+      <workItem from="1761116779451" duration="3508000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

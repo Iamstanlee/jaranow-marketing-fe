@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
+import React, {useEffect, useState} from 'react';
+import {motion} from 'framer-motion';
+import {Helmet} from 'react-helmet-async';
 
 import Navigation from '../components/wash/Navigation';
 import Hero from '../components/wash/Hero';
@@ -11,11 +11,22 @@ import Testimonials from '../components/wash/Testimonials';
 import FAQ from '../components/wash/FAQ';
 import Footer from '../components/wash/Footer';
 import WaitlistForm from '../components/wash/WaitlistForm';
-import { scrollToElement } from '../utils/formatters';
+import LaunchBanner from '../components/wash/LaunchBanner';
+import {scrollToElement} from '../utils/formatters';
 
 const WashLanding: React.FC = () => {
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | undefined>();
+
+  useEffect(() => {
+    // Scroll to element if hash is present in URL
+    const hash = window.location.hash.substring(1); // Remove the '#' character
+    if (hash) {
+      setTimeout(() => {
+        scrollToElement(hash);
+      }, 100);
+    }
+  }, []);
 
   const scrollToPricing = () => {
     scrollToElement('pricing');
@@ -116,7 +127,9 @@ const WashLanding: React.FC = () => {
           })}
         </script>
       </Helmet>
-      
+
+      <LaunchBanner onClaimOffer={scrollToPricing} />
+
       <Navigation onJoinWaitlist={scrollToPricing} />
 
       <main>

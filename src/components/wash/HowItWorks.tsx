@@ -118,12 +118,12 @@ const HowItWorks: React.FC = () => {
               </div>
               <div className="w-8 h-px bg-gray-300"></div>
               <div className="text-center">
-                <div className="font-semibold">Day 2</div>
+                <div className="font-semibold">Day 2 and 3</div>
                 <div className="text-sm">Processing</div>
               </div>
               <div className="w-8 h-px bg-gray-300"></div>
               <div className="text-center">
-                <div className="font-semibold text-primary-600">Day 3</div>
+                <div className="font-semibold text-primary-600">Day 4</div>
                 <div className="text-sm text-primary-600">Fresh & Clean!</div>
               </div>
             </div>

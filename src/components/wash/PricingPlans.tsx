@@ -20,7 +20,7 @@ const plans: SubscriptionPlan[] = [
       'Iron and folding included',
       '2 washes per month',
       'Max 12 clothes per wash',
-      'Free pickup and delivery',
+      'Free pickup and delivery (Pickup days: Tuesday & Thursday)',
       'Dedicated premium support',
       'Quality guarantee'
     ]
@@ -39,7 +39,7 @@ const plans: SubscriptionPlan[] = [
       '3 washes per month',
       'Max 15 clothes per wash',
       'Special clothing (suit, longdress, towel, duvet set, curtains)',
-      'Free pickup and delivery',
+      'Free pickup and delivery (Pickup days: Tuesday, Thursday & Saturday)',
       'Priority same-day service',
       'Dedicated premium support',
       'Quality guarantee'
@@ -81,7 +81,7 @@ I'd like to get started. When is the next available pickup?`;
   return (
     <section id="pricing" className="py-20 sm:py-24 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div 
+        <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -92,9 +92,86 @@ I'd like to get started. When is the next available pickup?`;
             Choose Your <span className="text-primary-600">Perfect Plan</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Flexible subscription plans designed for busy Nigerians. 
+            Flexible subscription plans designed for busy Nigerians.
             No contracts, cancel anytime.
           </p>
+        </motion.div>
+
+        {/* Comparison Banner */}
+        <motion.div
+          className="max-w-5xl mx-auto mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          viewport={{ once: true }}
+        >
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary-600 via-primary-700 to-primary-800 p-8 md:p-10 shadow-2xl">
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-yellow-400/20 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-blue-400/20 rounded-full blur-3xl"></div>
+
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex-1 text-center md:text-left">
+                  <div className="inline-flex items-center gap-2 bg-yellow-400/20 text-yellow-300 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    Why Choose Jaranow?
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                    40% Cheaper & Way More Convenient
+                  </h3>
+                  <p className="text-blue-100 text-lg">
+                    than traditional laundry services in Abuja
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 md:gap-6">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
+                    <div className="text-3xl font-bold text-yellow-400 mb-1">40%</div>
+                    <div className="text-white text-sm">Cost Savings</div>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
+                    <div className="text-3xl font-bold text-yellow-400 mb-1">0</div>
+                    <div className="text-white text-sm">Your Effort</div>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
+                    <div className="text-3xl font-bold text-yellow-400 mb-1">100%</div>
+                    <div className="text-white text-sm">Quality</div>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
+                    <div className="text-3xl font-bold text-yellow-400 mb-1">Free</div>
+                    <div className="text-white text-sm">Delivery</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional benefits */}
+              <div className="mt-6 pt-6 border-t border-white/20">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center md:text-left">
+                  <div className="flex items-center justify-center md:justify-start gap-2 text-white">
+                    <svg className="w-5 h-5 text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm">No hidden fees</span>
+                  </div>
+                  <div className="flex items-center justify-center md:justify-start gap-2 text-white">
+                    <svg className="w-5 h-5 text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm">Cancel anytime</span>
+                  </div>
+                  <div className="flex items-center justify-center md:justify-start gap-2 text-white">
+                    <svg className="w-5 h-5 text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm">Same-day service</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
@@ -143,12 +220,6 @@ I'd like to get started. When is the next available pickup?`;
                 </ul>
 
                 <div className="mt-auto">
-
-                  {plan.isPopular && (
-                      <p className="text-center text-sm text-gray-500 mb-2">
-                        🎉 Early bird pricing - Save NGN 3,000 for the first 2 months!
-                      </p>
-                  )}
                   <motion.button
                       onClick={() => handlePlanSelect(plan)}
                     className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${

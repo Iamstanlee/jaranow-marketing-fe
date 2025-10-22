@@ -40,11 +40,12 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
 
     return (
         <motion.nav
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+            className={`fixed left-0 right-0 z-40 transition-all duration-300 ${
                 isScrolled
                     ? 'bg-white/90 backdrop-blur-md shadow-lg'
                     : 'bg-transparent'
             }`}
+            style={{ top: '52px' }}
             initial={{y: -100}}
             animate={{y: 0}}
             transition={{duration: 0.6}}

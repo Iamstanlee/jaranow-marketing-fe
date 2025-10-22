@@ -42,8 +42,8 @@ const Footer: React.FC<FooterProps> = ({onOrderNow}) => {
 
     const socialLinks = [
         {name: 'Facebook', icon: <Facebook className="w-5 h-5"/>, href: 'https://facebook.com/jaranow'},
-        {name: 'Twitter', icon: <Twitter className="w-5 h-5"/>, href: 'https://twitter.com/jaranow'},
-        {name: 'Instagram', icon: <Instagram className="w-5 h-5"/>, href: 'https://instagram.com/jaranow'},
+        {name: 'Twitter', icon: <Twitter className="w-5 h-5"/>, href: 'https://twitter.com/jara_now'},
+        {name: 'Instagram', icon: <Instagram className="w-5 h-5"/>, href: 'https://instagram.com/jara_now'},
         {name: 'LinkedIn', icon: <Linkedin className="w-5 h-5"/>, href: 'https://linkedin.com/company/jaranow'}
     ];
 

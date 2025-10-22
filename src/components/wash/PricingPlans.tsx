@@ -16,7 +16,7 @@ const plans: SubscriptionPlan[] = [
     washCount: 2,
     maxClothes: 12,
     features: [
-      'Premium Machine wash',
+      'Premium Hand/Machine wash',
       'Iron and folding included',
       '2 washes per month',
       'Max 12 clothes per wash',

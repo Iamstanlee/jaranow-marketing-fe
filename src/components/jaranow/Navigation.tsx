@@ -27,14 +27,12 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
             <img src="/logo-brand.png" alt="Jaranow - AI-powered grocery delivery" className="h-14 p-2"/>
-            <span className="text-[8px] font-semibold bg-[#ff0023]/10 text-[#ff0023] px-2 py-1 rounded-full">
+            <span className="text-[10px] bg-[#ff0023]/10 text-[#ff0023] px-2 py-1 rounded-full">
               10-MIN DELIVERY
             </span>
           </div>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {/* Products Dropdown */}
             <div className="relative">
               <button
                 onMouseEnter={() => setIsProductsOpen(true)}
@@ -95,7 +93,6 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
             </motion.button>
           </div>
 
-          {/* Mobile menu button */}
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -106,7 +103,6 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -115,7 +111,6 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
             className="md:hidden py-4 border-t border-gray-100"
           >
             <div className="flex flex-col space-y-4">
-              {/* Mobile Products Section */}
               <div className="px-2">
                 <div className="font-semibold text-gray-900 mb-2">Products</div>
                 {products.map((product) => (

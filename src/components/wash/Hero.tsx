@@ -7,7 +7,7 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ onJoinWaitlist }) => {
   return (
-    <section className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 overflow-hidden pt-40 md:pt-[120px]">
+    <section className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 overflow-hidden">
       <div className="absolute inset-0 bg-black/10"></div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24 lg:py-32">
@@ -55,7 +55,7 @@ const Hero: React.FC<HeroProps> = ({ onJoinWaitlist }) => {
               </motion.button>
               
               <div className="text-blue-100 text-sm">
-                <span className="font-semibold">🚀 Launching in Abuja</span>
+                <span className="font-semibold">🚀 Launched in Abuja</span>
                 <br />
                 Nigeria's Capital City
               </div>

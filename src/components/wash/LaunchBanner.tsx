@@ -7,7 +7,7 @@ interface LaunchBannerProps {
 
 const LaunchBanner: React.FC<LaunchBannerProps> = ({onClaimOffer}) => {
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary-600 to-primary-700 text-white py-3 px-4 overflow-hidden">
+    <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-3 px-4 overflow-hidden">
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
           backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',

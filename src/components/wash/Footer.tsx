@@ -54,17 +54,6 @@ const Footer: React.FC<FooterProps> = ({ onJoinWaitlist }) => {
                 Premium subscription-based laundry service bringing convenience 
                 and quality to busy Nigerians across major cities.
               </p>
-              
-              {/* Early Access CTA */}
-              <motion.button
-                onClick={onJoinWaitlist}
-                className="bg-primary-600 hover:bg-primary-700 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl mb-6"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                🚀 Get Early Access
-              </motion.button>
-
               {/* Social Links */}
               <div className="flex space-x-4">
                 {socialLinks.map((link) => (

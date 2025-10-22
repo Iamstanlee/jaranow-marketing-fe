@@ -24,8 +24,7 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
             transition={{ duration: 0.8 }}
             className="space-y-8"
           >
-            {/* Main Headline */}
-            <motion.h1 
+            <motion.h1
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-gray-900 leading-tight font-bold"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -38,8 +37,7 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
               <span className="text-[#ff0023]">Delivery</span>
             </motion.h1>
             
-            {/* Subheadline */}
-            <motion.p 
+            <motion.p
               className="max-w-3xl mx-auto text-xl sm:text-2xl text-gray-700 leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -49,8 +47,7 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
               and ultra-fast delivery. Just tell Jara what you need!
             </motion.p>
 
-            {/* AI Features Preview */}
-            <motion.div 
+            <motion.div
               className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-6 text-sm text-gray-600"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -70,8 +67,7 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
               </div>
             </motion.div>
 
-            {/* CTA Buttons */}
-            <motion.div 
+            <motion.div
               className="flex flex-col sm:flex-row gap-4 justify-center items-center"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -96,8 +92,7 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
               </div>
             </motion.div>
 
-            {/* Trust Indicators */}
-            <motion.div 
+            <motion.div
               className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-16 pt-8 border-t border-[#ff0023]/20"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -120,8 +115,7 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
               </div>
             </motion.div>
 
-            {/* Hero Image Placeholder */}
-            <motion.div 
+            <motion.div
               className="mt-16 relative"
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
@@ -135,8 +129,7 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
                 </div>
               </div>
               
-              {/* Floating elements */}
-              <motion.div 
+              <motion.div
                 className="absolute -top-4 -left-4 bg-white rounded-lg shadow-lg p-3"
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}

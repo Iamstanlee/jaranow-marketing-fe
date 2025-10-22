@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {motion, AnimatePresence} from 'framer-motion';
+import {AnimatePresence, motion} from 'framer-motion';
 import {scrollToElement} from "../../utils/formatters";
 
 interface NavigationProps {
@@ -40,19 +40,17 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
 
     return (
         <motion.nav
-            className={`fixed left-0 right-0 z-40 transition-all duration-300 ${
+            className={`${isScrolled ? 'fixed top-0 left-0 right-0' : 'relative'} z-40 transition-all duration-300 ${
                 isScrolled
                     ? 'bg-white/90 backdrop-blur-md shadow-lg'
-                    : 'bg-transparent'
+                    : 'bg-primary-700'
             }`}
-            style={{ top: '52px' }}
             initial={{y: -100}}
             animate={{y: 0}}
             transition={{duration: 0.6}}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
-                    {/* Logo */}
                     <motion.div
                         className="flex-shrink-0"
                         whileHover={{scale: 1.05}}
@@ -61,15 +59,13 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                         <img src={isScrolled ? "/logo-wash.png" : "/logo-wash_inverted.png"} alt="Jaranow Wash - Subscription laundry service" className="h-16 p-2"/>
                     </motion.div>
 
-                    {/* Desktop Navigation */}
                     <div className="hidden md:block">
                         <div className="ml-10 flex items-baseline space-x-8">
-                            {/* Products Dropdown */}
                             <div className="relative">
                                 <button
                                     onMouseEnter={() => setIsProductsOpen(true)}
                                     onMouseLeave={() => setIsProductsOpen(false)}
-                                    className={`flex items-center space-x-1 text-sm font-medium transition-colors duration-300 hover:bg-white hover:text-primary-600 ${
+                                    className={`flex items-center space-x-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-300 hover:bg-white hover:text-primary-600 ${
                                         isScrolled ? 'text-gray-700' : 'text-white'
                                     }`}
                                 >
@@ -113,7 +109,7 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                                 <button
                                     key={item.name}
                                     onClick={() => handleNavClick(item.href)}
-                                    className={`text-sm font-medium transition-colors duration-300 hover:bg-white hover:text-primary-600 ${
+                                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-300 hover:bg-white hover:text-primary-600 ${
                                         isScrolled ? 'text-gray-700' : 'text-white'
                                     }`}
                                 >
@@ -123,7 +119,6 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                         </div>
                     </div>
 
-                    {/* CTA Button */}
                     <div className="hidden md:block">
                         <motion.button
                             onClick={onJoinWaitlist}
@@ -139,7 +134,6 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                         </motion.button>
                     </div>
 
-                    {/* Mobile menu button */}
                     <div className="md:hidden">
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -168,7 +162,6 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                 </div>
             </div>
 
-            {/* Mobile Menu */}
             {isMobileMenuOpen && (
                 <motion.div
                     className="md:hidden bg-white shadow-lg"
@@ -178,7 +171,6 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                     transition={{duration: 0.2}}
                 >
                     <div className="px-2 pt-2 pb-3 space-y-1">
-                        {/* Mobile Products Section */}
                         <div className="px-3 py-2">
                             <div className="font-semibold text-gray-900 mb-2">Products</div>
                             {products.map((product) => (

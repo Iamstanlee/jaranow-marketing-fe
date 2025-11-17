@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Zap, Sparkles } from 'lucide-react';
+import {ArrowRight, Zap, Sparkles, Carrot, Bike, Shirt} from 'lucide-react';
 import { fadeInUp, staggerContainer } from '../../utils/animations';
 
 const Hero: React.FC = () => {
@@ -58,7 +58,7 @@ const Hero: React.FC = () => {
               to="/delivery"
               className="group w-full sm:w-auto px-8 py-4 bg-white text-primary-600 rounded-xl font-bold text-lg hover:bg-gray-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105 flex items-center justify-center space-x-2"
             >
-              <Zap size={20} className="text-yellow-500" />
+              <Bike size={20} className="text-primary-600" />
               <span>10-Min Delivery</span>
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </Link>
@@ -66,7 +66,7 @@ const Hero: React.FC = () => {
               to="/wash"
               className="group w-full sm:w-auto px-8 py-4 bg-primary-500/20 backdrop-blur-sm text-white border-2 border-white rounded-xl font-bold text-lg hover:bg-white hover:text-primary-600 transition-all shadow-xl hover:shadow-2xl hover:scale-105 flex items-center justify-center space-x-2"
             >
-              <Sparkles size={20} />
+              <Shirt size={20} />
               <span>Laundry Service</span>
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </Link>

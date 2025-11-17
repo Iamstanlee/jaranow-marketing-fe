@@ -1,7 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import {motion} from 'framer-motion';
-import {ArrowRight, DollarSign, MapPin, Shirt, Truck} from 'lucide-react';
+import {ArrowRight, Bike, DollarSign, MapPin, Shirt, Truck} from 'lucide-react';
 import {fadeInUp, staggerContainer} from '../../utils/animations';
 
 interface ServiceCardProps {
@@ -79,7 +79,7 @@ const Services: React.FC = () => {
             description: 'Lightning-fast grocery delivery powered by AI. Order with your voice or camera.',
             features: [
                 {
-                    icon: <Truck size={18} className="text-yellow-400"/>,
+                    icon: <Bike size={18} className="text-yellow-400"/>,
                     text: 'Delivered in 10 minutes or less'
                 },
                 {
@@ -108,7 +108,7 @@ const Services: React.FC = () => {
                 },
                 {
                     icon: <DollarSign size={18} className="text-blue-200"/>,
-                    text: 'From ₦15,999/month'
+                    text: 'From ₦14,999/month'
                 }
             ],
             link: '/wash',

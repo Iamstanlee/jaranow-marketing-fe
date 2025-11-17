@@ -126,7 +126,7 @@ const JaranowLanding: React.FC = () => {
         </motion.div>
       </main>
 
-      <JaranowFooter onOrderNow={handleOrderNow} />
+      <JaranowFooter />
     </div>
   );
 };

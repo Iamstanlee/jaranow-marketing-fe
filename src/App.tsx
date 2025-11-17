@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 
+const Home = React.lazy(() => import('./pages/Home'));
 const JaranowLanding = React.lazy(() => import('./pages/JaranowLanding'));
 const WashLanding = React.lazy(() => import('./pages/WashLanding'));
 const Deck = React.lazy(() => import("./pages/Deck"));
@@ -21,7 +22,8 @@ function App() {
           <Router>
               <Suspense fallback={<LoadingSpinner />}>
                 <Routes>
-                    <Route path="/" element={<JaranowLanding/>}/>
+                    <Route path="/" element={<Home/>}/>
+                    <Route path="/delivery" element={<JaranowLanding/>}/>
                     <Route path="/wash" element={<WashLanding/>}/>
                     <Route path="/pitch-deck" element={<Deck/>}/>
                 </Routes>

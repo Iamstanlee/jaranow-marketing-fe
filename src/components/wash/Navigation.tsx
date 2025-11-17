@@ -27,7 +27,8 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
     ];
 
     const products = [
-        { href: '/', label: 'Grocery Delivery', description: '10-minute AI-powered delivery' },
+        { href: '/', label: 'Home', description: 'Explore all Jaranow services' },
+        { href: '/delivery', label: 'Grocery Delivery', description: '10-minute AI-powered delivery' },
         { href: '/wash', label: 'Wash Service', description: 'Premium laundry subscription' },
     ];
 
@@ -207,7 +208,7 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                                 onJoinWaitlist();
                                 setIsMobileMenuOpen(false);
                             }}
-                            className="block w-full text-left px-3 py-2 text-base font-medium bg-primary-600 text-white hover:bg-primary-700 rounded-md transition-colors duration-300"
+                            className="block w-full text-left px-3 py-2 text-sm font-semibold bg-primary-600 text-white hover:bg-primary-700 rounded-md transition-colors duration-300"
                         >
                             Schedule Laundry Pickup
                         </button>

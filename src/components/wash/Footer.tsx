@@ -1,24 +1,19 @@
 import React from 'react';
-import {motion} from 'framer-motion';
-import {Facebook, Instagram, Linkedin, Twitter} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
 
-interface FooterProps {
-  onJoinWaitlist: () => void;
-}
-
-const Footer: React.FC<FooterProps> = ({ onJoinWaitlist }) => {
-  const currentYear = new Date().getFullYear();
-
+const Footer: React.FC = () => {
   const socialLinks = [
-    {name: 'Facebook', icon: <Facebook className="w-5 h-5"/>, href: 'https://facebook.com/jaranow'},
-    {name: 'Twitter', icon: <Twitter className="w-5 h-5"/>, href: 'https://twitter.com/jara_now'},
-    {name: 'Instagram', icon: <Instagram className="w-5 h-5"/>, href: 'https://instagram.com/jara_now'},
-    {name: 'LinkedIn', icon: <Linkedin className="w-5 h-5"/>, href: 'https://linkedin.com/company/jaranow'}
+    { name: 'Facebook', icon: <Facebook className="w-5 h-5" />, href: 'https://facebook.com/jaranow' },
+    { name: 'Twitter', icon: <Twitter className="w-5 h-5" />, href: 'https://twitter.com/jara_now' },
+    { name: 'Instagram', icon: <Instagram className="w-5 h-5" />, href: 'https://instagram.com/jara_now' },
+    { name: 'LinkedIn', icon: <Linkedin className="w-5 h-5" />, href: 'https://linkedin.com/company/jaranow' }
   ];
 
   const companyLinks = [
     { name: 'About Us', href: '#' },
-    { name: 'Grocery Delivery', href: '/' },
+    { name: 'Grocery Delivery', href: '/delivery' },
+    { name: 'Laundry Service', href: '/wash' },
     { name: 'Careers', href: '#' },
     { name: 'Blog', href: '#' }
   ];
@@ -49,10 +44,9 @@ const Footer: React.FC<FooterProps> = ({ onJoinWaitlist }) => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <img src="/logo-wash.png" alt="Jaranow Wash - Premium laundry service logo" className="h-16 p-2"/>
+              <img src="/logo-brand.png" alt="Jaranow - Convenience as a Service" className="h-16 p-2" />
               <p className="text-gray-400 leading-relaxed mb-6">
-                Premium subscription-based laundry service bringing convenience 
-                and quality to busy Nigerians across major cities.
+                Your convenience, our mission. From lightning-fast delivery to premium laundry service, we bring convenience to your doorstep.
               </p>
               {/* Social Links */}
               <div className="flex space-x-4">

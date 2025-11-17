@@ -17,7 +17,8 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
   ];
 
   const products = [
-    { href: '/', label: 'Grocery Delivery', description: '10-minute AI-powered delivery' },
+    { href: '/', label: 'Home', description: 'Explore all Jaranow services' },
+    { href: '/delivery', label: 'Grocery Delivery', description: '10-minute AI-powered delivery' },
     { href: '/wash', label: 'Wash Service', description: 'Premium laundry subscription' },
   ];
 
@@ -26,18 +27,18 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
-            <img src="/logo-brand.png" alt="Jaranow - AI-powered grocery delivery" className="h-14 p-2"/>
+            <img src="/logo-brand.png" alt="Jaranow - AI-powered grocery delivery" className="h-16 p-2"/>
             <span className="text-[10px] bg-[#ff0023]/10 text-[#ff0023] px-2 py-1 rounded-full">
               10-MIN DELIVERY
             </span>
           </div>
 
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-4">
             <div className="relative">
               <button
                 onMouseEnter={() => setIsProductsOpen(true)}
                 onMouseLeave={() => setIsProductsOpen(false)}
-                className="flex items-center space-x-1 text-gray-700 hover:bg-[#e6001f] hover:text-white transition-colors duration-200"
+                className="flex items-center space-x-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-white hover:text-primary-600 transition-colors duration-300"
               >
                 <span>Products</span>
                 <ChevronDown className="w-4 h-4" />
@@ -77,14 +78,14 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
               <a
                 key={item.href}
                 href={item.href}
-                className="text-gray-700 hover:bg-[#e6001f] hover:text-white transition-colors duration-200"
+                className="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-white hover:text-primary-600 transition-colors duration-300"
               >
                 {item.label}
               </a>
             ))}
             <motion.button
               onClick={onOrderNow}
-              className="bg-[#ff0023] hover:bg-[#e6001f] text-white font-semibold px-6 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+              className="bg-[#ff0023] hover:bg-[#e6001f] text-white text-sm font-semibold px-6 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -135,7 +136,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
                   <a
                     key={item.href}
                     href={item.href}
-                    className="block text-gray-700 hover:bg-[#e6001f] hover:text-white transition-colors duration-200 px-2 py-2"
+                    className="block text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors duration-300 px-3 py-2 rounded-lg"
                     onClick={() => setIsOpen(false)}
                   >
                     {item.label}
@@ -148,7 +149,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
                   onOrderNow();
                   setIsOpen(false);
                 }}
-                className="bg-[#ff0023] hover:bg-[#e6001f] text-white font-semibold px-6 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2 mx-2"
+                className="bg-[#ff0023] hover:bg-[#e6001f] text-white text-sm font-semibold px-6 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2 mx-2"
               >
                 <Smartphone className="w-4 h-4" />
                 <span>Order Now</span>

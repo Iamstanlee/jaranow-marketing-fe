@@ -152,7 +152,7 @@ const WashLanding: React.FC = () => {
         </motion.div>
       </main>
 
-      <Footer onJoinWaitlist={scrollToPricing} />
+      <Footer />
 
       <WaitlistForm
         isOpen={isWaitlistOpen}

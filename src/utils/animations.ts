@@ -41,6 +41,31 @@ export const scaleVariants = {
   }
 };
 
+export const staggerContainer = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: getReducedMotionPreference() ? 0 : 0.1,
+      delayChildren: getReducedMotionPreference() ? 0 : 0.2
+    }
+  }
+};
+
+export const fadeInUp = {
+  hidden: {
+    opacity: 0,
+    y: getReducedMotionPreference() ? 0 : 30
+  },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: getReducedMotionPreference() ? 0.01 : 0.6,
+      ease: [0.4, 0, 0.2, 1] as any
+    }
+  }
+};
+
 // Debounced scroll handler for performance
 export const throttle = (func: Function, delay: number) => {
   let timeoutId: NodeJS.Timeout;

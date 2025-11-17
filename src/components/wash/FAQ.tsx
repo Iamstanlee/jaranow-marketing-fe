@@ -65,7 +65,7 @@ const FAQ: React.FC = () => {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl text-gray-900 mb-4 font-graphik-bold">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl text-gray-900 mb-4 font-bold">
             Frequently Asked <span className="text-primary-600">Questions</span>
           </h2>
           <p className="text-xl text-gray-600">

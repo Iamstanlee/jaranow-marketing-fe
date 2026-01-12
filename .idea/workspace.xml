@@ -4,8 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Enhance page speed &amp; SEO">
-      <change beforePath="$PROJECT_DIR$/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.css" afterDir="false" />
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="chore: fix pricing on homepage">
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/FAQ.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/FAQ.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/Hero.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Hero.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/Pricing.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Pricing.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/wash/PricingPlans.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/PricingPlans.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/formatters.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/formatters.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,28 +59,30 @@
     <option name="showMembers" value="true" />
     <option name="showScratchesAndConsoles" value="false" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/defconx1/Documents/DEV/beanslabs/jaranow/jaranow-marketing-fe/src/assets/fonts",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "npm.start.executor": "Run",
-    "settings.editor.selected.configurable": "settings.sync",
-    "show.migrate.to.gradle.popup": "false",
-    "ts.external.directory.path": "/Users/defconx1/Documents/DEV/beanslabs/jaranow/jaranow-marketing-fe/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/defconx1/Documents/DEV/beanslabs/jaranow/jaranow-marketing-fe/public/jaranow&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.start.executor&quot;: &quot;Run&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.sync&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/defconx1/Documents/DEV/beanslabs/jaranow/jaranow-marketing-fe/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/public/jaranow" />
+      <recent name="$PROJECT_DIR$/public" />
       <recent name="$PROJECT_DIR$/src/assets/fonts" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -135,6 +143,8 @@
       <workItem from="1762470843097" duration="415000" />
       <workItem from="1762495395508" duration="254000" />
       <workItem from="1763318352950" duration="760000" />
+      <workItem from="1763327191545" duration="6327000" />
+      <workItem from="1768212788643" duration="2120000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -192,7 +202,15 @@
       <option name="project" value="LOCAL" />
       <updated>1758785438662</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="chore: fix pricing on homepage">
+      <option name="closed" value="true" />
+      <created>1763385521337</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1763385521337</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -215,6 +233,7 @@
     <MESSAGE value="Update pricing" />
     <MESSAGE value="Enhance page speed" />
     <MESSAGE value="Enhance page speed &amp; SEO" />
-    <option name="LAST_COMMIT_MESSAGE" value="Enhance page speed &amp; SEO" />
+    <MESSAGE value="chore: fix pricing on homepage" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: fix pricing on homepage" />
   </component>
 </project>

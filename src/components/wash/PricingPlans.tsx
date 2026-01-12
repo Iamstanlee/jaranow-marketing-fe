@@ -12,7 +12,7 @@ const plans: SubscriptionPlan[] = [
     id: 'lite',
     name: 'Lite Plan',
     price: 14999,
-    currency: 'NGN',
+    currency: '₦',
     washCount: 2,
     maxClothes: 12,
     features: [
@@ -29,7 +29,7 @@ const plans: SubscriptionPlan[] = [
     id: 'premium',
     name: 'Premium Plan',
     price: 24999,
-    currency: 'NGN',
+    currency: '₦',
     washCount: 3,
     maxClothes: 15,
     isPopular: true,
@@ -51,7 +51,7 @@ const PricingPlans: React.FC<PricingPlansProps> = () => {
   const phoneNumber = '2349038622012';
 
   const handlePlanSelect = (plan: SubscriptionPlan) => {
-    const message = `Hi Jaranow! I'm interested in scheduling laundry pickup for the _${plan.name}_ (NGN${plan.price.toLocaleString()}/month).
+    const message = `Hi Jaranow! I'm interested in scheduling laundry pickup for the _${plan.name}_ (₦${plan.price.toLocaleString()}/month).
 
 ${plan.name} Details:
 • ${plan.features.join('\n• ')}
@@ -63,12 +63,12 @@ I'd like to get started. When is the next available pickup?`;
   };
 
   const handleCustomPlanSelect = () => {
-    const message = `Hi Jaranow! I'm interested in scheduling laundry pickup for the _Custom Pricing Plan_ (NGN700/unit).
+    const message = `Hi Jaranow! I'm interested in scheduling laundry pickup for the _Custom Pricing Plan_.
 
 Custom Plan Details:
 • Pay as you go - no monthly commitment
-• 1 unit = regular items (shirts, trousers, etc.)
-• 2 units = special items (suits, dresses, towels, etc.)
+• ₦700 per regular item (shirts, trousers, dresses, skirts, tops, etc.)
+• ₦2,000 per special item (suits, long dresses, towels, duvet sets, curtains)
 • Premium wash, iron and folding included
 • Free pickup and delivery
 
@@ -254,21 +254,35 @@ I'd like to get started. When is the next available pickup?`;
 
             <div className="p-8 md:p-12">
               <div className="text-center mb-8">
-                <div className="flex items-baseline justify-center mb-4">
-                  <span className="text-5xl sm:text-6xl font-bold text-gray-900">
-                    {formatCurrency(700)}
-                  </span>
-                  <span className="text-gray-500 ml-3 text-xl">/unit</span>
+                <p className="text-gray-600 text-lg mb-4">No commitment, pay as you go</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                  <div className="bg-blue-50 rounded-xl p-6 border-2 border-blue-200">
+                    <div className="flex items-baseline justify-center mb-2">
+                      <span className="text-4xl font-bold text-blue-700">
+                        {formatCurrency(700)}
+                      </span>
+                      <span className="text-gray-600 ml-2">/item</span>
+                    </div>
+                    <p className="text-gray-700 font-semibold">Regular Items</p>
+                  </div>
+                  <div className="bg-purple-50 rounded-xl p-6 border-2 border-purple-200">
+                    <div className="flex items-baseline justify-center mb-2">
+                      <span className="text-4xl font-bold text-purple-700">
+                        {formatCurrency(2000)}
+                      </span>
+                      <span className="text-gray-600 ml-2">/item</span>
+                    </div>
+                    <p className="text-gray-700 font-semibold">Special Items</p>
+                  </div>
                 </div>
-                <p className="text-gray-600 text-lg">No commitment, pay as you go</p>
               </div>
 
               <div className="bg-gray-50 rounded-xl p-6 mb-8">
-                <h4 className="font-bold text-gray-900 text-lg mb-4">Unit Counting</h4>
+                <h4 className="font-bold text-gray-900 text-lg mb-4">Pricing Breakdown</h4>
                 <div className="space-y-3">
                   <div className="flex items-start">
-                    <div className="bg-primary-100 rounded-lg px-3 py-1 mr-4 flex-shrink-0">
-                      <span className="font-bold text-primary-700">1 unit</span>
+                    <div className="bg-blue-100 rounded-lg px-3 py-1 mr-4 flex-shrink-0">
+                      <span className="font-bold text-blue-700">₦700</span>
                     </div>
                     <div>
                       <p className="text-gray-900 font-semibold">Regular items</p>
@@ -276,8 +290,8 @@ I'd like to get started. When is the next available pickup?`;
                     </div>
                   </div>
                   <div className="flex items-start">
-                    <div className="bg-primary-100 rounded-lg px-3 py-1 mr-4 flex-shrink-0">
-                      <span className="font-bold text-primary-700">2 units</span>
+                    <div className="bg-purple-100 rounded-lg px-3 py-1 mr-4 flex-shrink-0">
+                      <span className="font-bold text-purple-700">₦2,000</span>
                     </div>
                     <div>
                       <p className="text-gray-900 font-semibold">Special items</p>

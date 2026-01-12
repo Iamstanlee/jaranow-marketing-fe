@@ -6,6 +6,7 @@ const Home = React.lazy(() => import('./pages/Home'));
 const JaranowLanding = React.lazy(() => import('./pages/JaranowLanding'));
 const WashLanding = React.lazy(() => import('./pages/WashLanding'));
 const Deck = React.lazy(() => import("./pages/Deck"));
+const Pricing = React.lazy(() => import('./pages/Pricing'));
 
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center bg-white">
@@ -25,6 +26,7 @@ function App() {
                     <Route path="/" element={<Home/>}/>
                     <Route path="/delivery" element={<JaranowLanding/>}/>
                     <Route path="/wash" element={<WashLanding/>}/>
+                    <Route path="/pricing" element={<Pricing/>}/>
                     <Route path="/pitch-deck" element={<Deck/>}/>
                 </Routes>
               </Suspense>

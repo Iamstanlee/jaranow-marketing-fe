@@ -128,8 +128,6 @@ const WashLanding: React.FC = () => {
         </script>
       </Helmet>
 
-      <LaunchBanner onClaimOffer={scrollToPricing} />
-
       <Navigation onJoinWaitlist={scrollToPricing} />
 
       <main>

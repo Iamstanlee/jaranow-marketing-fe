@@ -24,7 +24,7 @@ const FAQ: React.FC = () => {
     {
       category: "Pricing & Payments",
       question: "Are there any hidden fees or surge pricing?",
-      answer: "No hidden fees, ever. You pay NGN 1,000 service charge + NGN 500 delivery fee = NGN 1,500 total per order, plus the cost of your groceries (no markup). No surge pricing during peak hours, holidays, or bad weather. What you see is what you pay."
+      answer: "No hidden fees, ever. You pay ₦1,000 service charge + ₦500 delivery fee = ₦1,500 total per order, plus the cost of your groceries (no markup). No surge pricing during peak hours, holidays, or bad weather. What you see is what you pay."
     },
     {
       category: "Payment Security",
@@ -34,7 +34,7 @@ const FAQ: React.FC = () => {
     {
       category: "Order Minimums",
       question: "Is there a minimum order value?",
-      answer: "No minimum order! Whether you need just a bottle of water or a full grocery haul, we'll deliver it in 10 minutes for the same NGN 1,500 fee. Perfect for those emergency items or when you just need a few things."
+      answer: "No minimum order! Whether you need just a bottle of water or a full grocery haul, we'll deliver it in 10 minutes for the same ₦1,500 fee. Perfect for those emergency items or when you just need a few things."
     },
     {
       category: "Product Quality",

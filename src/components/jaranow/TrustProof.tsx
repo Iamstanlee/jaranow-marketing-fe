@@ -50,7 +50,7 @@ const TrustProof: React.FC = () => {
       description: "PCI DSS Compliant"
     },
     {
-      icon: <Award className="w-8 h-8 text-[#ff0023]" />,
+      icon: <Award className="w-8 h-8 text-[#2563eb]" />,
       title: "Food Safety",
       description: "NAFDAC Registered"
     },
@@ -73,7 +73,7 @@ const TrustProof: React.FC = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Trusted by <span className="text-[#ff0023]">Thousands</span> of Nigerians
+            Trusted by <span className="text-[#2563eb]">Thousands</span> of Nigerians
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Built by experienced fintech leaders who understand Nigerian consumer needs
@@ -105,7 +105,7 @@ const TrustProof: React.FC = () => {
                 <div className="text-center mb-6">
                   <div className="text-6xl mb-4">{founder.image}</div>
                   <h4 className="text-2xl font-bold text-gray-900">{founder.name}</h4>
-                  <p className="text-[#ff0023] font-semibold">{founder.role}</p>
+                  <p className="text-[#2563eb] font-semibold">{founder.role}</p>
                 </div>
 
                 <div className="space-y-4 mb-6">
@@ -114,7 +114,7 @@ const TrustProof: React.FC = () => {
                     <span className="text-gray-700 font-medium">{founder.experience}</span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Award className="w-5 h-5 text-[#ff0023]" />
+                    <Award className="w-5 h-5 text-[#2563eb]" />
                     <span className="text-gray-700 font-medium">{founder.expertise}</span>
                   </div>
                 </div>
@@ -205,7 +205,7 @@ const TrustProof: React.FC = () => {
           viewport={{ once: true }}
           className="text-center"
         >
-          <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-8 border border-red-100">
+          <div className="bg-gradient-to-r from-primary-50 to-blue-50 rounded-2xl p-8 border border-primary-100">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
               Have Questions? We're Here to Help
             </h3>
@@ -214,13 +214,13 @@ const TrustProof: React.FC = () => {
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-              <div className="bg-white rounded-lg p-4 border border-red-200">
+              <div className="bg-white rounded-lg p-4 border border-primary-200">
                 <h4 className="font-semibold text-gray-900 mb-2">📧 Email Support</h4>
-                <p className="text-[#ff0023] font-medium">support@jaranow.com</p>
+                <p className="text-[#2563eb] font-medium">support@jaranow.com</p>
               </div>
-              <div className="bg-white rounded-lg p-4 border border-red-200">
+              <div className="bg-white rounded-lg p-4 border border-primary-200">
                 <h4 className="font-semibold text-gray-900 mb-2">📱 Phone Support</h4>
-                <p className="text-[#ff0023] font-medium">+234 903 862 2012</p>
+                <p className="text-[#2563eb] font-medium">+234 903 862 2012</p>
               </div>
             </div>
 

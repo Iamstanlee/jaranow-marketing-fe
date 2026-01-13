@@ -99,7 +99,7 @@ I'd like to get started. When is the next available pickup?`;
 
         {/* Comparison Banner */}
         <motion.div
-          className="max-w-5xl mx-auto mb-12"
+          className="max-w-4xl mx-auto mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}

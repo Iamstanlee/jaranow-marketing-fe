@@ -79,16 +79,16 @@ const Services: React.FC = () => {
             description: 'Lightning-fast grocery delivery powered by AI. Order with your voice or camera.',
             features: [
                 {
-                    icon: <Bike size={18} className="text-yellow-400"/>,
+                    icon: <Bike size={18} className="text-blue-200"/>,
                     text: 'Delivered in 10 minutes or less'
                 },
                 {
-                    icon: <MapPin size={18} className="text-yellow-400"/>,
+                    icon: <MapPin size={18} className="text-blue-200"/>,
                     text: 'Available in Gwarinpa, Abuja'
                 },
                 {
-                    icon: <DollarSign size={18} className="text-yellow-400"/>,
-                    text: '₦1,500 (delivery fee + service)'
+                    icon: <DollarSign size={18} className="text-blue-200"/>,
+                    text: '₦1,000 (delivery fee + service)'
                 }
             ],
             link: '/delivery',

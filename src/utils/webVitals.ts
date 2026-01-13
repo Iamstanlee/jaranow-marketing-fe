@@ -28,7 +28,7 @@ export const initWebVitals = () => {
 // Optimize Largest Contentful Paint (LCP)
 export const optimizeLCP = () => {
   // Preload critical resources
-  const criticalImages = ['/logo-brand.png', '/logo-wash.png'];
+  const criticalImages = ['/logo-white.png', '/logo-wash.png'];
 
   criticalImages.forEach(src => {
     const link = document.createElement('link');

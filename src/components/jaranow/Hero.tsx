@@ -15,7 +15,7 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
   return (
-    <section className="pt-20 bg-gradient-to-br from-red-100 via-pink-100 to-orange-100 overflow-hidden">
+    <section className="pt-20 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
         <div className="text-center">
           <motion.div
@@ -32,9 +32,9 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
             >
               Nigeria's First
               <br />
-              <span className="text-[#ff0023]">10-Minute</span> Grocery
+              <span className="text-primary-600">10-Minute</span> Grocery
               <br />
-              <span className="text-[#ff0023]">Delivery</span>
+              <span className="text-primary-600">Delivery</span>
             </motion.h1>
             
             <motion.p
@@ -54,15 +54,15 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
               transition={{ duration: 0.8, delay: 0.3 }}
             >
               <div className="flex items-center space-x-2">
-                <Mic className="w-5 h-5 text-[#ff0023]" />
+                <Mic className="w-5 h-5 text-primary-600" />
                 <span>"Jara, I need rice and tomatoes"</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Camera className="w-5 h-5 text-[#ff0023]" />
+                <Camera className="w-5 h-5 text-primary-600" />
                 <span>Photo → Shopping Cart</span>
               </div>
               <div className="flex items-center space-x-2">
-                <MessageCircle className="w-5 h-5 text-[#ff0023]" />
+                <MessageCircle className="w-5 h-5 text-primary-600" />
                 <span>Paste Shopping List</span>
               </div>
             </motion.div>
@@ -75,7 +75,7 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
             >
               <motion.button
                 onClick={onOrderNow}
-                className="w-full sm:w-auto bg-[#ff0023] hover:bg-[#e6001f] text-white font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center space-x-3"
+                className="w-full sm:w-auto bg-primary-600 hover:bg-[#e6001f] text-white font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center space-x-3"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -85,7 +85,7 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
               
               <div className="text-center text-gray-600">
                 <div className="flex items-center justify-center space-x-2">
-                  <MapPin className="w-5 h-5 text-[#ff0023]" />
+                  <MapPin className="w-5 h-5 text-primary-600" />
                   <span className="font-semibold">Starting in Abuja</span>
                 </div>
                 <div className="text-sm">Expanding to Lagos, PHC & Ibadan</div>
@@ -93,24 +93,24 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
             </motion.div>
 
             <motion.div
-              className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-16 pt-8 border-t border-[#ff0023]/20"
+              className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-16 pt-8 border-t border-[#2563eb]/20"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.5 }}
             >
               <div className="text-center">
                 <div className="flex items-center justify-center space-x-2 mb-2">
-                  <Clock className="w-6 h-6 text-[#ff0023]" />
-                  <div className="text-3xl sm:text-4xl font-bold text-[#ff0023]">10</div>
+                  <Clock className="w-6 h-6 text-primary-600" />
+                  <div className="text-3xl sm:text-4xl font-bold text-primary-600">10</div>
                 </div>
                 <div className="text-gray-700">Minutes Guaranteed</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-[#ff0023] mb-2">AI</div>
+                <div className="text-3xl sm:text-4xl font-bold text-primary-600 mb-2">AI</div>
                 <div className="text-gray-700">Voice + Camera Shopping</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-[#ff0023] mb-2">₦1,500</div>
+                <div className="text-3xl sm:text-4xl font-bold text-primary-600 mb-2">₦1,000</div>
                 <div className="text-gray-700">Total Service + Delivery</div>
               </div>
             </motion.div>
@@ -121,7 +121,7 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.6 }}
             >
-              <div className="bg-gradient-to-r from-[#ff0023] via-red-500 to-pink-500 rounded-2xl h-64 sm:h-80 lg:h-96 flex items-center justify-center shadow-2xl">
+              <div className="bg-gradient-to-r from-primary-600 via-blue-500 to-indigo-500 rounded-2xl h-64 sm:h-80 lg:h-96 flex items-center justify-center shadow-2xl">
                 <div className="text-center text-white">
                   <Smartphone className="w-16 h-16 mx-auto mb-4 opacity-80" />
                   <p className="text-lg font-semibold">Jaranow App Demo (Coming soon)</p>
@@ -134,7 +134,7 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                <Mic className="w-6 h-6 text-[#ff0023]" />
+                <Mic className="w-6 h-6 text-primary-600" />
               </motion.div>
               
               <motion.div 
@@ -142,7 +142,7 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
                 animate={{ y: [0, 10, 0] }}
                 transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
               >
-                <Camera className="w-6 h-6 text-[#ff0023]" />
+                <Camera className="w-6 h-6 text-primary-600" />
               </motion.div>
               
               <motion.div 
@@ -150,7 +150,7 @@ const Hero: React.FC<HeroProps> = ({ onOrderNow }) => {
                 animate={{ y: [0, -5, 0] }}
                 transition={{ duration: 2, repeat: Infinity, delay: 1 }}
               >
-                <Clock className="w-6 h-6 text-[#ff0023]" />
+                <Clock className="w-6 h-6 text-primary-600" />
               </motion.div>
             </motion.div>
           </motion.div>

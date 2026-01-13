@@ -8,8 +8,8 @@ const ServiceAreas: React.FC = () => {
       name: "Gwarinpa",
       status: "Live Now",
       description: "Full 10-minute delivery service",
-      icon: <CheckCircle2 className="w-5 h-5 text-[#ff0023]" />,
-      color: "bg-red-100 border-red-200 text-red-800"
+      icon: <CheckCircle2 className="w-5 h-5 text-[#2563eb]" />,
+      color: "bg-primary-100 border-primary-200 text-primary-800"
     }
   ];
 
@@ -79,7 +79,7 @@ const ServiceAreas: React.FC = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Service Areas & <span className="text-[#ff0023]">Expansion</span>
+            Service Areas & <span className="text-[#2563eb]">Expansion</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Starting in Abuja, expanding across Nigeria's major cities
@@ -95,7 +95,7 @@ const ServiceAreas: React.FC = () => {
           className="mb-16"
         >
           <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center flex items-center justify-center space-x-3">
-            <MapPin className="w-6 h-6 text-[#ff0023]" />
+            <MapPin className="w-6 h-6 text-[#2563eb]" />
             <span>Live Now in Abuja</span>
           </h3>
 
@@ -126,21 +126,21 @@ const ServiceAreas: React.FC = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
                 viewport={{ once: true }}
-                className="bg-gradient-to-br from-[#ff0023] to-red-600 rounded-2xl p-8 text-white h-full flex flex-col justify-center"
+                className="bg-gradient-to-br from-[#2563eb] to-primary-700 rounded-2xl p-8 text-white h-full flex flex-col justify-center"
               >
                 <h4 className="text-2xl font-bold mb-4">🎉 We're Live in Gwarinpa!</h4>
-                <p className="text-red-100 mb-6 text-lg">
+                <p className="text-blue-100 mb-6 text-lg">
                   Experience Nigeria's first 10-minute grocery delivery service. 
                   Order now and get your groceries delivered faster than ever before.
                 </p>
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div className="bg-white/20 rounded-lg p-4">
                     <div className="text-2xl font-bold">10</div>
-                    <div className="text-sm text-red-100">Minutes Delivery</div>
+                    <div className="text-sm text-blue-100">Minutes Delivery</div>
                   </div>
                   <div className="bg-white/20 rounded-lg p-4">
                     <div className="text-2xl font-bold">24/7</div>
-                    <div className="text-sm text-red-100">Service Available</div>
+                    <div className="text-sm text-blue-100">Service Available</div>
                   </div>
                 </div>
               </motion.div>
@@ -241,7 +241,7 @@ const ServiceAreas: React.FC = () => {
                 <div className="text-sm text-gray-600">Early access discount</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-[#ff0023]">FREE</div>
+                <div className="text-2xl font-bold text-[#2563eb]">FREE</div>
                 <div className="text-sm text-gray-600">First 3 deliveries</div>
               </div>
             </div>

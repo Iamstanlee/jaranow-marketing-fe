@@ -4,14 +4,29 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="chore: fix pricing on homepage">
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="ulachore: fix pricing on homepage">
+      <change beforePath="$PROJECT_DIR$/CLAUDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/CLAUDE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/sw.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/sw.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/home/FAQ.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/home/FAQ.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/home/Footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/home/Footer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/home/Navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/home/Navigation.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/home/Services.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/home/Services.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/jaranow/FAQ.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/FAQ.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/Footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Footer.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/jaranow/Hero.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Hero.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/HowItWorks.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/HowItWorks.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/Navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Navigation.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/jaranow/Pricing.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/Pricing.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/wash/PricingPlans.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/PricingPlans.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/formatters.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/formatters.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/ProblemSolution.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/ProblemSolution.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/ServiceAreas.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/ServiceAreas.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/jaranow/TrustProof.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/jaranow/TrustProof.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/wash/Footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/Footer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/wash/Navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/Navigation.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/Pricing.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Pricing.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/WashLanding.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/WashLanding.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/webVitals.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/webVitals.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -144,7 +159,8 @@
       <workItem from="1762495395508" duration="254000" />
       <workItem from="1763318352950" duration="760000" />
       <workItem from="1763327191545" duration="6327000" />
-      <workItem from="1768212788643" duration="2120000" />
+      <workItem from="1768212788643" duration="2290000" />
+      <workItem from="1768291348502" duration="7208000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

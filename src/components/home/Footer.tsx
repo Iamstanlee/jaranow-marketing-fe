@@ -44,7 +44,7 @@ const Footer: React.FC = () => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <img src="/logo-brand.png" alt="Jaranow - Convenience as a Service" className="h-16 p-2" />
+              <img src="/logo-white.png" alt="Jaranow - Convenience as a Service" className="h-16 p-2" />
               <p className="text-gray-400 leading-relaxed mb-6">
                 Your convenience, our mission. From lightning-fast delivery to premium laundry service, we bring convenience to your doorstep.
               </p>
@@ -135,7 +135,7 @@ const Footer: React.FC = () => {
             </ul>
 
             <div className="text-sm text-gray-400">
-              <p className="mb-2">📍 Launch Cities:</p>
+              <p className="mb-2">📍 Service Cities:</p>
               <p>Abuja • Nigeria's Capital</p>
             </div>
           </motion.div>

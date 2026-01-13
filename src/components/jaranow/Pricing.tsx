@@ -12,12 +12,12 @@ const Pricing: React.FC = () => {
   const pricingBreakdown = [
     {
       item: "Service Charge",
-      price: "₦1,000",
+      price: "₦500",
       description: "AI shopping, professional selection & packing",
       included: true
     },
     {
-      item: "Delivery Fee", 
+      item: "Delivery Fee",
       price: "₦500",
       description: "10-minute doorstep delivery guarantee",
       included: true
@@ -46,7 +46,7 @@ const Pricing: React.FC = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Simple, <span className="text-[#ff0023]">Transparent</span> Pricing
+            Simple, <span className="text-primary-600">Transparent</span> Pricing
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             No hidden fees, no surge pricing, no surprises. Just honest pricing for premium service.
@@ -76,14 +76,14 @@ const Pricing: React.FC = () => {
                     viewport={{ once: true }}
                     className={`flex items-center justify-between p-4 rounded-xl border-2 ${
                       item.included 
-                        ? 'bg-red-50 border-red-200' 
-                        : 'bg-red-50 border-red-200'
+                        ? 'bg-primary-50 border-primary-200' 
+                        : 'bg-primary-50 border-primary-200'
                     }`}
                   >
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-1">
                         {item.included ? (
-                          <Check className="w-5 h-5 text-[#ff0023]" />
+                          <Check className="w-5 h-5 text-primary-600" />
                         ) : (
                           <X className="w-5 h-5 text-red-600" />
                         )}
@@ -92,7 +92,7 @@ const Pricing: React.FC = () => {
                       <p className="text-sm text-gray-600 ml-8">{item.description}</p>
                     </div>
                     <div className={`text-xl font-bold ${
-                      item.included ? 'text-[#ff0023]' : 'text-red-600'
+                      item.included ? 'text-primary-600' : 'text-red-600'
                     }`}>
                       {item.price}
                     </div>
@@ -104,7 +104,7 @@ const Pricing: React.FC = () => {
               <div className="border-t-2 border-gray-200 pt-6">
                 <div className="flex items-center justify-between text-2xl font-bold">
                   <span className="text-gray-900">Total Per Order:</span>
-                  <span className="text-[#ff0023]">₦1,500</span>
+                  <span className="text-primary-600">₦1,000</span>
                 </div>
                 <p className="text-sm text-gray-600 mt-2 text-center">
                   Plus the cost of your groceries - no markup!
@@ -124,7 +124,7 @@ const Pricing: React.FC = () => {
             {/* Benefits */}
             <div className="bg-white rounded-2xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
               <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                What You Get for ₦1,500
+                What You Get for ₦1,000
               </h3>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -145,9 +145,9 @@ const Pricing: React.FC = () => {
             </div>
 
             {/* Payment Methods */}
-            <div className="bg-gradient-to-br from-red-100 to-pink-100 rounded-2xl p-8 border border-red-200 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="bg-gradient-to-br from-primary-100 to-blue-100 rounded-2xl p-8 border border-primary-200 shadow-lg hover:shadow-xl transition-all duration-300">
               <h3 className="text-xl font-bold text-gray-900 mb-6 text-center flex items-center justify-center space-x-2">
-                <Shield className="w-6 h-6 text-[#ff0023]" />
+                <Shield className="w-6 h-6 text-primary-600" />
                 <span>Secure Payment Options</span>
               </h3>
               
@@ -159,9 +159,9 @@ const Pricing: React.FC = () => {
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
                     viewport={{ once: true }}
-                    className="flex items-center space-x-3 bg-white rounded-lg p-4 border border-red-200"
+                    className="flex items-center space-x-3 bg-white rounded-lg p-4 border border-primary-200"
                   >
-                    <div className="text-[#ff0023]">{method.icon}</div>
+                    <div className="text-primary-600">{method.icon}</div>
                     <span className="text-gray-700 font-medium">{method.name}</span>
                   </motion.div>
                 ))}
@@ -169,7 +169,7 @@ const Pricing: React.FC = () => {
 
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
-                  <Shield className="w-4 h-4 inline text-[#ff0023] mr-1" />
+                  <Shield className="w-4 h-4 inline text-primary-600 mr-1" />
                   All transactions are secured with bank-level encryption
                 </p>
               </div>
@@ -185,23 +185,23 @@ const Pricing: React.FC = () => {
           viewport={{ once: true }}
           className="mt-16 text-center"
         >
-          <div className="bg-gradient-to-r from-[#ff0023] to-red-600 rounded-2xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-4">Is ₦1,500 Worth Your Time?</h3>
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-8 text-white">
+            <h3 className="text-2xl font-bold mb-4">Is ₦1,000 Worth Your Time?</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
               <div className="text-center">
-                <div className="text-3xl font-bold text-red-200 mb-2">2 Hours</div>
-                <div className="text-red-100">Time saved per shop</div>
+                <div className="text-3xl font-bold text-blue-200 mb-2">2 Hours</div>
+                <div className="text-blue-100">Time saved per shop</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-red-200 mb-2">₦750</div>
-                <div className="text-red-100">Cost per hour saved</div>
+                <div className="text-3xl font-bold text-blue-200 mb-2">₦500</div>
+                <div className="text-blue-100">Cost per hour saved</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-red-200 mb-2">10 Min</div>
-                <div className="text-red-100">From order to delivery</div>
+                <div className="text-3xl font-bold text-blue-200 mb-2">10 Min</div>
+                <div className="text-blue-100">From order to delivery</div>
               </div>
             </div>
-            <p className="text-red-100 text-lg mt-6 max-w-3xl mx-auto">
+            <p className="text-blue-100 text-lg mt-6 max-w-3xl mx-auto">
               For less than the cost of a meal, get back hours of your life every week. 
               That's time you can spend with family, pursuing hobbies, or growing your business.
             </p>

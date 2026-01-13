@@ -7,6 +7,7 @@ import Hero from '../components/wash/Hero';
 import Benefits from '../components/wash/Benefits';
 import HowItWorks from '../components/wash/HowItWorks';
 import PricingPlans from '../components/wash/PricingPlans';
+import PlanRecommendation from '../components/wash/PlanRecommendation';
 import Testimonials from '../components/wash/Testimonials';
 import FAQ from '../components/wash/FAQ';
 import Footer from '../components/wash/Footer';
@@ -132,19 +133,23 @@ const WashLanding: React.FC = () => {
 
       <main>
         <Hero onJoinWaitlist={scrollToPricing} />
-        
+
         <Benefits />
-        
+
         <motion.div id="how-it-works">
           <HowItWorks />
         </motion.div>
-        
+
+        <motion.div id="plan-recommendation">
+          <PlanRecommendation />
+        </motion.div>
+
         <motion.div id="pricing">
           <PricingPlans />
         </motion.div>
-        
+
         <Testimonials />
-        
+
         <motion.div id="faq">
           <FAQ />
         </motion.div>

@@ -19,12 +19,12 @@ const FAQ: React.FC = () => {
     {
       category: "Service Coverage",
       question: "Is Jaranow available in my area?",
-      answer: "Currently, we serve Gwarinpa in Abuja with plans to expand to Dawaki, Maitama, Jahi, and Life Camp by Q2-Q3 2026. We're also launching in Lagos in 2026. Plus, check out our premium <a href='/wash' class='text-red-600 hover:text-red-700 underline font-medium'>laundry service</a> coming soon. Join our waitlist to be notified when we reach your area."
+      answer: "Currently, we serve Gwarinpa in Abuja with plans to expand to Dawaki, Maitama, Jahi, and Life Camp by Q2-Q3 2026. We're also launching in Lagos in 2026. Plus, check out our premium <a href='/wash' class='text-primary-600 hover:text-primary-700 underline font-medium'>laundry service</a> coming soon. Join our waitlist to be notified when we reach your area."
     },
     {
       category: "Pricing & Payments",
       question: "Are there any hidden fees or surge pricing?",
-      answer: "No hidden fees, ever. You pay ₦1,000 service charge + ₦500 delivery fee = ₦1,500 total per order, plus the cost of your groceries (no markup). No surge pricing during peak hours, holidays, or bad weather. What you see is what you pay."
+      answer: "No hidden fees, ever. You pay ₦500 service charge + ₦500 delivery fee = ₦1,000 total per order, plus the cost of your groceries (no markup). No surge pricing during peak hours, holidays, or bad weather. What you see is what you pay."
     },
     {
       category: "Payment Security",
@@ -34,7 +34,7 @@ const FAQ: React.FC = () => {
     {
       category: "Order Minimums",
       question: "Is there a minimum order value?",
-      answer: "No minimum order! Whether you need just a bottle of water or a full grocery haul, we'll deliver it in 10 minutes for the same ₦1,500 fee. Perfect for those emergency items or when you just need a few things."
+      answer: "No minimum order! Whether you need just a bottle of water or a full grocery haul, we'll deliver it in 10 minutes for the same ₦1,000 fee. Perfect for those emergency items or when you just need a few things."
     },
     {
       category: "Product Quality",
@@ -73,7 +73,7 @@ const FAQ: React.FC = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Frequently Asked <span className="text-[#ff0023]">Questions</span>
+            Frequently Asked <span className="text-primary-600">Questions</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Everything you need to know about Jaranow's 10-minute grocery delivery service
@@ -142,7 +142,7 @@ const FAQ: React.FC = () => {
           className="text-center mt-16"
         >
           <div
-              className="bg-gradient-to-r from-red-100 to-pink-100 rounded-2xl p-8 border border-red-200 shadow-lg hover:shadow-xl transition-all duration-300">
+              className="bg-gradient-to-r from-primary-100 to-blue-100 rounded-2xl p-8 border border-primary-200 shadow-lg hover:shadow-xl transition-all duration-300">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
               Still Have Questions?
             </h3>
@@ -152,8 +152,8 @@ const FAQ: React.FC = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
-              <div className="flex items-center space-x-3 bg-white rounded-lg px-6 py-3 border border-red-200">
-                <div className="text-[#ff0023]">💬</div>
+              <div className="flex items-center space-x-3 bg-white rounded-lg px-6 py-3 border border-primary-200">
+                <div className="text-primary-600">💬</div>
                 <div className="text-left">
                   <div className="font-semibold text-gray-900">Live Chat</div>
                   <div className="text-sm text-gray-600">Available 24/7</div>

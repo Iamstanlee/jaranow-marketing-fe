@@ -27,7 +27,7 @@ const HowItWorks: React.FC = () => {
         "🥬 Quality checked fruits and vegetables",
         "📦 Professionally packed for safe delivery"
       ],
-      color: "bg-[#ff0023]",
+      color: "bg-[#2563eb]",
       lightColor: "bg-red-50"
     },
     {
@@ -56,7 +56,7 @@ const HowItWorks: React.FC = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            How <span className="text-[#ff0023]">Jaranow</span> Works
+            How <span className="text-[#2563eb]">Jaranow</span> Works
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             From thought to doorstep in just 3 simple steps - powered by AI
@@ -178,7 +178,7 @@ const HowItWorks: React.FC = () => {
           viewport={{ once: true }}
           className="text-center mt-16"
         >
-          <div className="bg-gradient-to-r from-[#ff0023] to-red-600 rounded-2xl p-8 text-white">
+          <div className="bg-gradient-to-r from-[#2563eb] to-red-600 rounded-2xl p-8 text-white">
             <div className="flex items-center justify-center space-x-3 mb-4">
               <Clock className="w-8 h-8" />
               <h3 className="text-2xl font-bold">Ready in 10 Minutes</h3>

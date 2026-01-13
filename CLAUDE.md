@@ -54,7 +54,7 @@ Each page typically includes:
 ### Styling
 - Tailwind CSS for all styling
 - Brand colors:
-  - Primary Red: `#ff0023` (Jaranow)
+  - Primary Blue: `#2563eb` (primary-600)
   - Gradients and utility classes from Tailwind
 - Responsive design with mobile-first approach
 
@@ -146,9 +146,9 @@ Current focus:
 ## Pricing Information
 
 **Jaranow Delivery:**
-- Service Charge: ₦1,000
+- Service Charge: ₦500
 - Delivery Fee: ₦500
-- Total: ₦1,500 per order
+- Total: ₦1,000 per order
 - No markup on groceries
 
 **Jaranow Wash:**

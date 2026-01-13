@@ -7,6 +7,9 @@ import { SubscriptionPlan } from '../types';
 import { formatCurrency } from '../utils/formatters';
 import JaranowNavigation from '../components/jaranow/Navigation';
 import JaranowFooter from '../components/jaranow/Footer';
+import WashNavigation from '../components/wash/Navigation';
+import WashFooter from '../components/wash/Footer';
+import PlanRecommendation from '../components/wash/PlanRecommendation';
 
 const Pricing: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -72,7 +75,7 @@ I'd like to get started. When is the next available pickup?`;
   const deliveryPricingBreakdown = [
     {
       item: "Service Charge",
-      price: "₦1,000",
+      price: "₦500",
       description: "AI shopping, professional selection & packing",
       included: true
     },
@@ -139,19 +142,23 @@ I'd like to get started. When is the next available pickup?`;
     <div className="min-h-screen bg-white">
       <Helmet>
         <title>Jaranow Pricing - Affordable Grocery Delivery & Laundry Services in Abuja</title>
-        <meta name="description" content="Transparent pricing for Jaranow's 10-minute grocery delivery (₦1,500) and premium laundry subscription services. No hidden fees, no surge pricing." />
+        <meta name="description" content="Transparent pricing for Jaranow's 10-minute grocery delivery (₦1,000) and premium laundry subscription services. No hidden fees, no surge pricing." />
         <meta name="keywords" content="Jaranow pricing, grocery delivery cost Abuja, laundry service prices Nigeria, affordable delivery service" />
         <link rel="canonical" href="https://jaranow.com/pricing" />
         <meta property="og:title" content="Jaranow Pricing - Simple & Transparent" />
-        <meta property="og:description" content="Affordable grocery delivery in 10 minutes for ₦1,500. Premium laundry plans from ₦14,999/month. No hidden fees." />
+        <meta property="og:description" content="Affordable grocery delivery in 10 minutes for ₦1,000. Premium laundry plans from ₦14,999/month. No hidden fees." />
         <meta property="og:url" content="https://jaranow.com/pricing" />
         <meta property="og:type" content="website" />
       </Helmet>
 
-      <JaranowNavigation onOrderNow={handleDeliveryOrder} />
+      {activeTab === 'delivery' ? (
+        <JaranowNavigation onOrderNow={handleDeliveryOrder} />
+      ) : (
+        <WashNavigation />
+      )}
 
       {/* Hero Section */}
-      <section className="pt-24 pb-20 bg-gradient-to-br from-red-50 to-blue-50">
+      <section className="pt-24 pb-20 bg-gradient-to-br from-blue-50 to-indigo-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -160,7 +167,7 @@ I'd like to get started. When is the next available pickup?`;
             className="text-center mb-16"
           >
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-              Simple, <span className="text-[#ff0023]">Transparent</span> Pricing
+              Simple, <span className="text-[#2563eb]">Transparent</span> Pricing
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               No hidden fees. No surge pricing. No surprises. Just honest pricing for premium service.
@@ -174,7 +181,7 @@ I'd like to get started. When is the next available pickup?`;
                 onClick={() => handleTabChange('delivery')}
                 className={`px-8 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center space-x-2 ${
                   activeTab === 'delivery'
-                    ? 'bg-[#ff0023] text-white'
+                    ? 'bg-[#2563eb] text-white'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
@@ -185,7 +192,7 @@ I'd like to get started. When is the next available pickup?`;
                 onClick={() => handleTabChange('wash')}
                 className={`px-8 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center space-x-2 ${
                   activeTab === 'wash'
-                    ? 'bg-[#ff0023] text-white'
+                    ? 'bg-[#2563eb] text-white'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
@@ -213,16 +220,16 @@ I'd like to get started. When is the next available pickup?`;
                     {deliveryPricingBreakdown.map((item, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-4 rounded-xl border-2 bg-red-50 border-red-200"
+                        className="flex items-center justify-between p-4 rounded-xl border-2 bg-primary-50 border-primary-200"
                       >
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-1">
-                            <Check className="w-5 h-5 text-[#ff0023]" />
+                            <Check className="w-5 h-5 text-[#2563eb]" />
                             <span className="font-semibold text-gray-900">{item.item}</span>
                           </div>
                           <p className="text-sm text-gray-600 ml-8">{item.description}</p>
                         </div>
-                        <div className="text-xl font-bold text-[#ff0023]">
+                        <div className="text-xl font-bold text-[#2563eb]">
                           {item.price}
                         </div>
                       </div>
@@ -233,7 +240,7 @@ I'd like to get started. When is the next available pickup?`;
                   <div className="border-t-2 border-gray-200 pt-6">
                     <div className="flex items-center justify-between text-2xl font-bold">
                       <span className="text-gray-900">Total Per Order:</span>
-                      <span className="text-[#ff0023]">₦1,500</span>
+                      <span className="text-[#2563eb]">₦1,000</span>
                     </div>
                     <p className="text-sm text-gray-600 mt-2 text-center">
                       Plus the cost of your groceries - no markup!
@@ -245,7 +252,7 @@ I'd like to get started. When is the next available pickup?`;
                 <div className="space-y-8">
                   <div className="bg-white rounded-2xl p-8 shadow-2xl border border-gray-100">
                     <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                      What You Get for ₦1,500
+                      What You Get for ₦1,000
                     </h2>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -262,9 +269,9 @@ I'd like to get started. When is the next available pickup?`;
                   </div>
 
                   {/* Payment Methods */}
-                  <div className="bg-gradient-to-br from-red-100 to-pink-100 rounded-2xl p-8 border border-red-200 shadow-lg">
+                  <div className="bg-gradient-to-br from-primary-100 to-blue-100 rounded-2xl p-8 border border-primary-200 shadow-lg">
                     <h3 className="text-xl font-bold text-gray-900 mb-6 text-center flex items-center justify-center space-x-2">
-                      <Shield className="w-6 h-6 text-[#ff0023]" />
+                      <Shield className="w-6 h-6 text-[#2563eb]" />
                       <span>Secure Payment Options</span>
                     </h3>
 
@@ -272,9 +279,9 @@ I'd like to get started. When is the next available pickup?`;
                       {paymentMethods.map((method, index) => (
                         <div
                           key={index}
-                          className="flex items-center space-x-3 bg-white rounded-lg p-4 border border-red-200"
+                          className="flex items-center space-x-3 bg-white rounded-lg p-4 border border-primary-200"
                         >
-                          <div className="text-[#ff0023]">{method.icon}</div>
+                          <div className="text-[#2563eb]">{method.icon}</div>
                           <span className="text-gray-700 font-medium">{method.name}</span>
                         </div>
                       ))}
@@ -282,7 +289,7 @@ I'd like to get started. When is the next available pickup?`;
 
                     <div className="mt-6 text-center">
                       <p className="text-sm text-gray-600">
-                        <Shield className="w-4 h-4 inline text-[#ff0023] mr-1" />
+                        <Shield className="w-4 h-4 inline text-[#2563eb] mr-1" />
                         All transactions are secured with bank-level encryption
                       </p>
                     </div>
@@ -292,23 +299,23 @@ I'd like to get started. When is the next available pickup?`;
 
               {/* Value Proposition */}
               <div className="mt-16">
-                <div className="bg-gradient-to-r from-[#ff0023] to-red-600 rounded-2xl p-8 text-white">
-                  <h3 className="text-2xl font-bold mb-4">Is ₦1,500 Worth Your Time?</h3>
+                <div className="bg-gradient-to-r from-[#2563eb] to-primary-700 rounded-2xl p-8 text-white">
+                  <h3 className="text-2xl font-bold mb-4">Is ₦1,000 Worth Your Time?</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-red-200 mb-2">2 Hours</div>
-                      <div className="text-red-100">Time saved per shop</div>
+                      <div className="text-3xl font-bold text-blue-200 mb-2">2 Hours</div>
+                      <div className="text-blue-100">Time saved per shop</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-red-200 mb-2">₦750</div>
-                      <div className="text-red-100">Cost per hour saved</div>
+                      <div className="text-3xl font-bold text-blue-200 mb-2">₦500</div>
+                      <div className="text-blue-100">Cost per hour saved</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-red-200 mb-2">10 Min</div>
-                      <div className="text-red-100">From order to delivery</div>
+                      <div className="text-3xl font-bold text-blue-200 mb-2">10 Min</div>
+                      <div className="text-blue-100">From order to delivery</div>
                     </div>
                   </div>
-                  <p className="text-red-100 text-lg mt-6 max-w-3xl mx-auto text-center">
+                  <p className="text-blue-100 text-lg mt-6 max-w-3xl mx-auto text-center">
                     For less than the cost of a meal, get back hours of your life every week.
                     That's time you can spend with family, pursuing hobbies, or growing your business.
                   </p>
@@ -319,7 +326,7 @@ I'd like to get started. When is the next available pickup?`;
               <div className="mt-12 text-center">
                 <motion.button
                   onClick={handleDeliveryOrder}
-                  className="bg-[#ff0023] text-white px-12 py-4 rounded-xl font-semibold text-lg hover:bg-red-700 transition-colors shadow-lg"
+                  className="bg-[#2563eb] text-white px-12 py-4 rounded-xl font-semibold text-lg hover:bg-primary-700 transition-colors shadow-lg"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -336,8 +343,13 @@ I'd like to get started. When is the next available pickup?`;
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
+              {/* Plan Recommendation Tool */}
+              <div className="mb-16">
+                <PlanRecommendation />
+              </div>
+
               {/* Comparison Banner */}
-              <div className="mb-12">
+              <div className="max-w-4xl mx-auto mb-16">
                 <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 p-8 md:p-10 shadow-2xl">
                   <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-yellow-400/20 rounded-full blur-3xl"></div>
                   <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-blue-400/20 rounded-full blur-3xl"></div>
@@ -521,7 +533,11 @@ I'd like to get started. When is the next available pickup?`;
         </div>
       </section>
 
-      <JaranowFooter />
+      {activeTab === 'delivery' ? (
+        <JaranowFooter />
+      ) : (
+        <WashFooter />
+      )}
     </div>
   );
 };

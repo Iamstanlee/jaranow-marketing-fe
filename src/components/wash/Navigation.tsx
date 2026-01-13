@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {AnimatePresence, motion} from 'framer-motion';
 import {scrollToElement} from "../../utils/formatters";
+import {Link} from "react-router-dom";
 
 interface NavigationProps {
-    onJoinWaitlist: () => void;
+    onJoinWaitlist?: () => void;
 }
 
 const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
@@ -22,7 +23,8 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
 
     const navItems = [
         {name: 'How It Works', href: '#how-it-works'},
-        {name: 'Pricing', href: '#pricing'},
+        {name: 'Find Your Plan', href: '/wash/recommendation'},
+        {name: 'Pricing', href: '/pricing?service=wash'},
         {name: 'FAQ', href: '#faq'},
     ];
 
@@ -35,6 +37,8 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
     const handleNavClick = (href: string) => {
         if (href.startsWith('#')) {
             scrollToElement(href.substring(1));
+        } else {
+            window.location.href = href;
         }
         setIsMobileMenuOpen(false);
     };
@@ -57,7 +61,10 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
                         whileHover={{scale: 1.05}}
                         transition={{type: "spring", stiffness: 300}}
                     >
-                        <img src={isScrolled ? "/logo-wash.png" : "/logo-wash_inverted.png"} alt="Jaranow Wash - Subscription laundry service" className="h-16 p-2"/>
+                        <Link to='/wash'>
+                            <img src={isScrolled ? "/logo-wash.png" : "/logo-wash_inverted.png"}
+                                 alt="Jaranow Wash - Subscription laundry service" className="h-16 p-2"/>
+                        </Link>
                     </motion.div>
 
                     <div className="hidden md:block">
@@ -122,7 +129,13 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
 
                     <div className="hidden md:block">
                         <motion.button
-                            onClick={onJoinWaitlist}
+                            onClick={() => {
+                                if (onJoinWaitlist) {
+                                    onJoinWaitlist();
+                                } else {
+                                    window.location.href = '/wash#pricing';
+                                }
+                            }}
                             className={`px-6 py-2 rounded-lg font-semibold text-sm transition-all duration-300 ${
                                 isScrolled
                                     ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-lg hover:shadow-xl'
@@ -205,7 +218,11 @@ const Navigation: React.FC<NavigationProps> = ({onJoinWaitlist}) => {
 
                         <button
                             onClick={() => {
-                                onJoinWaitlist();
+                                if (onJoinWaitlist) {
+                                    onJoinWaitlist();
+                                } else {
+                                    window.location.href = '/wash#pricing';
+                                }
                                 setIsMobileMenuOpen(false);
                             }}
                             className="block w-full text-left px-3 py-2 text-sm font-semibold bg-primary-600 text-white hover:bg-primary-700 rounded-md transition-colors duration-300"

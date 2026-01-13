@@ -5,6 +5,7 @@ import { HelmetProvider } from 'react-helmet-async';
 const Home = React.lazy(() => import('./pages/Home'));
 const JaranowLanding = React.lazy(() => import('./pages/JaranowLanding'));
 const WashLanding = React.lazy(() => import('./pages/WashLanding'));
+const WashRecommendation = React.lazy(() => import('./pages/WashRecommendation'));
 const Deck = React.lazy(() => import("./pages/Deck"));
 const Pricing = React.lazy(() => import('./pages/Pricing'));
 
@@ -26,6 +27,7 @@ function App() {
                     <Route path="/" element={<Home/>}/>
                     <Route path="/delivery" element={<JaranowLanding/>}/>
                     <Route path="/wash" element={<WashLanding/>}/>
+                    <Route path="/wash/recommendation" element={<WashRecommendation/>}/>
                     <Route path="/pricing" element={<Pricing/>}/>
                     <Route path="/pitch-deck" element={<Deck/>}/>
                 </Routes>

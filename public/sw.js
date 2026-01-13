@@ -8,7 +8,7 @@ const STATIC_ASSETS = [
   '/',
   '/static/js/bundle.js',
   '/static/css/main.css',
-  '/logo-brand.png',
+  '/logo-white.png',
   '/logo-wash.png',
   '/manifest.json'
 ];

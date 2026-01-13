@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Smartphone, ChevronDown } from 'lucide-react';
+import React, {useState} from 'react';
+import {AnimatePresence, motion} from 'framer-motion';
+import {ChevronDown, Menu, Smartphone, X} from 'lucide-react';
+import {Link} from "react-router-dom";
 
 interface NavigationProps {
   onOrderNow: () => void;
@@ -27,8 +28,10 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
-            <img src="/logo-brand.png" alt="Jaranow - AI-powered grocery delivery" className="h-16 p-2"/>
-            <span className="text-[10px] bg-[#ff0023]/10 text-[#ff0023] px-2 py-1 rounded-full">
+            <Link to='/delivery'>
+              <img src="/logo-white.png" alt="Jaranow - AI-powered grocery delivery" className="h-16 p-2"/>
+            </Link>
+            <span className="text-[8px] font-semibold bg-[#2563eb]/10 text-[#2563eb] px-2 py-1 rounded-full">
               10-MIN DELIVERY
             </span>
           </div>
@@ -85,7 +88,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
             ))}
             <motion.button
               onClick={onOrderNow}
-              className="bg-[#ff0023] hover:bg-[#e6001f] text-white text-sm font-semibold px-6 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
+              className="bg-[#2563eb] hover:bg-[#e6001f] text-white text-sm font-semibold px-6 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -149,7 +152,7 @@ const Navigation: React.FC<NavigationProps> = ({ onOrderNow }) => {
                   onOrderNow();
                   setIsOpen(false);
                 }}
-                className="bg-[#ff0023] hover:bg-[#e6001f] text-white text-sm font-semibold px-6 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2 mx-2"
+                className="bg-[#2563eb] hover:bg-[#e6001f] text-white text-sm font-semibold px-6 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2 mx-2"
               >
                 <Smartphone className="w-4 h-4" />
                 <span>Order Now</span>

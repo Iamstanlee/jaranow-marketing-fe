@@ -25,6 +25,8 @@ const Footer: React.FC = () => {
   ];
 
   const supportLinks = [
+    { name: 'Find Your Plan', href: '/wash/recommendation' },
+    { name: 'Pricing', href: '/pricing?service=wash' },
     { name: 'Help Center', href: '#faq' },
     { name: 'Contact Us', href: 'mailto:hello@jaranow.com' },
     { name: 'WhatsApp', href: 'https://wa.me/2349038622012' },
@@ -44,7 +46,7 @@ const Footer: React.FC = () => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <img src="/logo-brand.png" alt="Jaranow - Convenience as a Service" className="h-16 p-2" />
+              <img src="/logo-white.png" alt="Jaranow - Convenience as a Service" className="h-16 p-2" />
               <p className="text-gray-400 leading-relaxed mb-6">
                 Your convenience, our mission. From lightning-fast delivery to premium laundry service, we bring convenience to your doorstep.
               </p>

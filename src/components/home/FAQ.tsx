@@ -30,7 +30,7 @@ const FAQ: React.FC = () => {
     },
     {
       question: 'Is there a minimum order amount?',
-      answer: 'For our 10-minute delivery service, orders start from ₦1,500 plus delivery fee. For our laundry service, you can choose from our subscription plans starting at ₦14,999/month.'
+      answer: 'For our 10-minute delivery service, every order costs ₦1,000 (₦500 service charge + ₦500 delivery fee), with no minimum order amount. For our laundry service, you can choose from our subscription plans starting at ₦14,999/month.'
     },
     {
       question: 'How fast is the delivery?',

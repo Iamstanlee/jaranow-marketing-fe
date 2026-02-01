@@ -32,9 +32,9 @@ module.exports = {
         }
       },
       fontFamily: {
-        'display': ['ClashGrotesk', 'system-ui', 'sans-serif'],
-        'body': ['ClashGrotesk', 'system-ui', 'sans-serif'],
-        sans: ['ClashGrotesk', 'system-ui', 'sans-serif'],
+        'display': ['Rubik', 'system-ui', 'sans-serif'],
+        'body': ['Rubik', 'system-ui', 'sans-serif'],
+        sans: ['Rubik', 'system-ui', 'sans-serif'],
       },
       spacing: {
         '18': '4.5rem',

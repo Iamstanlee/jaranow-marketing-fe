@@ -49,11 +49,11 @@ const HowItWorks: React.FC = () => {
           {/* Connection Line */}
           <div className="hidden lg:block absolute top-24 left-0 right-0 h-0.5 bg-gradient-to-r from-primary-300 via-primary-400 to-primary-300"></div>
           
-          <div className="grid lg:grid-cols-3 gap-12 lg:gap-8">
+          <div className="grid lg:grid-cols-3 gap-12 lg:gap-8 items-stretch">
             {steps.map((step, index) => (
               <motion.div
                 key={index}
-                className="relative text-center"
+                className="relative text-center flex flex-col"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: index * 0.2 }}
@@ -70,11 +70,11 @@ const HowItWorks: React.FC = () => {
                   <div className="absolute inset-0 rounded-full bg-primary-400 animate-ping opacity-20"></div>
                 </motion.div>
 
-                <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 flex-1 flex flex-col">
                   <div className="text-4xl mb-4">{step.icon}</div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">{step.title}</h3>
-                  <p className="text-gray-600 mb-6 leading-relaxed">{step.description}</p>
-                  
+                  <p className="text-gray-600 mb-6 leading-relaxed flex-grow">{step.description}</p>
+
                   <div className="space-y-2">
                     {step.details.map((detail, detailIndex) => (
                       <div key={detailIndex} className="flex items-center justify-center text-sm text-gray-700">
@@ -100,8 +100,8 @@ const HowItWorks: React.FC = () => {
           </div>
         </div>
 
-        <motion.div 
-          className="mt-16 text-center"
+        <motion.div
+          className="relative z-10 mt-16 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}

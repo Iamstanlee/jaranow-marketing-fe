@@ -12,7 +12,6 @@ import Testimonials from '../components/wash/Testimonials';
 import FAQ from '../components/wash/FAQ';
 import Footer from '../components/wash/Footer';
 import WaitlistForm from '../components/wash/WaitlistForm';
-import LaunchBanner from '../components/wash/LaunchBanner';
 import {scrollToElement} from '../utils/formatters';
 
 const WashLanding: React.FC = () => {
@@ -33,10 +32,10 @@ const WashLanding: React.FC = () => {
     scrollToElement('pricing');
   };
 
-  const openWaitlist = (planId?: string) => {
-    setSelectedPlan(planId);
-    setIsWaitlistOpen(true);
-  };
+  // const openWaitlist = (planId?: string) => {
+  //   setSelectedPlan(planId);
+  //   setIsWaitlistOpen(true);
+  // };
 
   const closeWaitlist = () => {
     setIsWaitlistOpen(false);

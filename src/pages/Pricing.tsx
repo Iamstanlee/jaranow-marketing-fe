@@ -131,7 +131,6 @@ I'd like to get started. When is the next available pickup?`;
         'Max 15 clothes per wash',
         'Special clothing (suit, longdress, towel, duvet set, curtains)',
         'Free pickup and delivery (Pickup days: Tuesday, Thursday & Saturday)',
-        'Priority same-day service',
         'Dedicated premium support',
         'Quality guarantee'
       ]

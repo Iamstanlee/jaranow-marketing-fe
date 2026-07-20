@@ -8,6 +8,7 @@ import { formatCurrency } from '../utils/formatters';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import PlanRecommendation from '../components/wash/PlanRecommendation';
+import SeoTags from '../seo/SeoTags';
 
 type ServiceTab = 'carwash' | 'wash';
 
@@ -146,17 +147,9 @@ I'd like to get started. When is the next available pickup?`;
 
   return (
     <div className="min-h-screen bg-white">
+      <SeoTags route="/pricing" />
       <Helmet>
-        <title>Jaranow Pricing - Fixed-Price Car Wash & Premium Laundry in Abuja</title>
-        <meta name="description" content="Transparent pricing for Carwash by Jaranow (Exterior ₦2,000, Full Wash ₦3,000) and premium laundry subscriptions. No hidden fees, no negotiation." />
-        <meta name="keywords" content="Jaranow pricing, car wash cost Abuja, laundry service prices Nigeria, fixed price car wash Gwarinpa" />
-        <link rel="canonical" href="https://jaranow.com/pricing" />
-        <meta property="og:title" content="Jaranow Pricing - Simple & Transparent" />
-        <meta property="og:description" content="Fixed-price car wash from ₦2,000. Premium laundry plans from ₦14,999/month. No hidden fees." />
-        <meta property="og:url" content="https://jaranow.com/pricing" />
-        <meta property="og:image" content="https://jaranow.com/jaranow/opengraph-pricing.png" />
-        <meta name="twitter:image" content="https://jaranow.com/jaranow/opengraph-pricing.png" />
-        <meta property="og:type" content="website" />
+        <meta name="keywords" content="Jaranow pricing, car wash cost Abuja, laundry service prices Nigeria, car wash Gwarinpa" />
       </Helmet>
 
       <Header
@@ -173,10 +166,10 @@ I'd like to get started. When is the next available pickup?`;
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-              Simple, <span className="text-cyan-300">Transparent</span> Pricing
+              What It <span className="text-cyan-300">Costs</span>
             </h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              No hidden fees. No negotiation. No surprises. Just honest pricing for premium service.
+              Everything we offer, in one place - so you can pick what suits you and get on with your day.
             </p>
           </div>
 
@@ -277,7 +270,7 @@ I'd like to get started. When is the next available pickup?`;
               </div>
 
               <p className="text-center text-gray-500 mt-8 text-sm">
-                Fixed price · No negotiation · No hidden charges
+                Washed by hand · Checked before you drive off · Your keys stay with you
               </p>
 
               {/* Location + Payment */}
@@ -308,7 +301,7 @@ I'd like to get started. When is the next available pickup?`;
                     ))}
                   </div>
                   <p className="text-sm text-gray-600 mt-4 text-center">
-                    Pay the fixed price to our Jaranow business account and drive off.
+                    Pay to our Jaranow business account and drive off.
                   </p>
                 </div>
               </div>
@@ -344,17 +337,17 @@ I'd like to get started. When is the next available pickup?`;
                   <div className="relative z-10">
                     <div className="text-center mb-6">
                       <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                        40% Cheaper & Way More Convenient
+                        Cared For, Down To The Last Detail
                       </h3>
                       <p className="text-blue-100 text-lg">
-                        than traditional laundry services in Abuja
+                        sorted, treated and finished the way you'd do it yourself - if you had the time
                       </p>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                       <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
-                        <div className="text-3xl font-bold text-cyan-400 mb-1">40%</div>
-                        <div className="text-white text-sm">Cost Savings</div>
+                        <div className="text-3xl font-bold text-cyan-400 mb-1">Every</div>
+                        <div className="text-white text-sm">Item Checked</div>
                       </div>
                       <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
                         <div className="text-3xl font-bold text-cyan-400 mb-1">0</div>

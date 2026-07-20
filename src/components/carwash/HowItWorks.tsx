@@ -25,8 +25,8 @@ const HowItWorks: React.FC = () => {
         {
             number: '03',
             icon: <KeyRound size={32} className="text-white"/>,
-            title: 'Pay & drive off',
-            description: 'Pay the fixed price to our Jaranow business account, hop back in, and drive off spotless.',
+            title: 'Drive off',
+            description: 'We walk you round the car before you settle up. Hop back in and drive off spotless.',
         },
     ];
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
-import {ArrowRight, Car, DollarSign, MapPin, Shirt, Sparkles, Truck} from 'lucide-react';
+import {ArrowRight, Heart, MapPin, ShieldCheck, Shirt, Sparkles, Truck} from 'lucide-react';
 
 interface ServiceCardProps {
     title: string;
@@ -74,19 +74,19 @@ const Services: React.FC = () => {
     const services: ServiceCardProps[] = [
         {
             title: 'Carwash by Jaranow',
-            description: 'Fixed-price car washing in Gwarinpa. Drive in, we wash, you drive off.',
+            description: 'Hand-washed car care in Gwarinpa. Drive in, we wash, you drive off.',
             features: [
                 {
                     icon: <Sparkles size={18} className="text-blue-200"/>,
-                    text: 'Exterior ₦2,000 · Full Wash ₦3,000'
+                    text: 'Washed by hand, checked twice'
                 },
                 {
                     icon: <MapPin size={18} className="text-blue-200"/>,
                     text: '6th Avenue, Gwarinpa, Abuja'
                 },
                 {
-                    icon: <Car size={18} className="text-blue-200"/>,
-                    text: 'Fixed price, no negotiation'
+                    icon: <ShieldCheck size={18} className="text-blue-200"/>,
+                    text: 'Your keys, your car, never moved'
                 }
             ],
             link: '/carwash',
@@ -105,8 +105,8 @@ const Services: React.FC = () => {
                     text: 'Doorstep pickup & delivery'
                 },
                 {
-                    icon: <DollarSign size={18} className="text-blue-200"/>,
-                    text: 'From ₦14,999/month'
+                    icon: <Heart size={18} className="text-blue-200"/>,
+                    text: 'Sorted, treated and handled with care'
                 }
             ],
             link: '/laundry',

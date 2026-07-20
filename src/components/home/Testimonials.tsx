@@ -15,7 +15,7 @@ const Testimonials: React.FC = () => {
     {
       name: 'Chioma Adebayo',
       role: 'Busy Professional',
-      content: 'I drove in on my way to work and my car came out spotless. Fixed price, no haggling, and I was back on the road in no time. Brilliant service!',
+      content: 'I drove in on my way to work and my car came out spotless. They caught marks I had stopped noticing, and I was back on the road in no time. Brilliant service!',
       rating: 5,
       service: 'carwash',
       avatar: 'CA'
@@ -47,7 +47,7 @@ const Testimonials: React.FC = () => {
     {
       name: 'Blessing Eze',
       role: 'Consultant',
-      content: 'I love that my clothes are picked up, washed, ironed, and delivered back to me. The premium laundry service is worth every naira!',
+      content: 'I love that my clothes are picked up, washed, ironed, and delivered back to me. Everything comes back folded exactly the same way every time.',
       rating: 5,
       service: 'laundry',
       avatar: 'BE'

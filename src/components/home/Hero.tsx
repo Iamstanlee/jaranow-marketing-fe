@@ -46,7 +46,7 @@ const Hero: React.FC = () => {
             variants={fadeInUp}
             className="text-lg sm:text-xl md:text-2xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed"
           >
-            Fixed-price car wash in Gwarinpa. Subscription laundry, collected and returned. Both at a price agreed up front.
+            Hand car wash in Gwarinpa. Subscription laundry, collected and returned. Both done with the same care and eye for detail.
           </motion.p>
 
           {/* Dual CTAs */}

@@ -7,6 +7,7 @@ import HowItWorks from '../components/home/HowItWorks';
 import Testimonials from '../components/home/Testimonials';
 import FAQ from '../components/home/FAQ';
 import Footer from '../components/common/Footer';
+import SeoTags from '../seo/SeoTags';
 
 const Home: React.FC = () => {
   useEffect(() => {
@@ -15,38 +16,12 @@ const Home: React.FC = () => {
 
   return (
     <>
+      <SeoTags route="/" />
       <Helmet>
-        <title>Jaranow - Convenience as a Service | 10-Min Delivery & Laundry</title>
-        <meta
-          name="description"
-          content="Jaranow brings convenience to your doorstep with 10-minute grocery delivery and premium laundry service in Abuja. Experience hassle-free living today."
-        />
         <meta
           name="keywords"
-          content="Jaranow, convenience service, grocery delivery, laundry service, Abuja, 10 minute delivery, quick delivery, premium laundry, doorstep delivery"
+          content="Jaranow, convenience service, car wash Abuja, car wash Gwarinpa, laundry service Abuja, subscription laundry, doorstep laundry pickup"
         />
-        <link rel="canonical" href="https://jaranow.com" />
-
-        {/* Open Graph / Facebook */}
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://jaranow.com" />
-        <meta property="og:title" content="Jaranow - Convenience as a Service" />
-        <meta
-          property="og:description"
-          content="From lightning-fast grocery delivery to premium laundry care - Jaranow brings convenience to your doorstep in Abuja."
-        />
-        <meta property="og:site_name" content="Jaranow" />
-
-        {/* Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" content="https://jaranow.com" />
-        <meta name="twitter:title" content="Jaranow - Convenience as a Service" />
-        <meta
-          name="twitter:description"
-          content="From lightning-fast grocery delivery to premium laundry care - Jaranow brings convenience to your doorstep in Abuja."
-        />
-        <meta name="twitter:site" content="@jaranow" />
-        <meta name="twitter:creator" content="@jaranow" />
 
         {/* Structured Data */}
         <script type="application/ld+json">
@@ -55,8 +30,8 @@ const Home: React.FC = () => {
             '@type': 'Organization',
             name: 'Jaranow',
             url: 'https://jaranow.com',
-            logo: 'https://jaranow.com/logo.png',
-            description: 'Convenience as a Service platform offering 10-minute delivery and premium laundry services',
+            logo: 'https://jaranow.com/jaranow/icon-512.png',
+            description: 'Convenience as a Service platform offering hand car washing in Gwarinpa and subscription laundry across Abuja',
             address: {
               '@type': 'PostalAddress',
               addressLocality: 'Abuja',
@@ -64,14 +39,14 @@ const Home: React.FC = () => {
             },
             contactPoint: {
               '@type': 'ContactPoint',
-              telephone: '+234-816-260-5753',
+              telephone: '+234-903-862-2012',
               contactType: 'Customer Service',
               availableLanguage: ['en', 'ig', 'yo', 'ha'],
             },
             sameAs: [
-              'https://www.instagram.com/jaranow',
-              'https://www.linkedin.com/company/jaranow',
-              'https://twitter.com/jaranow',
+              'https://www.instagram.com/jara_now',
+              'https://twitter.com/jara_now',
+              'https://facebook.com/jaranow',
             ],
             hasOfferCatalog: {
               '@type': 'OfferCatalog',
@@ -81,8 +56,8 @@ const Home: React.FC = () => {
                   '@type': 'Offer',
                   itemOffered: {
                     '@type': 'Service',
-                    name: '10-Minute Grocery Delivery',
-                    description: 'Lightning-fast grocery delivery in 10 minutes or less',
+                    name: 'Carwash by Jaranow',
+                    description: 'Hand car washing in Gwarinpa, Abuja. Drive in, we wash, you drive off.',
                   },
                 },
                 {

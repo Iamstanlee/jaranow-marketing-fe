@@ -45,7 +45,7 @@ const PlanRecommendation: React.FC = () => {
       // Perfect fit for Lite
       recommendedPlan = 'lite';
       reasons.push('Your needs perfectly match the Lite Plan (2 washes, up to 12 clothes each)');
-      reasons.push('Best value at ₦14,999/month with predictable costs');
+      reasons.push('A predictable rhythm - two scheduled pickups you never have to think about');
       if (budget && budget < 20000) {
         reasons.push('Fits comfortably within your budget');
       }
@@ -61,11 +61,11 @@ const PlanRecommendation: React.FC = () => {
       if (hasSpecialItems) {
         reasons.push('Premium Plan includes special items like suits, long dresses, and duvet sets');
       }
-      reasons.push('Better value than custom pricing at this volume (₦24,999/month)');
+      reasons.push('Built for your volume, so nothing gets rushed or left behind');
     } else if (totalClothesPerMonth > 45) {
       // Volume exceeds both plans
       recommendedPlan = 'premium';
-      reasons.push('Premium Plan offers the best value for high-volume needs');
+      reasons.push('Premium Plan is built to handle high-volume needs without cutting corners');
       reasons.push('Consider splitting across multiple pickup days (Tuesday, Thursday, Saturday)');
       reasons.push('Additional items can be added with custom pricing as needed');
     }

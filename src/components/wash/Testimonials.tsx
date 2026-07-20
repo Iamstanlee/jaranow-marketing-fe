@@ -22,7 +22,7 @@ const testimonials = [
     id: '3',
     name: 'Anonymous',
     location: 'Maitama, Abuja',
-    message: "The convenience is unmatched. I just schedule pickups through the app and my laundry is handled professionally. Worth every naira for the time I save with my family.",
+    message: "The convenience is unmatched. I book a pickup on WhatsApp and my laundry is handled properly, every time. That's hours back with my family each week.",
     rating: 5,
     avatar: 'AN'
   }

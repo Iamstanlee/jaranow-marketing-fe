@@ -107,17 +107,17 @@ I'd like to get started. When is the next available pickup?`;
                     Why Choose Jaranow?
                   </div>
                   <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                    40% Cheaper & Way More Convenient
+                    Cared For, Down To The Last Detail
                   </h3>
                   <p className="text-blue-100 text-lg">
-                    than traditional laundry services in Abuja
+                    sorted, treated and finished the way you'd do it yourself - if you had the time
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 md:gap-6">
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
-                    <div className="text-3xl font-bold text-cyan-400 mb-1">40%</div>
-                    <div className="text-white text-sm">Cost Savings</div>
+                    <div className="text-3xl font-bold text-cyan-400 mb-1">Every</div>
+                    <div className="text-white text-sm">Item Checked</div>
                   </div>
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
                     <div className="text-3xl font-bold text-cyan-400 mb-1">0</div>
@@ -141,7 +141,7 @@ I'd like to get started. When is the next available pickup?`;
                     <svg className="w-5 h-5 text-cyan-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-sm">No hidden fees</span>
+                    <span className="text-sm">Sorted and handled with care</span>
                   </div>
                   <div className="flex items-center justify-center md:justify-start gap-2 text-white">
                     <svg className="w-5 h-5 text-cyan-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">

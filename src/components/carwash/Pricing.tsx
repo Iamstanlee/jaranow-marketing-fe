@@ -49,11 +49,11 @@ const Pricing: React.FC<PricingProps> = ({onBook}) => {
                 <div>
                     <div className="text-center mb-6">
                         <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-                            Fixed prices. No surprises.
+                            Choose your wash
                         </h2>
                         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                            One flat price for each wash. No negotiation, no hidden charges - you know
-                            exactly what you pay before we start.
+                            Two ways to have your car cared for. Both washed by hand, both finished
+                            to the same standard.
                         </p>
                     </div>
 
@@ -126,7 +126,7 @@ const Pricing: React.FC<PricingProps> = ({onBook}) => {
                     </div>
 
                     <p className="text-center text-gray-500 mt-10 text-sm">
-                        Fixed price · No negotiation · No hidden charges
+                        Washed by hand · Checked before you drive off · Your keys stay with you
                     </p>
                 </div>
             </div>

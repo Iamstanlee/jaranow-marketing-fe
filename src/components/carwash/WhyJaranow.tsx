@@ -1,5 +1,5 @@
 import React from 'react';
-import {Car, ShieldCheck, Tag, Users} from 'lucide-react';
+import {Clock, Heart, ShieldCheck, Sparkles} from 'lucide-react';
 
 interface Reason {
     icon: React.ReactNode;
@@ -10,24 +10,24 @@ interface Reason {
 const WhyJaranow: React.FC = () => {
     const reasons: Reason[] = [
         {
-            icon: <Tag size={26} className="text-cyan-600"/>,
-            title: 'Fixed pricing',
-            description: 'The price you see is the price you pay. No negotiation, no hidden charges, ever.',
+            icon: <Sparkles size={26} className="text-cyan-600"/>,
+            title: 'Attention to detail',
+            description: 'Washed by hand, panel by panel, by a team trained to look twice. We finish to a standard, not to a stopwatch.',
         },
         {
-            icon: <Users size={26} className="text-cyan-600"/>,
-            title: 'Trained staff',
-            description: 'Your car is handled by trained hands who treat every vehicle with care.',
+            icon: <Heart size={26} className="text-cyan-600"/>,
+            title: 'Care',
+            description: 'Your car is treated like it belongs to someone who loves it - because it does. Trained hands, the right products, no shortcuts.',
+        },
+        {
+            icon: <Clock size={26} className="text-cyan-600"/>,
+            title: 'Convenience',
+            description: 'Drive in, no appointment needed. We wash it in place while you wait - you keep the keys and your car never leaves your sight.',
         },
         {
             icon: <ShieldCheck size={26} className="text-cyan-600"/>,
-            title: 'We ask about your valuables',
-            description: 'Before every interior clean, we check with you about your valuables. Nothing is touched without your say-so.',
-        },
-        {
-            icon: <Car size={26} className="text-cyan-600"/>,
-            title: 'We never move your car',
-            description: 'Your car stays exactly where you left it. We wash it in place - you keep the keys.',
+            title: 'Integrity',
+            description: 'Before every interior clean we check with you about your valuables. Nothing is touched without your say-so, and we do exactly what we said we would.',
         },
     ];
 
@@ -40,7 +40,7 @@ const WhyJaranow: React.FC = () => {
                             Why Jaranow
                         </h2>
                         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                            The same trust behind Jaranow grocery and laundry - now for your car.
+                            The same care behind Jaranow laundry - now for your car.
                         </p>
                     </div>
 

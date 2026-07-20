@@ -1,12 +1,12 @@
 import React from 'react';
 import {motion} from 'framer-motion';
 import { 
-  Clock, 
-  Truck, 
-  Gem, 
-  DollarSign, 
-  Shield, 
-  Smartphone 
+  Clock,
+  Truck,
+  Gem,
+  Handshake,
+  Shield,
+  Smartphone
 } from 'lucide-react';
 
 const benefits = [
@@ -29,10 +29,10 @@ const benefits = [
     stats: '99.9% customer satisfaction'
   },
   {
-    icon: DollarSign,
-    title: 'Cost Effective',
-    description: 'Save money compared to traditional dry cleaning. No hidden fees, transparent pricing.',
-    stats: 'Save up to 40% vs competitors'
+    icon: Handshake,
+    title: 'Integrity',
+    description: 'We tell you what we can do and then we do it. If something goes wrong, you hear it from us first.',
+    stats: 'We do what we said we would'
   },
   {
     icon: Shield,
@@ -42,9 +42,9 @@ const benefits = [
   },
   {
     icon: Smartphone,
-    title: 'Easy Management',
-    description: 'Track your orders, schedule pickups, and manage preferences through our mobile app.',
-    stats: 'Real-time order tracking'
+    title: 'Easy To Arrange',
+    description: 'Book a pickup, change a date or tell us about a stubborn stain - all on WhatsApp. No app to download, no account to create.',
+    stats: 'Updates at every stage'
   }
 ];
 

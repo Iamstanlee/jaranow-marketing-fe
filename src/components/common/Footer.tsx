@@ -27,8 +27,8 @@ const Footer: React.FC = () => {
                     <div>
                         <img src="/brand/jaranow-logo-white.svg" alt="Jaranow - Convenience as a Service" className="h-12 w-auto mb-5"/>
                         <p className="text-gray-400 leading-relaxed mb-6">
-                            Convenience as a Service. From fixed-price car washing to premium laundry care,
-                            Jaranow brings convenience to your day.
+                            Convenience as a Service. From hand car washing to premium laundry care,
+                            Jaranow brings attention to detail, care and integrity to your day.
                         </p>
                         <div className="flex space-x-4">
                             {socialLinks.map((link) => (

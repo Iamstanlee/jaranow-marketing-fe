@@ -10,6 +10,7 @@ import PlanRecommendation from '../components/wash/PlanRecommendation';
 import Testimonials from '../components/wash/Testimonials';
 import FAQ from '../components/wash/FAQ';
 import Footer from '../components/common/Footer';
+import SeoTags from '../seo/SeoTags';
 import {scrollToElement} from '../utils/formatters';
 
 const WashLanding: React.FC = () => {
@@ -29,25 +30,12 @@ const WashLanding: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SeoTags route="/laundry" />
       <Helmet>
-        <title>Laundry by Jaranow - Subscription Laundry in Abuja | Doorstep Pickup &amp; Delivery</title>
-        <meta name="description" content="Professional laundry service in Abuja with doorstep pickup and delivery. Subscription-based premium cleaning, expert stain removal, and perfect folding. Book your laundry service today!" />
         <meta name="keywords" content="laundry service Abuja, subscription laundry, doorstep laundry pickup, premium laundry service, professional dry cleaning Abuja, laundry delivery service Nigeria" />
-        <link rel="canonical" href="https://jaranow.com/laundry" />
         <link rel="icon" href="/wash/favicon.ico" />
         <link rel="apple-touch-icon" href="/wash/apple-touch-icon.png" />
         <link rel="manifest" href="/wash-manifest.json" />
-        <meta property="og:title" content="Laundry by Jaranow - Subscription Laundry in Abuja" />
-        <meta property="og:description" content="Premium subscription-based laundry service with doorstep pickup and delivery. Professional cleaning, perfect folding, all at your convenience in Abuja." />
-        <meta property="og:image" content="https://jaranow.com/wash/opengraph.png" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://jaranow.com/laundry" />
-        <meta property="og:site_name" content="Laundry by Jaranow" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@jara_now" />
-        <meta name="twitter:title" content="Laundry by Jaranow - Subscription Laundry in Abuja" />
-        <meta name="twitter:description" content="Premium subscription-based laundry service with doorstep pickup and delivery. Professional cleaning, perfect folding, all at your convenience in Abuja." />
-        <meta name="twitter:image" content="https://jaranow.com/wash/opengraph.png" />
 
         <script type="application/ld+json">
           {JSON.stringify({

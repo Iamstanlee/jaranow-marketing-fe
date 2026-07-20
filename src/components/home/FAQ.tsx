@@ -13,7 +13,7 @@ const FAQ: React.FC = () => {
   const faqs: FAQItem[] = [
     {
       question: 'What services does Jaranow offer?',
-      answer: 'Jaranow currently offers two main services: a fixed-price car wash in Gwarinpa and premium subscription-based laundry service. We\'re constantly expanding to bring more convenience services to your day.'
+      answer: 'Jaranow currently offers two main services: a hand car wash in Gwarinpa and a subscription-based laundry service. We\'re constantly expanding to bring more convenience services to your day.'
     },
     {
       question: 'Where is Jaranow available?',
@@ -25,11 +25,11 @@ const FAQ: React.FC = () => {
     },
     {
       question: 'What payment methods do you accept?',
-      answer: 'We accept bank transfers to our business account, card payments, and mobile wallets. For the car wash, you pay the fixed price after the wash and drive off.'
+      answer: 'We accept bank transfers to our business account, card payments, and mobile wallets. For the car wash, you settle up once the wash is done and drive off.'
     },
     {
       question: 'How much does it cost?',
-      answer: 'Our car wash is fixed price: ₦2,000 for an exterior wash and ₦3,000 for a full interior + exterior wash - no negotiation, no hidden charges. For our laundry service, you can choose from subscription plans starting at ₦14,999/month.'
+      answer: 'You can see the full breakdown for both the car wash and our laundry plans on our pricing page, or ask us on WhatsApp and we\'ll walk you through it.'
     },
     {
       question: 'How long does it take?',
@@ -41,7 +41,7 @@ const FAQ: React.FC = () => {
     },
     {
       question: 'What if I have an issue with my order?',
-      answer: 'Customer satisfaction is our priority. If you have any issues, simply reach out to us via WhatsApp at +234 816 260 5753, and our support team will resolve it quickly.'
+      answer: 'Customer satisfaction is our priority. If you have any issues, simply reach out to us via WhatsApp at +234 903 862 2012, and our support team will resolve it quickly.'
     }
   ];
 

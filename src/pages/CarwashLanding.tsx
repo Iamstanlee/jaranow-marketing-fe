@@ -8,6 +8,7 @@ import HowItWorks from '../components/carwash/HowItWorks';
 import WhyJaranow from '../components/carwash/WhyJaranow';
 import BookingForm, {BookingFormHandle} from '../components/carwash/BookingForm';
 import Footer from '../components/common/Footer';
+import SeoTags from '../seo/SeoTags';
 import {scrollToElement} from '../utils/formatters';
 
 const CarwashLanding: React.FC = () => {
@@ -26,36 +27,12 @@ const CarwashLanding: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-white">
+            <SeoTags route="/carwash"/>
             <Helmet>
-                <title>Carwash by Jaranow - Fixed-Price Car Wash in Gwarinpa, Abuja</title>
-                <meta
-                    name="description"
-                    content="Carwash by Jaranow: fixed-price car washing in Gwarinpa, Abuja. Exterior wash ₦2,000, full interior + exterior wash ₦3,000. No negotiation, no hidden charges. Drive in, we wash, you drive off."
-                />
                 <meta
                     name="keywords"
-                    content="car wash Abuja, car wash Gwarinpa, fixed price car wash, Jaranow carwash, interior car cleaning Abuja, exterior car wash Nigeria"
+                    content="car wash Abuja, car wash Gwarinpa, hand car wash, Jaranow carwash, interior car cleaning Abuja, exterior car wash Nigeria"
                 />
-                <link rel="canonical" href="https://jaranow.com/carwash"/>
-
-                <meta property="og:type" content="website"/>
-                <meta property="og:url" content="https://jaranow.com/carwash"/>
-                <meta property="og:image" content="https://jaranow.com/carwash/opengraph.png"/>
-                <meta name="twitter:image" content="https://jaranow.com/carwash/opengraph.png"/>
-                <meta property="og:title" content="Carwash by Jaranow - Fixed-Price Car Wash in Gwarinpa"/>
-                <meta
-                    property="og:description"
-                    content="Your car, handled - you don't lift a finger. Fixed-price car washing in Gwarinpa, Abuja. Exterior ₦2,000, Full Wash ₦3,000."
-                />
-                <meta property="og:site_name" content="Carwash by Jaranow"/>
-
-                <meta name="twitter:card" content="summary_large_image"/>
-                <meta name="twitter:title" content="Carwash by Jaranow - Fixed-Price Car Wash in Gwarinpa"/>
-                <meta
-                    name="twitter:description"
-                    content="Your car, handled - you don't lift a finger. Fixed-price car washing in Gwarinpa, Abuja."
-                />
-                <meta name="twitter:site" content="@jara_now"/>
 
                 <script type="application/ld+json">
                     {JSON.stringify({
@@ -63,7 +40,7 @@ const CarwashLanding: React.FC = () => {
                         '@type': 'AutoWash',
                         name: 'Carwash by Jaranow',
                         description:
-                            'Fixed-price car washing in Gwarinpa, Abuja. Drive in, we wash, you drive off.',
+                            'Hand car washing in Gwarinpa, Abuja. Drive in, we wash, you drive off.',
                         url: 'https://jaranow.com/carwash',
                         telephone: '+234-903-862-2012',
                         address: {

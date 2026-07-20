@@ -44,7 +44,7 @@ const Hero: React.FC<HeroProps> = ({onBook}) => {
                         variants={fadeInUp}
                         className="text-lg sm:text-xl md:text-2xl text-white/90 mb-10 max-w-2xl mx-auto leading-relaxed"
                     >
-                        Drive in, we wash, you drive off. Fixed prices, trained hands, no negotiation.
+                        Drive in, we wash, you drive off. Trained hands, obsessive detail, every single time.
                     </motion.p>
 
                     {/* CTA */}

@@ -13,7 +13,7 @@ const HowItWorks: React.FC = () => {
     {
       icon: <Smartphone size={32} className="text-white" />,
       title: 'Choose Your Service',
-      description: 'Select from our fixed-price car wash or premium laundry service based on your needs.',
+      description: 'Pick the car wash in Gwarinpa or our doorstep laundry service, based on what your week needs.',
       gradient: 'from-blue-500 to-blue-600'
     },
     {
@@ -30,8 +30,8 @@ const HowItWorks: React.FC = () => {
     },
     {
       icon: <Sparkles size={32} className="text-white" />,
-      title: 'Pay A Fixed Price',
-      description: 'The price you were quoted is the price you pay. No negotiation, no surprises.',
+      title: 'Checked Before It\'s Done',
+      description: 'Nothing comes back to you until it meets our standard. If it is not right, we put it right.',
       gradient: 'from-yellow-500 to-orange-500'
     }
   ];

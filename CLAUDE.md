@@ -82,6 +82,22 @@ logo, lockup or brand colour.
 - Marks are generated, not hand-edited. Source: `brand/gen-marks.js`.
   Regenerate with `node gen-marks.js blue jaranow-blue`; hand edits to the SVGs
   get overwritten.
+- **Open Graph share cards are generated too.** The copy lives in the `CARDS`
+  array in `brand/gen-og.js` — never edit `brand/og/html/*.html` or the PNGs by
+  hand, they are build output. Full regeneration is three steps:
+
+  ```bash
+  node brand/gen-og.js      # CARDS  -> brand/og/html/*.html
+  brand/rasterize-og.sh     # html   -> brand/og/png/*.png  (1200x630, headless Chrome)
+  brand/sync-og.sh          # png    -> public/{jaranow,carwash,wash}/...
+  ```
+
+  `sync-og.sh` holds the generated-name → served-path mapping (the names differ,
+  e.g. `opengraph-laundry.png` → `public/wash/opengraph.png`); keep it in step
+  with `ogImage` in `src/seo/routes.json`. Rasterizing pulls Rubik from Google
+  Fonts, so it needs network — always eyeball the PNGs afterwards, because a
+  failed font load silently falls back to system sans. Watch for orphaned words:
+  the headline is capped at `15ch`, so a long one wraps badly.
 - Live assets are served from `public/brand/`:
   `jaranow-logo-white.svg` (master, knockout), `jaranow-logo.svg` (master, duo),
   `jaranow-carwash-white.svg`, `jaranow-laundry-white.svg`,
@@ -108,10 +124,38 @@ removed across all content sections; content stuck at `initial` opacity is the
 failure mode to watch for.
 
 ### SEO
-- Each page has comprehensive meta tags
-- OpenGraph and Twitter card metadata
-- Structured data (JSON-LD) for rich snippets
-- Canonical URLs and social media tags
+
+**Per-route social metadata lives in `src/seo/routes.json` — edit it there and
+nowhere else.** Two consumers read that one file:
+
+1. `src/seo/SeoTags.tsx` — a `<SeoTags route="/carwash"/>` component each page
+   renders. Handles title, description, canonical, OpenGraph and Twitter tags
+   at runtime (correct title during client-side navigation).
+2. `scripts/prerender-meta.js` — runs after `react-scripts build` and writes one
+   static HTML file per route (`build/carwash/index.html`, etc.) with those tags
+   baked in.
+
+**Why the prerender step exists:** this is a client-rendered CRA SPA, so
+`react-helmet-async` only sets the head once JavaScript runs. Facebook, WhatsApp,
+Twitter and LinkedIn crawlers *don't run JavaScript* — they read the raw HTML.
+Every route used to be served the same `public/index.html`, so every share
+preview fell back to the homepage's tags. Adding tags to a page's `<Helmet>`
+alone will **not** fix a broken share preview.
+
+To add a route: add an entry to `routes.json` (including its `file`), render
+`<SeoTags route="/new" />` in the page. No script changes needed.
+
+`vercel.json` has a catch-all rewrite to `/index.html`; Vercel checks the
+filesystem *before* rewrites, so the prerendered files win and everything else
+falls through to the SPA. Verify a change with:
+`npm run build && npx serve build` then
+`curl -A facebookexternalhit http://localhost:3000/carwash | grep og:`
+
+Page-specific extras (JSON-LD, per-service favicons/manifests) stay in the
+page's own `<Helmet>`. Keep JSON-LD in sync with the visible page.
+
+`public/_redirect` is a leftover Netlify file — singular, so it was never valid
+even on Netlify, and it is inert on Vercel. Ignore it.
 
 ## Development Commands
 
@@ -120,6 +164,27 @@ npm start        # Start development server
 npm run build    # Build for production
 npm test         # Run tests
 ```
+
+## Brand positioning — core values
+
+Jaranow sells on **attention to detail, care, convenience and integrity**.
+**Price is never the pitch.**
+
+Marketing copy must not use price as a selling point. Specifically, do not
+reintroduce: "fixed price", "no negotiation", "no hidden charges/fees",
+"transparent pricing", "X% cheaper", "cost savings", "best value", "worth every
+naira", or comparisons to competitors' prices. These were stripped from every
+hero, feature card, FAQ, testimonial, meta description and JSON-LD description
+in July 2026 — a reviewer re-adding one is a regression, not an improvement.
+
+Prices themselves are still shown as **plain fact**, not persuasion:
+- `/pricing` is the reference page listing what things cost.
+- `src/components/carwash/Pricing.tsx` and `src/components/wash/PricingPlans.tsx`
+  still display figures and plan tiers.
+- Plan figures in `PlanRecommendation.tsx` and WhatsApp order messages stay.
+
+The rule is about *framing*, not about hiding numbers: state the price, never
+argue from it. When you need a benefit line, reach for one of the four values.
 
 ## Contact & CTA Patterns
 
@@ -192,7 +257,6 @@ Current focus:
 **Carwash by Jaranow:**
 - Exterior Wash: ₦2,000
 - Full Wash (interior + exterior): ₦3,000
-- Fixed price, no negotiation, no hidden charges
 - Location: 6th Avenue, Gwarinpa, Abuja
 - Pay to the Jaranow business account after the wash
 
@@ -218,6 +282,7 @@ Current focus:
 ### Copy rules
 
 - Never state a price, turnaround or capability that is not confirmed here.
+- Never use price as a selling point — see "Brand positioning — core values".
 - Keep structured data (JSON-LD) prices in sync with the visible page — they
   drifted once (₦15,999 vs ₦14,999) and search results showed the wrong figure.
 - The car wash is **drive-in** at 6th Avenue, Gwarinpa. Do not describe it as

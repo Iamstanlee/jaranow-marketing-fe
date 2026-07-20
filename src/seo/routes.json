@@ -1,0 +1,57 @@
+{
+  "$comment": "Single source of truth for per-route social metadata. Consumed at runtime by src/seo/SeoTags.tsx (react-helmet-async) and at build time by scripts/prerender-meta.js, which bakes these into static HTML so crawlers that do not run JavaScript resolve the correct tags. Edit here only - do not hand-write these tags into a page.",
+  "siteUrl": "https://jaranow.com",
+  "twitterSite": "@jara_now",
+  "routes": {
+    "/": {
+      "file": "index.html",
+      "title": "Jaranow - Your chores, handled.",
+      "description": "Hand car washing in Gwarinpa and subscription laundry across Abuja. Collected, cleaned and returned - with attention to detail, care and integrity at every step.",
+      "ogTitle": "Jaranow - Your chores, handled.",
+      "ogDescription": "Hand car washing in Gwarinpa and subscription laundry across Abuja. Collected, cleaned and returned with care.",
+      "ogImage": "/jaranow/opengraph.png",
+      "ogImageAlt": "Jaranow - your chores, handled",
+      "siteName": "Jaranow"
+    },
+    "/carwash": {
+      "file": "carwash/index.html",
+      "title": "Carwash by Jaranow - Hand Car Wash in Gwarinpa, Abuja",
+      "description": "Carwash by Jaranow: hand car washing in Gwarinpa, Abuja. Trained hands, obsessive attention to detail, and your keys never leave you. Drive in, we wash, you drive off.",
+      "ogTitle": "Carwash by Jaranow - Hand Car Wash in Gwarinpa",
+      "ogDescription": "Your car, handled - you don't lift a finger. Hand-washed in Gwarinpa, Abuja by a team trained to look twice.",
+      "ogImage": "/carwash/opengraph.png",
+      "ogImageAlt": "Carwash by Jaranow - hand car wash in Gwarinpa, Abuja",
+      "siteName": "Carwash by Jaranow"
+    },
+    "/laundry": {
+      "file": "laundry/index.html",
+      "title": "Laundry by Jaranow - Subscription Laundry in Abuja | Doorstep Pickup & Delivery",
+      "description": "Subscription laundry in Abuja with doorstep pickup and delivery. Sorted, treated and finished with care - every item checked before it comes back to you.",
+      "ogTitle": "Laundry by Jaranow - Subscription Laundry in Abuja",
+      "ogDescription": "Collected, cared for and returned folded. Every item checked, every time - doorstep pickup and delivery across Abuja.",
+      "ogImage": "/wash/opengraph.png",
+      "ogImageAlt": "Laundry by Jaranow - subscription laundry in Abuja",
+      "siteName": "Laundry by Jaranow"
+    },
+    "/laundry/recommendation": {
+      "file": "laundry/recommendation/index.html",
+      "title": "Find Your Laundry Plan - Laundry by Jaranow",
+      "description": "Answer a few questions about your week and we'll point you to the laundry plan that fits how you actually live.",
+      "ogTitle": "Find Your Laundry Plan - Laundry by Jaranow",
+      "ogDescription": "Answer a few questions and we'll point you to the plan that fits how you actually live.",
+      "ogImage": "/wash/opengraph.png",
+      "ogImageAlt": "Laundry by Jaranow - find your plan",
+      "siteName": "Laundry by Jaranow"
+    },
+    "/pricing": {
+      "file": "pricing/index.html",
+      "title": "Jaranow Pricing - Car Wash & Laundry Plans in Abuja",
+      "description": "What our car wash and laundry plans cost, in one place. Carwash by Jaranow in Gwarinpa and subscription laundry across Abuja.",
+      "ogTitle": "Jaranow Pricing",
+      "ogDescription": "What our car wash and laundry plans cost, in one place.",
+      "ogImage": "/jaranow/opengraph-pricing.png",
+      "ogImageAlt": "Jaranow pricing",
+      "siteName": "Jaranow"
+    }
+  }
+}

@@ -20,11 +20,11 @@ const faqs = [
   },
   {
     question: "Can I pause or modify my subscription?",
-    answer: "Absolutely! Life happens, and we're flexible. You can pause your subscription anytime through the app or by calling us. You can also upgrade/downgrade between Lite and Premium plans, or adjust your pickup schedule to better fit your needs. No penalties, no hassles."
+    answer: "Absolutely! Life happens, and we're flexible. You can pause your subscription anytime on WhatsApp or by calling us. You can also upgrade/downgrade between Lite and Premium plans, or adjust your pickup schedule to better fit your needs. No penalties, no hassles."
   },
   {
     question: "How do I know where my clothes are during the cleaning process?",
-    answer: "Every item is tagged with a unique ID when we pick it up. You'll receive SMS and email updates at each stage: pickup confirmed, cleaning in progress, quality check complete, and out for delivery. You can also track your order real-time through our mobile app."
+    answer: "Every item is tagged with a unique ID when we pick it up. You'll receive updates on WhatsApp at each stage: pickup confirmed, cleaning in progress, quality check complete, and out for delivery."
   },
   {
     question: "What if my clothes get damaged or lost?",
@@ -36,7 +36,7 @@ const faqs = [
   },
   {
     question: "How do I contact customer support if I need help?",
-    answer: "We're here to help! You can reach us via phone (7 AM - 8 PM, Mon-Sat), WhatsApp (response within 15 minutes), email (response within 2 hours), or in-app chat. Every customer gets a dedicated success manager during their first month for personalized support. Also check out our <a href='/' class='text-primary-600 hover:text-primary-700 underline font-medium'>10-minute grocery delivery service</a>!"
+    answer: "We're here to help! You can reach us on WhatsApp at +234 903 862 2012, by phone (7 AM - 8 PM, Mon-Sat), or by email at support@jaranow.com. Whichever way you get in touch, a real person reads it and comes back to you."
   },
   {
     question: "Can I request specific handling for delicate or expensive items?",

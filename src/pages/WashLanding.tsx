@@ -39,7 +39,7 @@ const WashLanding: React.FC = () => {
         <link rel="manifest" href="/wash-manifest.json" />
         <meta property="og:title" content="Laundry by Jaranow - Subscription Laundry in Abuja" />
         <meta property="og:description" content="Premium subscription-based laundry service with doorstep pickup and delivery. Professional cleaning, perfect folding, all at your convenience in Abuja." />
-        <meta property="og:image" content="/wash/opengraph.png" />
+        <meta property="og:image" content="https://jaranow.com/wash/opengraph.png" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://jaranow.com/laundry" />
         <meta property="og:site_name" content="Laundry by Jaranow" />
@@ -47,7 +47,7 @@ const WashLanding: React.FC = () => {
         <meta name="twitter:site" content="@jara_now" />
         <meta name="twitter:title" content="Laundry by Jaranow - Subscription Laundry in Abuja" />
         <meta name="twitter:description" content="Premium subscription-based laundry service with doorstep pickup and delivery. Professional cleaning, perfect folding, all at your convenience in Abuja." />
-        <meta name="twitter:image" content="/wash/opengraph.png" />
+        <meta name="twitter:image" content="https://jaranow.com/wash/opengraph.png" />
 
         <script type="application/ld+json">
           {JSON.stringify({

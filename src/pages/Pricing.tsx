@@ -154,6 +154,8 @@ I'd like to get started. When is the next available pickup?`;
         <meta property="og:title" content="Jaranow Pricing - Simple & Transparent" />
         <meta property="og:description" content="Fixed-price car wash from ₦2,000. Premium laundry plans from ₦14,999/month. No hidden fees." />
         <meta property="og:url" content="https://jaranow.com/pricing" />
+        <meta property="og:image" content="https://jaranow.com/jaranow/opengraph-pricing.png" />
+        <meta name="twitter:image" content="https://jaranow.com/jaranow/opengraph-pricing.png" />
         <meta property="og:type" content="website" />
       </Helmet>
 

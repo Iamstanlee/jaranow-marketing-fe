@@ -14,14 +14,14 @@ const WashRecommendation: React.FC = () => {
         <link rel="canonical" href="https://jaranow.com/laundry/recommendation" />
         <meta property="og:title" content="Find Your Perfect Laundry Plan - Laundry by Jaranow" />
         <meta property="og:description" content="Get a personalized laundry plan recommendation based on your needs. Answer a few questions and find the best plan for you." />
-        <meta property="og:image" content="/wash/opengraph.png" />
+        <meta property="og:image" content="https://jaranow.com/wash/opengraph.png" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://jaranow.com/laundry/recommendation" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@jara_now" />
         <meta name="twitter:title" content="Find Your Perfect Laundry Plan - Laundry by Jaranow" />
         <meta name="twitter:description" content="Get a personalized laundry plan recommendation based on your needs." />
-        <meta name="twitter:image" content="/wash/opengraph.png" />
+        <meta name="twitter:image" content="https://jaranow.com/wash/opengraph.png" />
       </Helmet>
 
       <Header logo="laundry" ctaLabel="Schedule pickup" ctaTo="/laundry" />

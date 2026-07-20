@@ -40,6 +40,8 @@ const CarwashLanding: React.FC = () => {
 
                 <meta property="og:type" content="website"/>
                 <meta property="og:url" content="https://jaranow.com/carwash"/>
+                <meta property="og:image" content="https://jaranow.com/carwash/opengraph.png"/>
+                <meta name="twitter:image" content="https://jaranow.com/carwash/opengraph.png"/>
                 <meta property="og:title" content="Carwash by Jaranow - Fixed-Price Car Wash in Gwarinpa"/>
                 <meta
                     property="og:description"

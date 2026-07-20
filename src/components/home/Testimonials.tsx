@@ -1,14 +1,12 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Star, Quote } from 'lucide-react';
-import { fadeInUp, staggerContainer } from '../../utils/animations';
 
 interface Testimonial {
   name: string;
   role: string;
   content: string;
   rating: number;
-  service: 'delivery' | 'laundry';
+  service: 'carwash' | 'laundry';
   avatar: string;
 }
 
@@ -17,9 +15,9 @@ const Testimonials: React.FC = () => {
     {
       name: 'Chioma Adebayo',
       role: 'Busy Professional',
-      content: 'The 10-minute delivery is a game changer! I can order groceries while cooking and have them arrive before I even need them. Absolutely amazing service!',
+      content: 'I drove in on my way to work and my car came out spotless. Fixed price, no haggling, and I was back on the road in no time. Brilliant service!',
       rating: 5,
-      service: 'delivery',
+      service: 'carwash',
       avatar: 'CA'
     },
     {
@@ -33,17 +31,17 @@ const Testimonials: React.FC = () => {
     {
       name: 'Amina Mohammed',
       role: 'Working Mom',
-      content: 'As a working mother, Jaranow has been a lifesaver. From quick grocery runs to laundry pickup, they handle it all so I can focus on what matters.',
+      content: 'As a working mother, Jaranow has been a lifesaver. From car washes to laundry pickup, they handle it all so I can focus on what matters.',
       rating: 5,
-      service: 'delivery',
+      service: 'carwash',
       avatar: 'AM'
     },
     {
       name: 'Emeka Nwosu',
       role: 'Student',
-      content: 'The voice ordering feature is brilliant! I can order groceries hands-free while studying. Plus the delivery is super fast.',
+      content: 'They asked about my valuables before cleaning the interior and never moved my car. Little things like that made me trust them instantly.',
       rating: 5,
-      service: 'delivery',
+      service: 'carwash',
       avatar: 'EN'
     },
     {
@@ -57,15 +55,15 @@ const Testimonials: React.FC = () => {
     {
       name: 'Tunde Bakare',
       role: 'Creative Director',
-      content: 'Jaranow understands convenience. Whether it\'s groceries or laundry, they deliver exceptional service every single time.',
+      content: 'Jaranow understands convenience. Whether it\'s my car or my laundry, they deliver exceptional service every single time.',
       rating: 5,
-      service: 'delivery',
+      service: 'carwash',
       avatar: 'TB'
     }
   ];
 
-  const getServiceBadgeColor = (service: 'delivery' | 'laundry') => {
-    return service === 'delivery'
+  const getServiceBadgeColor = (service: 'carwash' | 'laundry') => {
+    return service === 'carwash'
       ? 'bg-primary-100 text-primary-700'
       : 'bg-blue-100 text-blue-700';
   };
@@ -73,30 +71,21 @@ const Testimonials: React.FC = () => {
   return (
     <section id="testimonials" className="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
-        >
+        <div>
           {/* Section Header */}
-          <motion.div variants={fadeInUp} className="text-center mb-16">
+          <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
               What Our Customers Say
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Join thousands of satisfied customers who trust Jaranow for their daily convenience needs.
             </p>
-          </motion.div>
+          </div>
 
           {/* Testimonials Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={index}
-                variants={fadeInUp}
-                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow relative"
-              >
+              <div key={index} className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow relative">
                 {/* Quote Icon */}
                 <div className="absolute top-6 right-6 text-gray-200">
                   <Quote size={32} fill="currentColor" />
@@ -129,25 +118,22 @@ const Testimonials: React.FC = () => {
 
                   {/* Service Badge */}
                   <div className={`px-3 py-1 rounded-full text-xs font-semibold ${getServiceBadgeColor(testimonial.service)}`}>
-                    {testimonial.service === 'delivery' ? 'Delivery' : 'Laundry'}
+                    {testimonial.service === 'carwash' ? 'Car Wash' : 'Laundry'}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
 
           {/* Trust Stats */}
-          <motion.div
-            variants={fadeInUp}
-            className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto"
-          >
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
             <div className="text-center">
               <div className="text-4xl font-bold text-primary-600 mb-2">1000+</div>
               <div className="text-gray-600">Happy Customers</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-primary-600 mb-2">10min</div>
-              <div className="text-gray-600">Avg. Delivery Time</div>
+              <div className="text-4xl font-bold text-primary-600 mb-2">2</div>
+              <div className="text-gray-600">Services & Growing</div>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-primary-600 mb-2">4.9/5</div>
@@ -157,8 +143,8 @@ const Testimonials: React.FC = () => {
               <div className="text-4xl font-bold text-primary-600 mb-2">24/7</div>
               <div className="text-gray-600">Customer Support</div>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );

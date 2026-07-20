@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import Navigation from '../components/home/Navigation';
+import Header from '../components/common/Header';
 import Hero from '../components/home/Hero';
 import Services from '../components/home/Services';
 import HowItWorks from '../components/home/HowItWorks';
 import Testimonials from '../components/home/Testimonials';
 import FAQ from '../components/home/FAQ';
-import Footer from '../components/home/Footer';
+import Footer from '../components/common/Footer';
 
 const Home: React.FC = () => {
   useEffect(() => {
@@ -33,7 +33,7 @@ const Home: React.FC = () => {
         <meta property="og:title" content="Jaranow - Convenience as a Service" />
         <meta
           property="og:description"
-          content="From lightning-fast grocery delivery to premium laundry care — Jaranow brings convenience to your doorstep in Abuja."
+          content="From lightning-fast grocery delivery to premium laundry care - Jaranow brings convenience to your doorstep in Abuja."
         />
         <meta property="og:site_name" content="Jaranow" />
 
@@ -43,7 +43,7 @@ const Home: React.FC = () => {
         <meta name="twitter:title" content="Jaranow - Convenience as a Service" />
         <meta
           name="twitter:description"
-          content="From lightning-fast grocery delivery to premium laundry care — Jaranow brings convenience to your doorstep in Abuja."
+          content="From lightning-fast grocery delivery to premium laundry care - Jaranow brings convenience to your doorstep in Abuja."
         />
         <meta name="twitter:site" content="@jaranow" />
         <meta name="twitter:creator" content="@jaranow" />
@@ -100,7 +100,7 @@ const Home: React.FC = () => {
       </Helmet>
 
       <div className="min-h-screen">
-        <Navigation />
+        <Header />
         <Hero />
         <Services />
         <HowItWorks />

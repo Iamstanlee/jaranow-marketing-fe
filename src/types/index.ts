@@ -1,11 +1,3 @@
-export interface WaitlistFormData {
-  name: string;
-  phoneNumber: string;
-  laundryFrequency: 'once-week' | 'twice-week' | 'once-month' | 'multiple-times-week' | 'irregular';
-  location: string;
-  selectedPlan?: string;
-}
-
 export interface SubscriptionPlan {
   id: string;
   name: string;
@@ -24,10 +16,4 @@ export interface TestimonialData {
   message: string;
   rating: number;
   avatar?: string;
-}
-
-export interface AirtableResponse {
-  success: boolean;
-  message: string;
-  recordId?: string;
 }

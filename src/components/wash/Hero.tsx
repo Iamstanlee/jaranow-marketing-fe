@@ -2,15 +2,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 interface HeroProps {
-  onJoinWaitlist: () => void;
+  onSchedulePickup: () => void;
 }
 
-const Hero: React.FC<HeroProps> = ({ onJoinWaitlist }) => {
+const Hero: React.FC<HeroProps> = ({ onSchedulePickup }) => {
   return (
-    <section className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 overflow-hidden">
+    <section className="relative min-h-svh flex items-center bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 overflow-hidden">
       <div className="absolute inset-0 bg-black/10"></div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24 lg:py-32">
+      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16 sm:pt-32 sm:pb-20 md:pb-24 lg:pb-32">
         <div className="text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -26,7 +26,7 @@ const Hero: React.FC<HeroProps> = ({ onJoinWaitlist }) => {
             >
               Never Worry About
               <br />
-              <span className="text-yellow-400">Laundry Again</span>
+              <span className="text-cyan-400">Laundry Again</span>
             </motion.h1>
             
             <motion.p 
@@ -46,8 +46,8 @@ const Hero: React.FC<HeroProps> = ({ onJoinWaitlist }) => {
               transition={{ duration: 0.8, delay: 0.3 }}
             >
               <motion.button
-                onClick={onJoinWaitlist}
-                className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-primary-900 font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                onClick={onSchedulePickup}
+                className="w-full sm:w-auto bg-cyan-400 hover:bg-cyan-500 text-primary-900 font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -68,15 +68,15 @@ const Hero: React.FC<HeroProps> = ({ onJoinWaitlist }) => {
               transition={{ duration: 0.8, delay: 0.4 }}
             >
               <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-yellow-400">2-4x</div>
+                <div className="text-3xl sm:text-4xl font-bold text-cyan-400">2-4x</div>
                 <div className="text-blue-100">Faster than DIY</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-yellow-400">100%</div>
+                <div className="text-3xl sm:text-4xl font-bold text-cyan-400">100%</div>
                 <div className="text-blue-100">Professional Quality</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-yellow-400">Free</div>
+                <div className="text-3xl sm:text-4xl font-bold text-cyan-400">Free</div>
                 <div className="text-blue-100">Pickup & Delivery</div>
               </div>
             </motion.div>

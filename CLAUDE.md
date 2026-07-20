@@ -3,8 +3,8 @@
 ## Project Overview
 This is the marketing website for Jaranow, featuring multiple landing pages for different services:
 - Main homepage (/)
-- Grocery delivery service (/delivery)
-- Wash/laundry service (/wash)
+- Car wash service (/carwash)
+- Laundry service (/laundry)
 - Pitch deck (/pitch-deck)
 - Pricing page (/pricing)
 
@@ -23,18 +23,22 @@ This is the marketing website for Jaranow, featuring multiple landing pages for 
 ```
 src/
 ├── components/
-│   ├── common/          # Shared components (OptimizedImage, PreloadImages)
+│   ├── common/          # Header, Footer, OptimizedImage, PreloadImages
 │   ├── home/            # Homepage components
-│   ├── jaranow/         # Grocery delivery components
-│   └── wash/            # Wash service components
+│   ├── carwash/         # Car wash components
+│   └── wash/            # Laundry components (folder name predates the rename)
 ├── pages/
-│   ├── Home.tsx         # Homepage
-│   ├── JaranowLanding.tsx  # Grocery delivery landing
-│   ├── WashLanding.tsx     # Wash service landing
+│   ├── Home.tsx            # Homepage
+│   ├── CarwashLanding.tsx  # Car wash landing
+│   ├── WashLanding.tsx     # Laundry landing
+│   ├── WashRecommendation.tsx  # Laundry plan recommender
 │   ├── Deck.tsx            # Pitch deck
 │   └── Pricing.tsx         # Pricing page
 ├── App.tsx              # Main app with routing
 └── index.tsx            # Entry point
+
+brand/                   # Identity system — see brand/BRAND-STANDARD.md
+public/brand/            # Logo SVGs served by the site
 ```
 
 ## Key Patterns
@@ -42,26 +46,66 @@ src/
 ### Page Structure
 Each page typically includes:
 1. **Helmet** component for SEO metadata
-2. **Navigation** component
+2. **Header** component (shared, from `components/common/`)
 3. **Main content sections** (Hero, Features, Pricing, FAQ, etc.)
-4. **Footer** component
+4. **Footer** component (shared)
 
 ### Component Organization
-- Components are organized by feature/service (home, jaranow, wash)
+- Components are organized by feature/service (home, carwash, wash)
 - Common components are in `components/common/`
-- Each service has its own Navigation, Hero, Footer, etc.
+- **Header and Footer are shared across all pages** via `components/common/Header.tsx` and `components/common/Footer.tsx` (single design system: primary blue + cyan accent).
+- `Header` props: `ctaLabel`, `onCtaClick`/`ctaTo`, and `logo`.
+- `logo` selects the lockup: `'master' | 'carwash' | 'laundry'` (default `'master'`).
+  Service pages pass their own line; the homepage, pricing page and anything
+  cross-service use the master. Adding a fourth line is one entry in the
+  `LOGOS` map plus the SVG in `public/brand/` — no layout changes.
+- Header logo heights differ per variant **on purpose** (`h-11` master, `h-14`
+  sub-brand). This keeps the `jaranow` wordmark the same optical size in every
+  variant. Do not "normalise" them.
+- Each service still has its own Hero and content sections
 
 ### Styling
 - Tailwind CSS for all styling
 - Brand colors:
-  - Primary Blue: `#2563eb` (primary-600)
+  - Primary Blue: `#2563eb` (primary-600) — the brand accent
+  - Ink `#0E1526`, Paper `#F2F5FB` (blue-biased neutrals, not plain grey)
   - Gradients and utility classes from Tailwind
 - Responsive design with mobile-first approach
 
+### Brand identity
+
+**`brand/BRAND-STANDARD.md` is the authority.** Read it before touching any
+logo, lockup or brand colour.
+
+- Direction "Drop": custom-drawn `jaranow` wordmark + abstract water-drop symbol.
+  The wordmark is **drawn geometry, not a font** — never re-set it in a typeface.
+- Marks are generated, not hand-edited. Source: `brand/gen-marks.js`.
+  Regenerate with `node gen-marks.js blue jaranow-blue`; hand edits to the SVGs
+  get overwritten.
+- Live assets are served from `public/brand/`:
+  `jaranow-logo-white.svg` (master, knockout), `jaranow-logo.svg` (master, duo),
+  `jaranow-carwash-white.svg`, `jaranow-laundry-white.svg`,
+  `jaranow-symbol.svg`, `favicon.svg`.
+- Sub-brand rule: the service name sits under the wordmark, flush left, at 40%
+  and tracked wide. Read as "Laundry by Jaranow" — the word "by" is never drawn.
+- Symbol minimum size is 24px; the favicon build uses a tighter crop to keep the
+  counter open at 16px. App icon and favicon builds are **not** interchangeable.
+- Flat only: no gradients, shadows, bevels or outlines on the mark.
+- `theme_color` is `#2563EB` in both `manifest.json` and `wash-manifest.json`;
+  keep them in sync with the accent.
+
 ### Animations
-- Framer Motion for scroll animations
-- Common pattern: `initial`, `whileInView`, `transition`, `viewport` props
-- Stagger animations for lists
+Motion is deliberately limited. **Do not reintroduce scroll-reveal animation.**
+
+Keep motion only for:
+- **Hero sections** (`components/{home,carwash,wash}/Hero.tsx`) — entrance animation
+- **Interactions** — `whileHover` / `whileTap` on buttons and cards
+- **Open/close** — `AnimatePresence` + `exit` for the mobile menu, accordions,
+  and multi-step forms
+
+Everything else renders immediately. `whileInView`/`viewport` scroll reveals were
+removed across all content sections; content stuck at `initial` opacity is the
+failure mode to watch for.
 
 ### SEO
 - Each page has comprehensive meta tags
@@ -108,12 +152,12 @@ window.open(whatsappURL, '_blank');
 
 ## Common Components
 
-### Navigation
-Each service has its own Navigation component with:
-- Logo
+### Header
+One shared `Header` for every page (there is no per-service Navigation any more):
+- Logo — master or sub-brand lockup via the `logo` prop
 - Menu items
-- CTA button
-- Mobile menu
+- CTA button (configurable per page)
+- Mobile menu (`AnimatePresence`)
 
 ### Footer
 Contains:
@@ -145,22 +189,47 @@ Current focus:
 
 ## Pricing Information
 
-**Jaranow Delivery:**
-- Service Charge: ₦500
-- Delivery Fee: ₦500
-- Total: ₦1,000 per order
-- No markup on groceries
+**Carwash by Jaranow:**
+- Exterior Wash: ₦2,000
+- Full Wash (interior + exterior): ₦3,000
+- Fixed price, no negotiation, no hidden charges
+- Location: 6th Avenue, Gwarinpa, Abuja
+- Pay to the Jaranow business account after the wash
 
-**Jaranow Wash:**
+**Laundry by Jaranow:**
 - Lite Plan: ₦14,999/month (2 washes, up to 12 clothes each)
 - Premium Plan: ₦24,999/month (3 washes, up to 15 clothes each)
 - Custom Pricing:
   - Regular items: ₦700/item (shirts, trousers, dresses, skirts, tops, etc.)
   - Special items: ₦2,000/item (suits, long dresses, towels, duvet sets, curtains)
+- Turnaround: 48 hours from pickup
+- Pickup windows: Tuesday & Saturday (Lite); Tuesday, Thursday & Saturday (Premium)
+
+### Not offered — do not reintroduce
+
+- **Priority / same-day service.** Discontinued. It was removed from the plans
+  but survived in the FAQ, the plan recommender and the pricing badges for a
+  while; all references are now gone. Do not add it back without confirmation.
+- **Voice ordering, app download, grocery delivery.** These belong to an
+  unshipped product. The site must not imply they exist.
+- **Waitlist.** The laundry service is live; there is no waitlist. The
+  `WaitlistForm` and `Products` components were deleted.
+
+### Copy rules
+
+- Never state a price, turnaround or capability that is not confirmed here.
+- Keep structured data (JSON-LD) prices in sync with the visible page — they
+  drifted once (₦15,999 vs ₦14,999) and search results showed the wrong figure.
+- The car wash is **drive-in** at 6th Avenue, Gwarinpa. Do not describe it as
+  doorstep or pickup. Only laundry is collected and delivered.
+- Unverified social proof ("Trusted by 1000+ customers", "100% satisfaction
+  guarantee", "follow up within 2 hours") is inherited copy — confirm before
+  repeating or expanding it.
 
 ## URL Parameters
 
 **Pricing Page** (`/pricing`):
-- Default: Shows grocery delivery pricing first
-- `/pricing?service=delivery` - Shows grocery delivery pricing
+- Default: Shows car wash pricing first
+- `/pricing?service=carwash` - Shows car wash pricing
 - `/pricing?service=wash` - Shows wash service pricing
+- `/pricing?service=delivery` - Legacy value, redirects to the car wash tab

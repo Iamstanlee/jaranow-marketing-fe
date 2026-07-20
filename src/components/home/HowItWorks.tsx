@@ -1,7 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Smartphone, CheckCircle, Truck, Sparkles } from 'lucide-react';
-import { fadeInUp, staggerContainer } from '../../utils/animations';
 
 interface Step {
   icon: React.ReactNode;
@@ -15,25 +13,25 @@ const HowItWorks: React.FC = () => {
     {
       icon: <Smartphone size={32} className="text-white" />,
       title: 'Choose Your Service',
-      description: 'Select from 10-minute delivery or premium laundry service based on your needs.',
+      description: 'Select from our fixed-price car wash or premium laundry service based on your needs.',
       gradient: 'from-blue-500 to-blue-600'
     },
     {
       icon: <CheckCircle size={32} className="text-white" />,
       title: 'Place Your Order',
-      description: 'Order via WhatsApp, voice command, or our easy-to-use platform.',
+      description: 'Book on WhatsApp or straight from this site. No app to download, no account to create.',
       gradient: 'from-primary-500 to-primary-600'
     },
     {
       icon: <Truck size={32} className="text-white" />,
       title: 'We Handle The Rest',
-      description: 'Sit back and relax while we deliver convenience right to your doorstep.',
+      description: 'We wash your car at 6th Avenue, or collect and return your laundry at home.',
       gradient: 'from-green-500 to-green-600'
     },
     {
       icon: <Sparkles size={32} className="text-white" />,
-      title: 'Enjoy The Convenience',
-      description: 'Experience hassle-free living with Jaranow\'s reliable service.',
+      title: 'Pay A Fixed Price',
+      description: 'The price you were quoted is the price you pay. No negotiation, no surprises.',
       gradient: 'from-yellow-500 to-orange-500'
     }
   ];
@@ -41,31 +39,22 @@ const HowItWorks: React.FC = () => {
   return (
     <section id="how-it-works" className="py-20 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
-        >
+        <div>
           {/* Section Header */}
-          <motion.div variants={fadeInUp} className="text-center mb-16">
+          <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
               How It Works
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Getting started with Jaranow is simple and quick. Here's how we bring convenience to you.
             </p>
-          </motion.div>
+          </div>
 
           {/* Steps */}
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {steps.map((step, index) => (
-                <motion.div
-                  key={index}
-                  variants={fadeInUp}
-                  className="relative"
-                >
+                <div key={index} className="relative">
                   {/* Connector Line (Desktop) */}
                   {index < steps.length - 1 && (
                     <div className="hidden lg:block absolute top-16 left-1/2 w-full h-0.5 bg-gradient-to-r from-gray-300 to-gray-200 z-0"></div>
@@ -92,16 +81,13 @@ const HowItWorks: React.FC = () => {
                       {step.description}
                     </p>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
 
           {/* CTA Section */}
-          <motion.div
-            variants={fadeInUp}
-            className="mt-16 text-center"
-          >
+          <div className="mt-16 text-center">
             <div className="inline-flex flex-col sm:flex-row gap-4 items-center">
               <a
                 href="#services"
@@ -121,8 +107,8 @@ const HowItWorks: React.FC = () => {
                 </a>
               </p>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );

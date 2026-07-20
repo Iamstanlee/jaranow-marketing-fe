@@ -1,10 +1,10 @@
 {
   "short_name": "Jaranow",
-  "name": "Jaranow - Nigeria's First 10-Minute Grocery Delivery",
+  "name": "Jaranow - Convenience as a Service",
   "icons": [
     {
       "src": "/jaranow/favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
+      "sizes": "16x16 32x32 48x48",
       "type": "image/x-icon"
     },
     {
@@ -20,7 +20,7 @@
   ],
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#ff0023",
+  "theme_color": "#2563EB",
   "background_color": "#ffffff",
-  "description": "Revolutionary AI-powered grocery delivery in 10 minutes. Order with voice, camera, or text."
+  "description": "Convenience as a Service - fixed-price car washing and premium laundry in Abuja."
 }

@@ -1,9 +1,9 @@
 import React, { Suspense } from 'react';
-import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import {BrowserRouter as Router, Navigate, Route, Routes} from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 
 const Home = React.lazy(() => import('./pages/Home'));
-const JaranowLanding = React.lazy(() => import('./pages/JaranowLanding'));
+const CarwashLanding = React.lazy(() => import('./pages/CarwashLanding'));
 const WashLanding = React.lazy(() => import('./pages/WashLanding'));
 const WashRecommendation = React.lazy(() => import('./pages/WashRecommendation'));
 const Deck = React.lazy(() => import("./pages/Deck"));
@@ -25,9 +25,12 @@ function App() {
               <Suspense fallback={<LoadingSpinner />}>
                 <Routes>
                     <Route path="/" element={<Home/>}/>
-                    <Route path="/delivery" element={<JaranowLanding/>}/>
-                    <Route path="/wash" element={<WashLanding/>}/>
-                    <Route path="/wash/recommendation" element={<WashRecommendation/>}/>
+                    <Route path="/carwash" element={<CarwashLanding/>}/>
+                    <Route path="/laundry" element={<WashLanding/>}/>
+                    <Route path="/laundry/recommendation" element={<WashRecommendation/>}/>
+                    {/* Legacy /wash routes redirect to /laundry */}
+                    <Route path="/wash" element={<Navigate to="/laundry" replace/>}/>
+                    <Route path="/wash/recommendation" element={<Navigate to="/laundry/recommendation" replace/>}/>
                     <Route path="/pricing" element={<Pricing/>}/>
                     <Route path="/pitch-deck" element={<Deck/>}/>
                 </Routes>

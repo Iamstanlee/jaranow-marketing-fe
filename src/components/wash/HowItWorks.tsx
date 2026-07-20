@@ -1,13 +1,13 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import {motion} from 'framer-motion';
 
 const steps = [
   {
     step: 1,
     title: 'Schedule Pickup',
-    description: 'Choose your convenient time slot through our app or website. We offer flexible scheduling 7 days a week.',
+    description: 'Pick a slot on WhatsApp or here on the site. Lite plans collect twice a week, Premium three times.',
     icon: '📅',
-    details: ['Same-day pickup available', 'Flexible time slots', '3 days a week']
+    details: ['Tuesday & Saturday pickups', 'Thursdays on Premium', '48-hour turnaround']
   },
   {
     step: 2,
@@ -29,13 +29,7 @@ const HowItWorks: React.FC = () => {
   return (
     <section className="py-20 sm:py-24 bg-gradient-to-br from-gray-50 via-white to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div 
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
+        <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl text-gray-900 mb-4 font-bold">
             How <span className="text-primary-600">Jaranow</span> Works
           </h2>
@@ -43,7 +37,7 @@ const HowItWorks: React.FC = () => {
             Simple, convenient, and reliable. Get your laundry done in 3 easy steps 
             without leaving your home.
           </p>
-        </motion.div>
+        </div>
 
         <div className="relative">
           {/* Connection Line */}
@@ -51,14 +45,7 @@ const HowItWorks: React.FC = () => {
           
           <div className="grid lg:grid-cols-3 gap-12 lg:gap-8 items-stretch">
             {steps.map((step, index) => (
-              <motion.div
-                key={index}
-                className="relative text-center flex flex-col"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: index * 0.2 }}
-                viewport={{ once: true }}
-              >
+              <div key={index} className="relative text-center flex flex-col">
                 {/* Step Number Circle */}
                 <motion.div 
                   className="relative mx-auto w-20 h-20 bg-primary-600 rounded-full flex items-center justify-center mb-6 shadow-lg"
@@ -95,18 +82,12 @@ const HowItWorks: React.FC = () => {
                     </svg>
                   </div>
                 )}
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
 
-        <motion.div
-          className="relative z-10 mt-16 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          viewport={{ once: true }}
-        >
+        <div className="relative z-10 mt-16 text-center">
           <div className="bg-white rounded-2xl shadow-lg p-8 max-w-2xl mx-auto">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
               🕐 Typical Timeline
@@ -131,7 +112,7 @@ const HowItWorks: React.FC = () => {
               *Express service available for premium subscribers
             </p>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import {AnimatePresence, motion} from 'framer-motion';
 
 const faqs = [
   {
@@ -8,11 +8,11 @@ const faqs = [
   },
   {
     question: "What days can I schedule pickup and delivery?",
-    answer: "Lite Plan members can schedule pickups on Tuesdays and Saturdays, with delivery 48 hours later. Premium Plan members have more flexibility with pickups on Tuesdays, Thursdays, and Saturdays, plus priority same-day service when scheduled before 10 AM."
+    answer: "Lite Plan members schedule pickups on Tuesdays and Saturdays. Premium Plan members get a third window on Thursdays. Delivery is 48 hours after pickup, and we confirm your slot when we collect."
   },
   {
     question: "How quickly will I get my clothes back?",
-    answer: "Our standard turnaround is 48 hours. Premium subscribers can request same-day service when scheduled before 10 AM. We'll always confirm your delivery time during pickup and send you tracking updates via SMS and email."
+    answer: "Turnaround is 48 hours from pickup. We confirm your delivery time when we collect, and send updates on WhatsApp so you always know where your items are."
   },
   {
     question: "What happens if I'm not satisfied with the service?",
@@ -58,31 +58,18 @@ const FAQ: React.FC = () => {
   return (
     <section className="py-20 sm:py-24 bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div 
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
+        <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl text-gray-900 mb-4 font-bold">
             Frequently Asked <span className="text-primary-600">Questions</span>
           </h2>
           <p className="text-xl text-gray-600">
-            Everything you need to know about Jaranow wash's premium laundry service.
+            Everything you need to know about Laundry by Jaranow.
           </p>
-        </motion.div>
+        </div>
 
         <div className="space-y-4">
           {faqs.map((faq, index) => (
-            <motion.div
-              key={index}
-              className="bg-gray-50 rounded-2xl overflow-hidden"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: index * 0.05 }}
-              viewport={{ once: true }}
-            >
+            <div key={index} className="bg-gray-50 rounded-2xl overflow-hidden">
               <button
                 onClick={() => toggleFAQ(index)}
                 className="w-full px-8 py-6 text-left flex items-center justify-between hover:bg-gray-100 transition-colors duration-300"
@@ -90,16 +77,9 @@ const FAQ: React.FC = () => {
                 <h3 className="text-lg font-semibold text-gray-900 pr-8">
                   {faq.question}
                 </h3>
-                <motion.svg
-                  className="w-6 h-6 text-primary-600 flex-shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  animate={{ rotate: openIndex === index ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
+                <svg className="w-6 h-6 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </motion.svg>
+                </svg>
               </button>
 
               <AnimatePresence>
@@ -118,17 +98,11 @@ const FAQ: React.FC = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.div>
+            </div>
           ))}
         </div>
 
-        <motion.div 
-          className="mt-16 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          viewport={{ once: true }}
-        >
+        <div className="mt-16 text-center">
           <div className="bg-primary-50 border border-primary-200 rounded-2xl p-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4">
               Still have questions?
@@ -159,7 +133,7 @@ const FAQ: React.FC = () => {
               </a>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

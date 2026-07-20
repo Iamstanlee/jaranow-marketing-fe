@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import {motion} from 'framer-motion';
 import { 
   Clock, 
   Truck, 
@@ -52,13 +52,7 @@ const Benefits: React.FC = () => {
   return (
     <section className="py-20 sm:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div 
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
+        <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl text-gray-900 mb-4 font-bold">
             Why Choose <span className="text-primary-600">Jaranow?</span>
           </h2>
@@ -66,21 +60,13 @@ const Benefits: React.FC = () => {
             More than just laundry service - we're your time-saving, quality-focused partner 
             for a cleaner, more convenient lifestyle.
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {benefits.map((benefit, index) => {
             const IconComponent = benefit.icon;
             return (
-              <motion.div
-                key={index}
-                className="bg-gray-50 rounded-2xl p-8 hover:bg-white hover:shadow-lg transition-all duration-300"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -5 }}
-              >
+              <motion.div key={index} className="bg-gray-50 rounded-2xl p-8 hover:bg-white hover:shadow-lg transition-all duration-300" transition={{ duration: 0.8, delay: index * 0.1 }} whileHover={{ y: -5 }}>
                 <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6">
                   <IconComponent className="w-8 h-8 text-primary-600" />
                 </div>
@@ -94,13 +80,7 @@ const Benefits: React.FC = () => {
           })}
         </div>
 
-        <motion.div 
-          className="mt-16 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          viewport={{ once: true }}
-        >
+        <div className="mt-16 text-center">
           <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-8 text-white">
             <h3 className="text-2xl font-bold mb-4">Ready to Experience the Difference?</h3>
             <p className="text-blue-100 mb-6">
@@ -108,20 +88,20 @@ const Benefits: React.FC = () => {
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-yellow-400">48hrs</div>
+                <div className="text-3xl font-bold text-cyan-400">48hrs</div>
                 <div className="text-blue-100 text-sm">Typical turnaround</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-yellow-400">5-Star</div>
+                <div className="text-3xl font-bold text-cyan-400">5-Star</div>
                 <div className="text-blue-100 text-sm">Average rating</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-yellow-400">24/7</div>
+                <div className="text-3xl font-bold text-cyan-400">24/7</div>
                 <div className="text-blue-100 text-sm">Customer support</div>
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

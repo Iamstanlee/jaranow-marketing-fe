@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import {AnimatePresence, motion} from 'framer-motion';
 import { CheckCircle, XCircle, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
 
 interface RecommendationResult {
@@ -60,7 +60,6 @@ const PlanRecommendation: React.FC = () => {
       }
       if (hasSpecialItems) {
         reasons.push('Premium Plan includes special items like suits, long dresses, and duvet sets');
-        reasons.push('Priority same-day service ensures faster turnaround for your special items');
       }
       reasons.push('Better value than custom pricing at this volume (₦24,999/month)');
     } else if (totalClothesPerMonth > 45) {
@@ -187,12 +186,7 @@ I'd like to get started with pay-as-you-go pricing. When is the next available p
           <span className="text-sm font-medium text-primary-600">{Math.round(progress)}%</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
-          <motion.div
-            className="bg-primary-600 h-2 rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.5 }}
-          />
+          <div className="bg-primary-600 h-2 rounded-full" />
         </div>
       </div>
     );
@@ -201,13 +195,7 @@ I'd like to get started with pay-as-you-go pricing. When is the next available p
   return (
     <section className="py-20 sm:py-24 bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
+        <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-primary-50 text-primary-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
             <Sparkles className="w-4 h-4" />
             Smart Recommendation
@@ -218,15 +206,9 @@ I'd like to get started with pay-as-you-go pricing. When is the next available p
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Answer a few quick questions and we'll recommend the best plan for your needs
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div
-          className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 md:p-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          viewport={{ once: true }}
-        >
+        <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 md:p-12">
           {renderProgressBar()}
 
           <AnimatePresence mode="wait">
@@ -432,14 +414,9 @@ I'd like to get started with pay-as-you-go pricing. When is the next available p
                 transition={{ duration: 0.5 }}
               >
                 <div className="text-center mb-8">
-                  <motion.div
-                    className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 mb-4"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                  >
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 mb-4">
                     <Sparkles className="w-8 h-8 text-primary-600" />
-                  </motion.div>
+                  </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">
                     We Recommend the{' '}
                     <span className="text-primary-600">
@@ -500,16 +477,10 @@ I'd like to get started with pay-as-you-go pricing. When is the next available p
                     <h4 className="font-semibold text-gray-900 mb-3">Why this plan?</h4>
                     <ul className="space-y-2">
                       {recommendation.reasons.map((reason, index) => (
-                        <motion.li
-                          key={index}
-                          className="flex items-start text-sm text-gray-700"
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.3 + index * 0.1 }}
-                        >
+                        <li key={index} className="flex items-start text-sm text-gray-700">
                           <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
                           <span>{reason}</span>
-                        </motion.li>
+                        </li>
                       ))}
                     </ul>
                   </div>
@@ -572,7 +543,7 @@ I'd like to get started with pay-as-you-go pricing. When is the next available p
               </button>
             </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

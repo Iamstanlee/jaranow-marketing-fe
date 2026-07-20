@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import {AnimatePresence, motion} from 'framer-motion';
 import { Plus, Minus } from 'lucide-react';
-import { fadeInUp, staggerContainer } from '../../utils/animations';
 
 interface FAQItem {
   question: string;
@@ -14,31 +13,31 @@ const FAQ: React.FC = () => {
   const faqs: FAQItem[] = [
     {
       question: 'What services does Jaranow offer?',
-      answer: 'Jaranow currently offers two main services: 10-minute grocery delivery and premium subscription-based laundry service. We\'re constantly expanding to bring more convenience services to your doorstep.'
+      answer: 'Jaranow currently offers two main services: a fixed-price car wash in Gwarinpa and premium subscription-based laundry service. We\'re constantly expanding to bring more convenience services to your day.'
     },
     {
       question: 'Where is Jaranow available?',
-      answer: 'We currently operate in Abuja, Nigeria. Our 10-minute delivery service is available in Gwarinpa with plans to expand to other areas. Our laundry service is available across multiple locations in Abuja. We\'re planning to launch in Lagos, Port Harcourt, and Ibadan soon.'
+      answer: 'We currently operate in Abuja, Nigeria. Our car wash is located at 6th Avenue, Gwarinpa. Our laundry service is available across multiple locations in Abuja. We\'re planning to launch in Lagos, Port Harcourt, and Ibadan soon.'
     },
     {
-      question: 'How do I place an order?',
-      answer: 'You can order through WhatsApp, use our voice ordering feature, or take a picture of what you need with our camera shopping feature. For laundry service, you can sign up for a subscription plan through our website.'
+      question: 'How do I book or place an order?',
+      answer: 'For the car wash, just drive in to 6th Avenue, Gwarinpa - no appointment needed - or book ahead via WhatsApp or our website form. For laundry service, you can sign up for a subscription plan or book a pickup through our website.'
     },
     {
       question: 'What payment methods do you accept?',
-      answer: 'We accept various payment methods including bank transfers, card payments, and USSD. Payment details will be provided when you place your order.'
+      answer: 'We accept bank transfers to our business account, card payments, and mobile wallets. For the car wash, you pay the fixed price after the wash and drive off.'
     },
     {
-      question: 'Is there a minimum order amount?',
-      answer: 'For our 10-minute delivery service, every order costs ₦1,000 (₦500 service charge + ₦500 delivery fee), with no minimum order amount. For our laundry service, you can choose from our subscription plans starting at ₦14,999/month.'
+      question: 'How much does it cost?',
+      answer: 'Our car wash is fixed price: ₦2,000 for an exterior wash and ₦3,000 for a full interior + exterior wash - no negotiation, no hidden charges. For our laundry service, you can choose from subscription plans starting at ₦14,999/month.'
     },
     {
-      question: 'How fast is the delivery?',
-      answer: 'Our grocery delivery service delivers in 10 minutes or less! For our laundry service, we pick up your items and return them within 24-48 hours, fully washed, dried, ironed, and folded.'
+      question: 'How long does it take?',
+      answer: 'A car wash is done while you wait - most washes take well under an hour. For our laundry service, we pick up your items and return them within 24-48 hours, fully washed, dried, ironed, and folded.'
     },
     {
-      question: 'Can I track my order?',
-      answer: 'Yes! Once your order is placed, you\'ll receive updates via WhatsApp. For delivery orders, you can track your rider in real-time. For laundry orders, we\'ll notify you at every stage of the process.'
+      question: 'How will I know the status?',
+      answer: 'Yes! You\'ll receive updates via WhatsApp. For the car wash, we confirm your booking and let you know when we\'re ready. For laundry orders, we\'ll notify you at every stage of the process.'
     },
     {
       question: 'What if I have an issue with my order?',
@@ -53,14 +52,9 @@ const FAQ: React.FC = () => {
   return (
     <section id="faq" className="py-20 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
-        >
+        <div>
           {/* Section Header */}
-          <motion.div variants={fadeInUp} className="text-center mb-16">
+          <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
               Frequently Asked Questions
             </h2>
@@ -75,19 +69,12 @@ const FAQ: React.FC = () => {
                 Chat with us
               </a>
             </p>
-          </motion.div>
+          </div>
 
           {/* FAQ Items */}
-          <motion.div
-            variants={staggerContainer}
-            className="max-w-3xl mx-auto space-y-4"
-          >
+          <div className="max-w-3xl mx-auto space-y-4">
             {faqs.map((faq, index) => (
-              <motion.div
-                key={index}
-                variants={fadeInUp}
-                className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200 hover:border-primary-300 transition-colors"
-              >
+              <div key={index} className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200 hover:border-primary-300 transition-colors">
                 <button
                   onClick={() => toggleFAQ(index)}
                   className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-gray-100 transition-colors"
@@ -118,12 +105,12 @@ const FAQ: React.FC = () => {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
 
           {/* CTA */}
-          <motion.div variants={fadeInUp} className="mt-12 text-center">
+          <div className="mt-12 text-center">
             <p className="text-gray-600 mb-4">Still have questions?</p>
             <a
               href="https://wa.me/2349038622012"
@@ -136,8 +123,8 @@ const FAQ: React.FC = () => {
               </svg>
               Chat on WhatsApp
             </a>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );

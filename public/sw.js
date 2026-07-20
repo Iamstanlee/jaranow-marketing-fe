@@ -1,6 +1,6 @@
 // Service Worker for caching and performance optimization
 const CACHE_NAME = 'jaranow-v1.0.0';
-const STATIC_CACHE = 'jaranow-static-v1';
+const STATIC_CACHE = 'jaranow-static-v2';
 const DYNAMIC_CACHE = 'jaranow-dynamic-v1';
 
 // Assets to cache immediately
@@ -8,8 +8,7 @@ const STATIC_ASSETS = [
   '/',
   '/static/js/bundle.js',
   '/static/css/main.css',
-  '/logo-white.png',
-  '/logo-wash.png',
+  '/brand/jaranow-logo-white.svg',
   '/manifest.json'
 ];
 

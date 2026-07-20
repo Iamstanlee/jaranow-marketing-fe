@@ -1,8 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
-import {motion} from 'framer-motion';
-import {ArrowRight, Bike, DollarSign, MapPin, Shirt, Truck} from 'lucide-react';
-import {fadeInUp, staggerContainer} from '../../utils/animations';
+import {ArrowRight, Car, DollarSign, MapPin, Shirt, Sparkles, Truck} from 'lucide-react';
 
 interface ServiceCardProps {
     title: string;
@@ -20,7 +18,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                                                      gradient,
                                                  }) => {
     return (
-        <motion.div variants={fadeInUp}>
+        <div>
             <Link to={link} className="block group">
                 <div
                     className={`relative h-full bg-gradient-to-br ${gradient} rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden`}>
@@ -68,35 +66,35 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                     <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                 </div>
             </Link>
-        </motion.div>
+        </div>
     );
 };
 
 const Services: React.FC = () => {
     const services: ServiceCardProps[] = [
         {
-            title: '10-Minute Delivery',
-            description: 'Lightning-fast grocery delivery powered by AI. Order with your voice or camera.',
+            title: 'Carwash by Jaranow',
+            description: 'Fixed-price car washing in Gwarinpa. Drive in, we wash, you drive off.',
             features: [
                 {
-                    icon: <Bike size={18} className="text-blue-200"/>,
-                    text: 'Delivered in 10 minutes or less'
+                    icon: <Sparkles size={18} className="text-blue-200"/>,
+                    text: 'Exterior ₦2,000 · Full Wash ₦3,000'
                 },
                 {
                     icon: <MapPin size={18} className="text-blue-200"/>,
-                    text: 'Available in Gwarinpa, Abuja'
+                    text: '6th Avenue, Gwarinpa, Abuja'
                 },
                 {
-                    icon: <DollarSign size={18} className="text-blue-200"/>,
-                    text: '₦1,000 (delivery fee + service)'
+                    icon: <Car size={18} className="text-blue-200"/>,
+                    text: 'Fixed price, no negotiation'
                 }
             ],
-            link: '/delivery',
+            link: '/carwash',
             gradient: 'from-primary-500 via-primary-600 to-primary-700',
         },
         {
-            title: 'Premium Laundry',
-            description: 'Subscription-based laundry service with doorstep pickup and delivery.',
+            title: 'Laundry by Jaranow',
+            description: 'Monthly plans. We collect, wash, iron and bring it back folded.',
             features: [
                 {
                     icon: <Shirt size={18} className="text-blue-200"/>,
@@ -111,7 +109,7 @@ const Services: React.FC = () => {
                     text: 'From ₦14,999/month'
                 }
             ],
-            link: '/wash',
+            link: '/laundry',
             gradient: 'from-blue-500 via-blue-600 to-blue-700',
         }
     ];
@@ -119,21 +117,16 @@ const Services: React.FC = () => {
     return (
         <section id="services" className="py-20 bg-gray-50">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <motion.div
-                    variants={staggerContainer}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{once: true, margin: "-100px"}}
-                >
+                <div>
                     {/* Section Header */}
-                    <motion.div variants={fadeInUp} className="text-center mb-16">
+                    <div className="text-center mb-16">
                         <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
                             Our Services
                         </h2>
                         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                            Choose the convenience that fits your lifestyle. More services coming soon!
+                            Two services today. More on the way.
                         </p>
-                    </motion.div>
+                    </div>
 
                     {/* Service Cards */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
@@ -141,7 +134,7 @@ const Services: React.FC = () => {
                             <ServiceCard key={index} {...service} />
                         ))}
                     </div>
-                </motion.div>
+                </div>
             </div>
         </section>
     );

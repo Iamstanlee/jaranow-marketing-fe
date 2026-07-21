@@ -98,6 +98,110 @@ logo, lockup or brand colour.
   Fonts, so it needs network — always eyeball the PNGs afterwards, because a
   failed font load silently falls back to system sans. Watch for orphaned words:
   the headline is capped at `15ch`, so a long one wraps badly.
+- **Print cards are generated too.** `brand/gen-card.js` emits both pocket cards
+  (front + back each) as HTML; `brand/rasterize-card.sh` screenshots them to
+  300dpi PNGs in `brand/card/png/`:
+
+  - `card-carwash-account-*` — complimentary card carrying the bank details
+  - `card-carwash-loyalty-*` — stamp card, 5 washes then one on us
+
+  Both are 85×55mm so they share one press setup and one rasterizer. A third
+  card is a new entry in the `CARDS` array, not a new script.
+
+  ```bash
+  node brand/gen-card.js       # -> brand/card/html/*.html
+  brand/rasterize-card.sh      # html -> brand/card/png/*.png  (1075x720)
+  ```
+
+  Output is **85×55mm trim plus 3mm bleed** — hand the PNGs to the printer as-is,
+  they add crop marks at the trim line. Two things bite here: the accent bar has
+  to be *taller* than the bleed or the cut removes all of it, and the body is a
+  fixed 55mm with `overflow:hidden`, so content that outgrows the padded box
+  silently slides under the bar instead of making the page taller. Always eyeball
+  the PNGs after changing a size. Like the OG cards, rasterizing pulls Rubik from
+  Google Fonts, so it needs network.
+
+  The bank details live in the `ACCOUNT` object at the top of `gen-card.js` —
+  change them there and regenerate; do not edit the HTML or PNGs by hand. A
+  10-digit NUBAN is auto-grouped 3-3-4 for reading aloud; anything else prints
+  verbatim.
+
+  **The loyalty card has six slots: five stampable, then the reward.** The offer
+  is *5 points = 1 free wash*, so slots 1–5 get stamped and the sixth — accent
+  filled, carrying the drop symbol — is the free wash those points buy. It is
+  never stamped. Drop a numbered slot and the card silently becomes "buy 4, get
+  the 5th free", a different and more expensive offer. The free wash is the
+  **sixth** visit, so never write copy promising a free *fifth* wash.
+
+  Loyalty cards carry a **printed serial** (`JC-001`…), so there is no write-in
+  field. Generate a numbered run with:
+
+  ```bash
+  node brand/gen-card.js brand/card --batch=100   # -> card/batch/html
+  brand/rasterize-card.sh batch                   # -> card/batch/png
+  ```
+
+  Only the **back** varies — every front is identical, so the press runs one
+  static front and N variable backs. `--batch` wipes `card/batch/` first, so
+  re-running it with a different N will not leave stale serials behind. Reprinting
+  the same range reissues numbers that are already in customers' hands; start the
+  next run where the last one ended rather than regenerating from 1.
+
+  The serial is a handle for the ledger, not an enforcement mechanism — nothing
+  stops a card being stamped twice or a number being reused. Whoever holds the
+  ledger is the actual system.
+- **Roadside signage**: `brand/gen-sign.js` + `brand/rasterize-sign.sh` emit
+  `brand/sign/png/sign-carwash-{portrait,landscape}-{ink,blue}.png` — four
+  panels, two orientations × two grounds (Ink with an accent band, or accent
+  with an Ink band), each plus 20mm bleed:
+
+  | orientation | trim | px | headline |
+  |---|---|---|---|
+  | portrait | 900×1800mm | 1880×3680 | 230mm, stacked `CAR / WASH` |
+  | landscape | 2400×1200mm | 4880×2480 | 300mm, one line |
+
+  The two orientations are **not** the same design scaled. Portrait is width-
+  constrained, so the headline stacks; landscape has the width to set it on one
+  line *and* larger, which is why it reads from ~26m against portrait's ~20m.
+  Prefer landscape where the site allows it.
+
+  Panels differ in pixel size, so `rasterize-sign.sh` reads dimensions from the
+  `sizes.txt` manifest `gen-sign.js` writes — do not hardcode a window size.
+
+  Rendered at **2px/mm (~51dpi at full size)**. That is correct for large format
+  and not a bug — do not "fix" it to 300dpi, which is a 10630×21260px file for no
+  gain at a viewing distance of metres.
+
+  **Type is sized from viewing distance, not by eye.** The rule is ~25mm of cap
+  height per 3m of comfortable reading; the script prints a table of what each
+  element resolves at, so read it after changing any size. Two things this
+  discipline caught, both worth preserving:
+
+  - The `carwash` line inside the lockup is only ~30mm cap (≈3.6m). The lockup
+    says *who* but not *what* at road distance, so `CAR WASH` is the headline in
+    its own right. Removing it makes the sign unreadable as a car wash.
+  - On portrait the headline is stacked `CAR / WASH`. One line caps at ~140mm
+    against the 780mm content width, where two lines fit 230mm — roughly 20m of
+    comfortable read instead of 12m. Unstacking it costs ~8m of range. Landscape
+    does not have this problem and sets it on one line.
+
+  Hours (`Open daily · 8am–7pm`) match the carwash OG card. Prices are
+  deliberately absent — see "Brand positioning". There is no "drive in" line on
+  either panel; it was dropped deliberately, so re-adding it is a decision, not
+  a fix.
+- **Tee mockups** work the same way: `brand/gen-tee.js` +
+  `brand/rasterize-tee.sh` emit `brand/tee/png/mockup-carwash-tee-{ink,paper}.png`,
+  each an 1800×1100 sheet showing front and back.
+
+  These are **mockups, not print artwork** — they exist to approve placement and
+  colourway. A printer gets the lockup SVGs from `brand/jaranow-blue/svg/` plus
+  the millimetre figures in the sheet captions. The garment is drawn at real
+  size-L proportions (530mm pit to pit) and every print size derives from
+  `CHEST_UNITS`, so the millimetres are honest — change the geometry and the
+  captions stay true automatically.
+
+  The soft shading is on the *cloth*. The mark itself stays flat, per
+  BRAND-STANDARD §4.2 — do not let a gradient or shadow reach the lockup.
 - Live assets are served from `public/brand/`:
   `jaranow-logo-white.svg` (master, knockout), `jaranow-logo.svg` (master, duo),
   `jaranow-carwash-white.svg`, `jaranow-laundry-white.svg`,

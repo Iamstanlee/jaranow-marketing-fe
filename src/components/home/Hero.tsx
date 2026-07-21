@@ -37,7 +37,7 @@ const Hero: React.FC = () => {
             variants={fadeInUp}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight"
           >
-            Your chores,{' '}
+            Your car and laundry,{' '}
             <span className="text-cyan-300">handled.</span>
           </motion.h1>
 

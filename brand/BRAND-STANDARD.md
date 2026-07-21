@@ -11,7 +11,7 @@ wins — the point of a system is that it survives people.
 
 ## 1. What the brand is
 
-Jaranow handles recurring chores for urban Nigeria. Two service lines are live
+Jaranow handles the recurring upkeep of a home and a car in urban Nigeria. Two service lines are live
 — **Carwash by Jaranow** and **Laundry by Jaranow** — and more will follow.
 
 **Tone:** straight-dealing, competent, calm. Premium but accessible.

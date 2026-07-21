@@ -5,12 +5,12 @@
   "routes": {
     "/": {
       "file": "index.html",
-      "title": "Jaranow - Your chores, handled.",
+      "title": "Jaranow - Your car and laundry, handled.",
       "description": "Hand car washing in Gwarinpa and subscription laundry across Abuja. Collected, cleaned and returned - with attention to detail, care and integrity at every step.",
-      "ogTitle": "Jaranow - Your chores, handled.",
+      "ogTitle": "Jaranow - Your car and laundry, handled.",
       "ogDescription": "Hand car washing in Gwarinpa and subscription laundry across Abuja. Collected, cleaned and returned with care.",
       "ogImage": "/jaranow/opengraph.png",
-      "ogImageAlt": "Jaranow - your chores, handled",
+      "ogImageAlt": "Jaranow - your car and laundry, handled",
       "siteName": "Jaranow"
     },
     "/carwash": {

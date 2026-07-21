@@ -35,7 +35,7 @@ const CARDS = [
     file: "opengraph-jaranow",
     lockup: "jaranow-lockup-horizontal-white",
     lockupH: 62,
-    headline: "Your chores, handled.",
+    headline: "Your car and laundry, handled.",
     sub: "Hand car wash and subscription laundry in Abuja.",
     meta: "Attention to detail · Care · Convenience · Integrity",
   },

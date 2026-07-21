@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="update font" />
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add new jaranow brand identity">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLAUDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/CLAUDE.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -169,6 +172,7 @@
       <workItem from="1769974910815" duration="198000" />
       <workItem from="1770500515948" duration="624000" />
       <workItem from="1772462405930" duration="779000" />
+      <workItem from="1784358313179" duration="39108000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -242,7 +246,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769975096671</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Add new jaranow brand identity">
+      <option name="closed" value="true" />
+      <created>1784548354950</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1784548354950</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -268,7 +280,8 @@
     <MESSAGE value="chore: fix pricing on homepage" />
     <MESSAGE value="ulachore: fix pricing on homepage" />
     <MESSAGE value="update font" />
-    <option name="LAST_COMMIT_MESSAGE" value="update font" />
+    <MESSAGE value="Add new jaranow brand identity" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add new jaranow brand identity" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

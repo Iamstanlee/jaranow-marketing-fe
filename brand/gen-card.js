@@ -39,9 +39,9 @@ const SAFE = mm(BLEED + 4); // bleed + 4mm quiet margin from trim
    regenerate. They are deliberately obvious so a proof never reads as real.
 --------------------------------------------------------------------------- */
 const ACCOUNT = {
-  bank: "OPAY",
-  name: "JARANOW TECHNOLOGIES",
-  number: "9038622012",
+  bank: "MONIEPOINT",
+  name: "BEANSLABS TECHNOLOGIES",
+  number: "5298331307",
 };
 
 /* group a 10-digit NUBAN as 3-3-4 for reading aloud over a forecourt */

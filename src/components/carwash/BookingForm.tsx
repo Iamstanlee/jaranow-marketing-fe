@@ -8,7 +8,7 @@ export interface BookingFormHandle {
 
 const WHATSAPP_NUMBER = '2349038622012';
 
-const washTypes = ['Exterior Wash - ₦2,000', 'Full Wash - ₦3,000'];
+const washTypes = ['Exterior Wash - ₦2,000', 'Full Wash - ₦3,000', 'Vacuum Wash - ₦4,000', 'Buffing - ₦20,000'];
 
 interface FormState {
     name: string;

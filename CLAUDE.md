@@ -150,10 +150,61 @@ logo, lockup or brand colour.
   The serial is a handle for the ledger, not an enforcement mechanism — nothing
   stops a card being stamped twice or a number being reused. Whoever holds the
   ledger is the actual system.
+- **Price lists are generated too.** `brand/gen-pricelist.js` +
+  `brand/rasterize-pricelist.sh` emit `brand/pricelist/png/pricelist-{carwash,laundry}.png`
+  — A4 portrait (210×297mm trim + 3mm bleed, 300dpi), for printing and
+  laminating at the forecourt or counter.
+
+  ```bash
+  node brand/gen-pricelist.js   # -> brand/pricelist/html/*.html
+  brand/rasterize-pricelist.sh  # html -> brand/pricelist/png/*.png (2551x3579)
+  ```
+
+  **Services and prices are data, not markup** — they live in the `LISTS` array
+  at the top of `gen-pricelist.js`. A new service is a row in `items`; a new
+  list is an entry in `LISTS`. Nothing below `LISTS` needs touching to change
+  what a list says. `price` takes a number (grouped and prefixed with ₦) or a
+  string, printed verbatim for anything that is not a flat figure; `unit`
+  ("/month", "/item") and per-item `note` lines are optional, as is a section
+  `title`.
+
+  Keep the figures in step with `/pricing` and the "Pricing Information"
+  section below — a laminated sheet on a wall outlives a deploy, so a drift
+  here is visible to customers far longer than one on the site.
+
+  Each list can also carry a `cover` (`{ headline, sub }`). When present, a
+  matching **front sheet** is emitted as `<file>-front.png` — a cover to sit
+  ahead of the prices, same Ink field / dots / accent bar, with a large centred
+  lockup and the drop scaled up behind the copy. A list with no `cover` is
+  prices-only. The cover headline sells on **care and detail, never on price**
+  — same positioning rule as everything else — and its foot reuses
+  `footer.left`, so don't repeat that address in `sub`.
+
+  Two things to know: the list block is centred in the space between header and
+  footer, so a two-row card (carwash) sits with a lot of air around it by
+  design — that is a property of a short list on A4, not a layout bug. And the
+  drop watermark bleeds off the **right edge only** on the price page; crop it
+  top or bottom as well and only the tip stays on the page, which reads as a
+  triangular smudge rather than a drop. (The front sheet keeps the whole drop on
+  the page for the same reason.) Like the OG and pocket cards, rasterizing pulls Rubik
+  from Google Fonts, so it needs network — the ₦ (U+20A6) comes from the
+  latin-ext subset and is where a failed font load shows up first.
 - **Roadside signage**: `brand/gen-sign.js` + `brand/rasterize-sign.sh` emit
-  `brand/sign/png/sign-carwash-{portrait,landscape}-{ink,blue}.png` — four
-  panels, two orientations × two grounds (Ink with an accent band, or accent
-  with an Ink band), each plus 20mm bleed:
+  `brand/sign/png/sign-carwash-{portrait,landscape}-{ink,blue,paper}.png` — six
+  panels, two orientations × three grounds, each plus 20mm bleed:
+
+  | ground | field | band | lockup |
+  |---|---|---|---|
+  | `ink` | Ink | accent | `-white` |
+  | `blue` | accent | Ink | `-white` |
+  | `paper` | Paper | accent | `-duo` |
+
+  The lockup and watermark colourway are **per ground**, not fixed — a knockout
+  mark vanishes on a light field. Per BRAND-STANDARD §7.8 dark grounds take
+  `-white` and light grounds take `-duo`; the accent colourway never sits on a
+  dark ground. Watermark opacity is per ground too, since .04 that reads as a
+  ghost on Ink is invisible in blue on Paper. Prefer the Ink panels in direct
+  sun; the Paper panel is for under cover or against a dark wall.
 
   | orientation | trim | px | headline |
   |---|---|---|---|
@@ -167,6 +218,15 @@ logo, lockup or brand colour.
 
   Panels differ in pixel size, so `rasterize-sign.sh` reads dimensions from the
   `sizes.txt` manifest `gen-sign.js` writes — do not hardcode a window size.
+
+  The `CAR WASH` headline is set in **Archivo Black**, not Rubik — at 20m what
+  carries is stroke weight and letter width, and Rubik's 700 is a text bold.
+  Everything else on the panel stays Rubik. This is not a wordmark substitution
+  (BRAND-STANDARD §7.1): the lockup beside it is still the drawn SVG. Two
+  things to keep in mind — Archivo Black ships **one weight (400)**, so asking
+  for 700 gets a synthetic bold that goes soft at size; and each face carries
+  its own `capRatio`, because the legibility table is computed from it, so
+  swapping the face without the metric silently reports wrong distances.
 
   Rendered at **2px/mm (~51dpi at full size)**. That is correct for large format
   and not a bug — do not "fix" it to 300dpi, which is a 10630×21260px file for no
@@ -184,6 +244,14 @@ logo, lockup or brand colour.
     against the 780mm content width, where two lines fit 230mm — roughly 20m of
     comfortable read instead of 12m. Unstacking it costs ~8m of range. Landscape
     does not have this problem and sets it on one line.
+
+  The services line comes from the `SERVICES` array, **grouped rather than
+  flat** because the panels have very different room: portrait sets one group
+  per line (all four on one line overruns its 780mm content width at 56mm type
+  and wraps where the design did not choose), landscape runs them together on
+  one line. Keep the groups balanced at two each — a group of one orphans on
+  portrait. These must stay in step with `gen-pricelist.js` and
+  `src/components/carwash/Pricing.tsx`.
 
   Hours (`Open daily · 8am–7pm`) match the carwash OG card. Prices are
   deliberately absent — see "Brand positioning". There is no "drive in" line on
@@ -359,10 +427,18 @@ Current focus:
 ## Pricing Information
 
 **Carwash by Jaranow:**
-- Exterior Wash: ₦2,000
-- Full Wash (interior + exterior): ₦3,000
+- Exterior Wash: ₦2,000 (body, wheels, glass)
+- Full Wash: ₦3,000 (exterior wash + interior cleaned)
+- Vacuum Wash: ₦4,000 (exterior wash + interior machine-vacuumed)
+- Buffing: ₦20,000 (full wash + paintwork machine-polished)
 - Location: 6th Avenue, Gwarinpa, Abuja
 - Pay to the Jaranow business account after the wash
+
+The four carwash services are listed in five places that must stay in step:
+`src/components/carwash/Pricing.tsx` (the component), `src/pages/Pricing.tsx`
+(`carwashOptions`), the JSON-LD `OfferCatalog` in `src/pages/CarwashLanding.tsx`,
+the `washTypes` dropdown in `src/components/carwash/BookingForm.tsx`, and the
+`brand/gen-pricelist.js` `LISTS` array. Change one, change all five.
 
 **Laundry by Jaranow:**
 - Lite Plan: ₦14,999/month (2 washes, up to 12 clothes each)

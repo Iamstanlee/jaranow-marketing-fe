@@ -1,5 +1,5 @@
 import React from 'react';
-import {Car, Check, Sparkles} from 'lucide-react';
+import {Car, Check, Sparkles, Wind, Gem} from 'lucide-react';
 
 interface WashOption {
     name: string;
@@ -41,6 +41,30 @@ const Pricing: React.FC<PricingProps> = ({onBook}) => {
             icon: <Sparkles size={28} className="text-cyan-600"/>,
             featured: true,
         },
+        {
+            name: 'Vacuum Wash',
+            price: '₦4,000',
+            tagline: 'A full exterior wash with a deep interior vacuum.',
+            includes: [
+                'Full exterior hand wash',
+                'Interior machine-vacuumed throughout',
+                'Seats, carpets & boot cleaned out',
+                'Dashboard & console wiped down',
+            ],
+            icon: <Wind size={28} className="text-primary-700"/>,
+        },
+        {
+            name: 'Buffing',
+            price: '₦20,000',
+            tagline: 'A full wash, then paintwork machine-polished.',
+            includes: [
+                'Everything in the Full Wash',
+                'Paintwork machine-polished',
+                'Gloss restored, light swirls removed',
+                'Finished and inspected by hand',
+            ],
+            icon: <Gem size={28} className="text-primary-700"/>,
+        },
     ];
 
     return (
@@ -52,8 +76,8 @@ const Pricing: React.FC<PricingProps> = ({onBook}) => {
                             Choose your wash
                         </h2>
                         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                            Two ways to have your car cared for. Both washed by hand, both finished
-                            to the same standard.
+                            Four ways to have your car cared for. Every one washed by hand and
+                            finished to the same standard.
                         </p>
                     </div>
 

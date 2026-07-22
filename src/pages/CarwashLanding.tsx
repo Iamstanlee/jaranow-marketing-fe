@@ -71,9 +71,29 @@ const CarwashLanding: React.FC = () => {
                                     itemOffered: {
                                         '@type': 'Service',
                                         name: 'Full Wash',
-                                        description: 'Interior and exterior wash',
+                                        description: 'Exterior wash with the interior cleaned',
                                     },
                                     price: '3000',
+                                    priceCurrency: 'NGN',
+                                },
+                                {
+                                    '@type': 'Offer',
+                                    itemOffered: {
+                                        '@type': 'Service',
+                                        name: 'Vacuum Wash',
+                                        description: 'Exterior wash with the interior machine-vacuumed',
+                                    },
+                                    price: '4000',
+                                    priceCurrency: 'NGN',
+                                },
+                                {
+                                    '@type': 'Offer',
+                                    itemOffered: {
+                                        '@type': 'Service',
+                                        name: 'Buffing',
+                                        description: 'Full wash with the paintwork machine-polished',
+                                    },
+                                    price: '20000',
                                     priceCurrency: 'NGN',
                                 },
                             ],

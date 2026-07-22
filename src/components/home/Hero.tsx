@@ -26,12 +26,6 @@ const Hero: React.FC = () => {
           animate="show"
           className="max-w-4xl mx-auto text-center"
         >
-          {/* Badge */}
-          <motion.div variants={fadeInUp} className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-white mb-8">
-            <Sparkles size={16} className="text-cyan-300" />
-            <span className="text-sm font-medium">Convenience as a Service</span>
-          </motion.div>
-
           {/* Main Headline */}
           <motion.h1
             variants={fadeInUp}

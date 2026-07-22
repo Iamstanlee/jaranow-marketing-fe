@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {motion} from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from 'react-router-dom';
-import { Check, CreditCard, Smartphone, Shield, Car, Sparkles, MapPin } from 'lucide-react';
+import { Check, CreditCard, Smartphone, Shield, Car, Sparkles, MapPin, Wind, Gem } from 'lucide-react';
 import { SubscriptionPlan } from '../types';
 import { formatCurrency } from '../utils/formatters';
 import Header from '../components/common/Header';
@@ -103,6 +103,32 @@ I'd like to get started. When is the next available pickup?`;
       ],
       icon: <Sparkles className="w-7 h-7 text-cyan-600" />,
       featured: true
+    },
+    {
+      name: 'Vacuum Wash',
+      price: '₦4,000',
+      tagline: 'A full exterior wash with a deep interior vacuum.',
+      includes: [
+        'Full exterior hand wash',
+        'Interior machine-vacuumed throughout',
+        'Seats, carpets & boot cleaned out',
+        'Dashboard & console wiped down'
+      ],
+      icon: <Wind className="w-7 h-7 text-primary-700" />,
+      featured: false
+    },
+    {
+      name: 'Buffing',
+      price: '₦20,000',
+      tagline: 'A full wash, then paintwork machine-polished.',
+      includes: [
+        'Everything in the Full Wash',
+        'Paintwork machine-polished',
+        'Gloss restored, light swirls removed',
+        'Finished and inspected by hand'
+      ],
+      icon: <Gem className="w-7 h-7 text-primary-700" />,
+      featured: false
     }
   ];
 

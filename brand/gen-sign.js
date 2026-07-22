@@ -28,13 +28,30 @@ const PX_PER_MM = 2;
 const BLEED = 20;
 const mm = (n) => Math.round(n * PX_PER_MM);
 
+/* ---- headline face ----
+   The headline is set in Archivo Black, not Rubik. Rubik's 700 is a text bold;
+   at 20m what carries is stroke WEIGHT and letter WIDTH, and Archivo Black has
+   markedly more of both. Everything else on the panel stays Rubik, so the sign
+   reads as one family with the site.
+
+   This is not a wordmark substitution - BRAND-STANDARD §7.1 forbids re-setting
+   `jaranow` in a typeface, but CAR WASH is a service descriptor in type, and
+   the lockup beside it is still the drawn SVG.
+
+   Archivo Black ships ONE weight (400). Asking for 700 gets you a synthetic
+   bold - the renderer smears the outline and the edges go soft at size, which
+   is exactly what a sign cannot afford. Keep the weight at 400.
+
+   capRatio is per face because the legibility table below is computed from it:
+   swap the face and the metric has to come with it or every distance is wrong. */
+const HEADLINE = { family: "Archivo Black", weight: 400, capRatio: 0.72 };
+const BODY = { family: "Rubik", capRatio: 0.72 };
+
 /* ---- legibility ----
-   Rubik's cap height is ~0.72 of its em. Comfortable reading distance is ~120x
-   cap height (the "25mm of letter per 3m" rule); glance-legible, which is what
-   matters for traffic, is roughly double. */
-const CAP_RATIO = 0.72;
-const capOf = (fontMm) => fontMm * CAP_RATIO;
-const readAt = (fontMm) => (capOf(fontMm) * 120) / 1000; // metres
+   Comfortable reading distance is ~120x cap height (the "25mm of letter per 3m"
+   rule); glance-legible, which is what matters for traffic, is roughly double. */
+const capOf = (fontMm, face = BODY) => fontMm * face.capRatio;
+const readAt = (fontMm, face = BODY) => (capOf(fontMm, face) * 120) / 1000; // metres
 
 /* ---- panels ----
    The headline is CAR WASH, not the brand: the `carwash` line inside the lockup
@@ -45,6 +62,11 @@ const readAt = (fontMm) => (capOf(fontMm) * 120) / 1000; // metres
 
      portrait   900 x 1800  headline STACKED. One line caps out at ~140mm against
                             the 780mm content width; two lines fit 230mm.
+                            At 230mm in Archivo Black, WASH now very nearly fills
+                            that 780mm - there is ~50mm of slack left, where Rubik
+                            left far more. The size is width-bound by that word:
+                            a heavier or wider face, or a longer headline, does
+                            not fit and has to come down.
      landscape 2400 x 1200  headline on ONE line. The width is there, so it fits
                             300mm - a single fixation AND the longer read of the
                             two. Landscape is the better sign where the site
@@ -74,9 +96,47 @@ const PANELS = {
   },
 };
 
+/* Each ground carries its own lockup and watermark colourway, because a
+   knockout mark disappears on a light field. BRAND-STANDARD §7.8: the accent
+   colourway never goes on a dark ground - dark grounds take `-white`, light
+   grounds take `-duo`.
+
+   `wmOpacity` is per ground too: .04 reads as a ghost on Ink, but the same
+   value in blue on Paper is effectively invisible, so the light panel carries
+   the drop a little stronger. */
+/* ---- services line ----
+   Grouped, not a flat list, because the two panels have very different room.
+   Portrait sets ONE GROUP PER LINE - all four on one line overruns the 780mm
+   content width at 56mm type and wraps somewhere the design did not choose.
+   Landscape has 2240mm and runs them together on a single line.
+
+   Keep the groups balanced at two each: a group of one orphans on portrait.
+   These must stay in step with the services on the price list (gen-pricelist.js)
+   and with src/components/carwash/Pricing.tsx. */
+const SERVICES = [
+  ["Exterior wash", "Full wash"],
+  ["Vacuum wash", "Buffing"],
+];
+
 const GROUNDS = {
-  ink: { bg: INK, fg: PAPER, band: ACCENT, bandFg: PAPER, dot: "rgba(242,245,251,.10)" },
-  blue: { bg: ACCENT, fg: PAPER, band: INK, bandFg: PAPER, dot: "rgba(242,245,251,.13)" },
+  ink: {
+    bg: INK, fg: PAPER, band: ACCENT, bandFg: PAPER,
+    dot: "rgba(242,245,251,.10)",
+    lockup: "jaranow-carwash-by-jaranow-white", wm: "white", wmOpacity: 0.04,
+  },
+  blue: {
+    bg: ACCENT, fg: PAPER, band: INK, bandFg: PAPER,
+    dot: "rgba(242,245,251,.13)",
+    lockup: "jaranow-carwash-by-jaranow-white", wm: "white", wmOpacity: 0.04,
+  },
+  /* Light panel. Reads as the site does - Paper field, Ink type, one accent
+     band anchoring the contact line. Best where the sign is under cover or
+     against a dark wall; the Ink panels hold up better in direct sun. */
+  paper: {
+    bg: PAPER, fg: INK, band: ACCENT, bandFg: PAPER,
+    dot: "rgba(14,21,38,.10)",
+    lockup: "jaranow-carwash-by-jaranow-duo", wm: "blue", wmOpacity: 0.07,
+  },
 };
 
 /* inline a brand SVG at a fixed px width */
@@ -86,8 +146,8 @@ function mark(name, width) {
   return s.replace("<svg ", `<svg style="width:${width}px;height:auto;display:block" `);
 }
 
-function watermark() {
-  let s = fs.readFileSync(path.join(SVG, "jaranow-symbol-white.svg"), "utf8").trim();
+function watermark(colourway) {
+  let s = fs.readFileSync(path.join(SVG, `jaranow-symbol-${colourway}.svg`), "utf8").trim();
   s = s.replace(/\swidth="[^"]*"/, "").replace(/\sheight="[^"]*"/, "");
   return s.replace("<svg ", '<svg class="wm" ');
 }
@@ -120,7 +180,7 @@ const CSS = (p, g) => {
     background-image:radial-gradient(${g.dot} ${mm(1.6)}px, transparent ${mm(1.6)}px);
     background-size:${mm(34)}px ${mm(34)}px;
   }
-  .wm{position:absolute; ${wm} opacity:.04}
+  .wm{position:absolute; ${wm} opacity:${g.wmOpacity}}
   .top{position:relative; z-index:2}
   /* The message block centres in whatever is left between lockup and band, so
      neither panel ends up with a dead zone. */
@@ -129,8 +189,13 @@ const CSS = (p, g) => {
     display:flex; flex-direction:column; align-items:center; justify-content:center;
   }
   h1{
-    font-size:${mm(T.headline)}px; line-height:${p.stacked ? ".9" : "1"}; font-weight:700;
-    letter-spacing:-.03em;
+    font-family:'${HEADLINE.family}',system-ui,sans-serif;
+    /* 400 is Archivo Black's only weight - see the HEADLINE note above. */
+    font-size:${mm(T.headline)}px; line-height:${p.stacked ? ".9" : "1"};
+    font-weight:${HEADLINE.weight};
+    /* Looser than Rubik's -.03em: the face is already tight, and heavy letters
+       need air between them or the counters close up at distance. */
+    letter-spacing:-.005em;
   }
   .services{
     font-size:${mm(T.services)}px; line-height:1.3; font-weight:500;
@@ -163,14 +228,18 @@ for (const [pname, p] of Object.entries(PANELS)) {
     const html = `<!doctype html><html><head><meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Archivo+Black&display=block" rel="stylesheet">
 <style>${CSS(p, g)}</style></head><body>
 <div class="dots"></div>
-${watermark()}
-<div class="top">${mark("jaranow-carwash-by-jaranow-white", mm(p.lockup))}</div>
+${watermark(g.wm)}
+<div class="top">${mark(g.lockup, mm(p.lockup))}</div>
 <div class="mid">
   <h1>${p.stacked ? "CAR<br>WASH" : "CAR WASH"}</h1>
-  <p class="services">Exterior &amp; full wash</p>
+  <p class="services">${
+    p.stacked
+      ? SERVICES.map((g) => g.join(" · ")).join("<br>")
+      : SERVICES.flat().join(" · ")
+  }</p>
   <p class="hours">Open daily · 8am–7pm</p>
 </div>
 <div class="band">
@@ -193,8 +262,9 @@ for (const [pname, p] of Object.entries(PANELS)) {
   console.log(`\n${pname}  ${p.w}x${p.h}mm + ${BLEED}mm bleed  ->  ${mm(p.w + BLEED * 2)}x${mm(p.h + BLEED * 2)}px`);
   console.log("  legibility (comfortable read; glance-legible is roughly double):");
   for (const [k, v] of Object.entries(p.type)) {
+    const face = k === "headline" ? HEADLINE : BODY;
     console.log(
-      `    ${k.padEnd(9)} ${String(v).padStart(3)}mm type  cap ${capOf(v).toFixed(0).padStart(3)}mm  ->  ${readAt(v).toFixed(1)}m`
+      `    ${k.padEnd(9)} ${String(v).padStart(3)}mm type  cap ${capOf(v, face).toFixed(0).padStart(3)}mm  ->  ${readAt(v, face).toFixed(1)}m   ${face.family}`
     );
   }
 }

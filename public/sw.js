@@ -1,15 +1,15 @@
 // Service Worker for caching and performance optimization
-const CACHE_NAME = 'jaranow-v1.0.0';
-const STATIC_CACHE = 'jaranow-static-v2';
-const DYNAMIC_CACHE = 'jaranow-dynamic-v1';
+const STATIC_CACHE = 'jaranow-static-v3';
+const DYNAMIC_CACHE = 'jaranow-runtime-v3';
 
 // Assets to cache immediately
 const STATIC_ASSETS = [
   '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
   '/brand/jaranow-logo-white.svg',
-  '/manifest.json'
+  '/manifest.json',
+  '/bookkeeping-manifest.json',
+  '/jaranow/icon-192.png',
+  '/jaranow/icon-512.png'
 ];
 
 // Install event - cache static assets
@@ -80,7 +80,7 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() => {
         // Fallback for offline
-        if (request.destination === 'document') {
+        if (request.mode === 'navigate') {
           return caches.match('/');
         }
       })
@@ -88,7 +88,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 // Background sync for analytics (if supported)
-if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+if ('sync' in self.registration) {
   self.addEventListener('sync', (event) => {
     if (event.tag === 'background-analytics') {
       event.waitUntil(sendAnalytics());

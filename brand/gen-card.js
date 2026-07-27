@@ -174,7 +174,7 @@ ${body}
    can be tied back to a customer in the ledger - the card itself enforces
    nothing, the number is just the handle.
 --------------------------------------------------------------------------- */
-const SERIAL = { prefix: "JC", pad: 3 };
+const SERIAL = { prefix: "LOY", pad: 3 };
 const cardNo = (n) => `${SERIAL.prefix}-${String(n).padStart(SERIAL.pad, "0")}`;
 
 function loyaltyBack(no) {

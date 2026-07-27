@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {ArrowRight, Zap, Sparkles, Car, Shirt} from 'lucide-react';
+import {ArrowRight, Zap, Car, Shirt} from 'lucide-react';
 import { fadeInUp, staggerContainer } from '../../utils/animations';
 
 const Hero: React.FC = () => {

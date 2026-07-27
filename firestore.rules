@@ -1,0 +1,41 @@
+rules_version = '2';
+
+// Security rules for the Jaranow Business Desk (car wash bookkeeping).
+//
+// The app authenticates the operator with a client-side PIN, which never reaches
+// Firestore. The real boundary is here: every request must carry an authenticated
+// session (the client signs in anonymously — see src/lib/firebase.ts), and only the
+// three car-wash collections are reachable. Everything else is denied by default.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // A signed-in client (anonymous auth counts) may read and write the car-wash books.
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Sales ledger — one document per recorded wash.
+    match /car_wash_sales/{saleId} {
+      allow read, create, update: if signedIn();
+      // Records are corrected, not deleted, so the day's takings stay auditable.
+      allow delete: if false;
+    }
+
+    // Loyalty members — created on first sale, points updated on each subsequent one.
+    match /car_wash_loyalty/{memberId} {
+      allow read, create, update: if signedIn();
+      allow delete: if false;
+    }
+
+    // Expenses ledger.
+    match /car_wash_expenses/{expenseId} {
+      allow read, create, update: if signedIn();
+      allow delete: if false;
+    }
+
+    // Deny everything else outright.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

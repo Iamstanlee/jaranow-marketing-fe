@@ -56,6 +56,17 @@ function stripManagedTags(html) {
     .replace(/<meta\s+name="twitter:[^"]*"[^>]*>/gi, '');
 }
 
+/**
+ * Only for routes that declare their own: dropping these unconditionally would
+ * leave every other route without a manifest or theme colour.
+ */
+function stripAppTags(html, meta) {
+  let out = html;
+  if (meta.manifest) out = out.replace(/<link\s+rel="manifest"[^>]*>/gi, '');
+  if (meta.themeColor) out = out.replace(/<meta\s+name="theme-color"[^>]*>/gi, '');
+  return out;
+}
+
 function buildTags(routePath, meta, config) {
   const url = `${config.siteUrl}${routePath === '/' ? '' : routePath}`;
   const image = `${config.siteUrl}${meta.ogImage}`;
@@ -64,6 +75,13 @@ function buildTags(routePath, meta, config) {
     `<title>${escapeText(meta.title)}</title>`,
     `<meta name="description" content="${escapeAttr(meta.description)}"/>`,
     `<link rel="canonical" href="${escapeAttr(url)}"/>`,
+    // An installable route needs its manifest in the first byte of the response.
+    // Swapping the <link> from JavaScript once the page has booted is too late: the
+    // browser has already read a manifest by then, and an install captured at that
+    // moment carries the wrong start_url.
+    ...(meta.manifest ? [`<link rel="manifest" href="${escapeAttr(meta.manifest)}"/>`] : []),
+    ...(meta.themeColor ? [`<meta name="theme-color" content="${escapeAttr(meta.themeColor)}"/>`] : []),
+    ...(meta.noindex ? [`<meta name="robots" content="noindex, nofollow"/>`] : []),
     `<meta property="og:type" content="website"/>`,
     `<meta property="og:site_name" content="${escapeAttr(meta.siteName)}"/>`,
     `<meta property="og:locale" content="en_NG"/>`,
@@ -113,7 +131,7 @@ function main() {
       );
     }
 
-    const html = stripManagedTags(template).replace(
+    const html = stripAppTags(stripManagedTags(template), meta).replace(
       /<\/head>/i,
       `${buildTags(routePath, meta, config)}</head>`
     );

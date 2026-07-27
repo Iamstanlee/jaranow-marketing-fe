@@ -4,7 +4,7 @@
   "description": "Sales, expenses, loyalty and end-of-day bookkeeping for Jaranow.",
   "id": "/__/book",
   "start_url": "/__/book",
-  "scope": "/",
+  "scope": "/__/",
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#2563eb",

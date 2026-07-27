@@ -1,5 +1,15 @@
 import {useEffect, useMemo, useState} from 'react';
-import {addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, updateDoc} from 'firebase/firestore';
+import {
+    addDoc,
+    collection,
+    doc,
+    increment,
+    onSnapshot,
+    orderBy,
+    query,
+    serverTimestamp,
+    updateDoc
+} from 'firebase/firestore';
 import {
     BarChart3,
     ChevronLeft,
@@ -40,8 +50,39 @@ const money = (value: number) => new Intl.NumberFormat('en-NG', {
     currency: 'NGN',
     maximumFractionDigits: 0
 }).format(value);
-const today = new Date().toLocaleDateString('en-NG', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'});
-const dateOf = (sale: Sale) => sale.createdAt?.toDate() || new Date();
+// Called during render rather than computed once at module load: the desk is left open on a
+// tablet for a whole shift, and a module-level date would still say yesterday after midnight.
+const longDate = () => new Date().toLocaleDateString('en-NG', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+});
+const greeting = () => {
+    const hour = new Date().getHours();
+    return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+};
+// A record still waiting on serverTimestamp has no createdAt yet, so it reads as just-now —
+// which is where it was written, and it settles to the server value on the next snapshot.
+const dateOf = (record: { createdAt?: Timestamp }) => record.createdAt?.toDate() || new Date();
+const startOfDay = (date: Date) => {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+};
+const isToday = (date: Date) => startOfDay(date).getTime() === startOfDay(new Date()).getTime();
+// Lists span days, so every row carries when it was logged. The two most recent days are
+// named — "Today" is what a reader is actually checking for — and older rows get a date.
+const dayLabel = (date: Date) => {
+    const day = startOfDay(date).getTime(), edge = startOfDay(new Date());
+    if (day === edge.getTime()) return 'Today';
+    edge.setDate(edge.getDate() - 1);
+    if (day === edge.getTime()) return 'Yesterday';
+    return date.toLocaleDateString('en-NG', {
+        day: 'numeric',
+        month: 'short', ...(date.getFullYear() === new Date().getFullYear() ? {} : {year: 'numeric'})
+    });
+};
 const codeFor = (member: Loyalty, index: number) => member.code || `LOY-${String(index + 1).padStart(3, '0')}`;
 const seedSales: Sale[] = [{
     id: 's1',
@@ -49,15 +90,22 @@ const seedSales: Sale[] = [{
     customer: 'Chioma Okafor',
     service: 'Full wash',
     payment: 'Transfer',
-    amount: 5000
+    amount: SERVICES['Full wash']
 }, {
     id: 's2',
     loyaltyCode: 'LOY-002',
     customer: 'Tunde Adeyemi',
     service: 'Exterior wash',
     payment: 'POS',
-    amount: 3000
-}, {id: 's3', loyaltyCode: 'LOY-003', customer: 'Amina Bello', service: 'Vacuum wash', payment: 'Cash', amount: 2000}];
+    amount: SERVICES['Exterior wash']
+}, {
+    id: 's3',
+    loyaltyCode: 'LOY-003',
+    customer: 'Amina Bello',
+    service: 'Vacuum wash',
+    payment: 'Cash',
+    amount: SERVICES['Vacuum wash']
+}];
 const seedLoyalty: Loyalty[] = [{
     id: 'l1',
     code: 'LOY-001',
@@ -87,6 +135,10 @@ export default function Bookkeeping() {
     // and is populated only by its Firestore collections.
     const [section, setSection] = useState<Section>('overview'), [sales, setSales] = useState<Sale[]>(firebaseEnabled ? [] : seedSales), [loyalty, setLoyalty] = useState<Loyalty[]>(firebaseEnabled ? [] : seedLoyalty), [expenseRecords, setExpenseRecords] = useState<Expense[]>(firebaseEnabled ? [] : seedExpenses);
     const [saleModal, setSaleModal] = useState(false), [expenseModal, setExpenseModal] = useState(false), [menuOpen, setMenuOpen] = useState(false), [syncError, setSyncError] = useState('');
+    // Only covers arriving here by client-side navigation. What makes the app installable
+    // is the manifest baked into build/__/book/index.html by scripts/prerender-meta.js —
+    // by the time this effect runs the browser has already read whatever manifest the
+    // document shipped with, and an install captured then carries the wrong start_url.
     useEffect(() => {
         const manifest = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
         const previousManifest = manifest?.getAttribute('href');
@@ -130,7 +182,11 @@ export default function Bookkeeping() {
             offExpenses();
         };
     }, []);
-    const totals = useMemo(() => totalSales(sales), [sales]);
+    // Overview and end-of-day are both "today" views — the stat cards say so — so they read
+    // today's records only. Reports is the section for looking across days.
+    const day = useDayTick();
+    const todaySales = useMemo(() => sales.filter(s => startOfDay(dateOf(s)).getTime() === day), [sales, day]);
+    const totals = useMemo(() => totalSales(todaySales), [todaySales]);
     const login = (e: React.FormEvent) => {
         e.preventDefault();
         if (pin === process.env.REACT_APP_ADMIN_PIN && pin) setRole('admin'); else if (pin === process.env.REACT_APP_STAFF_PIN && pin) setRole('staff'); else setPinError(process.env.REACT_APP_ADMIN_PIN ? 'Incorrect PIN. Please try again.' : 'Set REACT_APP_ADMIN_PIN and REACT_APP_STAFF_PIN in .env first.');
@@ -162,11 +218,18 @@ export default function Bookkeeping() {
             loyaltyCode: activeMember?.code || '—'
         }, ...list]);
         if (activeMember) {
-            const next = record.redeemed ? {
-                points: activeMember.points - 5,
-                redeemed: activeMember.redeemed + 1
-            } : {points: activeMember.points + 1};
-            if (db) await updateDoc(doc(db, 'car_wash_loyalty', activeMember.id), next); else setLoyalty(list => list.map(x => x.id === activeMember?.id ? {...x, ...next} : x));
+            // Written as a delta, not as a computed total: two attendants recording washes for
+            // the same customer at once would each write back the count they last saw, and one
+            // of the two points would silently disappear.
+            const delta = record.redeemed ? {points: -5, redeemed: 1} : {points: 1, redeemed: 0};
+            if (db) await updateDoc(doc(db, 'car_wash_loyalty', activeMember.id), {
+                points: increment(delta.points),
+                redeemed: increment(delta.redeemed)
+            }); else setLoyalty(list => list.map(x => x.id === activeMember?.id ? {
+                ...x,
+                points: x.points + delta.points,
+                redeemed: x.redeemed + delta.redeemed
+            } : x));
         }
     };
     const addExpense = async (record: Omit<Expense, 'id' | 'createdAt'>) => {
@@ -189,7 +252,7 @@ export default function Bookkeeping() {
         label: 'End of day',
         icon: ClipboardCheck
     }, ...(role === 'admin' ? [{id: 'reports' as const, label: 'Reports', icon: BarChart3}] : [])];
-    const title = section === 'overview' ? 'Good morning' : nav.find(x => x.id === section)?.label;
+    const title = section === 'overview' ? greeting() : nav.find(x => x.id === section)?.label;
     return <div className="min-h-screen bg-[#f7f8fc] text-slate-900">
         <aside
             className={`fixed inset-y-0 left-0 z-30 w-64 border-r border-slate-200 bg-white px-5 py-6 transition-transform md:translate-x-0 ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -226,14 +289,15 @@ export default function Bookkeeping() {
             <header className="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4 md:px-9">
                 <div className="flex items-center gap-3">
                     <button onClick={() => setMenuOpen(true)} className="md:hidden"><Menu/></button>
-                    <div><p className="text-xs text-slate-400">{today}</p><h1 className="text-xl font-bold">{title}</h1>
+                    <div><p className="text-xs text-slate-400">{longDate()}</p><h1
+                        className="text-xl font-bold">{title}</h1>
                     </div>
                 </div>
             </header>
             {syncError && <div role="alert"
                                className="border-b border-amber-200 bg-amber-50 px-5 py-3 text-sm text-amber-800 md:px-9">{syncError}</div>}
             <div className="mx-auto max-w-7xl p-5 md:p-9">{section === 'overview' &&
-                <Overview totals={totals} sales={sales} onSale={() => setSaleModal(true)}
+                <Overview totals={totals} sales={todaySales} onSale={() => setSaleModal(true)}
                           onChange={setSection}/>} {section === 'sales' &&
                 <Sales sales={sales} onSale={() => setSaleModal(true)}/>} {section === 'loyalty' &&
                 <LoyaltySection members={loyalty}/>} {section === 'expenses' &&
@@ -386,12 +450,13 @@ function Overview({totals, sales, onSale, onChange}: {
             tint="bg-emerald-50 text-emerald-600" note="Free washes today"/></div>
         <section className="mt-7 rounded-2xl border border-slate-200 bg-white">
             <div className="flex items-center justify-between p-5">
-                <div><h2 className="font-bold">Recent sales</h2><p className="text-xs text-slate-400">Latest records</p>
+                <div><h2 className="font-bold">Recent sales</h2><p className="text-xs text-slate-400">Today’s records</p>
                 </div>
                 <button onClick={() => onChange('sales')} className="text-sm font-semibold text-blue-600">View all
                 </button>
             </div>
-            <SalesTable sales={sales.slice(0, 5)}/></section>
+            {/* Today only, like the figures above it. "View all" is the way to earlier days. */}
+            <SalesTable sales={sales.slice(0, 5)} empty="No sales recorded today."/></section>
     </>
 }
 
@@ -419,18 +484,20 @@ function Reward({sale}: { sale: Sale }) {
 // Phones get one card per record. Five columns cannot be read on a 390px screen, and the
 // sideways scroll the table used to need hides the amount — the one figure that matters.
 // The table returns at lg, where the 64-wide sidebar still leaves it room.
-function SalesTable({sales}: { sales: Sale[] }) {
-    if (!sales.length) return <p className="px-5 py-10 text-center text-sm text-slate-400">No sales recorded yet.</p>;
+function SalesTable({sales, empty = 'No sales recorded yet.'}: { sales: Sale[]; empty?: string }) {
+    if (!sales.length) return <p className="px-5 py-10 text-center text-sm text-slate-400">{empty}</p>;
     return <>
         <ul className="divide-y divide-slate-100 lg:hidden">{sales.map(s => <li key={s.id} className="px-5 py-4">
             <div className="flex items-baseline justify-between gap-3"><span
                 className="font-medium">{s.loyaltyCode}</span><b className="shrink-0">{money(s.amount)}</b></div>
             <p className="mt-1 text-sm text-slate-500">{s.service} · {s.payment}</p>
-            <div className="mt-2"><Reward sale={s}/></div>
+            <div className="mt-2 flex items-center justify-between gap-3"><Reward sale={s}/><span
+                className="shrink-0 text-xs text-slate-400">{dayLabel(dateOf(s))}</span></div>
         </li>)}</ul>
         <table className="hidden w-full text-left text-sm lg:table">
             <thead className="border-y border-slate-100 bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
             <tr>
+                <th className="px-5 py-3">Date</th>
                 <th className="px-5 py-3">Loyalty code</th>
                 <th className="px-5 py-3">Service</th>
                 <th className="px-5 py-3">Payment</th>
@@ -439,6 +506,7 @@ function SalesTable({sales}: { sales: Sale[] }) {
             </tr>
             </thead>
             <tbody>{sales.map(s => <tr key={s.id} className="border-b border-slate-100 last:border-0">
+                <td className="whitespace-nowrap px-5 py-4 text-slate-500">{dayLabel(dateOf(s))}</td>
                 <td className="px-5 py-4 font-medium">{s.loyaltyCode}</td>
                 <td className="px-5 py-4 text-slate-500">{s.service}</td>
                 <td className="px-5 py-4 text-slate-500">{s.payment}</td>
@@ -498,11 +566,14 @@ function Expenses({records, onAdd}: { records: Expense[]; onAdd: () => void }) {
                             className="font-medium">{x.category}</span><b className="shrink-0">{money(x.amount)}</b>
                         </div>
                         <p className="mt-1 text-sm text-slate-500">{x.note || '—'}</p>
-                        <span className="mt-2 inline-block rounded bg-slate-100 px-2 py-1 text-xs">{x.payment}</span>
+                        <div className="mt-2 flex items-center justify-between gap-3"><span
+                            className="inline-block rounded bg-slate-100 px-2 py-1 text-xs">{x.payment}</span><span
+                            className="shrink-0 text-xs text-slate-400">{dayLabel(dateOf(x))}</span></div>
                     </li>)}</ul>
                     <table className="hidden w-full text-left text-sm lg:table">
                         <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
                         <tr>
+                            <th className="px-5 py-3">Date</th>
                             <th className="px-5 py-3">Category</th>
                             <th className="px-5 py-3">Note</th>
                             <th className="px-5 py-3">Payment</th>
@@ -510,6 +581,7 @@ function Expenses({records, onAdd}: { records: Expense[]; onAdd: () => void }) {
                         </tr>
                         </thead>
                         <tbody>{slice.map(x => <tr key={x.id} className="border-t border-slate-100">
+                            <td className="whitespace-nowrap px-5 py-4 text-slate-500">{dayLabel(dateOf(x))}</td>
                             <td className="px-5 py-4 font-medium">{x.category}</td>
                             <td className="px-5 py-4 text-slate-500">{x.note || '—'}</td>
                             <td className="px-5 py-4"><span
@@ -575,7 +647,9 @@ function ExpenseModal({close, save}: {
 }
 
 function Eod({totals, expenses}: { totals: ReturnType<typeof totalSales>; expenses: Expense[] }) {
-    const cashExpenses = expenses.filter(x => x.payment === 'Cash').reduce((sum, x) => sum + x.amount, 0),
+    // Today's cash only — the sales side is already scoped to today, so netting every expense
+    // ever recorded against it would understate the cash actually in the drawer.
+    const cashExpenses = expenses.filter(x => x.payment === 'Cash' && isToday(dateOf(x))).reduce((sum, x) => sum + x.amount, 0),
         balance = totals.cash - cashExpenses;
     return <div className="mx-auto max-w-2xl"><p className="mb-7 text-sm text-slate-500">Review today’s collection and
         settle the cash balance to the Jaranow account.</p>
@@ -584,7 +658,7 @@ function Eod({totals, expenses}: { totals: ReturnType<typeof totalSales>; expens
                 <div className="grid h-11 w-11 place-items-center rounded-xl bg-blue-50 text-blue-600"><ClipboardCheck/>
                 </div>
                 <div><h2 className="font-bold">End-of-day reconciliation</h2><p
-                    className="text-xs text-slate-400">{today}</p></div>
+                    className="text-xs text-slate-400">{longDate()}</p></div>
             </div>
             <div className="my-6 space-y-3 rounded-xl bg-slate-50 p-4 text-sm">
                 <div className="flex justify-between"><span>Transfer sales</span><b>{money(totals.transfer)}</b></div>
@@ -605,7 +679,7 @@ function Eod({totals, expenses}: { totals: ReturnType<typeof totalSales>; expens
 function Reports({sales, loyalty, expenses}: { sales: Sale[]; loyalty: Loyalty[]; expenses: Expense[] }) {
     const [period, setPeriod] = useState('This month');
     const filtered = useMemo(() => sales.filter(s => inPeriod(dateOf(s), period)), [sales, period]);
-    const filteredExpenses = useMemo(() => expenses.filter(x => inPeriod(x.createdAt?.toDate() || new Date(), period)), [expenses, period]);
+    const filteredExpenses = useMemo(() => expenses.filter(x => inPeriod(dateOf(x), period)), [expenses, period]);
     const totals = totalSales(filtered), points = loyalty.reduce((sum, x) => sum + x.points, 0);
     const totalExpenses = filteredExpenses.reduce((sum, x) => sum + x.amount, 0), netIncome = totals.revenue - totalExpenses;
     const {slice, ...pager} = usePage(filtered, period);
@@ -682,7 +756,7 @@ function Reports({sales, loyalty, expenses}: { sales: Sale[]; loyalty: Loyalty[]
         </div>
         <section className="mt-7 rounded-2xl border border-slate-200 bg-white">
             <div className="p-5"><h2 className="font-bold">Sales in selected period</h2></div>
-            <SalesTable sales={slice}/><Pagination {...pager}/></section>
+            <SalesTable sales={slice} empty="No sales recorded in this period."/><Pagination {...pager}/></section>
     </>;
 }
 
@@ -724,6 +798,21 @@ function inPeriod(date: Date, period: string) {
         end.setFullYear(end.getFullYear() - 1, 11, 31);
     }
     return date >= start && date <= end;
+}
+
+// Nothing re-renders on its own at midnight, so a desk left open overnight would keep
+// counting yesterday's sales as "today" until someone reloaded. Checking once a minute rolls
+// the header date and every today-scoped figure over on their own.
+function useDayTick() {
+    const [day, setDay] = useState(() => startOfDay(new Date()).getTime());
+    useEffect(() => {
+        const id = setInterval(() => setDay(current => {
+            const now = startOfDay(new Date()).getTime();
+            return now === current ? current : now;
+        }), 60_000);
+        return () => clearInterval(id);
+    }, []);
+    return day;
 }
 
 type Pager = { page: number; pages: number; total: number; size: number; setPage: (p: number) => void };

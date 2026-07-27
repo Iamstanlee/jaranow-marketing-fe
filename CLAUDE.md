@@ -382,6 +382,18 @@ alone will **not** fix a broken share preview.
 To add a route: add an entry to `routes.json` (including its `file`), render
 `<SeoTags route="/new" />` in the page. No script changes needed.
 
+Three optional per-route fields are handled by the prerender step only (they are
+head plumbing, not social metadata, so `SeoTags` ignores them): `manifest`,
+`themeColor` and `noindex`. **A route that installs as its own PWA must set
+`manifest`** — `/__/book` does. Swapping `<link rel="manifest">` from a React
+effect is too late: the browser reads the manifest as the document loads, so an
+install captured before the swap gets `/manifest.json`, whose `start_url` is
+`/`, and the installed app then launches on the marketing homepage. The effect
+in `Bookkeeping.tsx` only covers client-side navigation into the route.
+
+Changing a `start_url` does not fix an app that is already installed — the
+install captured the old one. It has to be uninstalled and reinstalled.
+
 `vercel.json` has a catch-all rewrite to `/index.html`; Vercel checks the
 filesystem *before* rewrites, so the prerendered files win and everything else
 falls through to the SPA. Verify a change with:

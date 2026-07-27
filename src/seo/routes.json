@@ -52,6 +52,20 @@
       "ogImage": "/jaranow/opengraph-pricing.png",
       "ogImageAlt": "Jaranow pricing",
       "siteName": "Jaranow"
+    },
+    "/__/book": {
+      "$comment": "Internal bookkeeping tool, not a marketing page. It is here purely so the build writes a real document at /__/book carrying its own manifest: a PWA installed from a page whose <link rel=manifest> is swapped in later by JavaScript can capture the site manifest instead, and then launches on the homepage. noindex keeps it out of search.",
+      "file": "__/book/index.html",
+      "manifest": "/bookkeeping-manifest.json",
+      "themeColor": "#2563eb",
+      "noindex": true,
+      "title": "Jaranow Business Desk",
+      "description": "Sales, expenses, loyalty and end-of-day bookkeeping for Jaranow.",
+      "ogTitle": "Jaranow Business Desk",
+      "ogDescription": "Sales, expenses, loyalty and end-of-day bookkeeping for Jaranow.",
+      "ogImage": "/jaranow/opengraph.png",
+      "ogImageAlt": "Jaranow",
+      "siteName": "Jaranow"
     }
   }
 }

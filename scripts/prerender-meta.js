@@ -64,6 +64,7 @@ function stripAppTags(html, meta) {
   let out = html;
   if (meta.manifest) out = out.replace(/<link\s+rel="manifest"[^>]*>/gi, '');
   if (meta.themeColor) out = out.replace(/<meta\s+name="theme-color"[^>]*>/gi, '');
+  if (meta.appleTouchIcon) out = out.replace(/<link\s+rel="apple-touch-icon"[^>]*>/gi, '');
   return out;
 }
 
@@ -81,6 +82,8 @@ function buildTags(routePath, meta, config) {
     // moment carries the wrong start_url.
     ...(meta.manifest ? [`<link rel="manifest" href="${escapeAttr(meta.manifest)}"/>`] : []),
     ...(meta.themeColor ? [`<meta name="theme-color" content="${escapeAttr(meta.themeColor)}"/>`] : []),
+    // iOS ignores the manifest's icons when adding to the home screen.
+    ...(meta.appleTouchIcon ? [`<link rel="apple-touch-icon" href="${escapeAttr(meta.appleTouchIcon)}"/>`] : []),
     ...(meta.noindex ? [`<meta name="robots" content="noindex, nofollow"/>`] : []),
     `<meta property="og:type" content="website"/>`,
     `<meta property="og:site_name" content="${escapeAttr(meta.siteName)}"/>`,

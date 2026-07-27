@@ -11,25 +11,25 @@
   "background_color": "#f7f8fc",
   "icons": [
     {
-      "src": "/jaranow/icon-192.png",
+      "src": "/book/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/jaranow/icon-192-maskable.png",
+      "src": "/book/icon-192-maskable.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/jaranow/icon-512.png",
+      "src": "/book/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/jaranow/icon-512-maskable.png",
+      "src": "/book/icon-512-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

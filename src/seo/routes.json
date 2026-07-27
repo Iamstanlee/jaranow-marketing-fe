@@ -58,6 +58,7 @@
       "file": "__/book/index.html",
       "manifest": "/bookkeeping-manifest.json",
       "themeColor": "#2563eb",
+      "appleTouchIcon": "/book/apple-touch-icon.png",
       "noindex": true,
       "title": "Jaranow Business Desk",
       "description": "Sales, expenses, loyalty and end-of-day bookkeeping for Jaranow.",

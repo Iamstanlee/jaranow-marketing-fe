@@ -335,6 +335,39 @@ logo, lockup or brand colour.
 
   The soft shading is on the *cloth*. The mark itself stays flat, per
   BRAND-STANDARD §4.2 — do not let a gradient or shadow reach the lockup.
+- **The Business Desk app icon is generated too.** `brand/gen-appicon.js` +
+  `brand/rasterize-appicon.sh` + `brand/sync-appicon.sh` emit the PWA icons for
+  `/__/book` into `public/book/`.
+
+  ```bash
+  node brand/gen-appicon.js     # -> brand/appicon/html/*.html + sizes.txt
+  brand/rasterize-appicon.sh    # html -> brand/appicon/png/*.png
+  brand/sync-appicon.sh         # png  -> public/book/
+  ```
+
+  This is the **one** asset that uses the "J" monogram instead of the drop
+  symbol, and only because the books app is an internal tool sharing a home
+  screen with the Jaranow app — the launcher icon matches the tile in its own
+  sidebar. Anything public keeps the symbol (§3.2). Do not reach for the
+  monogram elsewhere, and do not point the site manifests at `public/book/`.
+
+  Two builds, not interchangeable (§6.2): `any` carries the 22.37% radius,
+  `maskable` is square-cornered with the letter pulled inside the 80% safe
+  circle. Both are authored in `vw`/`vh`, so each is rendered **once at 1024px**
+  and resampled to the sizes in `sizes.txt` with `sips`.
+
+  That indirection is load-bearing: **headless Chrome will not open a window
+  below roughly 500px**, and instead of failing it screenshots a crop of a
+  larger viewport. Shooting `--window-size=192,192` returns a 192px PNG
+  containing the top-left corner of a 500px tile — a J with most of it missing,
+  and nothing in the output says so. Any generator here that needs a small
+  canvas has to render big and resample.
+
+  Rasterizing pulls Rubik from Google Fonts, so it needs network — a failed load
+  silently gives a system-sans J. `sync-appicon.sh` holds the
+  generated-name → served-path mapping; keep it in step with the `icons` array
+  in `public/bookkeeping-manifest.json` and `appleTouchIcon` for `/__/book` in
+  `src/seo/routes.json`.
 - Live assets are served from `public/brand/`:
   `jaranow-logo-white.svg` (master, knockout), `jaranow-logo.svg` (master, duo),
   `jaranow-carwash-white.svg`, `jaranow-laundry-white.svg`,
@@ -382,9 +415,10 @@ alone will **not** fix a broken share preview.
 To add a route: add an entry to `routes.json` (including its `file`), render
 `<SeoTags route="/new" />` in the page. No script changes needed.
 
-Three optional per-route fields are handled by the prerender step only (they are
+Four optional per-route fields are handled by the prerender step only (they are
 head plumbing, not social metadata, so `SeoTags` ignores them): `manifest`,
-`themeColor` and `noindex`. **A route that installs as its own PWA must set
+`themeColor`, `appleTouchIcon` and `noindex`. Each one *replaces* the tag
+inherited from `public/index.html`, and only for the route that declares it. **A route that installs as its own PWA must set
 `manifest`** — `/__/book` does. Swapping `<link rel="manifest">` from a React
 effect is too late: the browser reads the manifest as the document loads, so an
 install captured before the swap gets `/manifest.json`, whose `start_url` is

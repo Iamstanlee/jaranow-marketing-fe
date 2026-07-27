@@ -2,6 +2,8 @@ import {useEffect, useMemo, useState} from 'react';
 import {addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, updateDoc} from 'firebase/firestore';
 import {
     BarChart3,
+    ChevronLeft,
+    ChevronRight,
     CircleDollarSign,
     ClipboardCheck,
     Gift,
@@ -321,12 +323,13 @@ function SaleModal({members, close, save}: {
                                                                           value={codeFor(m, i).replace(/\D/g, '')}/>)}</datalist>
         </label>{newCode &&
             <div className="space-y-3 rounded-xl bg-blue-50 p-3"><p className="text-sm font-semibold text-blue-900">New
-                loyalty customer</p><input required value={customer} onChange={e => setCustomer(e.target.value)}
-                                           placeholder="Customer name"
-                                           className="w-full rounded-xl border-blue-100"/><input required value={phone}
-                                                                                                 onChange={e => setPhone(e.target.value)}
-                                                                                                 placeholder="Phone number"
-                                                                                                 className="w-full rounded-xl border-blue-100"/>
+                loyalty customer</p><p className="text-xs text-blue-700">Name and phone
+                are optional.</p><input value={customer} onChange={e => setCustomer(e.target.value)}
+                                        placeholder="Customer name (optional)"
+                                        className="w-full rounded-xl border-blue-100"/><input value={phone}
+                                                                                              onChange={e => setPhone(e.target.value)}
+                                                                                              placeholder="Phone number (optional)"
+                                                                                              className="w-full rounded-xl border-blue-100"/>
             </div>}{member && <div className="rounded-xl bg-blue-50 p-3 text-sm text-blue-900"><span
             className="font-semibold">{normalizedCode}</span><span
             className="float-right font-semibold">{member.points} points</span><p
@@ -393,6 +396,7 @@ function Overview({totals, sales, onSale, onChange}: {
 }
 
 function Sales({sales, onSale}: { sales: Sale[]; onSale: () => void }) {
+    const {slice, ...pager} = usePage(sales);
     return <>
         <div className="mb-7 flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><p
             className="text-sm text-slate-500">Every service and
@@ -402,13 +406,29 @@ function Sales({sales, onSale}: { sales: Sale[]; onSale: () => void }) {
                 <Plus size={18}/> Record sale
             </button>
         </div>
-        <section className="rounded-2xl border border-slate-200 bg-white"><SalesTable sales={sales}/></section>
+        <section className="rounded-2xl border border-slate-200 bg-white"><SalesTable sales={slice}/><Pagination {...pager}/></section>
     </>
 }
 
+function Reward({sale}: { sale: Sale }) {
+    if (sale.redeemed) return <span className="rounded bg-emerald-50 px-2 py-1 text-xs text-emerald-700">Redeemed</span>;
+    if (sale.loyaltyCode && sale.loyaltyCode !== '—') return <span className="text-xs text-blue-600">+1 point</span>;
+    return <span className="text-xs text-slate-300">—</span>;
+}
+
+// Phones get one card per record. Five columns cannot be read on a 390px screen, and the
+// sideways scroll the table used to need hides the amount — the one figure that matters.
+// The table returns at lg, where the 64-wide sidebar still leaves it room.
 function SalesTable({sales}: { sales: Sale[] }) {
-    return <div className="overflow-x-auto">
-        <table className="w-full min-w-[650px] text-left text-sm">
+    if (!sales.length) return <p className="px-5 py-10 text-center text-sm text-slate-400">No sales recorded yet.</p>;
+    return <>
+        <ul className="divide-y divide-slate-100 lg:hidden">{sales.map(s => <li key={s.id} className="px-5 py-4">
+            <div className="flex items-baseline justify-between gap-3"><span
+                className="font-medium">{s.loyaltyCode}</span><b className="shrink-0">{money(s.amount)}</b></div>
+            <p className="mt-1 text-sm text-slate-500">{s.service} · {s.payment}</p>
+            <div className="mt-2"><Reward sale={s}/></div>
+        </li>)}</ul>
+        <table className="hidden w-full text-left text-sm lg:table">
             <thead className="border-y border-slate-100 bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
             <tr>
                 <th className="px-5 py-3">Loyalty code</th>
@@ -422,35 +442,40 @@ function SalesTable({sales}: { sales: Sale[] }) {
                 <td className="px-5 py-4 font-medium">{s.loyaltyCode}</td>
                 <td className="px-5 py-4 text-slate-500">{s.service}</td>
                 <td className="px-5 py-4 text-slate-500">{s.payment}</td>
-                <td className="px-5 py-4">{s.redeemed ?
-                    <span className="rounded bg-emerald-50 px-2 py-1 text-xs text-emerald-700">Redeemed</span> :
-                    s.loyaltyCode && s.loyaltyCode !== '—' ?
-                        <span className="text-xs text-blue-600">+1 point</span> :
-                        <span className="text-xs text-slate-300">—</span>}</td>
+                <td className="px-5 py-4"><Reward sale={s}/></td>
                 <td className="px-5 py-4 text-right font-semibold">{money(s.amount)}</td>
             </tr>)}</tbody>
         </table>
-    </div>
+    </>
 }
 
 function LoyaltySection({members}: { members: Loyalty[] }) {
+    // Resolve fallback codes against the whole list before paging: codeFor() numbers by
+    // position, so a page-2 slice would start counting at LOY-001 again.
+    const coded = useMemo(() => members.map((m, i) => ({...m, code: codeFor(m, i)})), [members]);
+    const {slice, ...pager} = usePage(coded, undefined, 9);
     return <><p className="mb-7 text-sm text-slate-500">Loyalty codes are automatically created when a sale is recorded
         for a new customer.</p>
-        <div className="grid gap-4 md:grid-cols-3">{members.map((m, i) => <section key={m.id}
-                                                                                   className="rounded-2xl border border-slate-200 bg-white p-5">
+        {!coded.length && <p className="rounded-2xl border border-slate-200 bg-white px-5 py-10 text-center text-sm text-slate-400">No
+            loyalty customers yet.</p>}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{slice.map(m => <section key={m.id}
+                                                                                           className="rounded-2xl border border-slate-200 bg-white p-5">
             <span
-                className="inline-block rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">{codeFor(m, i)}</span>
+                className="inline-block rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">{m.code}</span>
             <div className="mt-5 flex gap-1">{[1, 2, 3, 4, 5].map(dot => <span key={dot}
                                                                                className={`h-7 flex-1 rounded-md ${dot <= m.points ? 'bg-blue-600' : 'bg-slate-100'}`}/>)}</div>
             <div className="mt-3 flex justify-between text-xs"><span
                 className="font-semibold text-blue-700">{m.points} / 5 points</span><span
                 className="text-slate-400">{m.redeemed} redeemed</span></div>
         </section>)}</div>
+        <Pagination {...pager} className="mt-5"/>
     </>
 }
 
 function Expenses({records, onAdd}: { records: Expense[]; onAdd: () => void }) {
+    // The header total covers every expense on record, not just the page being shown.
     const total = records.reduce((sum, x) => sum + x.amount, 0);
+    const {slice, ...pager} = usePage(records);
     return <>
         <div className="mb-7 flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><p
             className="text-sm text-slate-500">Track every
@@ -465,25 +490,34 @@ function Expenses({records, onAdd}: { records: Expense[]; onAdd: () => void }) {
                 <div><h2 className="font-bold">Expense records</h2><p className="text-xs text-slate-400">All recorded
                     expenses</p></div>
                 <b className="text-lg">{money(total)}</b></div>
-            <div className="overflow-x-auto">
-                <table className="w-full min-w-[600px] text-left text-sm">
-                    <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
-                    <tr>
-                        <th className="px-5 py-3">Category</th>
-                        <th className="px-5 py-3">Note</th>
-                        <th className="px-5 py-3">Payment</th>
-                        <th className="px-5 py-3 text-right">Amount</th>
-                    </tr>
-                    </thead>
-                    <tbody>{records.map(x => <tr key={x.id} className="border-t border-slate-100">
-                        <td className="px-5 py-4 font-medium">{x.category}</td>
-                        <td className="px-5 py-4 text-slate-500">{x.note || '—'}</td>
-                        <td className="px-5 py-4"><span
-                            className="rounded bg-slate-100 px-2 py-1 text-xs">{x.payment}</span></td>
-                        <td className="px-5 py-4 text-right font-semibold">{money(x.amount)}</td>
-                    </tr>)}</tbody>
-                </table>
-            </div>
+            {!records.length ?
+                <p className="px-5 py-10 text-center text-sm text-slate-400">No expenses recorded yet.</p> : <>
+                    <ul className="divide-y divide-slate-100 lg:hidden">{slice.map(x => <li key={x.id}
+                                                                                           className="px-5 py-4">
+                        <div className="flex items-baseline justify-between gap-3"><span
+                            className="font-medium">{x.category}</span><b className="shrink-0">{money(x.amount)}</b>
+                        </div>
+                        <p className="mt-1 text-sm text-slate-500">{x.note || '—'}</p>
+                        <span className="mt-2 inline-block rounded bg-slate-100 px-2 py-1 text-xs">{x.payment}</span>
+                    </li>)}</ul>
+                    <table className="hidden w-full text-left text-sm lg:table">
+                        <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
+                        <tr>
+                            <th className="px-5 py-3">Category</th>
+                            <th className="px-5 py-3">Note</th>
+                            <th className="px-5 py-3">Payment</th>
+                            <th className="px-5 py-3 text-right">Amount</th>
+                        </tr>
+                        </thead>
+                        <tbody>{slice.map(x => <tr key={x.id} className="border-t border-slate-100">
+                            <td className="px-5 py-4 font-medium">{x.category}</td>
+                            <td className="px-5 py-4 text-slate-500">{x.note || '—'}</td>
+                            <td className="px-5 py-4"><span
+                                className="rounded bg-slate-100 px-2 py-1 text-xs">{x.payment}</span></td>
+                            <td className="px-5 py-4 text-right font-semibold">{money(x.amount)}</td>
+                        </tr>)}</tbody>
+                    </table>
+                    <Pagination {...pager}/></>}
         </section>
     </>
 }
@@ -574,6 +608,7 @@ function Reports({sales, loyalty, expenses}: { sales: Sale[]; loyalty: Loyalty[]
     const filteredExpenses = useMemo(() => expenses.filter(x => inPeriod(x.createdAt?.toDate() || new Date(), period)), [expenses, period]);
     const totals = totalSales(filtered), points = loyalty.reduce((sum, x) => sum + x.points, 0);
     const totalExpenses = filteredExpenses.reduce((sum, x) => sum + x.amount, 0), netIncome = totals.revenue - totalExpenses;
+    const {slice, ...pager} = usePage(filtered, period);
     return <>
         <div className="mb-7 flex flex-wrap items-center justify-between gap-3"><p
             className="text-sm text-slate-500">Full operational and loyalty performance.</p><select value={period}
@@ -647,7 +682,7 @@ function Reports({sales, loyalty, expenses}: { sales: Sale[]; loyalty: Loyalty[]
         </div>
         <section className="mt-7 rounded-2xl border border-slate-200 bg-white">
             <div className="p-5"><h2 className="font-bold">Sales in selected period</h2></div>
-            <SalesTable sales={filtered}/></section>
+            <SalesTable sales={slice}/><Pagination {...pager}/></section>
     </>;
 }
 
@@ -689,6 +724,42 @@ function inPeriod(date: Date, period: string) {
         end.setFullYear(end.getFullYear() - 1, 11, 31);
     }
     return date >= start && date <= end;
+}
+
+type Pager = { page: number; pages: number; total: number; size: number; setPage: (p: number) => void };
+
+// Live snapshots keep changing the list under the reader, so the page is clamped rather than
+// reset — adding a sale on page 3 leaves you on page 3. Pass resetKey for a change that makes
+// the current page meaningless (a new report period), which does send you back to page 1.
+function usePage<T>(items: T[], resetKey?: unknown, size = 10): Pager & { slice: T[] } {
+    const [page, setPage] = useState(1);
+    useEffect(() => setPage(1), [resetKey]);
+    const pages = Math.max(1, Math.ceil(items.length / size));
+    const current = Math.min(page, pages);
+    return {
+        slice: items.slice((current - 1) * size, current * size),
+        page: current,
+        pages,
+        total: items.length,
+        size,
+        setPage
+    };
+}
+
+function Pagination({page, pages, total, size, setPage, className = 'border-t border-slate-100 px-5 py-4'}: Pager & {
+    className?: string
+}) {
+    if (total <= size) return null;
+    const step = 'grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-500 disabled:opacity-40';
+    return <div className={`flex items-center justify-between gap-3 ${className}`}><p
+        className="text-xs text-slate-400">{(page - 1) * size + 1}–{Math.min(page * size, total)} of {total}</p>
+        <div className="flex items-center gap-2"><span className="text-xs text-slate-400">Page {page} of {pages}</span>
+            <button type="button" aria-label="Previous page" disabled={page === 1} onClick={() => setPage(page - 1)}
+                    className={step}><ChevronLeft size={17}/></button>
+            <button type="button" aria-label="Next page" disabled={page === pages} onClick={() => setPage(page + 1)}
+                    className={step}><ChevronRight size={17}/></button>
+        </div>
+    </div>
 }
 
 function Stat({title, value, icon: Icon, tint, note}: {

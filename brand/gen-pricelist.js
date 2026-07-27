@@ -92,11 +92,6 @@ const LISTS = [
                         note: "Exterior wash · interior vacuumed",
                         price: 4000,
                     },
-                    {
-                        name: "Buffing",
-                        note: "Full wash · paintwork machine-polished",
-                        price: 20000,
-                    },
                 ],
             },
         ],

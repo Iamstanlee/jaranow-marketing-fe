@@ -189,6 +189,71 @@ logo, lockup or brand colour.
   the page for the same reason.) Like the OG and pocket cards, rasterizing pulls Rubik
   from Google Fonts, so it needs network — the ₦ (U+20A6) comes from the
   latin-ext subset and is where a failed font load shows up first.
+- **Recruitment posters are generated too.** `brand/gen-poster.js` +
+  `brand/rasterize-poster.sh` emit `brand/poster/png/poster-*-{a4,feed,story}.png`
+  — the same sheet in three canvases: A4 print, Meta feed 4:5 and Meta
+  story/Reels 9:16. Same construction as the price lists (Ink field, dots, drop
+  bleeding off the right edge, accent bar), so a sheet on the forecourt wall and
+  an ad in the feed read as the same thing.
+
+  ```bash
+  node brand/gen-poster.js      # -> brand/poster/html/*.html + sizes.txt
+  brand/rasterize-poster.sh     # html -> brand/poster/png/*.png
+  ```
+
+  | format | px | use |
+  |---|---|---|
+  | `a4` | 2551×3579 | 210×297mm trim + 3mm bleed @ 300dpi — hand to the printer as-is |
+  | `feed` | 1080×1350 | Meta feed, 4:5 — the one to run if you only run one |
+  | `story` | 1080×1920 | Meta stories / Reels, 9:16 |
+
+  **Two things are variable: the postings (`JOBS`) and the canvases
+  (`FORMATS`)**, both arrays at the top of `gen-poster.js`. A new opening is an
+  entry in `JOBS`; a new size is an entry in `FORMATS`. Nothing below those two
+  arrays needs touching. Every format is authored in **one design-mm space
+  216mm wide** and rendered at its own px/mm, so a single stylesheet drives
+  print and social; formats differ in pixel size, so `rasterize-poster.sh` reads
+  a `sizes.txt` manifest rather than hardcoding a window size (same pattern as
+  `gen-sign.js`).
+
+  A posting is `role`, an optional `blurb`, the `meta` chip row, optional `pay`,
+  the bulleted `sections`, and the `apply` band. **Keep it short.** The first
+  version carried two sections of four bullets and read as a busy job spec;
+  what ships is one section of three short bullets, no blurb, one contact.
+  Someone deciding whether to apply needs the role, where and when, what you
+  want from them, and how to reach you — everything else belongs in the
+  conversation that follows.
+
+  Per-format knobs worth knowing: `type` is a multiplier on every type size
+  (a4 1.18, feed 1.12, story 1.32 — the canvases have very different room, and
+  a phone reads a 1080px image at a fraction of its size), and `cols` sets the
+  section columns (story uses 1; two columns on a 9:16 canvas squeeze bullets to
+  three words a line). `story` also carries big `padTop`/`padBottom` to clear
+  Meta's own UI, which is why it looks airy — that is deliberate. Print pins an
+  exact `pxH` because rounding 216mm to a whole 2551px loses half a pixel and
+  the sheet has to come out at exactly trim + bleed.
+
+  The page is fixed-height with `overflow:hidden`, so a posting that outgrows
+  its canvas **silently pushes the apply band under the accent bar** — always
+  eyeball the PNGs. 4:5 is the canvas that runs out of room first; if you grow a
+  posting, that is where it breaks, and its `type` has to come back down toward
+  1. Chip values never wrap by design (a wrapped chip goes taller than its
+  neighbour and the block goes ragged), so keep them short — "6th Avenue,
+  Gwarinpa" is about the longest that works on 9:16. Three chips sit in a row;
+  four (i.e. a `pay` chip beside location, type and hours) go 2×2 rather than
+  orphaning the fourth on its own line.
+
+  `pay` is optional and printed verbatim in accent — the carwash roles currently
+  carry ₦50,000–70,000/month. Do not print a wage, shift pattern or benefit that
+  has not been confirmed: a sheet on a wall outlives the conversation that set
+  it. The hiring pitch follows the same positioning rule as everything else:
+  care, detail and integrity, never "we pay more".
+
+  Meta throttles text-heavy creative in delivery even though the hard 20% rule
+  is gone; pair these with short primary text rather than adding copy to the
+  image. Like the OG and pocket cards, rasterizing pulls Rubik from Google Fonts,
+  so it needs network — the ₦ in the pay chip comes from the latin-ext subset and
+  is where a failed font load shows up first.
 - **Roadside signage**: `brand/gen-sign.js` + `brand/rasterize-sign.sh` emit
   `brand/sign/png/sign-carwash-{portrait,landscape}-{ink,blue,paper}.png` — six
   panels, two orientations × three grounds, each plus 20mm bleed:

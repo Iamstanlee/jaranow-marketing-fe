@@ -84,6 +84,46 @@ const dayLabel = (date: Date) => {
     });
 };
 const codeFor = (member: Loyalty, index: number) => member.code || `LOY-${String(index + 1).padStart(3, '0')}`;
+// The desk is a tablet left open at the forecourt and unlocked once at the start of a shift,
+// so re-entering the PIN on every reload was pushing staff towards writing it down. The
+// session records which PIN was entered and when; it is not a credential — Firestore still
+// does its own anonymous auth, and anyone holding the device can read the books anyway.
+const SESSION_KEY = 'jaranow.book.session';
+const SESSION_MS = 24 * 60 * 60 * 1000;
+type Session = { role: Role; expires: number };
+const readSession = (): Session | null => {
+    try {
+        const raw = localStorage.getItem(SESSION_KEY);
+        if (!raw) return null;
+        const session = JSON.parse(raw) as Session;
+        // An expired session, a clock moved backwards, a hand-edited value and an older shape
+        // all read as "no session" rather than as one that never ends.
+        if ((session?.role !== 'admin' && session?.role !== 'staff') || !(session.expires > Date.now())) {
+            clearSession();
+            return null;
+        }
+        return session;
+    } catch {
+        return null;
+    }
+};
+// Storage throws in private modes and when the quota is full; losing the session there means
+// the PIN is asked for every time, which is the old behaviour rather than a broken desk.
+const writeSession = (role: Role): Session => {
+    const session = {role, expires: Date.now() + SESSION_MS};
+    try {
+        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    } catch {
+    }
+    return session;
+};
+
+function clearSession() {
+    try {
+        localStorage.removeItem(SESSION_KEY);
+    } catch {
+    }
+}
 const seedSales: Sale[] = [{
     id: 's1',
     loyaltyCode: 'LOY-001',
@@ -130,7 +170,13 @@ const seedExpenses: Expense[] = [{
 }];
 
 export default function Bookkeeping() {
-    const [role, setRole] = useState<Role | null>(null), [pin, setPin] = useState(''), [pinError, setPinError] = useState('');
+    const [session, setSession] = useState<Session | null>(readSession), [pin, setPin] = useState(''), [pinError, setPinError] = useState('');
+    const role = session?.role ?? null;
+    const lock = () => {
+        clearSession();
+        setSession(null);
+        setPin('');
+    };
     // Seed records are strictly for local demo mode. A Firebase-backed business starts empty
     // and is populated only by its Firestore collections.
     const [section, setSection] = useState<Section>('overview'), [sales, setSales] = useState<Sale[]>(firebaseEnabled ? [] : seedSales), [loyalty, setLoyalty] = useState<Loyalty[]>(firebaseEnabled ? [] : seedLoyalty), [expenseRecords, setExpenseRecords] = useState<Expense[]>(firebaseEnabled ? [] : seedExpenses);
@@ -150,6 +196,27 @@ export default function Bookkeeping() {
             document.title = previousTitle;
         };
     }, []);
+
+    // The desk is rarely reloaded, so waiting for one to notice the session has aged out would
+    // leave it unlocked for days. The timer locks it the moment 24h is up; the visibility check
+    // covers a tablet that was asleep across the expiry, where the timer fires late or not at
+    // all. Both re-read storage, so locking in one tab is picked up by the others on focus.
+    useEffect(() => {
+        if (!session) return;
+        const check = () => {
+            if (!readSession()) {
+                setSession(null);
+                setPin('');
+            }
+        };
+        const id = setTimeout(check, session.expires - Date.now());
+        document.addEventListener('visibilitychange', check);
+        return () => {
+            clearTimeout(id);
+            document.removeEventListener('visibilitychange', check);
+        };
+    }, [session]);
+
     useEffect(() => {
         if (!db) return;
         // Surface sync failures instead of silently wiping the tables — a transient network
@@ -189,7 +256,7 @@ export default function Bookkeeping() {
     const totals = useMemo(() => totalSales(todaySales), [todaySales]);
     const login = (e: React.FormEvent) => {
         e.preventDefault();
-        if (pin === process.env.REACT_APP_ADMIN_PIN && pin) setRole('admin'); else if (pin === process.env.REACT_APP_STAFF_PIN && pin) setRole('staff'); else setPinError(process.env.REACT_APP_ADMIN_PIN ? 'Incorrect PIN. Please try again.' : 'Set REACT_APP_ADMIN_PIN and REACT_APP_STAFF_PIN in .env first.');
+        if (pin === process.env.REACT_APP_ADMIN_PIN && pin) setSession(writeSession('admin')); else if (pin === process.env.REACT_APP_STAFF_PIN && pin) setSession(writeSession('staff')); else setPinError(process.env.REACT_APP_ADMIN_PIN ? 'Incorrect PIN. Please try again.' : 'Set REACT_APP_ADMIN_PIN and REACT_APP_STAFF_PIN in .env first.');
     };
     const addSale = async (record: Omit<Sale, 'id' | 'createdAt'>, member?: Loyalty, newMember?: {
         code: string;
@@ -276,10 +343,8 @@ export default function Bookkeeping() {
             <div className="absolute bottom-6 left-5 right-5 rounded-2xl bg-slate-900 p-4 text-white"><p
                 className="text-sm font-semibold">Jaranow Car Wash</p><p
                 className="mt-1 text-xs capitalize text-slate-400">{role} access</p>
-                <button onClick={() => {
-                    setRole(null);
-                    setPin('');
-                }} className="mt-4 flex items-center gap-2 text-xs text-slate-300"><LogOut size={14}/> Lock books
+                <button onClick={lock}
+                        className="mt-4 flex items-center gap-2 text-xs text-slate-300"><LogOut size={14}/> Lock books
                 </button>
             </div>
         </aside>

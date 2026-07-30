@@ -1,4 +1,5 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
+import {AnimatePresence, motion} from 'framer-motion';
 import {
     addDoc,
     collection,
@@ -12,17 +13,20 @@ import {
 } from 'firebase/firestore';
 import {
     BarChart3,
+    CheckCircle2,
     ChevronLeft,
     ChevronRight,
     CircleDollarSign,
     ClipboardCheck,
     Gift,
+    Info,
     LayoutDashboard,
     LogOut,
     Menu, PiggyBank,
     Plus,
     ShieldCheck,
     Sparkles,
+    TriangleAlert,
     WalletCards,
     X
 } from 'lucide-react';
@@ -124,6 +128,58 @@ function clearSession() {
     } catch {
     }
 }
+// A write that succeeds closes its modal, so without this the desk gives no sign anything
+// happened — an attendant at a forecourt tablet re-records the sale to be sure. Failures keep
+// their inline message in the modal, where the form that has to be retried still is; toasts
+// are for what the closed modal can no longer say.
+type Tone = 'success' | 'info' | 'warning';
+type Toast = { id: string; tone: Tone; message: string };
+const TONES: Record<Tone, { icon: typeof CheckCircle2; tint: string }> = {
+    success: {icon: CheckCircle2, tint: 'text-emerald-600'},
+    info: {icon: Info, tint: 'text-blue-600'},
+    warning: {icon: TriangleAlert, tint: 'text-amber-600'}
+};
+const TOAST_MS = 4500;
+const TOAST_LIMIT = 3;
+
+function useToasts() {
+    const [toasts, setToasts] = useState<Toast[]>([]);
+    // Stable, because each card sets its own dismissal timer off it in an effect.
+    const dismiss = useCallback((id: string) => setToasts(list => list.filter(t => t.id !== id)), []);
+    const toast = useCallback((message: string, tone: Tone = 'success') => setToasts(list => [...list.slice(1 - TOAST_LIMIT), {
+        id: crypto.randomUUID(),
+        tone,
+        message
+    }]), []);
+    return {toasts, toast, dismiss};
+}
+
+// Above the modal layer (z-50): a sale saved while a second modal is being opened should not
+// slide in behind it.
+function Toasts({toasts, dismiss}: { toasts: Toast[]; dismiss: (id: string) => void }) {
+    return <div aria-live="polite"
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] flex flex-col items-center gap-2 p-4 sm:inset-x-auto sm:right-0 sm:items-end">
+        <AnimatePresence initial={false}>{toasts.map(t => <ToastCard key={t.id} toast={t} dismiss={dismiss}/>)}</AnimatePresence>
+    </div>
+}
+
+function ToastCard({toast, dismiss}: { toast: Toast; dismiss: (id: string) => void }) {
+    const {id, tone, message} = toast, {icon: Icon, tint} = TONES[tone];
+    useEffect(() => {
+        const timer = setTimeout(() => dismiss(id), TOAST_MS);
+        return () => clearTimeout(timer);
+    }, [id, dismiss]);
+    // Tappable to dismiss — the desk is a touchscreen, and a toast covering the button you are
+    // reaching for has to be clearable without waiting it out.
+    return <motion.button type="button" onClick={() => dismiss(id)} aria-label={`Dismiss: ${message}`} layout
+                          initial={{opacity: 0, y: 14, scale: 0.97}} animate={{opacity: 1, y: 0, scale: 1}}
+                          exit={{opacity: 0, y: 8, scale: 0.97}} transition={{duration: 0.18}}
+                          className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left shadow-lg">
+        <span className={`mt-0.5 shrink-0 ${tint}`}><Icon size={18}/></span><span
+        className="text-sm font-medium text-slate-700">{message}</span>
+    </motion.button>
+}
+
 const seedSales: Sale[] = [{
     id: 's1',
     loyaltyCode: 'LOY-001',
@@ -172,10 +228,12 @@ const seedExpenses: Expense[] = [{
 export default function Bookkeeping() {
     const [session, setSession] = useState<Session | null>(readSession), [pin, setPin] = useState(''), [pinError, setPinError] = useState('');
     const role = session?.role ?? null;
+    const {toasts, toast, dismiss} = useToasts();
     const lock = () => {
         clearSession();
         setSession(null);
         setPin('');
+        toast('Books locked.', 'info');
     };
     // Seed records are strictly for local demo mode. A Firebase-backed business starts empty
     // and is populated only by its Firestore collections.
@@ -207,6 +265,9 @@ export default function Bookkeeping() {
             if (!readSession()) {
                 setSession(null);
                 setPin('');
+                // Says why the PIN screen is back — otherwise an expiry looks like the desk
+                // logged itself out for no reason, or like someone else locked it.
+                toast('Session expired — the books were locked.', 'warning');
             }
         };
         const id = setTimeout(check, session.expires - Date.now());
@@ -215,7 +276,7 @@ export default function Bookkeeping() {
             clearTimeout(id);
             document.removeEventListener('visibilitychange', check);
         };
-    }, [session]);
+    }, [session, toast]);
 
     useEffect(() => {
         if (!db) return;
@@ -256,7 +317,13 @@ export default function Bookkeeping() {
     const totals = useMemo(() => totalSales(todaySales), [todaySales]);
     const login = (e: React.FormEvent) => {
         e.preventDefault();
-        if (pin === process.env.REACT_APP_ADMIN_PIN && pin) setSession(writeSession('admin')); else if (pin === process.env.REACT_APP_STAFF_PIN && pin) setSession(writeSession('staff')); else setPinError(process.env.REACT_APP_ADMIN_PIN ? 'Incorrect PIN. Please try again.' : 'Set REACT_APP_ADMIN_PIN and REACT_APP_STAFF_PIN in .env first.');
+        // Which role you were let in as decides what you can see (reports are admin-only), so
+        // the unlock says it rather than leaving it to be inferred from the sidebar.
+        const unlock = (as: Role) => {
+            setSession(writeSession(as));
+            toast(`Books unlocked — ${as} access.`);
+        };
+        if (pin === process.env.REACT_APP_ADMIN_PIN && pin) unlock('admin'); else if (pin === process.env.REACT_APP_STAFF_PIN && pin) unlock('staff'); else setPinError(process.env.REACT_APP_ADMIN_PIN ? 'Incorrect PIN. Please try again.' : 'Set REACT_APP_ADMIN_PIN and REACT_APP_STAFF_PIN in .env first.');
     };
     const addSale = async (record: Omit<Sale, 'id' | 'createdAt'>, member?: Loyalty, newMember?: {
         code: string;
@@ -273,6 +340,9 @@ export default function Bookkeeping() {
                 activeMember = {id: crypto.randomUUID(), ...loyaltyRecord};
                 setLoyalty(list => [...list, activeMember as Loyalty]);
             }
+            // Separate from the sale toast: a code created by mistyping an existing one is the
+            // error worth catching early, and it is only visible at the moment it happens.
+            toast(`Loyalty code ${newMember.code} created.`, 'info');
         }
         if (db) await addDoc(collection(db, 'car_wash_sales'), {
             ...record,
@@ -298,14 +368,22 @@ export default function Bookkeeping() {
                 redeemed: x.redeemed + delta.redeemed
             } : x));
         }
+        // The points line is the half a customer is standing there waiting to hear, so it goes
+        // in the confirmation rather than only into the loyalty card they cannot see.
+        // From the record, not the member: a member whose stored code is blank still has the
+        // positional LOY-00n the modal matched on, and that is the one on their card.
+        const code = activeMember && record.loyaltyCode !== '—' ? record.loyaltyCode : '';
+        toast(record.redeemed ? `Free wash redeemed${code ? ` for ${code}` : ''} — 5 points spent.` : `${record.service} recorded · ${money(record.amount)}${code ? ` · ${code} earned 1 point` : ''}`);
     };
     const addExpense = async (record: Omit<Expense, 'id' | 'createdAt'>) => {
         if (db) await addDoc(collection(db, 'car_wash_expenses'), {
             ...record,
             createdAt: serverTimestamp()
         }); else setExpenseRecords(list => [{id: crypto.randomUUID(), ...record}, ...list]);
+        toast(`${record.category} expense recorded · ${money(record.amount)}`);
     };
-    if (!role) return <PinGate pin={pin} setPin={setPin} error={pinError} login={login}/>;
+    if (!role) return <><PinGate pin={pin} setPin={setPin} error={pinError} login={login}/><Toasts toasts={toasts}
+                                                                                                   dismiss={dismiss}/></>;
     const nav: Array<{ id: Section; label: string; icon: typeof LayoutDashboard }> = [{
         id: 'overview',
         label: 'Overview',
@@ -371,7 +449,8 @@ export default function Bookkeeping() {
                 <Reports sales={sales} loyalty={loyalty} expenses={expenseRecords}/>}</div>
         </main>
         {saleModal && <SaleModal members={loyalty} close={() => setSaleModal(false)} save={addSale}/>} {expenseModal &&
-        <ExpenseModal close={() => setExpenseModal(false)} save={addExpense}/>}</div>;
+        <ExpenseModal close={() => setExpenseModal(false)} save={addExpense}/>}<Toasts toasts={toasts}
+                                                                                      dismiss={dismiss}/></div>;
 }
 
 function PinGate({pin, setPin, error, login}: {

@@ -115,7 +115,7 @@ const PANELS = {
    and with src/components/carwash/Pricing.tsx. */
 const SERVICES = [
   ["Exterior wash", "Full wash"],
-  ["Vacuum wash", "Buffing"],
+  ["Vacuum wash", "Detailing"],
 ];
 
 const GROUNDS = {

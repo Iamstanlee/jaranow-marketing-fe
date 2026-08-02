@@ -3,6 +3,7 @@ import {AnimatePresence, motion} from 'framer-motion';
 import {
     addDoc,
     collection,
+    deleteDoc,
     doc,
     increment,
     onSnapshot,
@@ -17,15 +18,18 @@ import {
     ChevronLeft,
     ChevronRight,
     CircleDollarSign,
-    ClipboardCheck,
+    ClipboardCheck, Forward,
     Gift,
     Info,
     LayoutDashboard,
     LogOut,
-    Menu, PiggyBank,
+    Menu,
+    Pencil,
+    PiggyBank,
     Plus,
     ShieldCheck,
     Sparkles,
+    Trash2,
     TriangleAlert,
     WalletCards,
     X
@@ -48,7 +52,9 @@ type Expense = { id: string; category: string; note: string; payment: string; am
 type Role = 'admin' | 'staff';
 type Section = 'overview' | 'sales' | 'loyalty' | 'expenses' | 'eod' | 'reports';
 type Service = keyof typeof SERVICES;
-const SERVICES = {'Exterior wash': 2000, 'Full wash': 3000, 'Vacuum wash': 4000} as const;
+const SERVICES = {'Exterior wash': 2000, 'Full wash': 3000, 'Deep/Vacuum wash': 4000} as const;
+// Where the end-of-day summary is sent. Digits only — wa.me rejects a leading "+".
+const EOD_REPORT_PHONE = '2347048667650';
 const money = (value: number) => new Intl.NumberFormat('en-NG', {
     style: 'currency',
     currency: 'NGN',
@@ -74,7 +80,21 @@ const startOfDay = (date: Date) => {
     d.setHours(0, 0, 0, 0);
     return d;
 };
+const endOfDay = (date: Date) => {
+    const d = new Date(date);
+    d.setHours(23, 59, 59, 999);
+    return d;
+};
 const isToday = (date: Date) => startOfDay(date).getTime() === startOfDay(new Date()).getTime();
+// Two washes at the same price on the same day are otherwise indistinguishable in the list,
+// which is exactly the pair someone is trying to tell apart when they come to correct one.
+// Explicit hour12: the desk is read at a glance, and en-NG resolves 12/24h differently
+// across browsers — a list that flips format between devices reads as a different figure.
+const timeLabel = (date: Date) => date.toLocaleTimeString('en-NG', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+});
 // Lists span days, so every row carries when it was logged. The two most recent days are
 // named — "Today" is what a reader is actually checking for — and older rows get a date.
 const dayLabel = (date: Date) => {
@@ -88,6 +108,33 @@ const dayLabel = (date: Date) => {
     });
 };
 const codeFor = (member: Loyalty, index: number) => member.code || `LOY-${String(index + 1).padStart(3, '0')}`;
+// Every list that can span days filters through the same control, so a range learned on one
+// page works on the next. A range is a named preset or, for CUSTOM, a pair of yyyy-mm-dd
+// days from the two date inputs; either end may be blank, meaning "unbounded on that side"
+// rather than "empty range" — half a pair is what you have while you are still typing.
+const CUSTOM = 'Custom range';
+const PERIODS = ['All time', 'Today', 'Yesterday', 'Last 3 days', 'Last 7 days', 'This week', 'This month', 'Last month', 'Last 3 months', 'Last 6 months', '1 year', 'Last year'];
+type Range = { preset: string; from: string; to: string };
+const rangeOf = (preset: string): Range => ({preset, from: '', to: ''});
+// Local yyyy-mm-dd. toISOString() would be UTC, so any desk east of Greenwich labels
+// "today" as tomorrow for its last hour of the day — Lagos is UTC+1.
+const isoDay = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+// Parsed as local midnight. `new Date('2026-08-02')` is parsed as UTC, which lands on the
+// previous day west of Greenwich and would silently shift every custom filter by a day.
+const dayFrom = (iso: string) => new Date(`${iso}T00:00:00`);
+const dateText = (iso: string) => dayFrom(iso).toLocaleDateString('en-NG', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+});
+// What the filter is currently showing, for section subheadings — a report captioned
+// "Custom range" says nothing, and these figures get read aloud off the screen.
+const rangeLabel = (range: Range) => range.preset !== CUSTOM ? range.preset
+    : range.from && range.to ? `${dateText(range.from)} – ${dateText(range.to)}`
+        : range.from ? `From ${dateText(range.from)}`
+            : range.to ? `Up to ${dateText(range.to)}` : 'All time';
+// usePage resets on this: a range change makes whatever page you were on meaningless.
+const rangeKey = (range: Range) => `${range.preset}|${range.from}|${range.to}`;
 // The desk is a tablet left open at the forecourt and unlocked once at the start of a shift,
 // so re-entering the PIN on every reload was pushing staff towards writing it down. The
 // session records which PIN was entered and when; it is not a credential — Firestore still
@@ -158,7 +205,7 @@ function useToasts() {
 // slide in behind it.
 function Toasts({toasts, dismiss}: { toasts: Toast[]; dismiss: (id: string) => void }) {
     return <div aria-live="polite"
-        className="pointer-events-none fixed inset-x-0 bottom-0 z-[60] flex flex-col items-center gap-2 p-4 sm:inset-x-auto sm:right-0 sm:items-end">
+                className="pointer-events-none fixed inset-x-0 top-0 z-[60] flex flex-col items-center gap-2 p-4 sm:inset-x-auto sm:right-0 sm:items-end">
         <AnimatePresence initial={false}>{toasts.map(t => <ToastCard key={t.id} toast={t} dismiss={dismiss}/>)}</AnimatePresence>
     </div>
 }
@@ -171,9 +218,11 @@ function ToastCard({toast, dismiss}: { toast: Toast; dismiss: (id: string) => vo
     }, [id, dismiss]);
     // Tappable to dismiss — the desk is a touchscreen, and a toast covering the button you are
     // reaching for has to be clearable without waiting it out.
+    // Enters and leaves upward, towards the edge it is docked against — a card that slid up
+    // from below to sit at the top reads as having come from somewhere else on the screen.
     return <motion.button type="button" onClick={() => dismiss(id)} aria-label={`Dismiss: ${message}`} layout
-                          initial={{opacity: 0, y: 14, scale: 0.97}} animate={{opacity: 1, y: 0, scale: 1}}
-                          exit={{opacity: 0, y: 8, scale: 0.97}} transition={{duration: 0.18}}
+                          initial={{opacity: 0, y: -14, scale: 0.97}} animate={{opacity: 1, y: 0, scale: 1}}
+                          exit={{opacity: 0, y: -8, scale: 0.97}} transition={{duration: 0.18}}
                           className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left shadow-lg">
         <span className={`mt-0.5 shrink-0 ${tint}`}><Icon size={18}/></span><span
         className="text-sm font-medium text-slate-700">{message}</span>
@@ -198,9 +247,9 @@ const seedSales: Sale[] = [{
     id: 's3',
     loyaltyCode: 'LOY-003',
     customer: 'Amina Bello',
-    service: 'Vacuum wash',
+    service: 'Deep/Vacuum wash',
     payment: 'Cash',
-    amount: SERVICES['Vacuum wash']
+    amount: SERVICES['Deep/Vacuum wash']
 }];
 const seedLoyalty: Loyalty[] = [{
     id: 'l1',
@@ -313,7 +362,9 @@ export default function Bookkeeping() {
     // Overview and end-of-day are both "today" views — the stat cards say so — so they read
     // today's records only. Reports is the section for looking across days.
     const day = useDayTick();
+    useDrawerSwipe(menuOpen, setMenuOpen);
     const todaySales = useMemo(() => sales.filter(s => startOfDay(dateOf(s)).getTime() === day), [sales, day]);
+    const todayExpenses = useMemo(() => expenseRecords.filter(x => startOfDay(dateOf(x)).getTime() === day), [expenseRecords, day]);
     const totals = useMemo(() => totalSales(todaySales), [todaySales]);
     const login = (e: React.FormEvent) => {
         e.preventDefault();
@@ -375,12 +426,57 @@ export default function Bookkeeping() {
         const code = activeMember && record.loyaltyCode !== '—' ? record.loyaltyCode : '';
         toast(record.redeemed ? `Free wash redeemed${code ? ` for ${code}` : ''} — 5 points spent.` : `${record.service} recorded · ${money(record.amount)}${code ? ` · ${code} earned 1 point` : ''}`);
     };
+    // Corrections change what was sold and for how much; they deliberately cannot move the
+    // loyalty code or the redemption, because those already moved a point balance that other
+    // sales have since been recorded against. Fixing one of those means deleting the sale and
+    // recording it again, which reverses the balance cleanly on the way out.
+    const updateSale = async (id: string, patch: Pick<Sale, 'service' | 'payment' | 'amount'>) => {
+        if (db) await updateDoc(doc(db, 'car_wash_sales', id), patch);
+        else setSales(list => list.map(s => s.id === id ? {...s, ...patch} : s));
+        toast(`Sale updated · ${patch.service} · ${money(patch.amount)}`, 'info');
+    };
+    const removeSale = async (sale: Sale) => {
+        // A deleted sale gives back exactly what it took — the point it earned, or the five it
+        // spent — as a delta, for the same reason the sale wrote one: two attendants recording
+        // for the same customer at once would otherwise lose one of the two corrections.
+        const member = loyalty.find((x, i) => codeFor(x, i) === sale.loyaltyCode);
+        const delta = sale.redeemed ? {points: 5, redeemed: -1} : {points: -1, redeemed: 0};
+        if (db) {
+            await deleteDoc(doc(db, 'car_wash_sales', sale.id));
+            // Deleting a sale whose point has already been spent leaves the balance short, and
+            // increment() cannot clamp server-side. The cards read the balance through
+            // Math.max, so it shows as 0 rather than as a negative; the paper ledger is still
+            // the authority when the two disagree.
+            if (member) await updateDoc(doc(db, 'car_wash_loyalty', member.id), {
+                points: increment(delta.points),
+                redeemed: increment(delta.redeemed)
+            });
+        } else {
+            setSales(list => list.filter(s => s.id !== sale.id));
+            if (member) setLoyalty(list => list.map(x => x.id === member.id ? {
+                ...x,
+                points: x.points + delta.points,
+                redeemed: x.redeemed + delta.redeemed
+            } : x));
+        }
+        toast(`Sale deleted · ${money(sale.amount)}${member ? ` · ${sale.loyaltyCode} ${sale.redeemed ? 'refunded 5 points' : 'lost 1 point'}` : ''}`, 'warning');
+    };
     const addExpense = async (record: Omit<Expense, 'id' | 'createdAt'>) => {
         if (db) await addDoc(collection(db, 'car_wash_expenses'), {
             ...record,
             createdAt: serverTimestamp()
         }); else setExpenseRecords(list => [{id: crypto.randomUUID(), ...record}, ...list]);
         toast(`${record.category} expense recorded · ${money(record.amount)}`);
+    };
+    const updateExpense = async (id: string, record: Omit<Expense, 'id' | 'createdAt'>) => {
+        if (db) await updateDoc(doc(db, 'car_wash_expenses', id), record);
+        else setExpenseRecords(list => list.map(x => x.id === id ? {...x, ...record} : x));
+        toast(`Expense updated · ${money(record.amount)}`, 'info');
+    };
+    const removeExpense = async (record: Expense) => {
+        if (db) await deleteDoc(doc(db, 'car_wash_expenses', record.id));
+        else setExpenseRecords(list => list.filter(x => x.id !== record.id));
+        toast(`Expense deleted · ${money(record.amount)}`, 'warning');
     };
     if (!role) return <><PinGate pin={pin} setPin={setPin} error={pinError} login={login}/><Toasts toasts={toasts}
                                                                                                    dismiss={dismiss}/></>;
@@ -439,12 +535,18 @@ export default function Bookkeeping() {
             </header>
             {syncError && <div role="alert"
                                className="border-b border-amber-200 bg-amber-50 px-5 py-3 text-sm text-amber-800 md:px-9">{syncError}</div>}
+            {/* Deleting takings is the one action on the desk that destroys a figure rather
+                than adding one, so it follows the same line reports do: admin only. Staff
+                correct a wrong sale by editing it. */}
             <div className="mx-auto max-w-7xl p-5 md:p-9">{section === 'overview' &&
-                <Overview totals={totals} sales={todaySales} onSale={() => setSaleModal(true)}
+                <Overview totals={totals} sales={todaySales} expenses={todayExpenses}
+                          onSale={() => setSaleModal(true)}
                           onChange={setSection}/>} {section === 'sales' &&
-                <Sales sales={sales} onSale={() => setSaleModal(true)}/>} {section === 'loyalty' &&
+                <Sales sales={sales} onSale={() => setSaleModal(true)} onUpdate={updateSale}
+                       onDelete={role === 'admin' ? removeSale : undefined}/>} {section === 'loyalty' &&
                 <LoyaltySection members={loyalty}/>} {section === 'expenses' &&
-                <Expenses records={expenseRecords} onAdd={() => setExpenseModal(true)}/>} {section === 'eod' &&
+                <Expenses records={expenseRecords} onAdd={() => setExpenseModal(true)} onUpdate={updateExpense}
+                          onDelete={role === 'admin' ? removeExpense : undefined}/>} {section === 'eod' &&
                 <Eod totals={totals} expenses={expenseRecords}/>} {section === 'reports' && role === 'admin' &&
                 <Reports sales={sales} loyalty={loyalty} expenses={expenseRecords}/>}</div>
         </main>
@@ -483,6 +585,7 @@ function SaleModal({members, close, save}: {
     }) => Promise<void>
 }) {
     const [code, setCode] = useState(''), [service, setService] = useState<Service>('Exterior wash'), [payment, setPayment] = useState('Transfer'), [redeem, setRedeem] = useState(false), [customer, setCustomer] = useState(''), [phone, setPhone] = useState('');
+    const [price, setPrice] = useState(String(SERVICES['Exterior wash']));
     const [submitting, setSubmitting] = useState(false), [error, setError] = useState('');
     // Codes are stored zero-padded to three digits (LOY-001) so a typed "1" and the
     // auto-generated "001" are the same member. Match, save and display the padded form.
@@ -490,7 +593,10 @@ function SaleModal({members, close, save}: {
     const member = members.find((x, i) => codeFor(x, i) === normalizedCode);
     const newCode = Boolean(normalizedCode && !member);
     const canRedeem = Boolean(member && member.points >= 5);
-    const amount = redeem ? 0 : SERVICES[service];
+    // A redeemed wash is free whatever the box says, and a service change re-quotes the list
+    // price — an attendant who picks the wrong service and corrects it should not be left
+    // charging the old one. Anything typed after that stands, which is the point of the field.
+    const amount = redeem ? 0 : Number(price) || 0;
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (submitting) return;
@@ -542,25 +648,15 @@ function SaleModal({members, close, save}: {
             className="font-semibold">{normalizedCode}</span><span
             className="float-right font-semibold">{member.points} points</span><p
             className="mt-1 text-xs text-blue-700">{canRedeem ? 'Free wash available — redeem 5 points.' : `${5 - member.points} more point(s) until a free wash.`}</p>
-        </div>}<label className="block text-sm font-medium">Service<select value={service}
-                                                                           onChange={e => setService(e.target.value as Service)}
-                                                                           className="mt-1 w-full rounded-xl border-slate-200">
-            <option>Exterior wash</option>
-            <option>Full wash</option>
-            <option>Vacuum wash</option>
-        </select></label>{canRedeem && <label
+        </div>}<ServiceField value={service} onChange={next => {
+            setService(next);
+            setPrice(String(SERVICES[next]));
+        }}/>{canRedeem && <label
             className="flex cursor-pointer items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-sm font-medium text-emerald-900"><input
             type="checkbox" checked={redeem} onChange={e => setRedeem(e.target.checked)}
-            className="rounded text-emerald-600"/>Redeem 5 points for this wash</label>}<label
-            className="block text-sm font-medium">Payment method<select value={payment}
-                                                                        onChange={e => setPayment(e.target.value)}
-                                                                        className="mt-1 w-full rounded-xl border-slate-200">
-            <option>Transfer</option>
-            <option>Cash</option>
-            <option>POS</option>
-        </select></label>
-            <div className="rounded-xl bg-slate-100 p-4"><span className="text-sm text-slate-500">Amount due</span><b
-                className="float-right text-lg">{money(amount)}</b></div>
+            className="rounded text-emerald-600"/>Redeem 5 points for this wash</label>}<PaymentField value={payment}
+                                                                                                      onChange={setPayment}/><PriceField
+            service={service} value={price} onChange={setPrice} free={redeem}/>
             {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
             <button disabled={submitting}
                     className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white disabled:opacity-60">{submitting ? 'Saving…' : `Save sale ${member && !redeem ? '• earn 1 point' : ''}`}</button>
@@ -568,30 +664,174 @@ function SaleModal({members, close, save}: {
     </Modal>
 }
 
-function Overview({totals, sales, onSale, onChange}: {
+// Shared by the record and correct forms, so a sale can only ever be corrected into a shape
+// it could have been recorded in.
+const SELECT = 'mt-1 w-full rounded-xl border-slate-200';
+
+function ServiceField({value, onChange}: { value: Service; onChange: (v: Service) => void }) {
+    return <label className="block text-sm font-medium">Service<select value={value}
+                                                                       onChange={e => onChange(e.target.value as Service)}
+                                                                       className={SELECT}>
+        {(Object.keys(SERVICES) as Service[]).map(s => <option key={s}>{s}</option>)}
+    </select></label>;
+}
+
+function PaymentField({value, onChange}: { value: string; onChange: (v: string) => void }) {
+    return <label className="block text-sm font-medium">Payment method<select value={value}
+                                                                              onChange={e => onChange(e.target.value)}
+                                                                              className={SELECT}>
+        <option>Transfer</option>
+        <option>Cash</option>
+        <option>POS</option>
+    </select></label>;
+}
+
+// The list price is the default, not the rule: a saloon and an SUV are the same "Full wash"
+// on the board and are not always the same money at the pump, and a returning customer gets
+// something taken off. The field starts at the list price so the common case is still one
+// tap, and says plainly when what is about to be saved is not it.
+function PriceField({service, value, onChange, free = false}: {
+    service: Service;
+    value: string;
+    onChange: (v: string) => void;
+    free?: boolean
+}) {
+    const list = SERVICES[service], custom = !free && Number(value) !== list;
+    return <label className="block text-sm font-medium">Amount (₦)
+        <input required={!free} inputMode="numeric" disabled={free}
+               value={free ? '0' : value} onChange={e => onChange(e.target.value)}
+               className={`${SELECT} disabled:bg-slate-100 disabled:text-slate-400`}/>
+        <span className="mt-1 flex items-center justify-between gap-3 text-xs font-normal">
+            <span
+                className={custom ? 'text-amber-600' : 'text-slate-400'}>{free ? 'Free wash — nothing to collect.' : custom ? `Custom price · standard is ${money(list)}` : 'Standard price'}</span>
+            {custom && <button type="button" onClick={() => onChange(String(list))}
+                               className="shrink-0 font-semibold text-blue-600">Reset</button>}
+        </span>
+    </label>;
+}
+
+// Corrects what was sold and for how much. The loyalty code and the redemption are shown but
+// fixed — see updateSale for why moving them here would leave a point balance wrong.
+function EditSaleModal({sale, close, save}: {
+    sale: Sale;
+    close: () => void;
+    save: (id: string, patch: Pick<Sale, 'service' | 'payment' | 'amount'>) => Promise<void>
+}) {
+    const [service, setService] = useState<Service>(sale.service), [payment, setPayment] = useState(sale.payment);
+    const [price, setPrice] = useState(String(sale.amount));
+    const [submitting, setSubmitting] = useState(false), [error, setError] = useState('');
+    const submit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (submitting) return;
+        setSubmitting(true);
+        setError('');
+        try {
+            await save(sale.id, {service, payment, amount: sale.redeemed ? 0 : Number(price) || 0});
+            close();
+        } catch (err) {
+            console.error('Failed to update sale', err);
+            setError('Could not save this correction. Please check your connection and try again.');
+            setSubmitting(false);
+        }
+    };
+    return <Modal title="Edit sale" close={close}>
+        <form onSubmit={submit} className="space-y-4">
+            <div className="rounded-xl bg-slate-100 p-3 text-sm"><span
+                className="font-semibold">{sale.loyaltyCode}</span><span
+                className="float-right text-slate-500">{dayLabel(dateOf(sale))} · {timeLabel(dateOf(sale))}</span><p
+                className="mt-1 text-xs text-slate-500">{sale.redeemed ? 'Redeemed wash — the 5 points are already spent.' : 'The loyalty code and points cannot be changed here. Delete the sale and record it again to move them.'}</p>
+            </div>
+            <ServiceField value={service} onChange={next => {
+                setService(next);
+                setPrice(String(SERVICES[next]));
+            }}/><PaymentField value={payment} onChange={setPayment}/><PriceField service={service} value={price}
+                                                                                 onChange={setPrice}
+                                                                                 free={sale.redeemed}/>
+            {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+            <button disabled={submitting}
+                    className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white disabled:opacity-60">{submitting ? 'Saving…' : 'Save changes'}</button>
+        </form>
+    </Modal>
+}
+
+// Deleting is not undoable and moves a loyalty balance, so it asks — and says what it is
+// about to remove, because the row that was tapped is behind the dialog by the time it opens.
+function ConfirmDelete({title, detail, close, confirm}: {
+    title: string;
+    detail: string;
+    close: () => void;
+    confirm: () => Promise<void>
+}) {
+    const [submitting, setSubmitting] = useState(false), [error, setError] = useState('');
+    const go = async () => {
+        if (submitting) return;
+        setSubmitting(true);
+        setError('');
+        try {
+            await confirm();
+            close();
+        } catch (err) {
+            console.error('Failed to delete record', err);
+            setError('Could not delete this record. Please check your connection and try again.');
+            setSubmitting(false);
+        }
+    };
+    return <Modal title={title} close={close}>
+        <p className="text-sm leading-6 text-slate-500">{detail}</p>
+        {error && <p role="alert" className="mt-3 text-sm text-red-600">{error}</p>}
+        <div className="mt-6 flex gap-3">
+            <button type="button" onClick={close}
+                    className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-600">Cancel
+            </button>
+            <button type="button" onClick={go} disabled={submitting}
+                    className="flex-1 rounded-xl bg-red-600 py-3 text-sm font-semibold text-white disabled:opacity-60">{submitting ? 'Deleting…' : 'Delete'}</button>
+        </div>
+    </Modal>
+}
+
+// Edit sits on the left of delete on every row, so the destructive one is never where the
+// thumb lands by habit.
+function RowActions({label, onEdit, onDelete}: { label: string; onEdit: () => void; onDelete?: () => void }) {
+    const button = 'grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-400';
+    return <span className="flex shrink-0 items-center gap-2">
+        <button type="button" onClick={onEdit} aria-label={`Edit ${label}`}
+                className={`${button} hover:text-blue-600`}><Pencil size={15}/></button>
+        {onDelete && <button type="button" onClick={onDelete} aria-label={`Delete ${label}`}
+                             className={`${button} hover:border-red-200 hover:text-red-600`}><Trash2 size={15}/>
+        </button>}
+    </span>;
+}
+
+function Overview({totals, sales, expenses, onSale, onChange}: {
     totals: ReturnType<typeof totalSales>;
     sales: Sale[];
+    expenses: Expense[];
     onSale: () => void;
     onChange: (s: Section) => void
 }) {
+    // Today's only, like every other figure on this screen. End of day is where the cash half
+    // of this is netted off the drawer; here it is just what has gone out against what came in.
+    const spent = expenses.reduce((sum, x) => sum + x.amount, 0);
     return <>
         <div className="mb-7 flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><p
-            className="text-sm text-slate-500">A clear snapshot of your business today.</p>
+            className="text-sm text-slate-500">Business today.</p>
             <button onClick={onSale}
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white">
                 <Plus size={18}/> Record sale
             </button>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat title="Today's sales"
+        {/* Money in, money out, and what of it is cash to be settled tonight. The transaction
+            count rides on the sales card's note rather than taking a card of its own, and
+            redemptions are a loyalty figure — the Loyalty and Reports sections carry them. */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"><Stat title="Today's sales"
                                                                         value={money(totals.revenue)}
                                                                         icon={PiggyBank}
                                                                         tint="bg-blue-50 text-blue-600"
                                                                         note={`${totals.count} transactions`}/><Stat
-            title="Transactions" value={String(totals.count)} icon={CircleDollarSign} tint="bg-violet-50 text-violet-600"
-            note="Sales recorded today"/><Stat title="Cash received" value={money(totals.cash)} icon={BarChart3}
-                                               tint="bg-amber-50 text-amber-600" note="Ready to reconcile"/><Stat
-            title="Rewards redeemed" value={String(totals.redemptions)} icon={Sparkles}
-            tint="bg-emerald-50 text-emerald-600" note="Free washes today"/></div>
+            title="Today's expenses" value={money(spent)} icon={WalletCards} tint="bg-rose-50 text-rose-600"
+            note={`${expenses.length} recorded today`}/><Stat title="Cash received" value={money(totals.cash)}
+                                                              icon={BarChart3} tint="bg-amber-50 text-amber-600"
+                                                              note="Ready to reconcile"/></div>
         <section className="mt-7 rounded-2xl border border-slate-200 bg-white">
             <div className="flex items-center justify-between p-5">
                 <div><h2 className="font-bold">Recent sales</h2><p className="text-xs text-slate-400">Today’s records</p>
@@ -604,8 +844,19 @@ function Overview({totals, sales, onSale, onChange}: {
     </>
 }
 
-function Sales({sales, onSale}: { sales: Sale[]; onSale: () => void }) {
-    const {slice, ...pager} = usePage(sales);
+function Sales({sales, onSale, onUpdate, onDelete}: {
+    sales: Sale[];
+    onSale: () => void;
+    onUpdate: (id: string, patch: Pick<Sale, 'service' | 'payment' | 'amount'>) => Promise<void>;
+    onDelete?: (s: Sale) => Promise<void>
+}) {
+    // All time by default: this is the ledger, and a section that silently hid last week's
+    // sales behind a default filter would read as records having gone missing.
+    const [range, setRange] = useState<Range>(() => rangeOf('All time'));
+    const [editing, setEditing] = useState<Sale | null>(null), [deleting, setDeleting] = useState<Sale | null>(null);
+    const filtered = useMemo(() => sales.filter(s => inRange(dateOf(s), range)), [sales, range]);
+    const total = filtered.reduce((sum, s) => sum + s.amount, 0);
+    const {slice, ...pager} = usePage(filtered, rangeKey(range));
     return <>
         <div className="mb-7 flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><p
             className="text-sm text-slate-500">Every service and
@@ -615,7 +866,21 @@ function Sales({sales, onSale}: { sales: Sale[]; onSale: () => void }) {
                 <Plus size={18}/> Record sale
             </button>
         </div>
-        <section className="rounded-2xl border border-slate-200 bg-white"><SalesTable sales={slice}/><Pagination {...pager}/></section>
+        <section className="rounded-2xl border border-slate-200 bg-white">
+            <div
+                className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
+                <div><h2 className="font-bold">{money(total)}</h2><p
+                    className="text-xs text-slate-400">{filtered.length} sale{filtered.length === 1 ? '' : 's'} · {rangeLabel(range)}</p>
+                </div>
+                <PeriodFilter range={range} setRange={setRange} label="Filter sales by date"/>
+            </div>
+            <SalesTable sales={slice} empty="No sales in this date range." onEdit={setEditing}
+                        onDelete={onDelete && setDeleting}/><Pagination {...pager}/></section>
+        {editing && <EditSaleModal sale={editing} close={() => setEditing(null)} save={onUpdate}/>}
+        {deleting && onDelete && <ConfirmDelete title="Delete this sale?"
+                                                detail={`${deleting.service} · ${money(deleting.amount)} · ${dayLabel(dateOf(deleting))} at ${timeLabel(dateOf(deleting))}. This cannot be undone${deleting.loyaltyCode !== '—' ? `, and ${deleting.loyaltyCode} ${deleting.redeemed ? 'gets its 5 points back' : 'loses the point it earned'}` : ''}.`}
+                                                close={() => setDeleting(null)}
+                                                confirm={() => onDelete(deleting)}/>}
     </>
 }
 
@@ -628,15 +893,24 @@ function Reward({sale}: { sale: Sale }) {
 // Phones get one card per record. Five columns cannot be read on a 390px screen, and the
 // sideways scroll the table used to need hides the amount — the one figure that matters.
 // The table returns at lg, where the 64-wide sidebar still leaves it room.
-function SalesTable({sales, empty = 'No sales recorded yet.'}: { sales: Sale[]; empty?: string }) {
+function SalesTable({sales, empty = 'No sales recorded yet.', onEdit, onDelete}: {
+    sales: Sale[];
+    empty?: string;
+    onEdit?: (s: Sale) => void;
+    onDelete?: (s: Sale) => void
+}) {
     if (!sales.length) return <p className="px-5 py-10 text-center text-sm text-slate-400">{empty}</p>;
     return <>
         <ul className="divide-y divide-slate-100 lg:hidden">{sales.map(s => <li key={s.id} className="px-5 py-4">
             <div className="flex items-baseline justify-between gap-3"><span
                 className="font-medium">{s.loyaltyCode}</span><b className="shrink-0">{money(s.amount)}</b></div>
             <p className="mt-1 text-sm text-slate-500">{s.service} · {s.payment}</p>
-            <div className="mt-2 flex items-center justify-between gap-3"><Reward sale={s}/><span
-                className="shrink-0 text-xs text-slate-400">{dayLabel(dateOf(s))}</span></div>
+            <div className="mt-2 flex items-center justify-between gap-3"><Reward sale={s}/>
+                <div className="flex shrink-0 items-center gap-3"><span
+                    className="text-xs text-slate-400">{dayLabel(dateOf(s))} · {timeLabel(dateOf(s))}</span>
+                    {onEdit && <RowActions label={`${s.service} sale`} onEdit={() => onEdit(s)}
+                                           onDelete={onDelete && (() => onDelete(s))}/>}</div>
+            </div>
         </li>)}</ul>
         <table className="hidden w-full text-left text-sm lg:table">
             <thead className="border-y border-slate-100 bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
@@ -647,15 +921,23 @@ function SalesTable({sales, empty = 'No sales recorded yet.'}: { sales: Sale[]; 
                 <th className="px-5 py-3">Payment</th>
                 <th className="px-5 py-3">Reward</th>
                 <th className="px-5 py-3 text-right">Amount</th>
+                {onEdit && <th className="px-5 py-3 text-right"><span className="sr-only">Actions</span></th>}
             </tr>
             </thead>
+            {/* Time under the day rather than in its own column: it is what tells two otherwise
+                identical washes apart, and it is only ever read alongside the date. */}
             <tbody>{sales.map(s => <tr key={s.id} className="border-b border-slate-100 last:border-0">
-                <td className="whitespace-nowrap px-5 py-4 text-slate-500">{dayLabel(dateOf(s))}</td>
+                <td className="whitespace-nowrap px-5 py-4 text-slate-500">{dayLabel(dateOf(s))}<span
+                    className="block text-xs text-slate-400">{timeLabel(dateOf(s))}</span></td>
                 <td className="px-5 py-4 font-medium">{s.loyaltyCode}</td>
                 <td className="px-5 py-4 text-slate-500">{s.service}</td>
                 <td className="px-5 py-4 text-slate-500">{s.payment}</td>
                 <td className="px-5 py-4"><Reward sale={s}/></td>
                 <td className="px-5 py-4 text-right font-semibold">{money(s.amount)}</td>
+                {onEdit && <td className="px-5 py-4">
+                    <div className="flex justify-end"><RowActions label={`${s.service} sale`} onEdit={() => onEdit(s)}
+                                                                  onDelete={onDelete && (() => onDelete(s))}/></div>
+                </td>}
             </tr>)}</tbody>
         </table>
     </>
@@ -664,7 +946,14 @@ function SalesTable({sales, empty = 'No sales recorded yet.'}: { sales: Sale[]; 
 function LoyaltySection({members}: { members: Loyalty[] }) {
     // Resolve fallback codes against the whole list before paging: codeFor() numbers by
     // position, so a page-2 slice would start counting at LOY-001 again.
-    const coded = useMemo(() => members.map((m, i) => ({...m, code: codeFor(m, i)})), [members]);
+    // Points are floored at 0 for display: deleting a sale whose point was already spent
+    // leaves the stored balance short, and a card reading "−1 / 5 points" is not something a
+    // customer holding a stamp card can be shown. See removeSale.
+    const coded = useMemo(() => members.map((m, i) => ({
+        ...m,
+        code: codeFor(m, i),
+        points: Math.max(0, m.points)
+    })), [members]);
     const {slice, ...pager} = usePage(coded, undefined, 9);
     return <><p className="mb-7 text-sm text-slate-500">Loyalty codes are automatically created when a sale is recorded
         for a new customer.</p>
@@ -684,10 +973,20 @@ function LoyaltySection({members}: { members: Loyalty[] }) {
     </>
 }
 
-function Expenses({records, onAdd}: { records: Expense[]; onAdd: () => void }) {
-    // The header total covers every expense on record, not just the page being shown.
-    const total = records.reduce((sum, x) => sum + x.amount, 0);
-    const {slice, ...pager} = usePage(records);
+function Expenses({records, onAdd, onUpdate, onDelete}: {
+    records: Expense[];
+    onAdd: () => void;
+    onUpdate: (id: string, record: Omit<Expense, 'id' | 'createdAt'>) => Promise<void>;
+    onDelete?: (record: Expense) => Promise<void>
+}) {
+    // All time by default, for the same reason the sales ledger is — see Sales.
+    const [range, setRange] = useState<Range>(() => rangeOf('All time'));
+    const [editing, setEditing] = useState<Expense | null>(null),
+        [deleting, setDeleting] = useState<Expense | null>(null);
+    const filtered = useMemo(() => records.filter(x => inRange(dateOf(x), range)), [records, range]);
+    // The header total covers everything in the range, not just the page being shown.
+    const total = filtered.reduce((sum, x) => sum + x.amount, 0);
+    const {slice, ...pager} = usePage(filtered, rangeKey(range));
     return <>
         <div className="mb-7 flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><p
             className="text-sm text-slate-500">Track every
@@ -698,12 +997,15 @@ function Expenses({records, onAdd}: { records: Expense[]; onAdd: () => void }) {
             </button>
         </div>
         <section className="rounded-2xl border border-slate-200 bg-white">
-            <div className="flex items-center justify-between border-b border-slate-100 p-5">
-                <div><h2 className="font-bold">Expense records</h2><p className="text-xs text-slate-400">All recorded
-                    expenses</p></div>
-                <b className="text-lg">{money(total)}</b></div>
-            {!records.length ?
-                <p className="px-5 py-10 text-center text-sm text-slate-400">No expenses recorded yet.</p> : <>
+            <div
+                className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
+                <div><h2 className="font-bold">{money(total)}</h2><p
+                    className="text-xs text-slate-400">{filtered.length} expense{filtered.length === 1 ? '' : 's'} · {rangeLabel(range)}</p>
+                </div>
+                <PeriodFilter range={range} setRange={setRange} label="Filter expenses by date"/>
+            </div>
+            {!filtered.length ?
+                <p className="px-5 py-10 text-center text-sm text-slate-400">No expenses in this date range.</p> : <>
                     <ul className="divide-y divide-slate-100 lg:hidden">{slice.map(x => <li key={x.id}
                                                                                            className="px-5 py-4">
                         <div className="flex items-baseline justify-between gap-3"><span
@@ -711,8 +1013,12 @@ function Expenses({records, onAdd}: { records: Expense[]; onAdd: () => void }) {
                         </div>
                         <p className="mt-1 text-sm text-slate-500">{x.note || '—'}</p>
                         <div className="mt-2 flex items-center justify-between gap-3"><span
-                            className="inline-block rounded bg-slate-100 px-2 py-1 text-xs">{x.payment}</span><span
-                            className="shrink-0 text-xs text-slate-400">{dayLabel(dateOf(x))}</span></div>
+                            className="inline-block rounded bg-slate-100 px-2 py-1 text-xs">{x.payment}</span>
+                            <div className="flex shrink-0 items-center gap-3"><span
+                                className="text-xs text-slate-400">{dayLabel(dateOf(x))} · {timeLabel(dateOf(x))}</span>
+                                <RowActions label={`${x.category} expense`} onEdit={() => setEditing(x)}
+                                            onDelete={onDelete && (() => setDeleting(x))}/></div>
+                        </div>
                     </li>)}</ul>
                     <table className="hidden w-full text-left text-sm lg:table">
                         <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
@@ -722,27 +1028,46 @@ function Expenses({records, onAdd}: { records: Expense[]; onAdd: () => void }) {
                             <th className="px-5 py-3">Note</th>
                             <th className="px-5 py-3">Payment</th>
                             <th className="px-5 py-3 text-right">Amount</th>
+                            <th className="px-5 py-3 text-right"><span className="sr-only">Actions</span></th>
                         </tr>
                         </thead>
                         <tbody>{slice.map(x => <tr key={x.id} className="border-t border-slate-100">
-                            <td className="whitespace-nowrap px-5 py-4 text-slate-500">{dayLabel(dateOf(x))}</td>
+                            <td className="whitespace-nowrap px-5 py-4 text-slate-500">{dayLabel(dateOf(x))}<span
+                                className="block text-xs text-slate-400">{timeLabel(dateOf(x))}</span></td>
                             <td className="px-5 py-4 font-medium">{x.category}</td>
                             <td className="px-5 py-4 text-slate-500">{x.note || '—'}</td>
                             <td className="px-5 py-4"><span
                                 className="rounded bg-slate-100 px-2 py-1 text-xs">{x.payment}</span></td>
                             <td className="px-5 py-4 text-right font-semibold">{money(x.amount)}</td>
+                            <td className="px-5 py-4">
+                                <div className="flex justify-end"><RowActions label={`${x.category} expense`}
+                                                                              onEdit={() => setEditing(x)}
+                                                                              onDelete={onDelete && (() => setDeleting(x))}/>
+                                </div>
+                            </td>
                         </tr>)}</tbody>
                     </table>
                     <Pagination {...pager}/></>}
         </section>
+        {editing && <ExpenseModal record={editing} close={() => setEditing(null)}
+                                  save={record => onUpdate(editing.id, record)}/>}
+        {deleting && onDelete && <ConfirmDelete title="Delete this expense?"
+                                                detail={`${deleting.category} · ${money(deleting.amount)} · ${dayLabel(dateOf(deleting))} at ${timeLabel(dateOf(deleting))}. This cannot be undone.`}
+                                                close={() => setDeleting(null)}
+                                                confirm={() => onDelete(deleting)}/>}
     </>
 }
 
-function ExpenseModal({close, save}: {
+// One form for recording and correcting: an expense has no loyalty side, so unlike a sale
+// there is nothing about it that can only be set at the moment it happens.
+function ExpenseModal({record, close, save}: {
+    record?: Expense;
     close: () => void;
     save: (record: Omit<Expense, 'id' | 'createdAt'>) => Promise<void>
 }) {
-    const [category, setCategory] = useState('Supplies'), [payment, setPayment] = useState('Cash'), [note, setNote] = useState(''), [amount, setAmount] = useState('');
+    const [category, setCategory] = useState(record?.category || 'Supplies'),
+        [payment, setPayment] = useState(record?.payment || 'Cash'), [note, setNote] = useState(record?.note || ''),
+        [amount, setAmount] = useState(record ? String(record.amount) : '');
     const [submitting, setSubmitting] = useState(false), [error, setError] = useState('');
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -753,12 +1078,12 @@ function ExpenseModal({close, save}: {
             await save({category, payment, note, amount: Number(amount)});
             close();
         } catch (err) {
-            console.error('Failed to record expense', err);
+            console.error('Failed to save expense', err);
             setError('Could not save this expense. Please check your connection and try again.');
             setSubmitting(false);
         }
     };
-    return <Modal title="Record an expense" close={close}>
+    return <Modal title={record ? 'Edit expense' : 'Record an expense'} close={close}>
         <form onSubmit={submit} className="space-y-4"><label className="block text-sm font-medium">Category<select value={category}
                                                                                               onChange={e => setCategory(e.target.value)}
                                                                                               className="mt-1 w-full rounded-xl border-slate-200">
@@ -785,7 +1110,7 @@ function ExpenseModal({close, save}: {
                                                                            className="mt-1 w-full rounded-xl border-slate-200"/></label>
             {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
             <button disabled={submitting}
-                    className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white disabled:opacity-60">{submitting ? 'Saving…' : 'Save expense'}</button>
+                    className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white disabled:opacity-60">{submitting ? 'Saving…' : record ? 'Save changes' : 'Save expense'}</button>
         </form>
     </Modal>
 }
@@ -793,8 +1118,31 @@ function ExpenseModal({close, save}: {
 function Eod({totals, expenses}: { totals: ReturnType<typeof totalSales>; expenses: Expense[] }) {
     // Today's cash only — the sales side is already scoped to today, so netting every expense
     // ever recorded against it would understate the cash actually in the drawer.
-    const cashExpenses = expenses.filter(x => x.payment === 'Cash' && isToday(dateOf(x))).reduce((sum, x) => sum + x.amount, 0),
+    const cashToday = expenses.filter(x => x.payment === 'Cash' && isToday(dateOf(x)));
+    const cashExpenses = cashToday.reduce((sum, x) => sum + x.amount, 0),
         balance = totals.cash - cashExpenses;
+    // The same figures as the card below, in the order they are read off it. The individual
+    // cash expenses are itemised because the person receiving this is being told to expect
+    // less cash than the day took, and the deduction has to be checkable from the message
+    // alone — they cannot see the desk. Asterisks are WhatsApp's bold.
+    const report = [
+        '*Jaranow Car Wash — End of day*',
+        longDate(),
+        '',
+        `Sales: ${totals.count} transaction${totals.count === 1 ? '' : 's'} · ${money(totals.revenue)}`,
+        `• Transfer: ${money(totals.transfer)}`,
+        `• POS: ${money(totals.pos)}`,
+        `• Cash: ${money(totals.cash)}`,
+        ...(totals.redemptions ? [`• Free washes redeemed: ${totals.redemptions}`] : []),
+        '',
+        `Cash expenses: -${money(cashExpenses)}`,
+        ...cashToday.map(x => `• ${x.category}${x.note ? ` — ${x.note}` : ''}: ${money(x.amount)}`),
+        '',
+        `*Cash to transfer: ${money(balance)}*`
+    ].join('\n');
+    // Opens WhatsApp with the summary drafted; whoever is closing up still presses send, so
+    // a desk left on the End of day screen cannot fire a report on its own.
+    const send = () => window.open(`https://wa.me/${EOD_REPORT_PHONE}?text=${encodeURIComponent(report)}`, '_blank');
     return <div className="mx-auto max-w-2xl"><p className="mb-7 text-sm text-slate-500">Review today’s collection and
         settle the cash balance to the Jaranow account.</p>
         <section className="rounded-2xl border border-slate-200 bg-white p-6">
@@ -816,34 +1164,28 @@ function Eod({totals, expenses}: { totals: ReturnType<typeof totalSales>; expens
                 className="mt-2 text-3xl font-bold">{money(balance)}</p><p
                 className="mt-2 text-sm leading-6 text-blue-100">Transfer this cash balance to the Jaranow account after
                 expenses.</p></div>
+            <button type="button" onClick={send}
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white">
+                <Forward size={17}/> Send report on WhatsApp
+            </button>
         </section>
     </div>
 }
 
 function Reports({sales, loyalty, expenses}: { sales: Sale[]; loyalty: Loyalty[]; expenses: Expense[] }) {
-    const [period, setPeriod] = useState('This month');
-    const filtered = useMemo(() => sales.filter(s => inPeriod(dateOf(s), period)), [sales, period]);
-    const filteredExpenses = useMemo(() => expenses.filter(x => inPeriod(dateOf(x), period)), [expenses, period]);
-    const totals = totalSales(filtered), points = loyalty.reduce((sum, x) => sum + x.points, 0);
+    const [range, setRange] = useState<Range>(() => rangeOf('This month'));
+    const period = rangeLabel(range);
+    const filtered = useMemo(() => sales.filter(s => inRange(dateOf(s), range)), [sales, range]);
+    const filteredExpenses = useMemo(() => expenses.filter(x => inRange(dateOf(x), range)), [expenses, range]);
+    const totals = totalSales(filtered), points = loyalty.reduce((sum, x) => sum + Math.max(0, x.points), 0);
     const totalExpenses = filteredExpenses.reduce((sum, x) => sum + x.amount, 0), netIncome = totals.revenue - totalExpenses;
-    const {slice, ...pager} = usePage(filtered, period);
+    const {slice, ...pager} = usePage(filtered, rangeKey(range));
     return <>
         <div className="mb-7 flex flex-wrap items-center justify-between gap-3"><p
-            className="text-sm text-slate-500">Full operational and loyalty performance.</p><select value={period}
-                                                                                                    onChange={e => setPeriod(e.target.value)}
-                                                                                                    className="rounded-xl border-slate-200 text-sm">
-            <option>Today</option>
-            <option>Yesterday</option>
-            <option>Last 3 days</option>
-            <option>Last 7 days</option>
-            <option>This week</option>
-            <option>This month</option>
-            <option>Last month</option>
-            <option>Last 3 months</option>
-            <option>Last 6 months</option>
-            <option>1 year</option>
-            <option>Last year</option>
-        </select></div>
+            className="text-sm text-slate-500">Full operational and loyalty performance.</p><PeriodFilter range={range}
+                                                                                                          setRange={setRange}
+                                                                                                          label="Filter report by date"/>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat title="Revenue" value={money(totals.revenue)}
                                                                         icon={CircleDollarSign}
                                                                         tint="bg-blue-50 text-blue-600"
@@ -928,8 +1270,7 @@ function periodStart(period: string) {
     return d;
 }
 
-function inPeriod(date: Date, period: string) {
-    const start = periodStart(period);
+function periodEnd(period: string) {
     const end = new Date();
     end.setHours(23, 59, 59, 999);
     if (period === 'Yesterday') {
@@ -941,7 +1282,18 @@ function inPeriod(date: Date, period: string) {
     if (period === 'Last year') {
         end.setFullYear(end.getFullYear() - 1, 11, 31);
     }
-    return date >= start && date <= end;
+    return end;
+}
+
+function inPeriod(date: Date, period: string) {
+    if (period === 'All time') return true;
+    return date >= periodStart(period) && date <= periodEnd(period);
+}
+
+function inRange(date: Date, range: Range) {
+    if (range.preset !== CUSTOM) return inPeriod(date, range.preset);
+    if (range.from && date < startOfDay(dayFrom(range.from))) return false;
+    return !(range.to && date > endOfDay(dayFrom(range.to)));
 }
 
 // Nothing re-renders on its own at midnight, so a desk left open overnight would keep
@@ -957,6 +1309,60 @@ function useDayTick() {
         return () => clearInterval(id);
     }, []);
     return day;
+}
+
+// The desk is a tablet held one-handed at the forecourt, where the hamburger sits in the far
+// top-left corner — the one place a thumb cannot reach without regripping. So the drawer also
+// answers a swipe in from the left edge, and a swipe back anywhere closes it.
+const EDGE_ZONE = 28;   // px from the left edge that starts an opening swipe
+const SWIPE_MIN = 55;   // px of travel before it counts as a swipe rather than a tap that moved
+
+function useDrawerSwipe(open: boolean, setOpen: (v: boolean) => void) {
+    useEffect(() => {
+        let startX = 0, startY = 0, tracking = false;
+        const start = (e: TouchEvent) => {
+            const touch = e.touches[0];
+            tracking = e.touches.length === 1
+                // Above md the sidebar is permanent, not a drawer — there is nothing to open.
+                && window.matchMedia('(max-width: 767px)').matches
+                // A modal owns the screen while it is up; a swipe across it is not aimed here.
+                && !(e.target instanceof Element && e.target.closest('[data-modal]'))
+                // Open from the edge only, so a swipe across a table is still a swipe across a
+                // table. Closing works from anywhere, since the open drawer covers the screen.
+                && (open || touch.clientX <= EDGE_ZONE);
+            startX = touch.clientX;
+            startY = touch.clientY;
+        };
+        const move = (e: TouchEvent) => {
+            if (!tracking) return;
+            const touch = e.touches[0], dx = touch.clientX - startX, dy = touch.clientY - startY;
+            // A mostly-vertical drag is the page being scrolled. Concede it rather than
+            // stealing the gesture half way down a long list of sales.
+            if (Math.abs(dy) > Math.abs(dx)) {
+                tracking = false;
+                return;
+            }
+            if (Math.abs(dx) < SWIPE_MIN) return;
+            tracking = false;
+            setOpen(dx > 0);
+        };
+        const end = () => {
+            tracking = false;
+        };
+        // Passive throughout: the drawer slides via a CSS transform, so nothing here needs to
+        // preventDefault, and a non-passive touchmove would cost scroll performance everywhere.
+        const opts = {passive: true} as const;
+        document.addEventListener('touchstart', start, opts);
+        document.addEventListener('touchmove', move, opts);
+        document.addEventListener('touchend', end, opts);
+        document.addEventListener('touchcancel', end, opts);
+        return () => {
+            document.removeEventListener('touchstart', start);
+            document.removeEventListener('touchmove', move);
+            document.removeEventListener('touchend', end);
+            document.removeEventListener('touchcancel', end);
+        };
+    }, [open, setOpen]);
 }
 
 type Pager = { page: number; pages: number; total: number; size: number; setPage: (p: number) => void };
@@ -977,6 +1383,39 @@ function usePage<T>(items: T[], resetKey?: unknown, size = 10): Pager & { slice:
         size,
         setPage
     };
+}
+
+// One control behind every date filter on the desk. The presets answer "how are we doing",
+// the custom pair answers "what happened on the 14th" — which is the question someone has
+// when a customer disputes a wash, and no fixed preset ever lands on it.
+function PeriodFilter({range, setRange, label = 'Date range'}: {
+    range: Range;
+    setRange: (r: Range) => void;
+    label?: string
+}) {
+    const today = isoDay(new Date());
+    // Switching to Custom seeds the pair from the preset you were on, so leaving "Last 7 days"
+    // starts you on those seven days with an end to nudge, rather than on a blank pair that
+    // shows everything until both halves are filled in.
+    const pick = (preset: string) => setRange(preset !== CUSTOM || range.preset === 'All time' ? rangeOf(preset) : {
+        preset,
+        from: isoDay(periodStart(range.preset)),
+        to: isoDay(periodEnd(range.preset))
+    });
+    const field = 'rounded-xl border-slate-200 text-sm';
+    return <div className="flex flex-wrap items-center gap-2">
+        <select aria-label={label} value={range.preset} onChange={e => pick(e.target.value)} className={field}>
+            {PERIODS.map(p => <option key={p}>{p}</option>)}
+            <option value={CUSTOM}>{CUSTOM}…</option>
+        </select>
+        {range.preset === CUSTOM && <>
+            <input type="date" aria-label="From date" value={range.from} max={range.to || today}
+                   onChange={e => setRange({...range, from: e.target.value})} className={field}/>
+            <span className="text-sm text-slate-400">to</span>
+            <input type="date" aria-label="To date" value={range.to} min={range.from} max={today}
+                   onChange={e => setRange({...range, to: e.target.value})} className={field}/>
+        </>}
+    </div>;
 }
 
 function Pagination({page, pages, total, size, setPage, className = 'border-t border-slate-100 px-5 py-4'}: Pager & {
@@ -1011,7 +1450,10 @@ function Stat({title, value, icon: Icon, tint, note}: {
 }
 
 function Modal({title, close, children}: { title: string; close: () => void; children: React.ReactNode }) {
-    return <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/40 p-4">
+    // data-modal marks the layer for useDrawerSwipe, which ignores gestures that start inside
+    // it — a swipe across an open form is not a request to open the sidebar behind it.
+    return <div data-modal role="dialog" aria-modal="true" aria-label={title}
+                className="fixed inset-0 z-50 grid place-items-center bg-slate-900/40 p-4">
         <section className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
             <div className="mb-6 flex items-center justify-between"><h2 className="text-lg font-bold">{title}</h2>
                 <button type="button" onClick={close}><X size={20}/></button>

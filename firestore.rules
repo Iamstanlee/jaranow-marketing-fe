@@ -15,13 +15,21 @@ service cloud.firestore {
     }
 
     // Sales ledger — one document per recorded wash.
+    //
+    // Deletes are allowed: a wash recorded against the wrong customer, or recorded twice
+    // because the tablet looked like it had not saved, has to come off the day's takings
+    // rather than be carried as a correction nobody can interpret. The desk restricts the
+    // action to the admin PIN and reverses the loyalty point on the way out; that gate is
+    // client-side, so anyone who can reach the collection at all can delete from it. If the
+    // books ever need to be tamper-evident, this is the line to close, and the app needs a
+    // voided flag instead.
     match /car_wash_sales/{saleId} {
-      allow read, create, update: if signedIn();
-      // Records are corrected, not deleted, so the day's takings stay auditable.
-      allow delete: if false;
+      allow read, create, update, delete: if signedIn();
     }
 
     // Loyalty members — created on first sale, points updated on each subsequent one.
+    // Never deleted: a member's row is what the printed card number resolves to, and
+    // removing it orphans a card that is already in a customer's wallet.
     match /car_wash_loyalty/{memberId} {
       allow read, create, update: if signedIn();
       allow delete: if false;
@@ -29,8 +37,7 @@ service cloud.firestore {
 
     // Expenses ledger.
     match /car_wash_expenses/{expenseId} {
-      allow read, create, update: if signedIn();
-      allow delete: if false;
+      allow read, create, update, delete: if signedIn();
     }
 
     // Deny everything else outright.

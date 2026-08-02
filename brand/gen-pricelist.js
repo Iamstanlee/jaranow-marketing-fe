@@ -88,7 +88,7 @@ const LISTS = [
                         price: 3000,
                     },
                     {
-                        name: "Vacuum wash",
+                        name: "Deep/Vacuum wash",
                         note: "Exterior wash · interior vacuumed",
                         price: 4000,
                     },

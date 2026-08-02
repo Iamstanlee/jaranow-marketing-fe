@@ -6,8 +6,16 @@
    THIS IS A MOCKUP, NOT PRINT ARTWORK. It exists to approve placement and
    colourway. The garment is drawn geometry with soft shading - the shading is on
    the *cloth*, never on the mark, which stays flat per BRAND-STANDARD 4.2. Send a
-   printer the lockup SVGs plus the placement figures in the captions, not these
-   PNGs.
+   printer the SVGs plus the placement figures in the captions, not these PNGs:
+
+     front  jaranow-carwash-by-jaranow-<way>.svg
+     back   jaranow-carwash-address-<way>.svg
+
+   Both prints are whole SVGs, inlined here as-is. The back carries its address
+   INSIDE the artwork (drawn, not typed), so what the printer sets up is exactly
+   what this sheet shows. Do not re-add the address as text beside the mark - a
+   caption in a mockup is not something a printer can reproduce, and the two
+   drift the moment the address changes.
 
    Scale is honest: the tee is drawn at a size L (530mm pit to pit), so the print
    widths below are real millimetres and the mark's size on the body is what you
@@ -58,7 +66,6 @@ const GARMENTS = {
     lift: "#1B2740",
     rib: "#0A1020",
     mark: "white",
-    sub: "rgba(242,245,251,.62)",
   },
   paper: {
     base: PAPER,
@@ -68,7 +75,6 @@ const GARMENTS = {
     lift: "#FBFCFE",
     rib: "#E4E9F4",
     mark: "duo",
-    sub: "rgba(14,21,38,.52)",
   },
 };
 
@@ -181,11 +187,9 @@ const CSS = `
   /* Left chest sits on the VIEWER'S right - a front view shows the wearer
      mirrored. Top edges are ~85mm below the shoulder, the usual placement. */
   .chest{top:25%; left:63%; transform:translateX(-50%)}
-  .back{top:23%; left:50%; transform:translateX(-50%); text-align:center}
-  .back .line{
-    font-size:${mm(7)}px; font-weight:500; letter-spacing:.3em; text-transform:uppercase;
-    color:var(--sub); margin-top:${mm(9)}px;
-  }
+  /* The back print is a single piece of artwork - lockup, rule and address are
+     all inside the one SVG, so there is nothing to position beside it. */
+  .back{top:21%; left:50%; transform:translateX(-50%)}
 
   .cap{
     margin-top:34px; text-align:center;
@@ -205,13 +209,13 @@ const SHEETS = Object.entries(GARMENTS).map(([name, g]) => {
 
   return {
     file: `mockup-carwash-tee-${name}`,
-    vars: `--fg:${fg};--muted:${muted};--dot:${dot};--sub:${g.sub};background:${ground};color:${fg}`,
+    vars: `--fg:${fg};--muted:${muted};--dot:${dot};background:${ground};color:${fg}`,
     title: `Carwash by Jaranow — crew tee`,
     kicker: `${name} cloth · ${g.mark} mark`,
     front: tee(g, `F${name}`, 46),
     back: tee(g, `B${name}`, 22),
     chestMark: mark(`jaranow-carwash-by-jaranow-${g.mark}`, mm(CHEST_PRINT_MM)),
-    backMark: mark(`jaranow-carwash-by-jaranow-${g.mark}`, mm(BACK_PRINT_MM)),
+    backMark: mark(`jaranow-carwash-address-${g.mark}`, mm(BACK_PRINT_MM)),
   };
 });
 
@@ -237,10 +241,7 @@ for (const s of SHEETS) {
   <div class="view">
     <div class="frame">
       ${s.back}
-      <div class="print back">
-        ${s.backMark}
-        <div class="line">6th Avenue · Gwarinpa</div>
-      </div>
+      <div class="print back">${s.backMark}</div>
     </div>
     <div class="cap">Back · across shoulders <b>${BACK_PRINT_MM}mm</b></div>
   </div>

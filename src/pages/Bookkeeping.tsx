@@ -14,6 +14,7 @@ import {
 } from 'firebase/firestore';
 import {
     BarChart3,
+    Car,
     CheckCircle2,
     ChevronLeft,
     ChevronRight,
@@ -114,6 +115,12 @@ const codeFor = (member: Loyalty, index: number) => member.code || `LOY-${String
 // rather than "empty range" — half a pair is what you have while you are still typing.
 const CUSTOM = 'Custom range';
 const PERIODS = ['All time', 'Today', 'Yesterday', 'Last 3 days', 'Last 7 days', 'This week', 'This month', 'Last month', 'Last 3 months', 'Last 6 months', '1 year', 'Last year'];
+// Staff work a shift, not the books. They need the day they are on and the one before it —
+// enough to settle "you charged me twice yesterday" — and nothing further back, so a tablet
+// left open at the forecourt is not a window onto months of takings. Admin keeps the full set
+// and the custom pair; staff get neither.
+const STAFF_PERIODS = ['Today', 'Yesterday'];
+const periodsFor = (role: Role) => role === 'staff' ? STAFF_PERIODS : PERIODS;
 type Range = { preset: string; from: string; to: string };
 const rangeOf = (preset: string): Range => ({preset, from: '', to: ''});
 // Local yyyy-mm-dd. toISOString() would be UTC, so any desk east of Greenwich labels
@@ -282,12 +289,22 @@ export default function Bookkeeping() {
         clearSession();
         setSession(null);
         setPin('');
-        toast('Books locked.', 'info');
+        toast('Book locked.', 'info');
     };
     // Seed records are strictly for local demo mode. A Firebase-backed business starts empty
     // and is populated only by its Firestore collections.
     const [section, setSection] = useState<Section>('overview'), [sales, setSales] = useState<Sale[]>(firebaseEnabled ? [] : seedSales), [loyalty, setLoyalty] = useState<Loyalty[]>(firebaseEnabled ? [] : seedLoyalty), [expenseRecords, setExpenseRecords] = useState<Expense[]>(firebaseEnabled ? [] : seedExpenses);
     const [saleModal, setSaleModal] = useState(false), [expenseModal, setExpenseModal] = useState(false), [menuOpen, setMenuOpen] = useState(false), [syncError, setSyncError] = useState('');
+    // Until the first snapshot lands every collection is an empty array, which renders as a
+    // business that took nothing today rather than as one still loading — and on a forecourt
+    // tablet on mobile data that window is seconds long, exactly when someone is checking a
+    // figure. Tracked per collection because each has its own listener; a section waits only
+    // on what it actually reads. Demo mode has its seed data up front and never waits.
+    const [ready, setReady] = useState(() => ({
+        sales: !firebaseEnabled,
+        loyalty: !firebaseEnabled,
+        expenses: !firebaseEnabled
+    }));
     // Only covers arriving here by client-side navigation. What makes the app installable
     // is the manifest baked into build/__/book/index.html by scripts/prerender-meta.js —
     // by the time this effect runs the browser has already read whatever manifest the
@@ -297,7 +314,7 @@ export default function Bookkeeping() {
         const previousManifest = manifest?.getAttribute('href');
         const previousTitle = document.title;
         if (manifest) manifest.setAttribute('href', `${process.env.PUBLIC_URL}/bookkeeping-manifest.json`);
-        document.title = 'Jaranow Business Desk';
+        document.title = 'Book';
         return () => {
             if (manifest && previousManifest) manifest.setAttribute('href', previousManifest);
             document.title = previousTitle;
@@ -316,7 +333,7 @@ export default function Bookkeeping() {
                 setPin('');
                 // Says why the PIN screen is back — otherwise an expiry looks like the desk
                 // logged itself out for no reason, or like someone else locked it.
-                toast('Session expired — the books were locked.', 'warning');
+                toast('Session expired — the book was locked.', 'warning');
             }
         };
         const id = setTimeout(check, session.expires - Date.now());
@@ -331,9 +348,14 @@ export default function Bookkeeping() {
         if (!db) return;
         // Surface sync failures instead of silently wiping the tables — a transient network
         // drop should not look like an empty business. A successful sales snapshot clears it.
-        const onError = (label: string) => (e: unknown) => {
+        // A collection stops loading when its first snapshot lands *or* when its listener
+        // fails: a permission error that left the skeletons up forever would read as a desk
+        // that had hung, and hide the banner explaining what actually went wrong.
+        const done = (key: 'sales' | 'loyalty' | 'expenses') => setReady(r => r[key] ? r : {...r, [key]: true});
+        const onError = (label: 'sales' | 'loyalty' | 'expenses') => (e: unknown) => {
             console.error(`Firestore ${label} sync failed`, e);
             setSyncError('Live sync was interrupted — you may be seeing older data. Check your connection.');
+            done(label);
         };
         let active = true;
         let offSales = () => {}, offLoyalty = () => {}, offExpenses = () => {};
@@ -345,12 +367,20 @@ export default function Bookkeeping() {
             offSales = onSnapshot(query(collection(db, 'car_wash_sales'), orderBy('createdAt', 'desc')), s => {
                 setSyncError('');
                 setSales(s.docs.map(d => ({id: d.id, ...d.data()} as Sale)));
+                done('sales');
             }, onError('sales'));
-            offLoyalty = onSnapshot(collection(db, 'car_wash_loyalty'), s => setLoyalty(s.docs.map(d => ({id: d.id, ...d.data()} as Loyalty))), onError('loyalty'));
-            offExpenses = onSnapshot(query(collection(db, 'car_wash_expenses'), orderBy('createdAt', 'desc')), s => setExpenseRecords(s.docs.map(d => ({id: d.id, ...d.data()} as Expense))), onError('expenses'));
+            offLoyalty = onSnapshot(collection(db, 'car_wash_loyalty'), s => {
+                setLoyalty(s.docs.map(d => ({id: d.id, ...d.data()} as Loyalty)));
+                done('loyalty');
+            }, onError('loyalty'));
+            offExpenses = onSnapshot(query(collection(db, 'car_wash_expenses'), orderBy('createdAt', 'desc')), s => {
+                setExpenseRecords(s.docs.map(d => ({id: d.id, ...d.data()} as Expense)));
+                done('expenses');
+            }, onError('expenses'));
         }).catch(e => {
             console.error('Firebase authentication failed', e);
             setSyncError('Could not sign in to the database. Ensure Anonymous sign-in is enabled in Firebase Authentication.');
+            setReady({sales: true, loyalty: true, expenses: true});
         });
         return () => {
             active = false;
@@ -372,7 +402,7 @@ export default function Bookkeeping() {
         // the unlock says it rather than leaving it to be inferred from the sidebar.
         const unlock = (as: Role) => {
             setSession(writeSession(as));
-            toast(`Books unlocked — ${as} access.`);
+            toast(`Book unlocked — ${as} access.`);
         };
         if (pin === process.env.REACT_APP_ADMIN_PIN && pin) unlock('admin'); else if (pin === process.env.REACT_APP_STAFF_PIN && pin) unlock('staff'); else setPinError(process.env.REACT_APP_ADMIN_PIN ? 'Incorrect PIN. Please try again.' : 'Set REACT_APP_ADMIN_PIN and REACT_APP_STAFF_PIN in .env first.');
     };
@@ -518,7 +548,7 @@ export default function Bookkeeping() {
                 className="text-sm font-semibold">Jaranow Car Wash</p><p
                 className="mt-1 text-xs capitalize text-slate-400">{role} access</p>
                 <button onClick={lock}
-                        className="mt-4 flex items-center gap-2 text-xs text-slate-300"><LogOut size={14}/> Lock books
+                        className="mt-4 flex items-center gap-2 text-xs text-slate-300"><LogOut size={14}/> Lock book
                 </button>
             </div>
         </aside>
@@ -538,17 +568,25 @@ export default function Bookkeeping() {
             {/* Deleting takings is the one action on the desk that destroys a figure rather
                 than adding one, so it follows the same line reports do: admin only. Staff
                 correct a wrong sale by editing it. */}
+            {/* Each section waits on the collections it actually reads, so the loyalty listener
+                being slow does not hold up the sales ledger. */}
             <div className="mx-auto max-w-7xl p-5 md:p-9">{section === 'overview' &&
                 <Overview totals={totals} sales={todaySales} expenses={todayExpenses}
+                          loading={!ready.sales || !ready.expenses}
                           onSale={() => setSaleModal(true)}
                           onChange={setSection}/>} {section === 'sales' &&
-                <Sales sales={sales} onSale={() => setSaleModal(true)} onUpdate={updateSale}
+                <Sales sales={sales} role={role} loading={!ready.sales} onSale={() => setSaleModal(true)}
+                       onUpdate={updateSale}
                        onDelete={role === 'admin' ? removeSale : undefined}/>} {section === 'loyalty' &&
-                <LoyaltySection members={loyalty}/>} {section === 'expenses' &&
-                <Expenses records={expenseRecords} onAdd={() => setExpenseModal(true)} onUpdate={updateExpense}
+                <LoyaltySection members={loyalty} loading={!ready.loyalty}/>} {section === 'expenses' &&
+                <Expenses records={expenseRecords} role={role} loading={!ready.expenses}
+                          onAdd={() => setExpenseModal(true)}
+                          onUpdate={updateExpense}
                           onDelete={role === 'admin' ? removeExpense : undefined}/>} {section === 'eod' &&
-                <Eod totals={totals} expenses={expenseRecords}/>} {section === 'reports' && role === 'admin' &&
-                <Reports sales={sales} loyalty={loyalty} expenses={expenseRecords}/>}</div>
+                <Eod totals={totals} expenses={expenseRecords}
+                     loading={!ready.sales || !ready.expenses}/>} {section === 'reports' && role === 'admin' &&
+                <Reports sales={sales} loyalty={loyalty} expenses={expenseRecords}
+                         loading={!ready.sales || !ready.loyalty || !ready.expenses}/>}</div>
         </main>
         {saleModal && <SaleModal members={loyalty} close={() => setSaleModal(false)} save={addSale}/>} {expenseModal &&
         <ExpenseModal close={() => setExpenseModal(false)} save={addExpense}/>}<Toasts toasts={toasts}
@@ -564,7 +602,7 @@ function PinGate({pin, setPin, error, login}: {
     return <main className="grid min-h-screen place-items-center bg-slate-950 p-5">
         <form onSubmit={login} className="w-full max-w-sm rounded-3xl bg-white p-8 shadow-2xl">
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-blue-600 text-white"><ShieldCheck/></div>
-            <h1 className="mt-6 text-2xl font-bold">Unlock the books</h1><p
+            <h1 className="mt-6 text-2xl font-bold">Unlock the book</h1><p
             className="mt-2 text-sm leading-6 text-slate-500">Enter your Admin or Staff PIN to access Jaranow Business
             Desk.</p><input autoFocus required inputMode="numeric" type="password" value={pin}
                             onChange={e => setPin(e.target.value)} placeholder="Enter PIN"
@@ -802,10 +840,11 @@ function RowActions({label, onEdit, onDelete}: { label: string; onEdit: () => vo
     </span>;
 }
 
-function Overview({totals, sales, expenses, onSale, onChange}: {
+function Overview({totals, sales, expenses, loading, onSale, onChange}: {
     totals: ReturnType<typeof totalSales>;
     sales: Sale[];
     expenses: Expense[];
+    loading: boolean;
     onSale: () => void;
     onChange: (s: Section) => void
 }) {
@@ -827,11 +866,15 @@ function Overview({totals, sales, expenses, onSale, onChange}: {
                                                                         value={money(totals.revenue)}
                                                                         icon={PiggyBank}
                                                                         tint="bg-blue-50 text-blue-600"
-                                                                        note={`${totals.count} transactions`}/><Stat
+                                                                        note={`${totals.count} transactions`}
+                                                                        loading={loading}/><Stat
             title="Today's expenses" value={money(spent)} icon={WalletCards} tint="bg-rose-50 text-rose-600"
-            note={`${expenses.length} recorded today`}/><Stat title="Cash received" value={money(totals.cash)}
-                                                              icon={BarChart3} tint="bg-amber-50 text-amber-600"
-                                                              note="Ready to reconcile"/></div>
+            note={`${expenses.length} recorded today`} loading={loading}/><Stat title="Cash received"
+                                                                               value={money(totals.cash)}
+                                                                               icon={BarChart3}
+                                                                               tint="bg-amber-50 text-amber-600"
+                                                                               note="Ready to reconcile"
+                                                                               loading={loading}/></div>
         <section className="mt-7 rounded-2xl border border-slate-200 bg-white">
             <div className="flex items-center justify-between p-5">
                 <div><h2 className="font-bold">Recent sales</h2><p className="text-xs text-slate-400">Today’s records</p>
@@ -840,19 +883,22 @@ function Overview({totals, sales, expenses, onSale, onChange}: {
                 </button>
             </div>
             {/* Today only, like the figures above it. "View all" is the way to earlier days. */}
-            <SalesTable sales={sales.slice(0, 5)} empty="No sales recorded today."/></section>
+            <SalesTable sales={sales.slice(0, 5)} empty="No sales recorded today." loading={loading}/></section>
     </>
 }
 
-function Sales({sales, onSale, onUpdate, onDelete}: {
+function Sales({sales, role, loading, onSale, onUpdate, onDelete}: {
     sales: Sale[];
+    role: Role;
+    loading: boolean;
     onSale: () => void;
     onUpdate: (id: string, patch: Pick<Sale, 'service' | 'payment' | 'amount'>) => Promise<void>;
     onDelete?: (s: Sale) => Promise<void>
 }) {
     // All time by default: this is the ledger, and a section that silently hid last week's
-    // sales behind a default filter would read as records having gone missing.
-    const [range, setRange] = useState<Range>(() => rangeOf('All time'));
+    // sales behind a default filter would read as records having gone missing. Staff, who
+    // cannot filter past yesterday at all, open on today instead.
+    const [range, setRange] = useRange(role, 'All time');
     const [editing, setEditing] = useState<Sale | null>(null), [deleting, setDeleting] = useState<Sale | null>(null);
     const filtered = useMemo(() => sales.filter(s => inRange(dateOf(s), range)), [sales, range]);
     const total = filtered.reduce((sum, s) => sum + s.amount, 0);
@@ -869,12 +915,14 @@ function Sales({sales, onSale, onUpdate, onDelete}: {
         <section className="rounded-2xl border border-slate-200 bg-white">
             <div
                 className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
-                <div><h2 className="font-bold">{money(total)}</h2><p
-                    className="text-xs text-slate-400">{filtered.length} sale{filtered.length === 1 ? '' : 's'} · {rangeLabel(range)}</p>
+                <div>{loading ? <><Skeleton className="h-6 w-28"/><Skeleton className="mt-2 h-3 w-36"/></> : <><h2
+                    className="font-bold">{money(total)}</h2><p
+                    className="text-xs text-slate-400">{filtered.length} sale{filtered.length === 1 ? '' : 's'} · {rangeLabel(range)}</p></>}
                 </div>
-                <PeriodFilter range={range} setRange={setRange} label="Filter sales by date"/>
+                <PeriodFilter range={range} setRange={setRange} role={role} label="Filter sales by date"/>
             </div>
-            <SalesTable sales={slice} empty="No sales in this date range." onEdit={setEditing}
+            <SalesTable sales={slice} empty="No sales in this date range." loading={loading} rows={5}
+                        onEdit={setEditing}
                         onDelete={onDelete && setDeleting}/><Pagination {...pager}/></section>
         {editing && <EditSaleModal sale={editing} close={() => setEditing(null)} save={onUpdate}/>}
         {deleting && onDelete && <ConfirmDelete title="Delete this sale?"
@@ -893,12 +941,17 @@ function Reward({sale}: { sale: Sale }) {
 // Phones get one card per record. Five columns cannot be read on a 390px screen, and the
 // sideways scroll the table used to need hides the amount — the one figure that matters.
 // The table returns at lg, where the 64-wide sidebar still leaves it room.
-function SalesTable({sales, empty = 'No sales recorded yet.', onEdit, onDelete}: {
+function SalesTable({sales, empty = 'No sales recorded yet.', loading = false, rows = 3, onEdit, onDelete}: {
     sales: Sale[];
     empty?: string;
+    loading?: boolean;
+    rows?: number;
     onEdit?: (s: Sale) => void;
     onDelete?: (s: Sale) => void
 }) {
+    // Loading is checked before emptiness, because an unloaded ledger and an empty one look
+    // identical from here and only one of them should say "no sales recorded".
+    if (loading) return <SalesTableSkeleton rows={rows} actions={Boolean(onEdit)}/>;
     if (!sales.length) return <p className="px-5 py-10 text-center text-sm text-slate-400">{empty}</p>;
     return <>
         <ul className="divide-y divide-slate-100 lg:hidden">{sales.map(s => <li key={s.id} className="px-5 py-4">
@@ -913,17 +966,7 @@ function SalesTable({sales, empty = 'No sales recorded yet.', onEdit, onDelete}:
             </div>
         </li>)}</ul>
         <table className="hidden w-full text-left text-sm lg:table">
-            <thead className="border-y border-slate-100 bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
-            <tr>
-                <th className="px-5 py-3">Date</th>
-                <th className="px-5 py-3">Loyalty code</th>
-                <th className="px-5 py-3">Service</th>
-                <th className="px-5 py-3">Payment</th>
-                <th className="px-5 py-3">Reward</th>
-                <th className="px-5 py-3 text-right">Amount</th>
-                {onEdit && <th className="px-5 py-3 text-right"><span className="sr-only">Actions</span></th>}
-            </tr>
-            </thead>
+            <SalesHead actions={Boolean(onEdit)}/>
             {/* Time under the day rather than in its own column: it is what tells two otherwise
                 identical washes apart, and it is only ever read alongside the date. */}
             <tbody>{sales.map(s => <tr key={s.id} className="border-b border-slate-100 last:border-0">
@@ -943,7 +986,48 @@ function SalesTable({sales, empty = 'No sales recorded yet.', onEdit, onDelete}:
     </>
 }
 
-function LoyaltySection({members}: { members: Loyalty[] }) {
+// Shared so the loading table and the loaded one cannot drift apart a column.
+function SalesHead({actions}: { actions: boolean }) {
+    return <thead className="border-y border-slate-100 bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
+    <tr>
+        <th className="px-5 py-3">Date</th>
+        <th className="px-5 py-3">Loyalty code</th>
+        <th className="px-5 py-3">Service</th>
+        <th className="px-5 py-3">Payment</th>
+        <th className="px-5 py-3">Reward</th>
+        <th className="px-5 py-3 text-right">Amount</th>
+        {actions && <th className="px-5 py-3 text-right"><span className="sr-only">Actions</span></th>}
+    </tr>
+    </thead>;
+}
+
+// Mirrors both halves of SalesTable — the cards below lg, the table at and above it — so the
+// layout that appears while loading is the one the records will land in.
+function SalesTableSkeleton({rows, actions}: { rows: number; actions: boolean }) {
+    const keys = Array.from({length: rows}, (_, i) => i);
+    return <div role="status" aria-busy aria-label="Loading sales">
+        <ul className="divide-y divide-slate-100 lg:hidden">{keys.map(i => <li key={i} className="px-5 py-4">
+            <div className="flex items-baseline justify-between gap-3"><Skeleton className="h-4 w-24"/><Skeleton
+                className="h-4 w-16"/></div>
+            <Skeleton className="mt-2 h-3 w-40"/>
+            <Skeleton className="mt-3 h-3 w-28"/>
+        </li>)}</ul>
+        <table className="hidden w-full text-left text-sm lg:table">
+            <SalesHead actions={actions}/>
+            <tbody>{keys.map(i => <tr key={i} className="border-b border-slate-100 last:border-0">
+                <td className="px-5 py-4"><Skeleton className="h-4 w-24"/></td>
+                <td className="px-5 py-4"><Skeleton className="h-4 w-20"/></td>
+                <td className="px-5 py-4"><Skeleton className="h-4 w-28"/></td>
+                <td className="px-5 py-4"><Skeleton className="h-4 w-16"/></td>
+                <td className="px-5 py-4"><Skeleton className="h-4 w-16"/></td>
+                <td className="px-5 py-4"><Skeleton className="ml-auto h-4 w-16"/></td>
+                {actions && <td className="px-5 py-4"><Skeleton className="ml-auto h-4 w-12"/></td>}
+            </tr>)}</tbody>
+        </table>
+    </div>;
+}
+
+function LoyaltySection({members, loading}: { members: Loyalty[]; loading: boolean }) {
     // Resolve fallback codes against the whole list before paging: codeFor() numbers by
     // position, so a page-2 slice would start counting at LOY-001 again.
     // Points are floored at 0 for display: deleting a sale whose point was already spent
@@ -955,6 +1039,19 @@ function LoyaltySection({members}: { members: Loyalty[] }) {
         points: Math.max(0, m.points)
     })), [members]);
     const {slice, ...pager} = usePage(coded, undefined, 9);
+    // Cards, not a spinner, and the same grid they will land in — the stamp row is the shape
+    // this section is recognised by, so the skeleton keeps it.
+    if (loading) return <><p className="mb-7 text-sm text-slate-500">Loyalty codes are automatically created when a sale
+        is recorded for a new customer.</p>
+        <div role="status" aria-busy aria-label="Loading loyalty customers"
+             className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{[0, 1, 2].map(i => <section key={i}
+                                                                                               className="rounded-2xl border border-slate-200 bg-white p-5">
+            <Skeleton className="h-6 w-20"/>
+            <div className="mt-5 flex gap-1">{[1, 2, 3, 4, 5].map(dot => <Skeleton key={dot} className="h-7 flex-1"/>)}</div>
+            <Skeleton className="mt-4 h-3 w-32"/>
+            <Skeleton className="mt-4 h-4 w-28"/>
+        </section>)}</div>
+    </>;
     return <><p className="mb-7 text-sm text-slate-500">Loyalty codes are automatically created when a sale is recorded
         for a new customer.</p>
         {!coded.length && <p className="rounded-2xl border border-slate-200 bg-white px-5 py-10 text-center text-sm text-slate-400">No
@@ -973,14 +1070,17 @@ function LoyaltySection({members}: { members: Loyalty[] }) {
     </>
 }
 
-function Expenses({records, onAdd, onUpdate, onDelete}: {
+function Expenses({records, role, loading, onAdd, onUpdate, onDelete}: {
     records: Expense[];
+    role: Role;
+    loading: boolean;
     onAdd: () => void;
     onUpdate: (id: string, record: Omit<Expense, 'id' | 'createdAt'>) => Promise<void>;
     onDelete?: (record: Expense) => Promise<void>
 }) {
-    // All time by default, for the same reason the sales ledger is — see Sales.
-    const [range, setRange] = useState<Range>(() => rangeOf('All time'));
+    // All time by default, for the same reason the sales ledger is — see Sales. Staff open on
+    // today, again for the same reason.
+    const [range, setRange] = useRange(role, 'All time');
     const [editing, setEditing] = useState<Expense | null>(null),
         [deleting, setDeleting] = useState<Expense | null>(null);
     const filtered = useMemo(() => records.filter(x => inRange(dateOf(x), range)), [records, range]);
@@ -999,12 +1099,18 @@ function Expenses({records, onAdd, onUpdate, onDelete}: {
         <section className="rounded-2xl border border-slate-200 bg-white">
             <div
                 className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
-                <div><h2 className="font-bold">{money(total)}</h2><p
-                    className="text-xs text-slate-400">{filtered.length} expense{filtered.length === 1 ? '' : 's'} · {rangeLabel(range)}</p>
+                <div>{loading ? <><Skeleton className="h-6 w-28"/><Skeleton className="mt-2 h-3 w-36"/></> : <><h2
+                    className="font-bold">{money(total)}</h2><p
+                    className="text-xs text-slate-400">{filtered.length} expense{filtered.length === 1 ? '' : 's'} · {rangeLabel(range)}</p></>}
                 </div>
-                <PeriodFilter range={range} setRange={setRange} label="Filter expenses by date"/>
+                <PeriodFilter range={range} setRange={setRange} role={role} label="Filter expenses by date"/>
             </div>
-            {!filtered.length ?
+            {loading ? <ul role="status" aria-busy aria-label="Loading expenses"
+                           className="divide-y divide-slate-100">{[0, 1, 2, 3].map(i => <li key={i} className="px-5 py-4">
+                <div className="flex items-baseline justify-between gap-3"><Skeleton className="h-4 w-24"/><Skeleton
+                    className="h-4 w-16"/></div>
+                <Skeleton className="mt-2 h-3 w-40"/>
+            </li>)}</ul> : !filtered.length ?
                 <p className="px-5 py-10 text-center text-sm text-slate-400">No expenses in this date range.</p> : <>
                     <ul className="divide-y divide-slate-100 lg:hidden">{slice.map(x => <li key={x.id}
                                                                                            className="px-5 py-4">
@@ -1115,7 +1221,11 @@ function ExpenseModal({record, close, save}: {
     </Modal>
 }
 
-function Eod({totals, expenses}: { totals: ReturnType<typeof totalSales>; expenses: Expense[] }) {
+function Eod({totals, expenses, loading}: {
+    totals: ReturnType<typeof totalSales>;
+    expenses: Expense[];
+    loading: boolean
+}) {
     // Today's cash only — the sales side is already scoped to today, so netting every expense
     // ever recorded against it would understate the cash actually in the drawer.
     const cashToday = expenses.filter(x => x.payment === 'Cash' && isToday(dateOf(x)));
@@ -1152,33 +1262,51 @@ function Eod({totals, expenses}: { totals: ReturnType<typeof totalSales>; expens
                 <div><h2 className="font-bold">End-of-day reconciliation</h2><p
                     className="text-xs text-slate-400">{longDate()}</p></div>
             </div>
-            <div className="my-6 space-y-3 rounded-xl bg-slate-50 p-4 text-sm">
-                <div className="flex justify-between"><span>Transfer sales</span><b>{money(totals.transfer)}</b></div>
-                <div className="flex justify-between"><span>POS sales</span><b>{money(totals.pos)}</b></div>
-                <div className="flex justify-between"><span>Cash sales</span><b>{money(totals.cash)}</b></div>
-                <div className="flex justify-between border-t border-slate-200 pt-3 text-red-600">
-                    <span>Cash expenses</span><b>− {money(cashExpenses)}</b></div>
+            <div aria-busy={loading} className="my-6 space-y-3 rounded-xl bg-slate-50 p-4 text-sm">
+                <div className="flex items-center justify-between"><span>Transfer sales</span>{loading ?
+                    <Skeleton className="h-4 w-20"/> : <b>{money(totals.transfer)}</b>}</div>
+                <div className="flex items-center justify-between"><span>POS sales</span>{loading ?
+                    <Skeleton className="h-4 w-20"/> : <b>{money(totals.pos)}</b>}</div>
+                <div className="flex items-center justify-between"><span>Cash sales</span>{loading ?
+                    <Skeleton className="h-4 w-20"/> : <b>{money(totals.cash)}</b>}</div>
+                <div className="flex items-center justify-between border-t border-slate-200 pt-3 text-red-600">
+                    <span>Cash expenses</span>{loading ? <Skeleton className="h-4 w-20"/> :
+                    <b>− {money(cashExpenses)}</b>}</div>
             </div>
-            <div className="rounded-2xl bg-blue-600 p-5 text-white"><p
-                className="text-sm font-medium text-blue-100">Cash balance to transfer</p><p
-                className="mt-2 text-3xl font-bold">{money(balance)}</p><p
+            <div aria-busy={loading} className="rounded-2xl bg-blue-600 p-5 text-white"><p
+                className="text-sm font-medium text-blue-100">Cash balance to transfer</p>{loading ?
+                <span aria-hidden className="mt-2 block h-9 w-40 animate-pulse rounded bg-blue-500"/> : <p
+                    className="mt-2 text-3xl font-bold">{money(balance)}</p>}<p
                 className="mt-2 text-sm leading-6 text-blue-100">Transfer this cash balance to the Jaranow account after
                 expenses.</p></div>
-            <button type="button" onClick={send}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white">
-                <Forward size={17}/> Send report on WhatsApp
+            {/* Disabled until the day's records are in: the report is a cash instruction, and one
+                drafted from an unloaded day reads as ₦0 to transfer with every line at zero. */}
+            <button type="button" onClick={send} disabled={loading}
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white disabled:opacity-60">
+                <Forward size={17}/> {loading ? 'Loading today’s figures…' : 'Send report on WhatsApp'}
             </button>
         </section>
     </div>
 }
 
-function Reports({sales, loyalty, expenses}: { sales: Sale[]; loyalty: Loyalty[]; expenses: Expense[] }) {
+function Reports({sales, loyalty, expenses, loading}: {
+    sales: Sale[];
+    loyalty: Loyalty[];
+    expenses: Expense[];
+    loading: boolean
+}) {
     const [range, setRange] = useState<Range>(() => rangeOf('This month'));
     const period = rangeLabel(range);
     const filtered = useMemo(() => sales.filter(s => inRange(dateOf(s), range)), [sales, range]);
     const filteredExpenses = useMemo(() => expenses.filter(x => inRange(dateOf(x), range)), [expenses, range]);
     const totals = totalSales(filtered), points = loyalty.reduce((sum, x) => sum + Math.max(0, x.points), 0);
     const totalExpenses = filteredExpenses.reduce((sum, x) => sum + x.amount, 0), netIncome = totals.revenue - totalExpenses;
+    // Cars per *trading* day, not per calendar day: the divisor counts days that actually
+    // carry a sale. A calendar divisor would read low for the whole of a part-finished month,
+    // and lower still on "All time", where most of the range predates the books. A free wash
+    // is a car through the bay, so redemptions count here even though they add no revenue.
+    const tradingDays = useMemo(() => new Set(filtered.map(s => isoDay(dateOf(s)))).size, [filtered]);
+    const carsPerDay = tradingDays ? totals.count / tradingDays : 0;
     const {slice, ...pager} = usePage(filtered, rangeKey(range));
     return <>
         <div className="mb-7 flex flex-wrap items-center justify-between gap-3"><p
@@ -1186,18 +1314,18 @@ function Reports({sales, loyalty, expenses}: { sales: Sale[]; loyalty: Loyalty[]
                                                                                                           setRange={setRange}
                                                                                                           label="Filter report by date"/>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat title="Revenue" value={money(totals.revenue)}
-                                                                        icon={CircleDollarSign}
-                                                                        tint="bg-blue-50 text-blue-600"
-                                                                        note={`${totals.count} sales`}/><Stat
-            title="Loyalty points" value={String(points)} icon={Gift} tint="bg-violet-50 text-violet-600"
-            note="Currently held by customers"/><Stat title="Free washes" value={String(totals.redemptions)}
-                                                      icon={Sparkles} tint="bg-emerald-50 text-emerald-600"
-                                                      note="Redemptions in period"/><Stat title="Average sale"
-                                                                                          value={money(totals.count ? totals.revenue / totals.count : 0)}
-                                                                                          icon={BarChart3}
-                                                                                          tint="bg-amber-50 text-amber-600"
-                                                                                          note="Revenue per transaction"/>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            <Stat title="Revenue" value={money(totals.revenue)} icon={CircleDollarSign} tint="bg-blue-50 text-blue-600"
+                  note={`${totals.count} sales`} loading={loading}/>
+            <Stat title="Loyalty points" value={String(points)} icon={Gift} tint="bg-violet-50 text-violet-600"
+                  note="Currently held by customers" loading={loading}/>
+            <Stat title="Free washes" value={String(totals.redemptions)} icon={Sparkles}
+                  tint="bg-emerald-50 text-emerald-600" note="Redemptions in period" loading={loading}/>
+            <Stat title="Average sale" value={money(totals.count ? totals.revenue / totals.count : 0)} icon={BarChart3}
+                  tint="bg-amber-50 text-amber-600" note="Revenue per transaction" loading={loading}/>
+            <Stat title="Cars per day" value={tradingDays ? carsPerDay.toFixed(1) : '—'} icon={Car}
+                  tint="bg-sky-50 text-sky-600" loading={loading}
+                  note={tradingDays ? `Across ${tradingDays} day${tradingDays === 1 ? '' : 's'} with sales` : 'No sales in period'}/>
         </div>
         <section className="mt-7 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
             <div className="flex items-center gap-3">
@@ -1206,43 +1334,54 @@ function Reports({sales, loyalty, expenses}: { sales: Sale[]; loyalty: Loyalty[]
                 <div><h2 className="font-bold">Net income</h2><p className="text-xs text-slate-400">Revenue after
                     expenses · {period}</p></div>
             </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                <div className="rounded-xl bg-slate-50 p-4"><p className="text-sm text-slate-500">Revenue</p><p
-                    className="mt-1 text-xl font-bold">{money(totals.revenue)}</p></div>
-                <div className="rounded-xl bg-slate-50 p-4"><p className="text-sm text-slate-500">Expenses</p><p
-                    className="mt-1 text-xl font-bold text-red-600">− {money(totalExpenses)}</p></div>
-                <div className={`rounded-xl p-4 text-white ${netIncome >= 0 ? 'bg-emerald-600' : 'bg-red-600'}`}><p
-                    className="text-sm text-white/80">Net income</p><p
-                    className="mt-1 text-xl font-bold">{money(netIncome)}</p></div>
+            {/* The net card is coloured by its own sign, so while loading it stays neutral —
+                a green "profit" panel that flips red once the expenses land is worse than
+                one that says nothing yet. */}
+            <div aria-busy={loading} className="mt-6 grid gap-4 sm:grid-cols-3">
+                <div className="rounded-xl bg-slate-50 p-4"><p className="text-sm text-slate-500">Revenue</p>{loading ?
+                    <Skeleton className="mt-2 h-6 w-24"/> :
+                    <p className="mt-1 text-xl font-bold">{money(totals.revenue)}</p>}</div>
+                <div className="rounded-xl bg-slate-50 p-4"><p className="text-sm text-slate-500">Expenses</p>{loading ?
+                    <Skeleton className="mt-2 h-6 w-24"/> :
+                    <p className="mt-1 text-xl font-bold text-red-600">− {money(totalExpenses)}</p>}</div>
+                <div
+                    className={`rounded-xl p-4 ${loading ? 'bg-slate-100' : `text-white ${netIncome >= 0 ? 'bg-emerald-600' : 'bg-red-600'}`}`}>
+                    <p className={`text-sm ${loading ? 'text-slate-500' : 'text-white/80'}`}>Net income</p>{loading ?
+                    <Skeleton className="mt-2 h-6 w-24"/> :
+                    <p className="mt-1 text-xl font-bold">{money(netIncome)}</p>}</div>
             </div>
         </section>
         <div className="mt-7 grid gap-6 lg:grid-cols-2">
             <section className="rounded-2xl border border-slate-200 bg-white p-5"><h2 className="font-bold">Sales by
                 service</h2>
-                <div className="mt-6 space-y-5">{(Object.keys(SERVICES) as Service[]).map(service => {
+                {/* The service names are known before the data is, so they stay put and only
+                    the figure and its bar wait — the panel reads as itself while it fills in. */}
+                <div aria-busy={loading} className="mt-6 space-y-5">{(Object.keys(SERVICES) as Service[]).map(service => {
                     const value = filtered.filter(s => s.service === service).reduce((sum, s) => sum + s.amount, 0);
                     const width = `${Math.min(100, (value / Math.max(1, totals.revenue)) * 100)}%`;
                     return <div key={service}>
-                        <div className="mb-2 flex justify-between text-sm"><span>{service}</span><b>{money(value)}</b>
+                        <div className="mb-2 flex items-center justify-between text-sm"><span>{service}</span>{loading ?
+                            <Skeleton className="h-4 w-16"/> : <b>{money(value)}</b>}
                         </div>
                         <div className="h-2 overflow-hidden rounded bg-slate-100">
-                            <div className="h-full rounded bg-blue-600" style={{width}}/>
+                            {!loading && <div className="h-full rounded bg-blue-600" style={{width}}/>}
                         </div>
                     </div>;
                 })}</div>
             </section>
             <section className="rounded-2xl border border-slate-200 bg-white p-5"><h2 className="font-bold">Payment
                 analysis</h2>
-                <div className="mt-6 space-y-4">{['Cash', 'Transfer', 'POS'].map(method => {
+                <div aria-busy={loading} className="mt-6 space-y-4">{['Cash', 'Transfer', 'POS'].map(method => {
                     const value = filtered.filter(s => s.payment === method).reduce((sum, s) => sum + s.amount, 0);
                     return <div key={method} className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
-                        <span>{method}</span><b>{money(value)}</b></div>;
+                        <span>{method}</span>{loading ? <Skeleton className="h-4 w-20"/> : <b>{money(value)}</b>}</div>;
                 })}</div>
             </section>
         </div>
         <section className="mt-7 rounded-2xl border border-slate-200 bg-white">
             <div className="p-5"><h2 className="font-bold">Sales in selected period</h2></div>
-            <SalesTable sales={slice} empty="No sales recorded in this period."/><Pagination {...pager}/></section>
+            <SalesTable sales={slice} empty="No sales recorded in this period." loading={loading}
+                        rows={5}/><Pagination {...pager}/></section>
     </>;
 }
 
@@ -1385,15 +1524,31 @@ function usePage<T>(items: T[], resetKey?: unknown, size = 10): Pager & { slice:
     };
 }
 
+// The range a section is filtering by, held so it can never leave what the role may see.
+// PeriodFilter already only offers the allowed presets, but the clamp belongs on the state
+// too — a picker is a suggestion, and a section whose range could hold 'All time' for staff
+// is one stray setRange away from showing the whole ledger. `preferred` is the section's own
+// default, used when the role is allowed it and otherwise falling back to the widest range
+// that role has (Today).
+function useRange(role: Role, preferred: string) {
+    const allowed = periodsFor(role);
+    const [range, setRange] = useState<Range>(() => rangeOf(allowed.includes(preferred) ? preferred : allowed[0]));
+    return [range, (next: Range) => {
+        if (allowed.includes(next.preset)) setRange(next);
+    }] as const;
+}
+
 // One control behind every date filter on the desk. The presets answer "how are we doing",
 // the custom pair answers "what happened on the 14th" — which is the question someone has
 // when a customer disputes a wash, and no fixed preset ever lands on it.
-function PeriodFilter({range, setRange, label = 'Date range'}: {
+function PeriodFilter({range, setRange, role = 'admin', label = 'Date range'}: {
     range: Range;
     setRange: (r: Range) => void;
+    role?: Role;
     label?: string
 }) {
     const today = isoDay(new Date());
+    const periods = periodsFor(role);
     // Switching to Custom seeds the pair from the preset you were on, so leaving "Last 7 days"
     // starts you on those seven days with an end to nudge, rather than on a blank pair that
     // shows everything until both halves are filled in.
@@ -1405,8 +1560,8 @@ function PeriodFilter({range, setRange, label = 'Date range'}: {
     const field = 'rounded-xl border-slate-200 text-sm';
     return <div className="flex flex-wrap items-center gap-2">
         <select aria-label={label} value={range.preset} onChange={e => pick(e.target.value)} className={field}>
-            {PERIODS.map(p => <option key={p}>{p}</option>)}
-            <option value={CUSTOM}>{CUSTOM}…</option>
+            {periods.map(p => <option key={p}>{p}</option>)}
+            {role === 'admin' && <option value={CUSTOM}>{CUSTOM}…</option>}
         </select>
         {range.preset === CUSTOM && <>
             <input type="date" aria-label="From date" value={range.from} max={range.to || today}
@@ -1434,19 +1589,31 @@ function Pagination({page, pages, total, size, setPage, className = 'border-t bo
     </div>
 }
 
-function Stat({title, value, icon: Icon, tint, note}: {
+// A bar standing in for a figure that has not arrived yet. Sized by the caller so it occupies
+// roughly the space its content will, and the screen does not jump when the snapshot lands.
+// Always aria-hidden: the surrounding region carries aria-busy, and a screen reader reading
+// out a row of empty boxes is worse than it reading nothing.
+function Skeleton({className = ''}: { className?: string }) {
+    return <span aria-hidden className={`block animate-pulse rounded bg-slate-200 ${className}`}/>;
+}
+
+function Stat({title, value, icon: Icon, tint, note, loading = false}: {
     title: string;
     value: string;
     icon: typeof CircleDollarSign;
     tint: string;
-    note: string
+    note: string;
+    loading?: boolean
 }) {
-    return <section className="rounded-2xl border border-slate-200 bg-white p-5">
+    // The title and the icon stay: they say what the card will hold, so the row reads as
+    // itself while it fills in rather than as three anonymous grey boxes.
+    return <section aria-busy={loading} className="rounded-2xl border border-slate-200 bg-white p-5">
         <div className="flex items-start justify-between"><p className="text-sm font-medium text-slate-500">{title}</p>
             <div className={`grid h-9 w-9 place-items-center rounded-xl ${tint}`}><Icon size={19}/></div>
         </div>
-        <p className="mt-5 text-2xl font-bold tracking-tight">{value}</p><p
-        className="mt-1 text-xs text-slate-400">{note}</p></section>
+        {loading ? <><Skeleton className="mt-5 h-8 w-28"/><Skeleton className="mt-2 h-3 w-20"/></> : <>
+            <p className="mt-5 text-2xl font-bold tracking-tight">{value}</p><p
+            className="mt-1 text-xs text-slate-400">{note}</p></>}</section>
 }
 
 function Modal({title, close, children}: { title: string; close: () => void; children: React.ReactNode }) {

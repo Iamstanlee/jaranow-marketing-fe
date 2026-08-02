@@ -24,6 +24,21 @@ fs.mkdirSync(path.join(OUT, "svg"), { recursive: true });
 
 const M = { sw: 14, gap: 12, cap: "round", join: "round", base: 100, asc: 16 };
 
+/* ---- the letterforms ----
+   Monoline, drawn on a 100-unit baseline: x-height top 46, baseline 100,
+   ascender 16, descender ~131. Stroke is 14 wide and coordinates are stroke
+   CENTRES, so a stem at x=7 has its outer edge on 0 and a 54-wide glyph runs
+   7..47. Curves are radius 14 throughout - that single radius is what makes the
+   face read as one soft-square system.
+
+   One inherited quirk to preserve, not "fix": straight stems terminate at
+   centre y=100 and their round caps overhang to 107, while curved bottoms stop
+   at centre 93 (outer 100). The wordmark ships that way, so new glyphs match it
+   - `a` has both, and its stem already sits 7 below its own bowl.
+
+   `w` is the advance (ink width, since ink starts at 0); `top`/`bot` are centre
+   coords used for bounds. `f` is filled geometry (tittles, the middle dot),
+   drawn without a stroke. A glyph with neither `d` nor `f` is advance only. */
 const G = {
   j:{w:28,top:23,bot:129, d:"M21 53 V108 A14 14 0 0 1 7 122", f:"M14 23 H28 V37 H14 Z"},
   a:{w:54,top:46,bot:100, d:"M47 53 V100 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"},
@@ -39,7 +54,31 @@ const G = {
   y:{w:54,top:46,bot:131, d:"M7 53 L27 96 M47 53 L17 124"},
   l:{w:14,top:16,bot:100, d:"M7 16 V100"},
   b:{w:54,top:16,bot:100, d:"M7 16 V100 M7 67 A14 14 0 0 1 21 53 H33 A14 14 0 0 1 47 67 V79 A14 14 0 0 1 33 93 H21 A14 14 0 0 1 7 79"},
-  e:{w:54,top:46,bot:100, d:"M7 73 H47 M47 73 V67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 46 84"}
+  e:{w:54,top:46,bot:100, d:"M7 73 H47 M47 73 V67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 46 84"},
+
+  /* Added for the address block (§ addressLockup). The wordmark and the two
+     service names never needed these, so the set was `jaranow`+`carwash`+
+     `laundry` and nothing else. Same construction rules as above - if you add
+     more, draw them here rather than reaching for a font. */
+  /* Stem sits at 14, not 7, to leave the crossbar its 7-unit overhang on the
+     left; the foot turns right on the shared 14 radius, like `u`. */
+  t:{w:35,top:30,bot:100, d:"M14 30 V79 A14 14 0 0 0 28 93 M7 53 H28"},
+  /* Half a `w` - same apex depth, so the two sit together in `avenue`. */
+  v:{w:54,top:46,bot:100, d:"M7 53 L27 100 L47 53"},
+  /* Stem plus a 14x14 tittle, exactly the square `j` carries. */
+  i:{w:14,top:23,bot:100, d:"M7 53 V100", f:"M0 23 H14 V37 H0 Z"},
+  /* `b`'s bowl on a stem that descends instead of rising. */
+  p:{w:54,top:46,bot:131, d:"M7 53 V124 M7 67 A14 14 0 0 1 21 53 H33 A14 14 0 0 1 47 67 V79 A14 14 0 0 1 33 93 H21 A14 14 0 0 1 7 79"},
+  /* Single-storey: `a`'s bowl, with the stem carrying `j`'s tail. */
+  g:{w:54,top:46,bot:131, d:"M47 53 V110 A14 14 0 0 1 33 124 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"},
+  /* `o`'s bowl with an arm rising off its left to the ascender and turning. */
+  "6":{w:54,top:16,bot:100, d:"M7 67 A14 14 0 0 1 21 53 H33 A14 14 0 0 1 47 67 V79 A14 14 0 0 1 33 93 H21 A14 14 0 0 1 7 79 Z M7 72 V30 A14 14 0 0 1 21 16 H30"},
+  /* Separator, centred on the x-height. Square, like the tittles - a round dot
+     would be the only circle in the face. */
+  "·":{w:14,top:66,bot:80, f:"M0 66 H14 V80 H0 Z"},
+  /* Advance only. Word spaces are otherwise invisible to setWord, which skips
+     anything it has no geometry for. */
+  " ":{w:20}
 };
 
 const SYM_VB = [16, 8, 68, 84];
@@ -47,18 +86,24 @@ const SYM_D = `<path fill-rule="evenodd" fill="COLOR" stroke="none" d="M50 8 L81
 
 const R = (n) => Number(n.toFixed(2));
 
+/* `n` is the number of advancing glyphs, including spaces - the address line
+   solves for its own tracking from it, so it has to count what actually moved
+   the pen, not what drew ink. */
 function setWord(text, track = 0, colour) {
-  let x = 0, parts = [], top = Infinity, bot = -Infinity;
+  let x = 0, n = 0, parts = [], top = Infinity, bot = -Infinity;
   for (const ch of text) {
     const g = G[ch];
     if (!g) continue;
-    let inner = `<path d="${g.d}"/>`;
-    if (g.f) inner += `<path d="${g.f}" fill="${colour}" stroke="none"/>`;
-    parts.push(`<g transform="translate(${x},0)">${inner}</g>`);
-    top = Math.min(top, g.top); bot = Math.max(bot, g.bot);
+    if (g.d || g.f) {
+      let inner = g.d ? `<path d="${g.d}"/>` : "";
+      if (g.f) inner += `<path d="${g.f}" fill="${colour}" stroke="none"/>`;
+      parts.push(`<g transform="translate(${R(x)},0)">${inner}</g>`);
+      top = Math.min(top, g.top); bot = Math.max(bot, g.bot);
+    }
     x += g.w + M.gap + track;
+    n++;
   }
-  return { body: parts.join(""), w: x - M.gap - track, top, bot };
+  return { body: parts.join(""), w: x - M.gap - track, top, bot, n };
 }
 
 function symG(x, y, box, colour) {
@@ -117,7 +162,12 @@ A["lockup-stacked"] = (c) => {
   return doc(0, 0, W, H, c.word, body, "Jaranow stacked lockup");
 };
 
-function subBrand(service, c) {
+/* The sub-brand block, without the document wrapper - the address lockup builds
+   on exactly this geometry rather than re-deriving it, so the two can never
+   drift apart. Both sub-brand lockups land on an identical 625.7 x 207 frame
+   (BRAND-STANDARD §3); that is a property of these numbers, so changing any of
+   them changes every service line at once. */
+function subBrandParts(service, c) {
   const b = setWord("jaranow", 0, c.word);
   const box = (M.base - M.asc) * 1.30;
   const wx = box + box * 0.38;
@@ -131,11 +181,69 @@ function subBrand(service, c) {
   const body = symG(0, symY, box, c.sym) +
     `<g transform="translate(${R(wx)},0)">${b.body}</g>` +
     `<g transform="translate(${R(wx)},${R(svy - M.base * s)}) scale(${s})" stroke="${c.service}">${sv.body}</g>`;
-  return doc(0, top, W, bot - top, c.word, body, `${service} by Jaranow`);
+  return { body, W, top, bot };
 }
+
+function subBrand(service, c) {
+  const p = subBrandParts(service, c);
+  return doc(0, p.top, p.W, p.bot - p.top, c.word, p.body, `${service} by Jaranow`);
+}
+
+/* ---- address lockup ----
+   The sub-brand block with a rule and a street address locked under it, for
+   garment backs, vehicle panels and anything that has to say WHERE as well as
+   WHO. It is a distinct asset, not a lockup variant: §3's frame is fixed, so
+   the address could not be added inside it.
+
+   The address is DRAWN, in the same letterforms as everything else (§2.1) - no
+   font is referenced and none is needed downstream, which is the whole point of
+   handing this file to a printer instead of a mockup.
+
+   It is tracked to sit flush with both edges of the block above it. The track
+   is solved, not chosen: change the address and the line re-justifies itself.
+   That only works while the line is short enough to need loosening - a long one
+   would need negative tracking to fit, so the generator refuses rather than
+   quietly setting a cramped line. */
+const ADDR = { rule: 216, base: 274, scale: 0.30, ruleWeight: 5, minTrack: 10 };
+
+function addressLockup(service, text, c) {
+  const p = subBrandParts(service, c);
+  const s = ADDR.scale;
+
+  /* Natural width at zero tracking, then solve for the track that fills W.
+     setWord's `track` is EXTRA space on top of the standard 12-unit gap, and
+     `flat.w` already carries those gaps - so this solves for the extra only.
+     Subtracting M.gap here again sets the line ~12% short of the rule. */
+  const flat = setWord(text, 0, c.service);
+  const track = (p.W / s - flat.w) / (flat.n - 1);
+  if (track < ADDR.minTrack) {
+    console.error(
+      `${service}: "${text}" is too long for the ${R(p.W)}-unit block ` +
+      `(needs ${R(track)} tracking, minimum ${ADDR.minTrack}). Shorten it or drop ADDR.scale.`
+    );
+    process.exit(1);
+  }
+  const a = setWord(text, track, c.service);
+
+  /* Ink bottom of the address, in block units: its descenders below baseline. */
+  const bot = ADDR.base + (a.bot - M.base) * s;
+
+  const body = p.body +
+    `<path d="M0 ${ADDR.rule} H${R(p.W)}" stroke="${c.service}" ` +
+      `stroke-width="${ADDR.ruleWeight}" stroke-linecap="butt"/>` +
+    `<g transform="translate(0,${R(ADDR.base - M.base * s)}) scale(${s})" stroke="${c.service}">${a.body}</g>`;
+
+  return doc(0, p.top, p.W, bot - p.top, c.word, body, `${service} by Jaranow — ${text}`);
+}
+
+/* The carwash is a place you drive to, so its mark has an address form. Laundry
+   is collected and delivered and has no forecourt, so it deliberately has none -
+   do not add one to fill in the matrix. */
+const CARWASH_ADDRESS = "6th avenue · gwarinpa";
 
 A["carwash-by-jaranow"] = (c) => subBrand("carwash", c);
 A["laundry-by-jaranow"] = (c) => subBrand("laundry", c);
+A["carwash-address"] = (c) => addressLockup("carwash", CARWASH_ADDRESS, c);
 
 /* Solid rounded square with the symbol centred.
    fill 0.52 = iOS home-screen safe area; 0.76 = favicon, where the counter
@@ -156,7 +264,8 @@ const WAYS = {
 };
 
 /* duo only means something where two elements can differ */
-const DUO_ONLY = ["lockup-horizontal", "lockup-stacked", "carwash-by-jaranow", "laundry-by-jaranow"];
+const DUO_ONLY = ["lockup-horizontal", "lockup-stacked", "carwash-by-jaranow", "laundry-by-jaranow",
+                  "carwash-address"];
 const ALL = ["wordmark", "symbol", ...DUO_ONLY];
 
 const files = [];

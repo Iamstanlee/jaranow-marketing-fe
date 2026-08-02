@@ -94,6 +94,35 @@ const PANELS = {
     stacked: false,
     type: { headline: 300, services: 76, band: 60 },
   },
+  /* ---- the minimal panel ----
+     The lockup and CAR WASH, and nothing else: no services line, no hours, no
+     contact band. It is not a stripped-down version of the panel above so much
+     as a different job - this one is read at speed from the road, where a
+     driver gets one fixation and a phone number is unreadable anyway. Use the
+     full panel where people are stopped or walking past, this one where they
+     are moving.
+
+     Dropping the band and the services is what pays for the size: the headline
+     is width-bound, and "CAR WASH" in Archivo Black measures 5.96x its font
+     size, so 2240mm of content width caps it at ~375mm. At 355 it reads about
+     30m against the full panel's 26m, and the removed lines were resolving at
+     ~7m regardless - they were never the thing carrying the sign at distance.
+
+     The dot field, the drop and the accent bar stay. They are the panel's
+     construction rather than content, and without them this is a headline on a
+     rectangle that could belong to anyone. */
+  "landscape-minimal": {
+    w: 2400,
+    h: 1200,
+    safe: 80,
+    reserve: 120,
+    lockup: 880,
+    stacked: false,
+    minimal: true,
+    bar: 40,
+    gap: 90, // lockup to headline
+    type: { headline: 355 },
+  },
 };
 
 /* Each ground carries its own lockup and watermark colourway, because a
@@ -217,6 +246,23 @@ const CSS = (p, g) => {
     text-transform:uppercase;
   }
   .tel{font-size:${mm(T.band * 1.25)}px; font-weight:700; font-variant-numeric:tabular-nums}
+${
+  !p.minimal
+    ? ""
+    : `
+  /* Minimal panel: no band to sit above, so the whole stack centres in the
+     panel instead of hanging off the top edge. */
+  body{justify-content:center}
+  .top{margin-bottom:${mm(p.gap)}px}
+  .mid{flex:0 0 auto}
+  /* Slim accent bar in place of the contact band - the same device that closes
+     the price lists and posters. It is cut into by the bleed, so it has to be
+     taller than BLEED to leave anything on the finished panel. */
+  .bar{
+    position:absolute; left:0; right:0; bottom:0; z-index:2;
+    height:${mm(BLEED + p.bar)}px; background:${g.band};
+  }`
+}
 `;
 };
 
@@ -235,17 +281,25 @@ ${watermark(g.wm)}
 <div class="top">${mark(g.lockup, mm(p.lockup))}</div>
 <div class="mid">
   <h1>${p.stacked ? "CAR<br>WASH" : "CAR WASH"}</h1>
-  <p class="services">${
-    p.stacked
-      ? SERVICES.map((g) => g.join(" · ")).join("<br>")
-      : SERVICES.flat().join(" · ")
-  }</p>
-  <p class="hours">Open daily · 8am–7pm</p>
+${
+  p.minimal
+    ? ""
+    : `  <p class="services">${
+        p.stacked
+          ? SERVICES.map((g) => g.join(" · ")).join("<br>")
+          : SERVICES.flat().join(" · ")
+      }</p>
+  <p class="hours">Open daily · 8am–7pm</p>`
+}
 </div>
-<div class="band">
+${
+  p.minimal
+    ? `<div class="bar"></div>`
+    : `<div class="band">
   <span class="addr">6th Avenue, Gwarinpa</span>
   <span class="tel">0903 862 2012</span>
-</div>
+</div>`
+}
 </body></html>`;
     fs.writeFileSync(path.join(OUT, "html", `${base}.html`), html);
     sizes.push(`${base} ${mm(p.w + BLEED * 2)} ${mm(p.h + BLEED * 2)}`);

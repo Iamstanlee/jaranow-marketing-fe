@@ -1,6 +1,6 @@
 {
-  "short_name": "Jaranow Books",
-  "name": "Jaranow Business Desk",
+  "short_name": "Book",
+  "name": "Book",
   "description": "Sales, expenses, loyalty and end-of-day bookkeeping for Jaranow.",
   "id": "/__/book",
   "start_url": "/__/book",

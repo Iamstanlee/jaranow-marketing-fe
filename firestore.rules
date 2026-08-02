@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Security rules for the Jaranow Business Desk (car wash bookkeeping).
+// Security rules for the Book (car wash bookkeeping).
 //
 // The app authenticates the operator with a client-side PIN, which never reaches
 // Firestore. The real boundary is here: every request must carry an authenticated

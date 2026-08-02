@@ -37,6 +37,19 @@ The letterforms are soft-square: rounded-rectangle bowls, round terminals,
 monoline 14-unit stroke on a 100-unit baseline with a 54-unit x-height. Warm
 without being playful.
 
+**This is not a font, but it is a small alphabet.** The generator carries only
+the glyphs the assets need — `jaranow`, the service names, and the characters
+of the carwash address (§3.1). Anything set in these letterforms must be drawn
+in `gen-marks.js`'s glyph table, on the same construction: coordinates are
+stroke *centres*, so a stem at x=7 has its outer edge on 0; every curve is
+radius 14. One inherited quirk is deliberately preserved — straight stems end
+at centre y=100 and overhang to 107 with their round caps, while curved bottoms
+stop at centre 93. The shipped wordmark does this (look at `a`), so new glyphs
+match it rather than "correcting" it into a different face.
+
+Needing a character the table does not have is a design decision, not a build
+error. Draw it, or change the words.
+
 ### 2.2 Symbol
 
 A drop reduced to one sharp corner and three soft ones, with the wordmark's `o`
@@ -85,6 +98,30 @@ hierarchy carries it.
 **To add a third line:** pass the new word to the generator (§8). Nothing else
 moves. If a proposed service name forces a layout change, the name is the
 problem, not the system.
+
+### 3.1 The address lockup
+
+`jaranow-carwash-address-<colourway>.svg` is the sub-brand block with a rule and
+the street address locked under it — for garment backs, vehicle panels and
+anything that has to say **where** as well as who.
+
+It is a **separate asset, not a lockup variant**. The 625.7 × 207 frame above is
+fixed, so an address cannot be added inside it; this one extends downward to
+625.7 × 314.3 and keeps the block above untouched.
+
+- The address is **drawn** in the letterforms of §2.1, like everything else. No
+  font is referenced, so a printer needs nothing installed — which is the point
+  of handing over this file rather than a mockup with a caption beside it.
+- It is set lowercase, and **tracked to sit flush with both edges of the block
+  above**. The tracking is solved from the string, not chosen: change the
+  address and the line re-justifies. A string too long to fit without tightening
+  makes the generator stop rather than quietly set a cramped line.
+- The rule is the one place a stroke other than the 14-unit monoline appears (5
+  units). It is a separator, not a letterform.
+
+Only the carwash has one. Laundry is collected and delivered and has no
+forecourt, so it deliberately has no address lockup — do not add one to fill in
+the matrix.
 
 **Hierarchy:** the service name is always subordinate — smaller, lower, lighter
 in the visual field. If a stakeholder asks to make "Carwash" as prominent as

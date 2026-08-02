@@ -82,6 +82,23 @@ logo, lockup or brand colour.
 - Marks are generated, not hand-edited. Source: `brand/gen-marks.js`.
   Regenerate with `node gen-marks.js blue jaranow-blue`; hand edits to the SVGs
   get overwritten.
+- **The letterforms are a small alphabet, not a font.** `gen-marks.js`'s glyph
+  table carries only what the assets need — `jaranow`, the service names, and
+  the characters of the carwash address. Setting anything else in these forms
+  means *drawing* the missing glyphs there, on the documented construction
+  (coordinates are stroke centres, every curve is radius 14). See
+  BRAND-STANDARD §2.1, which also explains the one inherited quirk to preserve:
+  straight stems end at y=100 and overhang to 107, curved bottoms stop at 93.
+- **`jaranow-carwash-address-<way>.svg` is the address lockup** — the sub-brand
+  block with a rule and `6th avenue · gwarinpa` locked under it, for garment
+  backs, vehicle panels and anything that must say *where* as well as *who*. It
+  is a separate asset, not a lockup variant: §3's 625.7 × 207 frame is fixed, so
+  this one extends down to 625.7 × 314.3 and leaves the block above untouched.
+  The address is drawn, so a printer needs no font installed. Its tracking is
+  **solved, not chosen** — the line justifies to the block width, and changing
+  the address re-justifies it; a string too long to fit stops the generator
+  rather than setting a cramped line. Only the carwash has one, because only the
+  carwash is a place you drive to. See BRAND-STANDARD §3.1.
 - **Open Graph share cards are generated too.** The copy lives in the `CARDS`
   array in `brand/gen-og.js` — never edit `brand/og/html/*.html` or the PNGs by
   hand, they are build output. Full regeneration is three steps:
@@ -189,6 +206,39 @@ logo, lockup or brand colour.
   the page for the same reason.) Like the OG and pocket cards, rasterizing pulls Rubik
   from Google Fonts, so it needs network — the ₦ (U+20A6) comes from the
   latin-ext subset and is where a failed font load shows up first.
+- **The A5 hand-out flyer is generated too.** `brand/gen-flyer.js` +
+  `brand/rasterize-flyer.sh` emit `brand/flyer/png/flyer-carwash.png` — A5
+  portrait (148×210mm trim + 3mm bleed, 300dpi), same Ink field / dots / drop /
+  accent bar as the price lists and posters.
+
+  ```bash
+  node brand/gen-flyer.js       # -> brand/flyer/html/*.html
+  brand/rasterize-flyer.sh      # html -> brand/flyer/png/*.png (1819x2551)
+  ```
+
+  **It sells Jaranow, and it is general.** The same sheet has to work for every
+  offline use — handed over at the desk, given out at the market, dropped
+  through a door, left on a counter — so nothing on it may be true of only one
+  place, campaign or day. It carried a market-specific "wash it while you shop"
+  pitch in an early draft; that was removed deliberately, and re-adding a
+  campaign line to this sheet is a regression. Something that specific wants its
+  own entry in `FLYERS`, not this one edited.
+
+  **No prices**, and here that is practical as well as positional: the sheet is
+  printed in quantity and handed out for months, so a figure on it goes stale in
+  a way the laminated wall list does not. `/pricing` and `gen-pricelist.js` are
+  where figures live. The services are still listed — they just carry no
+  numbers, which means they are a **sixth place** the four carwash services must
+  stay in step with (see "Pricing Information" below).
+
+  The copy is data in the `FLYERS` array. The sub-brand lockup leads: the
+  wordmark still leads within it, so the sheet sells Jaranow while being
+  unambiguously about the carwash. Like the other print pieces, the page is
+  fixed-height with `overflow:hidden`, and A5 has about a third of A4's area —
+  it is already close to full, so a fifth service row or a third line of `sub`
+  silently pushes the closing note under the accent bar. Always eyeball the PNG.
+  Rasterizing pulls Rubik from Google Fonts, so it needs network.
+
 - **Recruitment posters are generated too.** `brand/gen-poster.js` +
   `brand/rasterize-poster.sh` emit `brand/poster/png/poster-*-{a4,feed,story}.png`
   — the same sheet in three canvases: A4 print, Meta feed 4:5 and Meta
@@ -255,8 +305,8 @@ logo, lockup or brand colour.
   so it needs network — the ₦ in the pay chip comes from the latin-ext subset and
   is where a failed font load shows up first.
 - **Roadside signage**: `brand/gen-sign.js` + `brand/rasterize-sign.sh` emit
-  `brand/sign/png/sign-carwash-{portrait,landscape}-{ink,blue,paper}.png` — six
-  panels, two orientations × three grounds, each plus 20mm bleed:
+  `brand/sign/png/sign-carwash-{portrait,landscape,landscape-minimal}-{ink,blue,paper}.png`
+  — nine panels, three layouts × three grounds, each plus 20mm bleed:
 
   | ground | field | band | lockup |
   |---|---|---|---|
@@ -271,15 +321,27 @@ logo, lockup or brand colour.
   ghost on Ink is invisible in blue on Paper. Prefer the Ink panels in direct
   sun; the Paper panel is for under cover or against a dark wall.
 
-  | orientation | trim | px | headline |
-  |---|---|---|---|
-  | portrait | 900×1800mm | 1880×3680 | 230mm, stacked `CAR / WASH` |
-  | landscape | 2400×1200mm | 4880×2480 | 300mm, one line |
+  | layout | trim | px | headline | reads at |
+  |---|---|---|---|---|
+  | portrait | 900×1800mm | 1880×3680 | 230mm, stacked `CAR / WASH` | ~20m |
+  | landscape | 2400×1200mm | 4880×2480 | 300mm, one line | ~26m |
+  | landscape-minimal | 2400×1200mm | 4880×2480 | 355mm, one line | ~31m |
 
   The two orientations are **not** the same design scaled. Portrait is width-
   constrained, so the headline stacks; landscape has the width to set it on one
   line *and* larger, which is why it reads from ~26m against portrait's ~20m.
   Prefer landscape where the site allows it.
+
+  **`landscape-minimal` is the lockup and `CAR WASH` and nothing else** — no
+  services line, no hours, no contact band. It is a different job rather than a
+  stripped-down panel: use the full landscape where people are stopped or
+  walking past and can read a phone number, and this one where they are driving.
+  Dropping those lines is what pays for the size — the headline is width-bound
+  ("CAR WASH" in Archivo Black measures **5.96× its font size**, so the 2240mm
+  content width caps it at ~375mm), and the lines removed were resolving at ~7m
+  anyway, so nothing legible at distance was lost. The dot field, drop and
+  accent bar stay: they are the panel's construction, not content, and without
+  them it is a headline on a rectangle that could belong to anyone.
 
   Panels differ in pixel size, so `rasterize-sign.sh` reads dimensions from the
   `sizes.txt` manifest `gen-sign.js` writes — do not hardcode a window size.
@@ -327,11 +389,23 @@ logo, lockup or brand colour.
   each an 1800×1100 sheet showing front and back.
 
   These are **mockups, not print artwork** — they exist to approve placement and
-  colourway. A printer gets the lockup SVGs from `brand/jaranow-blue/svg/` plus
-  the millimetre figures in the sheet captions. The garment is drawn at real
-  size-L proportions (530mm pit to pit) and every print size derives from
-  `CHEST_UNITS`, so the millimetres are honest — change the geometry and the
-  captions stay true automatically.
+  colourway. A printer gets the SVGs from `brand/jaranow-blue/svg/` plus the
+  millimetre figures in the sheet captions:
+
+  | print | artwork | size |
+  |---|---|---|
+  | front, left chest | `jaranow-carwash-by-jaranow-<way>.svg` | 90mm |
+  | back, across shoulders | `jaranow-carwash-address-<way>.svg` | 280mm |
+
+  Both prints are whole SVGs inlined as-is, and **the back carries its address
+  inside the artwork** rather than as text set beside it. That is the point of
+  the address lockup: a caption in a mockup is not something a printer can
+  reproduce, and the two drift the moment the address changes. Do not re-add a
+  separate address line to the sheet.
+
+  The garment is drawn at real size-L proportions (530mm pit to pit) and every
+  print size derives from `CHEST_UNITS`, so the millimetres are honest — change
+  the geometry and the captions stay true automatically.
 
   The soft shading is on the *cloth*. The mark itself stays flat, per
   BRAND-STANDARD §4.2 — do not let a gradient or shadow reach the lockup.
@@ -545,7 +619,7 @@ Current focus:
 - Location: 6th Avenue, Gwarinpa, Abuja
 - Pay to the Jaranow business account after the wash
 
-The four carwash services are listed in five places that must stay in step:
+The four carwash services are listed in six places that must stay in step:
 `src/components/carwash/Pricing.tsx` (the component), `src/pages/Pricing.tsx`
 (`carwashOptions`), the JSON-LD `OfferCatalog` in `src/pages/CarwashLanding.tsx`,
 the `washTypes` dropdown in `src/components/carwash/BookingForm.tsx`, and the

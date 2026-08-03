@@ -1393,8 +1393,14 @@ function Reports({sales, loyalty, expenses, loading}: {
 // sales is a zero on the line rather than a missing point. Dropping empty days would
 // draw a straight line across a quiet week and read as steady trading, which is the
 // opposite of what happened.
-type Bucket = { key: string; label: string; revenue: number; count: number };
+// `weekday` is carried alongside `label` rather than derived at render: the bucket's own
+// date is gone by then, and re-parsing `key` to get it back is how off-by-one timezone
+// bugs get in.
+type Bucket = { key: string; label: string; weekday: string; revenue: number; count: number };
 type Unit = 'day' | 'week' | 'month';
+// How the x-axis, tooltip and table name a bucket. Only meaningful on daily buckets — a
+// month has no day of the week — so the toggle is hidden and this ignored otherwise.
+type Naming = 'date' | 'weekday';
 // What the growth panel plots. Cars counts every car through the bay, redemptions
 // included; revenue counts what was taken. They are not the same shape of number, which
 // is the whole reason they are two views rather than two lines.
@@ -1456,7 +1462,13 @@ function bucketRevenue(sales: Sale[], from: Date, to: Date) {
         if (unit === 'day') next.setDate(next.getDate() + 1); else if (unit === 'week') next.setDate(next.getDate() + 7); else next.setMonth(next.getMonth() + 1);
         return next;
     })()) {
-        const bucket: Bucket = {key: isoDay(cursor), label: labelOf(cursor), revenue: 0, count: 0};
+        const bucket: Bucket = {
+            key: isoDay(cursor),
+            label: labelOf(cursor),
+            weekday: cursor.toLocaleDateString('en-NG', {weekday: 'short'}),
+            revenue: 0,
+            count: 0
+        };
         buckets.push(bucket);
         index.set(bucket.key, bucket);
     }
@@ -1481,6 +1493,10 @@ function SalesTrend({sales, filtered, range, loading}: {
     // One measure at a time, same buckets, same window, so the two views are comparable
     // by flipping between them.
     const [measure, setMeasure] = useState<Measure>('cars');
+    // Dates answer "when was that peak", weekdays answer "which day of the week trades" —
+    // the same buckets read for a different question, so it is a relabel, not a re-bucket.
+    // Nothing is summed by weekday here: two Mondays stay two points.
+    const [naming, setNaming] = useState<Naming>('date');
     const {from, to, bounded} = useMemo(() => trendWindow(filtered, range), [filtered, range]);
     const {buckets, unit} = useMemo(() => from ? bucketRevenue(filtered, from, to) : {
         buckets: [] as Bucket[],
@@ -1494,6 +1510,10 @@ function SalesTrend({sales, filtered, range, loading}: {
     const amountOf = (sale: Sale) => measure === 'revenue' ? sale.amount : 1;
     const format = (value: number) => measure === 'revenue' ? money(value) : `${value} car${value === 1 ? '' : 's'}`;
     const axisLabel = (value: number) => measure === 'revenue' ? compactMoney(value) : String(Math.round(value));
+    // A weekly or monthly bucket keeps its date label whatever the toggle says, so a range
+    // change that coarsens the buckets can never leave "Mon" standing for a whole month.
+    const byWeekday = naming === 'weekday' && unit === 'day';
+    const nameOf = (bucket: Bucket) => byWeekday ? bucket.weekday : bucket.label;
 
     // Growth is a comparison, and a single period is not one: the headline is this window
     // against the window of the same length immediately before it. Drawn from ALL sales,
@@ -1552,6 +1572,15 @@ function SalesTrend({sales, filtered, range, loading}: {
                                 aria-pressed={measure === value}
                                 className={`rounded-lg px-3 py-1 text-sm transition ${measure === value ? 'bg-white font-semibold shadow-sm' : 'text-slate-500'}`}>{label}</button>)}
                 </div>
+                {/* Hidden rather than disabled on weekly and monthly buckets: a control that
+                    cannot do anything is worse than one that isn't there. */}
+                {unit === 'day' && <div role="group" aria-label="Chart labels"
+                                        className="inline-flex rounded-xl bg-slate-100 p-1">
+                    {([['date', 'Date'], ['weekday', 'Day']] as [Naming, string][]).map(([value, label]) =>
+                        <button key={value} type="button" onClick={() => setNaming(value)}
+                                aria-pressed={naming === value}
+                                className={`rounded-lg px-3 py-1 text-sm transition ${naming === value ? 'bg-white font-semibold shadow-sm' : 'text-slate-500'}`}>{label}</button>)}
+                </div>}
                 {/* Direction is never colour alone — the arrow and the signed figure carry it. */}
                 {!loading && growth && <span
                     title={`Against the previous ${growth.days} day${growth.days === 1 ? '' : 's'} (${format(growth.previous)})`}
@@ -1609,14 +1638,14 @@ function SalesTrend({sales, filtered, range, loading}: {
                                 <p className="text-sm font-bold tabular-nums">{format(valueOf(point))}</p>
                                 {/* The secondary line carries the measure you are NOT looking at,
                                     so a spike answers "more cars or bigger jobs?" in one hover. */}
-                                <p className="text-[11px] text-white/70">{point.label} · {measure === 'revenue'
+                                <p className="text-[11px] text-white/70">{nameOf(point)} · {measure === 'revenue'
                                     ? `${point.count} car${point.count === 1 ? '' : 's'}` : money(point.revenue)}</p>
                             </div>}
                         </div>
                         <div className="mt-2 flex justify-between text-[11px] text-slate-400">
-                            <span>{buckets[0].label}</span>
-                            {buckets.length > 2 && <span className="hidden sm:inline">{buckets[Math.floor(last / 2)].label}</span>}
-                            <span>{buckets[last].label}</span>
+                            <span>{nameOf(buckets[0])}</span>
+                            {buckets.length > 2 && <span className="hidden sm:inline">{nameOf(buckets[Math.floor(last / 2)])}</span>}
+                            <span>{nameOf(buckets[last])}</span>
                         </div>
                     </div>
                     {/* Every figure on the chart is reachable without a pointer. */}
@@ -1627,12 +1656,16 @@ function SalesTrend({sales, filtered, range, loading}: {
                                 <thead className="text-left text-xs uppercase tracking-wide text-slate-400">
                                 <tr>
                                     <th className="py-1 font-medium">{unit === 'month' ? 'Month' : unit === 'week' ? 'Week' : 'Day'}</th>
+                                    {/* The date stays in the table even in weekday view: rows repeat
+                                        weekdays, so "Mon" alone names four different days. */}
+                                    {byWeekday && <th className="py-1 font-medium">Date</th>}
                                     <th className="py-1 text-right font-medium">Cars</th>
                                     <th className="py-1 text-right font-medium">Revenue</th>
                                 </tr>
                                 </thead>
                                 <tbody>{buckets.map(bucket => <tr key={bucket.key} className="border-t border-slate-50">
-                                    <td className="py-1.5">{bucket.label}</td>
+                                    <td className="py-1.5">{nameOf(bucket)}</td>
+                                    {byWeekday && <td className="py-1.5 text-slate-500">{bucket.label}</td>}
                                     <td className="py-1.5 text-right tabular-nums text-slate-500">{bucket.count}</td>
                                     <td className="py-1.5 text-right font-medium tabular-nums">{money(bucket.revenue)}</td>
                                 </tr>)}</tbody>

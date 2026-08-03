@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add bookkeeping app" />
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add beanslabs mark">
+      <change beforePath="$PROJECT_DIR$/src/pages/Bookkeeping.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Bookkeeping.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -174,7 +176,7 @@
       <workItem from="1785193911124" duration="3406000" />
       <workItem from="1785226086815" duration="415000" />
       <workItem from="1785381117631" duration="1378000" />
-      <workItem from="1785684877042" duration="21178000" />
+      <workItem from="1785684877042" duration="23159000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -296,7 +298,15 @@
       <option name="project" value="LOCAL" />
       <updated>1785196463147</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Add beanslabs mark">
+      <option name="closed" value="true" />
+      <created>1785747086962</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1785747086962</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -326,7 +336,8 @@
     <MESSAGE value="Add brand/" />
     <MESSAGE value="Add brand scripts" />
     <MESSAGE value="Add bookkeeping app" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add bookkeeping app" />
+    <MESSAGE value="Add beanslabs mark" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add beanslabs mark" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

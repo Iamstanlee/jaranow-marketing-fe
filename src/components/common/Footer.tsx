@@ -113,7 +113,7 @@ const Footer: React.FC = () => {
             <div className="border-t border-gray-800">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 gap-3">
-                        <div>© 2025 Jaranow Technologies Limited. All rights reserved.</div>
+                        <div>© {new Date().getFullYear()} Beanslabs Technologies. All rights reserved.</div>
                         <div className="flex items-center space-x-2">
                             <span>Part of the Jaranow family</span>
                             <span>·</span>

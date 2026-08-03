@@ -86,16 +86,6 @@ const CarwashLanding: React.FC = () => {
                                     price: '4000',
                                     priceCurrency: 'NGN',
                                 },
-                                {
-                                    '@type': 'Offer',
-                                    itemOffered: {
-                                        '@type': 'Service',
-                                        name: 'Buffing',
-                                        description: 'Full wash with the paintwork machine-polished',
-                                    },
-                                    price: '20000',
-                                    priceCurrency: 'NGN',
-                                },
                             ],
                         },
                         sameAs: [

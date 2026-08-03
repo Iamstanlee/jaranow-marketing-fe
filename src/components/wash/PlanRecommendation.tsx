@@ -200,7 +200,7 @@ I'd like to get started with pay-as-you-go pricing. When is the next available p
             <Sparkles className="w-4 h-4" />
             Smart Recommendation
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl text-gray-900 mb-4 font-bold">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl text-gray-900 mb-4 heading-display">
             Find Your <span className="text-primary-600">Perfect Plan</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">

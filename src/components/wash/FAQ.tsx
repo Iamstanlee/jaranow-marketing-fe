@@ -59,7 +59,7 @@ const FAQ: React.FC = () => {
     <section className="py-20 sm:py-24 bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl text-gray-900 mb-4 font-bold">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl text-gray-900 mb-4 heading-display">
             Frequently Asked <span className="text-primary-600">Questions</span>
           </h2>
           <p className="text-xl text-gray-600">

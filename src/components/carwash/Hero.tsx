@@ -33,7 +33,7 @@ const Hero: React.FC<HeroProps> = ({onBook}) => {
                     {/* Headline */}
                     <motion.h1
                         variants={fadeInUp}
-                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight"
+                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl heading-display text-white mb-6 leading-tight"
                     >
                         Your car, handled.{' '}
                         <span className="text-cyan-300">You don't lift a finger.</span>

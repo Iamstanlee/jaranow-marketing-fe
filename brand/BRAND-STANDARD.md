@@ -1,23 +1,32 @@
 # Jaranow — Brand Standard
 
-**Version 1.0 · Direction "Drop"**
+**Version 1.1 · Direction "Drop"**
 
 This document governs the Jaranow identity. It is the source of truth for
 anyone producing a sign, a shirt, a receipt, an app screen or a new service
 line. Where this document and a designer's instinct disagree, this document
 wins — the point of a system is that it survives people.
 
+It covers *what* the brand is and how it must be applied. It does not cover how
+the asset files are produced; see §10.
+
 ---
 
 ## 1. What the brand is
 
-Jaranow handles the recurring upkeep of a home and a car in urban Nigeria. Two service lines are live
-— **Carwash by Jaranow** and **Laundry by Jaranow** — and more will follow.
+Jaranow handles the recurring upkeep of a home and a car in urban Nigeria. Two
+service lines are live — **Carwash by Jaranow** and **Laundry by Jaranow** — and
+more will follow.
 
 **Tone:** straight-dealing, competent, calm. Premium but accessible.
 The customer should feel respected, confident and unbothered.
 
 **Never:** flashy, playful, corporate-generic, or startup-y.
+
+**The brand sells care, attention to detail, convenience and integrity.
+It never sells on price.** State a price as plain fact wherever a customer needs
+it; never argue from it. "Cheaper", "best value", "no hidden charges" and
+comparisons to a competitor's prices are off-brand, not merely off-message.
 
 Everything below exists to protect that. A logo that gets stretched, tinted or
 crowded stops signalling competence and starts signalling the opposite.
@@ -37,18 +46,14 @@ The letterforms are soft-square: rounded-rectangle bowls, round terminals,
 monoline 14-unit stroke on a 100-unit baseline with a 54-unit x-height. Warm
 without being playful.
 
-**This is not a font, but it is a small alphabet.** The generator carries only
-the glyphs the assets need — `jaranow`, the service names, and the characters
-of the carwash address (§3.1). Anything set in these letterforms must be drawn
-in `gen-marks.js`'s glyph table, on the same construction: coordinates are
-stroke *centres*, so a stem at x=7 has its outer edge on 0; every curve is
-radius 14. One inherited quirk is deliberately preserved — straight stems end
-at centre y=100 and overhang to 107 with their round caps, while curved bottoms
-stop at centre 93. The shipped wordmark does this (look at `a`), so new glyphs
-match it rather than "correcting" it into a different face.
+**It is not a font, but it is a small alphabet.** Only the characters the brand
+actually needs exist: `jaranow`, the service names, and the carwash address.
+Setting a new word in these letterforms means *drawing* the missing characters
+on the same construction — matching the existing stroke weight, curve radius and
+the way straight stems overhang while curved bottoms stop short.
 
-Needing a character the table does not have is a design decision, not a build
-error. Draw it, or change the words.
+Needing a character that does not exist is a design decision, not a small
+change. Draw it properly, or change the words.
 
 ### 2.2 Symbol
 
@@ -67,6 +72,15 @@ generic blob at small sizes. Never fill it in.
 | **Horizontal** | Default. Site headers, letterheads, anything wider than tall. |
 | **Stacked** | Square and narrow formats, social avatars, stamps. |
 | **Symbol alone** | Only where the name is already established — app icon, favicon, avatar. |
+
+### 2.4 Monogram
+
+A `J` in the wordmark's letterforms exists for **internal tools only** — the
+back-office app whose launcher icon has to match its own interface. It is not
+part of the public identity.
+
+Anything a customer sees uses the symbol. Do not reach for the monogram because
+a layout is tight; that is what the symbol is for.
 
 ---
 
@@ -95,37 +109,37 @@ hierarchy carries it.
   ascender. `laundry` does. So would `logistics`.
 - The master wordmark never shrinks to make room for a service name.
 
-**To add a third line:** pass the new word to the generator (§8). Nothing else
-moves. If a proposed service name forces a layout change, the name is the
+**To add a third line:** the new word is set in the existing system and nothing
+else moves. If a proposed service name forces a layout change, the name is the
 problem, not the system.
+
+**Hierarchy:** the service name is always subordinate — smaller, lower, lighter
+in the visual field. If a stakeholder asks to make "Carwash" as prominent as
+"jaranow", the answer is no. That builds two brands, not one.
 
 ### 3.1 The address lockup
 
-`jaranow-carwash-address-<colourway>.svg` is the sub-brand block with a rule and
-the street address locked under it — for garment backs, vehicle panels and
-anything that has to say **where** as well as who.
+The sub-brand block with a rule and the street address locked under it — for
+garment backs, vehicle panels and anything that has to say **where** as well as
+who.
 
 It is a **separate asset, not a lockup variant**. The 625.7 × 207 frame above is
 fixed, so an address cannot be added inside it; this one extends downward to
-625.7 × 314.3 and keeps the block above untouched.
+625.7 × 314.3 and leaves the block above untouched.
 
 - The address is **drawn** in the letterforms of §2.1, like everything else. No
   font is referenced, so a printer needs nothing installed — which is the point
   of handing over this file rather than a mockup with a caption beside it.
-- It is set lowercase, and **tracked to sit flush with both edges of the block
-  above**. The tracking is solved from the string, not chosen: change the
-  address and the line re-justifies. A string too long to fit without tightening
-  makes the generator stop rather than quietly set a cramped line.
+- It is set lowercase and **tracked to sit flush with both edges of the block
+  above**. The tracking is solved from the address, not chosen: change the
+  address and the line re-justifies. An address too long to fit at that tracking
+  does not get a tightened line — it gets shortened.
 - The rule is the one place a stroke other than the 14-unit monoline appears (5
   units). It is a separator, not a letterform.
 
 Only the carwash has one. Laundry is collected and delivered and has no
 forecourt, so it deliberately has no address lockup — do not add one to fill in
 the matrix.
-
-**Hierarchy:** the service name is always subordinate — smaller, lower, lighter
-in the visual field. If a stakeholder asks to make "Carwash" as prominent as
-"jaranow", the answer is no. That builds two brands, not one.
 
 ---
 
@@ -135,7 +149,7 @@ in the visual field. If a stakeholder asks to make "Carwash" as prominent as
 
 | Role | Name | Hex | Notes |
 |---|---|---|---|
-| Accent | Jaranow Blue | `#2563EB` | Tailwind `primary-600`. |
+| Accent | Jaranow Blue | `#2563EB` | The single accent. |
 | Near-black | Ink | `#0E1526` | Blue-biased, not neutral grey. |
 | Off-white | Paper | `#F2F5FB` | Blue-biased. Use instead of pure white for knockouts. |
 
@@ -175,36 +189,94 @@ position regardless.
 
 ---
 
-## 6. Clear space and minimum size
+## 6. Typography
 
-### 6.1 Clear space
+Two faces, and only two. Both are open-licence (SIL OFL), so they may be
+embedded in print artwork, on the web and in an app without a licence purchase.
+
+| Face | Weights used | Role |
+|---|---|---|
+| **Rubik** | 400, 500, 700 | Everything: body copy, UI, labels, prices, contact details, most headings. |
+| **Archivo Black** | 400 only | Display. The single loudest line on a surface, and nothing else. |
+
+### 6.1 Rubik — the voice
+
+Rubik is the brand's working face. Its slightly rounded terminals and even,
+geometric skeleton echo the drawn wordmark, so text set in it sits beside the
+mark without arguing with it.
+
+- Body copy 400; emphasis and labels 500; headings 700.
+- Headings track slightly tight (about −0.02em). Body copy tracks normally.
+- Small all-caps labels — kickers, band text, section eyebrows — are 500 with
+  wide tracking (0.12–0.3em). Never all-caps at 400, which reads as weak.
+
+### 6.2 Archivo Black — the shout
+
+Archivo Black exists for one job: a line that has to carry at distance or
+dominate a page. Roadside panels, poster headlines, the hand-out flyer's
+headline, a phone number on print, a landing page's opening statement.
+
+- **It ships one weight (400).** Never request bold. Asking for a heavier weight
+  produces a synthetic bold that smears the outline, and the softening is worst
+  at exactly the sizes this face is used at.
+- **One per surface.** Two Archivo Black elements on the same piece and neither
+  is the headline any more. A scrolling web page is not one surface: the opening
+  statement and each section heading may take it, because only one is on screen
+  at a time. A heading and its own sub-heading may not.
+- **Never for body copy, captions, labels or anything running to a paragraph.**
+  It has no reading rhythm; it is a face for four words.
+- Tracking runs tight at display size (−0.005 to −0.015em). Do not track it out
+  to justify a line — that opens the counters at exactly the distance the type
+  exists for.
+- It sets **much wider** than Rubik at the same size. Always check a headline
+  against its measure before committing to a size.
+- Sentence case for page and print headlines; all caps for signage, where stroke
+  weight and letter width are what carry.
+
+### 6.3 Neither face is the wordmark
+
+`jaranow` is drawn (§2.1). Setting it in Archivo Black — or in Rubik, or in
+anything else — is a misuse (§8.1), no matter how large or how convenient.
+Using Archivo Black for `CAR WASH` beside the lockup is not a substitution: that
+is a service descriptor set in type, next to the real drawn mark.
+
+### 6.4 Fallbacks
+
+Both faces fall back to `system-ui, sans-serif`. On any surface where the type
+may not load — an emailed HTML template, a printer's machine — the layout must
+still hold at the fallback's proportions, or the type has to be outlined.
+
+---
+
+## 7. Clear space and minimum size
+
+### 7.1 Clear space
 
 Clear space equals **half the height of the `o`** on all four sides. It is
 already baked into every exported file. Do not crop it back to "tighten" a
 layout, and do not add a border that sits inside it.
 
-### 6.2 Minimum sizes
+### 7.2 Minimum sizes
 
 | Asset | Minimum | Why |
 |---|---|---|
 | Symbol | **24 px** | Below this the counter starts closing. |
-| Symbol (favicon build) | **16 px** | Uses a tighter 76% fill specifically to hold the counter open. |
+| Symbol (favicon build) | **16 px** | Uses a tighter fill specifically to hold the counter open. |
 | Horizontal lockup | **96 px** wide | Below this the service name stops resolving. |
 
-Note there are two icon builds and they are not interchangeable:
+There are two icon builds and they are **not** interchangeable:
 
-- **App icon** — 52% symbol fill, 22.37% corner radius. Correct for iOS/Android
-  launchers, where the OS expects breathing room.
-- **Favicon** — 76% fill, 16% radius. At 16 px the tile edge does no work, so
-  the symbol takes the space instead.
+- **App icon** — smaller symbol fill, rounded corners. For launchers, where the
+  operating system expects breathing room inside the tile.
+- **Favicon** — larger fill, tighter crop. At 16 px the tile edge does no work,
+  so the symbol takes the space instead.
 
-Maskable Android icons use **square corners** — the OS applies its own mask,
-and a rounded icon inside a rounded mask produces clipped, squircle-in-squircle
-edges.
+Maskable Android icons use **square corners** — the system applies its own mask,
+and a rounded icon inside a rounded mask produces clipped edges.
 
 ---
 
-## 7. Misuse
+## 8. Misuse
 
 Do not:
 
@@ -218,94 +290,63 @@ Do not:
 8. Place the accent colourway on a dark ground (use `-white`).
 9. Rebuild a lockup by hand from separate symbol and wordmark files — the
    spacing is part of the design.
-10. Edit the SVGs directly. They are generated and will be overwritten (§8).
+10. Edit the exported files directly. They are generated and will be
+    overwritten (§10).
+11. Introduce a third typeface, or substitute a "similar" one for either face.
+12. Set Archivo Black in a synthetic bold, in body copy, or more than once on a
+    surface.
+13. Use the monogram anywhere a customer can see it (§2.4).
 
 ---
 
-## 8. Asset library and regeneration
+## 9. Applications
 
-### 8.1 Structure
+The identity is applied consistently, not identically — a sign read at 30 m and
+a receipt read at 30 cm are different problems. Three rules hold across all of
+them:
 
-```
-brand/
-├── BRAND-STANDARD.md     this document
-├── gen-marks.js          generator — the actual source of truth
-├── rasterize.sh          SVG → transparent PNG via headless Chrome
-└── jaranow-blue/         svg/ + png/
-```
+- **The wordmark leads.** On a sub-brand piece the lockup still says Jaranow
+  first, service second.
+- **Ink and Paper are the grounds; the accent is the punctuation.** A surface
+  that is mostly accent has no accent.
+- **Type is sized from viewing distance, not by eye.** The working rule for
+  large format is about 25 mm of cap height for every 3 m of comfortable
+  reading distance.
 
-**The SVGs are build output, not source.** Hand-edits get overwritten. To
-change anything — a colour, a service line, spacing — edit `gen-marks.js` and
-regenerate:
+| Surface | Lockup | Notes |
+|---|---|---|
+| Site header | Master, or the page's service line | Contextual to the page. |
+| Site footer | **Always master** | The footer is corporate, the header is contextual. |
+| Signage | Sub-brand, knockout on dark grounds | The lockup says who, not what — pair it with the service in type. |
+| Print (price lists, flyers, cards) | Sub-brand | Prices are stated as fact; the sheet sells the care (§1). |
+| Garments | Sub-brand small on the chest, address lockup across the back | The address is inside the artwork, never a caption beside it. |
+| App icon / favicon | Symbol (monogram for internal tools only) | Separate builds — see §7.2. |
 
-```bash
-node gen-marks.js blue jaranow-blue
-bash rasterize.sh "$PWD/jaranow-blue" /tmp/rast
-```
-
-Adding a service line is one entry in the generator's asset list.
-
-### 8.2 Naming
-
-`jaranow-<asset>-<colourway>.svg` — e.g. `jaranow-laundry-by-jaranow-duo.svg`.
-
-### 8.3 Raster sizes
-
-Lockups export at 2048 px wide; symbol and icons at 1024 px square; favicon
-set at 512/256/180/128/64/32/16. PNGs carry transparency — they are not a
-substitute for the SVG in any digital context.
+Lockup sizing across variants is optical, not mechanical: the master and
+sub-brand lockups have different frame heights, so matching their box heights
+would visibly shrink the wordmark on service pages. Match the **wordmark**, not
+the box.
 
 ---
 
-## 9. Website implementation
+## 10. Assets
 
-Live assets are served from `public/brand/`:
+Every mark, lockup and icon is **generated from a single source**, not drawn by
+hand in an editor. The exported SVGs and PNGs are build output: a hand edit
+survives until the next regeneration and then disappears silently.
 
-| File | Purpose |
-|---|---|
-| `jaranow-logo-white.svg` | Master lockup, knockout — header + footer |
-| `jaranow-logo.svg` | Master lockup, duo — light grounds |
-| `jaranow-carwash-white.svg` | Carwash sub-brand, knockout |
-| `jaranow-laundry-white.svg` | Laundry sub-brand, knockout |
-| `jaranow-symbol.svg` | Symbol alone |
-| `favicon.svg` | Browser favicon |
+To change anything — a colour, a service line, spacing, the address — the
+generator changes and everything re-exports together. That is what keeps a
+lockup on a shirt identical to the one in the site header.
 
-### 9.1 Header
+**Naming:** `jaranow-<asset>-<colourway>.svg`, e.g.
+`jaranow-laundry-by-jaranow-duo.svg`.
 
-The shared `Header` component takes a `logo` prop:
+**Formats:** SVG is the master and the only thing to hand a printer or a sign
+shop. PNGs are provided for contexts that cannot take vector; they are never a
+substitute for the SVG in a digital context.
 
-```tsx
-<Header logo="laundry" ctaLabel="Schedule pickup" onCtaClick={scrollToPricing} />
-```
-
-`'master' | 'carwash' | 'laundry'`, defaulting to `'master'`. Service pages use
-their own line; the homepage, pricing page and anything cross-service use the
-master.
-
-**Adding a fourth line is one entry in the `LOGOS` map** plus the matching SVG
-in `public/brand/`. No layout changes.
-
-### 9.2 Sizing
-
-Header heights differ by variant **on purpose**: master `h-11`, sub-brands
-`h-14`. The master lockup is a 625.7 × 160 frame and the sub-brands are
-625.7 × 207; the taller class keeps the `jaranow` wordmark at the same optical
-size in every variant. Setting them to the same height would visibly shrink the
-master wordmark on service pages.
-
-The footer always uses the **master** lockup regardless of page — the footer is
-corporate, the header is contextual.
-
-### 9.3 PWA
-
-`theme_color` is `#2563EB` in both `manifest.json` and `wash-manifest.json`.
-Keep these in sync with the accent if the palette ever changes.
-
----
-
-## 10. Open items
-
-- **Carwash has no PWA manifest** of its own, unlike laundry. Add one if the
-  carwash line gets an installable experience.
-- **`public/logo-white.png` and `logo-wash.png` are orphaned** — superseded by
-  the SVG assets and no longer referenced. Safe to delete.
+Production instructions — the generators, their commands, and the per-asset
+constraints that go with them — live with the code, in the repository's
+`CLAUDE.md`. This document does not duplicate them, because a brand standard
+that goes stale with the build is worse than no brand standard.

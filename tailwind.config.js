@@ -32,7 +32,9 @@ module.exports = {
         }
       },
       fontFamily: {
-        'display': ['Rubik', 'system-ui', 'sans-serif'],
+        // Display face per BRAND-STANDARD 6.2. One weight (400) - never pair
+        // with font-bold, which synthesises a heavier outline that goes soft.
+        'display': ['Archivo Black', 'system-ui', 'sans-serif'],
         'body': ['Rubik', 'system-ui', 'sans-serif'],
         sans: ['Rubik', 'system-ui', 'sans-serif'],
       },

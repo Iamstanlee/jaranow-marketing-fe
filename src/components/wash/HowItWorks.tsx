@@ -30,7 +30,7 @@ const HowItWorks: React.FC = () => {
     <section className="py-20 sm:py-24 bg-gradient-to-br from-gray-50 via-white to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl text-gray-900 mb-4 font-bold">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl text-gray-900 mb-4 heading-display">
             How <span className="text-primary-600">Jaranow</span> Works
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">

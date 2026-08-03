@@ -12,6 +12,17 @@ body {
   -webkit-text-stroke: 0.01em transparent;
 }
 
+/* Display face — Archivo Black, per BRAND-STANDARD §6.2.
+   Page and section headings only; never body copy, never a caption. The face
+   ships ONE weight (400), so this deliberately sets font-weight itself: pairing
+   it with Tailwind's font-bold produces a synthetic bold that smears the
+   outline at exactly the sizes it is used at. */
+.heading-display {
+  font-family: 'Archivo Black', system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
 /* Enhanced typography utilities */
 .text-sharp {
   -webkit-text-stroke: 0.01em transparent;

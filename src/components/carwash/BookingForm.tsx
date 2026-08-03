@@ -8,7 +8,7 @@ export interface BookingFormHandle {
 
 const WHATSAPP_NUMBER = '2349038622012';
 
-const washTypes = ['Exterior Wash - ₦2,000', 'Full Wash - ₦3,000', 'Vacuum Wash - ₦4,000', 'Buffing - ₦20,000'];
+const washTypes = ['Exterior Wash - ₦2,000', 'Full Wash - ₦3,000', 'Vacuum Wash - ₦4,000'];
 
 interface FormState {
     name: string;
@@ -122,7 +122,7 @@ Location: 6th Avenue, Gwarinpa, Abuja`;
             <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div>
                     <div className="text-center mb-10">
-                        <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">Book a wash</h2>
+                        <h2 className="text-4xl sm:text-5xl heading-display text-gray-900 mb-4">Book a wash</h2>
                         <p className="text-xl text-gray-600">
                             Tell us a few details and we'll get you booked in.
                         </p>

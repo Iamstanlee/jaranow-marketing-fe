@@ -224,20 +224,33 @@ logo, lockup or brand colour.
   campaign line to this sheet is a regression. Something that specific wants its
   own entry in `FLYERS`, not this one edited.
 
-  **No prices**, and here that is practical as well as positional: the sheet is
-  printed in quantity and handed out for months, so a figure on it goes stale in
-  a way the laminated wall list does not. `/pricing` and `gen-pricelist.js` are
-  where figures live. The services are still listed — they just carry no
-  numbers, which means they are a **sixth place** the four carwash services must
-  stay in step with (see "Pricing Information" below).
+  **No prices, and no service list either.** The sheet sells *how the work is
+  done* — a headline, one sentence, and three short `points` about the care
+  taken — not what can be bought. It used to carry the wash types with their
+  inclusions underneath, which is a price list with the figures removed: it made
+  someone in a car park read three rows to decide, and said nothing about why to
+  choose Jaranow. The wash types and figures live on the laminated wall list
+  (`gen-pricelist.js`) and `/pricing`, where a person who has already decided
+  goes looking; this sheet's job is to make them want to come at all. Do not
+  re-add the service rows — and note the flyer is therefore **not** one of the
+  places the carwash services must stay in step with (see "Pricing Information"
+  below). Keeping figures off is practical as well as positional: the sheet is
+  printed in quantity and handed out for months, so a price on it goes stale in
+  a way the wall list does not.
 
   The copy is data in the `FLYERS` array. The sub-brand lockup leads: the
   wordmark still leads within it, so the sheet sells Jaranow while being
-  unambiguously about the carwash. Like the other print pieces, the page is
-  fixed-height with `overflow:hidden`, and A5 has about a third of A4's area —
-  it is already close to full, so a fifth service row or a third line of `sub`
-  silently pushes the closing note under the accent bar. Always eyeball the PNG.
-  Rasterizing pulls Rubik from Google Fonts, so it needs network.
+  unambiguously about the carwash. The headline and the WhatsApp number are set
+  in **Archivo Black** — the same face the roadside panels use for `CAR WASH`,
+  so the sheet in a hand and the sign they drove past read as one thing;
+  everything else stays Rubik. Archivo Black ships one weight (400), so do not
+  ask for 700. Like the other print pieces, the page is fixed-height with
+  `overflow:hidden`, and A5 has about a third of A4's area — a fourth point, a
+  second line of `sub`, or a headline long enough to wrap to three lines
+  silently pushes the closing note under the accent bar. Archivo Black is much
+  wider than Rubik at the same size, so headline length is the thing to watch.
+  Always eyeball the PNG. Rasterizing pulls both faces from Google Fonts, so it
+  needs network.
 
 - **Recruitment posters are generated too.** `brand/gen-poster.js` +
   `brand/rasterize-poster.sh` emit `brand/poster/png/poster-*-{a4,feed,story}.png`
@@ -305,8 +318,10 @@ logo, lockup or brand colour.
   so it needs network — the ₦ in the pay chip comes from the latin-ext subset and
   is where a failed font load shows up first.
 - **Roadside signage**: `brand/gen-sign.js` + `brand/rasterize-sign.sh` emit
-  `brand/sign/png/sign-carwash-{portrait,landscape,landscape-minimal}-{ink,blue,paper}.png`
-  — nine panels, three layouts × three grounds, each plus 20mm bleed:
+  `brand/sign/png/sign-carwash-{portrait,landscape,landscape-minimal,landscape-minimal-xl,landscape-minimal-xl-split,landscape-minimal-xl-band,landscape-minimal-xl-block}-{ink,blue,paper}.png`
+  — 21 panels, seven layouts × three grounds, each plus 20mm bleed. The last
+  four are **alternative treatments of one XL sheet, not a set to print
+  together** — a site gets one:
 
   | ground | field | band | lockup |
   |---|---|---|---|
@@ -315,7 +330,7 @@ logo, lockup or brand colour.
   | `paper` | Paper | accent | `-duo` |
 
   The lockup and watermark colourway are **per ground**, not fixed — a knockout
-  mark vanishes on a light field. Per BRAND-STANDARD §7.8 dark grounds take
+  mark vanishes on a light field. Per BRAND-STANDARD §8.8 dark grounds take
   `-white` and light grounds take `-duo`; the accent colourway never sits on a
   dark ground. Watermark opacity is per ground too, since .04 that reads as a
   ghost on Ink is invisible in blue on Paper. Prefer the Ink panels in direct
@@ -326,6 +341,10 @@ logo, lockup or brand colour.
   | portrait | 900×1800mm | 1880×3680 | 230mm, stacked `CAR / WASH` | ~20m |
   | landscape | 2400×1200mm | 4880×2480 | 300mm, one line | ~26m |
   | landscape-minimal | 2400×1200mm | 4880×2480 | 355mm, one line | ~31m |
+  | landscape-minimal-xl | 4800×2400mm | 9680×4880 | 1130mm, stacked `CAR / WASH` | ~98m |
+  | landscape-minimal-xl-split | 4800×2400mm | 9680×4880 | 810mm, stacked in a 60% column | ~70m |
+  | landscape-minimal-xl-band | 4800×2400mm | 9680×4880 | 730mm, one line under a band | ~63m |
+  | landscape-minimal-xl-block | 4800×2400mm | 9680×4880 | 920mm, `CAR` on field / `WASH` knocked out | ~79m |
 
   The two orientations are **not** the same design scaled. Portrait is width-
   constrained, so the headline stacks; landscape has the width to set it on one
@@ -343,13 +362,71 @@ logo, lockup or brand colour.
   accent bar stay: they are the panel's construction, not content, and without
   them it is a headline on a rectangle that could belong to anyone.
 
+  **`landscape-minimal-xl` is 4800×2400mm and a different design, not that
+  panel scaled** — for a gantry, a wall or a hoarding rather than legs at the
+  kerb. Scaling was the first cut and it wasted what the size buys: a centred
+  lockup over a centred headline holds its proportions, so the panel gets bigger
+  without getting louder. This one inverts the hierarchy — **the headline is the
+  panel**: `CAR / WASH` stacked flush left filling the sheet, the lockup reduced
+  to a signature above it, and no drop. `edge: true` on the panel turns that on.
+
+  The sizes are solved, not chosen, from measured Archivo Black widths:
+  `CAR WASH` is 5.960× its font size, `CAR` 2.319× and `WASH` 3.313×. One line
+  would be width-bound at 765mm; stacking removes the width bind (4560/3.313 =
+  1376mm available) and makes the panel height-bound instead, so the type is set
+  by what is left after the lockup and margins — 1808mm, which at `.8`
+  line-height gives two lines of **1130mm (cap 814mm, ~98m)**. Stacking is worth
+  ~37m here, the *opposite* of portrait, where stacking is forced by width.
+  `WASH` then fills 82% of the content width, ragged right by design: do not
+  track the lines out to justify both edges, since `CAR` needs ~200mm of
+  letter-spacing to match `WASH` and that opens the counters at exactly the
+  distance the panel exists for.
+
+  Two knobs fight each other here — the lockup is 640mm because below ~600 it
+  looks forgotten in the corner, and every millimetre above that comes straight
+  off the type size. The drop is off deliberately: behind letters this heavy a
+  cropped watermark reads as a printing fault.
+
+  **Three alternative XL treatments** sit beside it, selected per panel with
+  `style` (`edge` is the one above). They are different compositions of the same
+  content — lockup + `CAR WASH` — and each solves its type size differently,
+  which is the real difference between them. Choose on the site, not on taste:
+
+  | style | what it is | pick it when |
+  |---|---|---|
+  | `edge` | headline fills the sheet, lockup a signature, no drop | distance is everything — ~98m, the most legible of the four |
+  | `split` | type stacked in a 60% column, solid drop anchoring the right | the panel is seen obliquely or in passing — it's the only one recognisably Jaranow with the type covered. Costs ~28m |
+  | `band` | full-bleed accent band across the top holding the lockup, one line below | the sign competes with others — a 440mm bar of blue across 4.8m reads long before any letter resolves. Weakest at distance (~63m) |
+  | `block` | `CAR` on the field, `WASH` knocked out of a full-bleed accent block that replaces the bar | you want the boldest graphic without giving up much distance (~79m) |
+
+  Things that bite in the new styles: `split`'s drop is the **only** build where
+  the symbol is not cropped — a cropped drop reads as a watermark, and here it
+  is meant to read as an object; its opacity is derived from the ground's own
+  `wmOpacity` (×4) so the light panel keeps getting more, as it needs. `band`'s
+  lockup is always the `-white` knockout, never `g.lockup` — that variable is
+  the colourway for the *field*, and on the paper panel it disappears against
+  the band. `block` has **no accent bar**: the block is the bar grown until it
+  can hold type, and two accent edges make the sheet read as a sandwich; its
+  `CAR` sits hard against the block rather than centring above it, so the colour
+  boundary falls inside one headline instead of separating two messages. The
+  bottom-weighted result is deliberate, not a gap to close.
+
+  Related plumbing, now used by
+  every landscape panel: the drop is sized off the panel (`h*1.25`, cropped
+  `w*.125` past the right edge) rather than hardcoded at 1500/300mm, and the dot
+  field takes a per-panel `dot: {pitch, size}` override (60/3.0 here, not a
+  doubled 68 — doubling is optically identical at twice the viewing distance,
+  but this panel is walked past too, and at 68mm the field reads as a pattern of
+  discs instead of texture). Bleed stays 20mm: a fabrication allowance, not a
+  proportion.
+
   Panels differ in pixel size, so `rasterize-sign.sh` reads dimensions from the
   `sizes.txt` manifest `gen-sign.js` writes — do not hardcode a window size.
 
   The `CAR WASH` headline is set in **Archivo Black**, not Rubik — at 20m what
   carries is stroke weight and letter width, and Rubik's 700 is a text bold.
   Everything else on the panel stays Rubik. This is not a wordmark substitution
-  (BRAND-STANDARD §7.1): the lockup beside it is still the drawn SVG. Two
+  (BRAND-STANDARD §8.1): the lockup beside it is still the drawn SVG. Two
   things to keep in mind — Archivo Black ships **one weight (400)**, so asking
   for 700 gets a synthetic bold that goes soft at size; and each face carries
   its own `capRatio`, because the legibility table is computed from it, so
@@ -422,10 +499,10 @@ logo, lockup or brand colour.
   This is the **one** asset that uses the "J" monogram instead of the drop
   symbol, and only because the books app is an internal tool sharing a home
   screen with the Jaranow app — the launcher icon matches the tile in its own
-  sidebar. Anything public keeps the symbol (§3.2). Do not reach for the
+  sidebar. Anything public keeps the symbol (§2.4). Do not reach for the
   monogram elsewhere, and do not point the site manifests at `public/book/`.
 
-  Two builds, not interchangeable (§6.2): `any` carries the 22.37% radius,
+  Two builds, not interchangeable (§7.2): `any` carries the 22.37% radius,
   `maskable` is square-cornered with the letter pulled inside the 80% safe
   circle. Both are authored in `vw`/`vh`, so each is rendered **once at 1024px**
   and resampled to the sizes in `sizes.txt` with `sips`.
@@ -615,15 +692,22 @@ Current focus:
 - Exterior Wash: ₦2,000 (body, wheels, glass)
 - Full Wash: ₦3,000 (exterior wash + interior cleaned)
 - Vacuum Wash: ₦4,000 (exterior wash + interior machine-vacuumed)
-- Buffing: ₦20,000 (full wash + paintwork machine-polished)
 - Location: 6th Avenue, Gwarinpa, Abuja
 - Pay to the Jaranow business account after the wash
 
-The four carwash services are listed in six places that must stay in step:
+The three carwash services are listed in five places that must stay in step
+(the A5 flyer is no longer one of them — it lists no services at all):
 `src/components/carwash/Pricing.tsx` (the component), `src/pages/Pricing.tsx`
 (`carwashOptions`), the JSON-LD `OfferCatalog` in `src/pages/CarwashLanding.tsx`,
 the `washTypes` dropdown in `src/components/carwash/BookingForm.tsx`, and the
 `brand/gen-pricelist.js` `LISTS` array. Change one, change all five.
+
+**Buffing (₦20,000, paintwork machine-polished) was withdrawn in August 2026**
+and removed from all five. Do not reintroduce it without confirmation. The
+carwash grids are sized for three cards (`lg:grid-cols-3`) — a fourth service
+means revisiting them. `gen-sign.js`'s `SERVICES` still advertises "Detailing"
+in buffing's old slot; confirm whether that is offered before reprinting a
+panel.
 
 **Laundry by Jaranow:**
 - Lite Plan: ₦14,999/month (2 washes, up to 12 clothes each)

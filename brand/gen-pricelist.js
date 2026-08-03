@@ -98,7 +98,7 @@ const LISTS = [
         footer: {left: "6th Avenue, Gwarinpa", right: "Open daily · 8am–7pm"},
         note: "We treat every car like it's the only one we're washing today - pay after your wash.",
         cover: {
-            sub: "Exterior, full, vacuum and buffing - done properly.",
+            sub: "Exterior, full and vacuum washes - done properly.",
         },
     },
     {

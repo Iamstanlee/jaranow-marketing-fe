@@ -55,7 +55,7 @@ const FAQ: React.FC = () => {
         <div>
           {/* Section Header */}
           <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl sm:text-5xl heading-display text-gray-900 mb-4">
               Frequently Asked Questions
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">

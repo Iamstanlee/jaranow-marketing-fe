@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {motion} from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from 'react-router-dom';
-import { Check, CreditCard, Smartphone, Shield, Car, Sparkles, MapPin, Wind, Gem } from 'lucide-react';
+import { Check, CreditCard, Smartphone, Shield, Car, Sparkles, MapPin, Wind } from 'lucide-react';
 import { SubscriptionPlan } from '../types';
 import { formatCurrency } from '../utils/formatters';
 import Header from '../components/common/Header';
@@ -116,19 +116,6 @@ I'd like to get started. When is the next available pickup?`;
       ],
       icon: <Wind className="w-7 h-7 text-primary-700" />,
       featured: false
-    },
-    {
-      name: 'Buffing',
-      price: '₦20,000',
-      tagline: 'A full wash, then paintwork machine-polished.',
-      includes: [
-        'Everything in the Full Wash',
-        'Paintwork machine-polished',
-        'Gloss restored, light swirls removed',
-        'Finished and inspected by hand'
-      ],
-      icon: <Gem className="w-7 h-7 text-primary-700" />,
-      featured: false
     }
   ];
 
@@ -191,7 +178,7 @@ I'd like to get started. When is the next available pickup?`;
       <section className="pt-28 pb-12 bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl heading-display text-white mb-6">
               What It <span className="text-cyan-300">Costs</span>
             </h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto">
@@ -236,7 +223,9 @@ I'd like to get started. When is the next available pickup?`;
           {/* Car Wash Pricing */}
           {activeTab === 'carwash' && (
             <div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {/* Three cards: one column until lg, then three across. A 2-column
+                  grid dangles the third card on its own row. */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
                 {carwashOptions.map((option) => (
                   <div
                     key={option.name}

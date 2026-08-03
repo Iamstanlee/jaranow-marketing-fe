@@ -18,7 +18,7 @@ const WashRecommendation: React.FC = () => {
       {/* Hero band (blends with the fixed header) */}
       <section className="pt-28 pb-12 bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Find Your Perfect Plan</h1>
+          <h1 className="text-4xl sm:text-5xl heading-display text-white mb-4">Find Your Perfect Plan</h1>
           <p className="text-xl text-blue-100 max-w-2xl mx-auto">
             Answer a few quick questions and we'll recommend the laundry plan that fits you best.
           </p>

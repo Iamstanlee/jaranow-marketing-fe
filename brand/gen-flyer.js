@@ -31,8 +31,8 @@
 
    The page is fixed-height with overflow:hidden, so copy that outgrows it does
    NOT make the page taller - it silently slides the closing note under the
-   accent bar. A5 has about a third of A4's area and this sheet is already
-   close to full, so a third service block or a third line of `sub` will do it.
+   accent bar. A5 has about a third of A4's area, so a fourth point, a headline
+   long enough to run to three lines, or a second line of `sub` will do it.
    Always eyeball the PNG after changing the copy.
 
    Usage: node gen-flyer.js <outdir>
@@ -51,6 +51,18 @@ const PAPER = "#F2F5FB";
 const DPI = 300;
 const mm = (n) => Math.round((n * DPI) / 25.4);
 
+/* ---- headline face ----
+   The prominent type - headline and phone number - is Archivo Black, the same
+   face the roadside panels use for CAR WASH, so a sheet in someone's hand and
+   the sign they drove past read as one thing. Everything else stays Rubik.
+
+   Archivo Black ships ONE weight (400): asking for 700 gets a synthetic bold
+   that smears the outline. Leave the weight alone.
+
+   Not a wordmark substitution (BRAND-STANDARD §8.1) - the lockup at the top of
+   the sheet is still the drawn SVG, and this is body copy set loud. */
+const HEADLINE = {family: "Archivo Black", weight: 400};
+
 const BLEED = 3;
 const PAGE_W = mm(148 + BLEED * 2); // 1819
 const PAGE_H = mm(210 + BLEED * 2); // 2551
@@ -65,17 +77,29 @@ const SAFE = mm(BLEED + 10);
      file      output basename
      lockup    lockup SVG (white, knockout - the page is Ink)
      kicker    small accent line under the lockup
-     headline  the promise. ~40 characters - it is read from a hand, in a few
-               seconds, by someone who did not ask for it.
-     sub       one or two sentences under it
-     services  [{name, note}] - the washes, WITHOUT figures. These are the same
-               four services as gen-pricelist.js and the components listed in
-               CLAUDE.md, and must stay in step with them. Four fit; a fifth
-               does not, and the page will not tell you so (see the overflow
-               note above).
+     headline  the promise. ~40 characters, set in Archivo Black - it is read
+               from a hand, in a few seconds, by someone who did not ask for it.
+     sub       one sentence under it
+     points    three short lines about HOW THE WORK IS DONE. Three or four
+               words each, no second line, no explanation.
      offer     optional accent line - the one thing worth asking about at the desk
      contact   { whatsapp, web?, social? }
      note      closing line above the bar
+
+   IT SELLS THE QUALITY OF THE WORK, NOT A MENU. This sheet used to carry the
+   wash types with their inclusions under each. That is a price list with the
+   figures taken out - it made someone in a car park read three rows to work out
+   what to choose, and it said nothing about why they should choose us. The
+   washes are on the wall list at the forecourt (gen-pricelist.js) and on
+   /pricing, which is where a person who has already decided goes looking. Here
+   the job is to make them want to come at all: care, attention, integrity. Do
+   not re-add the service rows.
+
+   LANGUAGE: plain, spoken, local. Short words, short sentences, the way it
+   would be said across the desk at Gwarinpa - "we wash your car well", not
+   "meticulous attention to detail". Someone reads this in a few seconds with
+   one hand on a steering wheel. Anything that needs a second pass is too
+   clever for this sheet.
 
    Every fact is from CLAUDE.md. Do not state a price, a turnaround or a
    capability that is not confirmed there. In particular: the carwash is
@@ -87,16 +111,16 @@ const FLYERS = [
         file: "flyer-carwash",
         lockup: "jaranow-carwash-by-jaranow-white",
         kicker: "6th Avenue, Gwarinpa",
-        headline: "Your car, properly looked after.",
-        sub: "Every car gets the same attention — paint, wheels, glass and the inside — from people who take it seriously.",
-        services: [
-            {name: "Exterior wash", note: "Body, wheels and glass"},
-            {name: "Full wash", note: "Exterior wash · interior cleaned"},
-            {name: "Deep/Vacuum wash", note: "Exterior wash · interior machine-vacuumed"},
+        headline: "We wash your car well.",
+        sub: "Bring your car to us and we will take our time with it.",
+        points: [
+            "We don't rush your car",
+            "We clean inside and outside",
+            "You see it before you pay",
         ],
-        offer: "Ask for a loyalty card — five washes, and the sixth is on us.",
+        offer: "Ask for a loyalty card. Wash five times and the sixth one is on us.",
         contact: {whatsapp: "0903 862 2012", web: "jaranow.com", social: "@jara_now"},
-        note: "Drive in any day, 8am–7pm. Pay after your wash.",
+        note: "Drive in any day, 8am–7pm.",
     },
 ];
 
@@ -155,35 +179,37 @@ const CSS = `
     display:flex; flex-direction:column; justify-content:center;
     gap:${mm(5)}px;
   }
+  /* With the service rows gone the headline is what the sheet is, so it takes
+     the space they were using. 13mm in Archivo Black sets this headline on two
+     lines against the 124mm measure - the face is far wider than Rubik at the
+     same size, so a longer headline wraps to three and the block starts
+     crowding the points. Check the PNG if you lengthen it. */
   .headline{
-    font-size:${mm(11)}px; font-weight:700; line-height:1.06;
-    letter-spacing:-.025em; max-width:${mm(118)}px;
+    font-family:'${HEADLINE.family}',system-ui,sans-serif;
+    font-size:${mm(13)}px; font-weight:${HEADLINE.weight}; line-height:1.02;
+    /* Looser than the Rubik setting was: heavy letters need air between them. */
+    letter-spacing:-.008em; max-width:${mm(124)}px;
     /* Evens the lines. Without it the last word hangs on its own. */
     text-wrap:balance;
   }
   .sub{
-    font-size:${mm(4.3)}px; font-weight:400; line-height:1.5;
-    color:rgba(242,245,251,.62); max-width:${mm(122)}px;
+    font-size:${mm(4.6)}px; font-weight:400; line-height:1.5;
+    color:rgba(242,245,251,.72); max-width:${mm(120)}px;
   }
 
-  /* The washes. A plain list, deliberately reading as facts rather than as a
-     menu with the figures taken out - no price column means no ragged right
-     edge to explain. */
-  .services{margin-top:${mm(3)}px}
-  .service{
-    position:relative; padding:${mm(2.6)}px 0 ${mm(2.6)}px ${mm(6)}px;
-    border-bottom:${mm(0.3)}px solid rgba(242,245,251,.12);
+  /* How the work is done - three short lines, no rules, no second line under
+     each. What was here before was the wash list, which read as a menu and
+     answered a question nobody in a car park is asking yet. These sell the
+     work; the figures and the wash types live on the wall list and /pricing. */
+  .points{margin-top:${mm(6)}px; display:flex; flex-direction:column; gap:${mm(4.4)}px}
+  .point{
+    position:relative; padding-left:${mm(7)}px;
+    font-size:${mm(5.6)}px; font-weight:500; line-height:1.2;
   }
-  .service:first-child{border-top:${mm(0.3)}px solid rgba(242,245,251,.12)}
   /* Square accent tick rather than a bullet glyph - the dot is the drop's job. */
-  .service::before{
-    content:""; position:absolute; left:0; top:${mm(5)}px;
-    width:${mm(2)}px; height:${mm(2)}px; background:${ACCENT};
-  }
-  .service .name{font-size:${mm(5.4)}px; font-weight:500; line-height:1.15}
-  .service .svc-note{
-    font-size:${mm(3.5)}px; font-weight:400; line-height:1.4;
-    color:rgba(242,245,251,.55); margin-top:${mm(1.2)}px;
+  .point::before{
+    content:""; position:absolute; left:0; top:${mm(2)}px;
+    width:${mm(2.4)}px; height:${mm(2.4)}px; background:${ACCENT};
   }
 
   /* The loyalty line. Accent, so it reads as the one thing on the page worth
@@ -205,9 +231,11 @@ const CSS = `
     font-size:${mm(3.4)}px; font-weight:500; letter-spacing:.22em;
     text-transform:uppercase; color:${ACCENT};
   }
+  /* The number is the other thing on the sheet that has to carry across a
+     forecourt, so it takes the headline face too. */
   .wa .num{
-    font-size:${mm(7.2)}px; font-weight:700; letter-spacing:-.01em;
-    font-variant-numeric:tabular-nums;
+    font-family:'${HEADLINE.family}',system-ui,sans-serif;
+    font-size:${mm(7.6)}px; font-weight:${HEADLINE.weight}; letter-spacing:-.01em;
   }
   .rest{
     margin-top:${mm(2.4)}px;
@@ -224,11 +252,6 @@ const CSS = `
   .bar{position:absolute; left:0; right:0; bottom:0; height:${mm(BLEED + 7)}px; background:${ACCENT}}
 `;
 
-const service = (s) => `<div class="service">
-    <div class="name">${s.name}</div>
-    ${s.note ? `<div class="svc-note">${s.note}</div>` : ""}
-  </div>`;
-
 const flyerBody = (f) => `<div class="dots"></div>
 ${watermark()}
 <div class="head">
@@ -238,8 +261,8 @@ ${watermark()}
 <div class="body">
   <h1 class="headline">${f.headline}</h1>
   <p class="sub">${f.sub}</p>
-  <div class="services">
-${f.services.map(service).join("\n")}
+  <div class="points">
+${(f.points || []).map((p) => `    <div class="point">${p}</div>`).join("\n")}
   </div>
 </div>
 ${f.offer ? `<p class="offer">${f.offer}</p>` : ""}
@@ -255,7 +278,7 @@ ${f.note ? `<p class="note">${f.note}</p>` : ""}`;
 const page = (body) => `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Archivo+Black&display=block" rel="stylesheet">
 <style>${CSS}</style></head><body>
 ${body}
 <div class="bar"></div>
@@ -263,7 +286,7 @@ ${body}
 
 for (const f of FLYERS) {
     fs.writeFileSync(path.join(OUT, "html", `${f.file}.html`), page(flyerBody(f)));
-    console.log(`template  ${f.file}.html  ${f.services.length} service lines`);
+    console.log(`template  ${f.file}.html  ${(f.points || []).length} points`);
 }
 
 console.log(`\n${FLYERS.length} flyers written to ${path.join(OUT, "html")}`);

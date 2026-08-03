@@ -1,5 +1,5 @@
 import React from 'react';
-import {Car, Check, Sparkles, Wind, Gem} from 'lucide-react';
+import {Car, Check, Sparkles, Wind} from 'lucide-react';
 
 interface WashOption {
     name: string;
@@ -53,18 +53,6 @@ const Pricing: React.FC<PricingProps> = ({onBook}) => {
             ],
             icon: <Wind size={28} className="text-primary-700"/>,
         },
-        {
-            name: 'Buffing',
-            price: '₦20,000',
-            tagline: 'A full wash, then paintwork machine-polished.',
-            includes: [
-                'Everything in the Full Wash',
-                'Paintwork machine-polished',
-                'Gloss restored, light swirls removed',
-                'Finished and inspected by hand',
-            ],
-            icon: <Gem size={28} className="text-primary-700"/>,
-        },
     ];
 
     return (
@@ -72,16 +60,18 @@ const Pricing: React.FC<PricingProps> = ({onBook}) => {
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div>
                     <div className="text-center mb-6">
-                        <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+                        <h2 className="text-4xl sm:text-5xl heading-display text-gray-900 mb-4">
                             Choose your wash
                         </h2>
                         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                            Four ways to have your car cared for. Every one washed by hand and
+                            Three ways to have your car cared for. Every one washed by hand and
                             finished to the same standard.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-12">
+                    {/* Three cards: one column until lg, then three across. A 2-column
+                        grid dangles the third card on its own row. */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-5xl mx-auto mt-12">
                         {options.map((option) => (
                             <div key={option.name} className={`relative rounded-2xl p-8 flex flex-col transition-all duration-300 hover:-translate-y-1 ${
                                     option.featured

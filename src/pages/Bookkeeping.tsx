@@ -1316,21 +1316,7 @@ function Reports({sales, loyalty, expenses, loading}: {
                                                                                                           setRange={setRange}
                                                                                                           label="Filter report by date"/>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            <Stat title="Revenue" value={money(totals.revenue)} icon={CircleDollarSign} tint="bg-blue-50 text-blue-600"
-                  note={`${totals.count} sales`} loading={loading}/>
-            <Stat title="Loyalty points" value={String(points)} icon={Gift} tint="bg-violet-50 text-violet-600"
-                  note="Currently held by customers" loading={loading}/>
-            <Stat title="Free washes" value={String(totals.redemptions)} icon={Sparkles}
-                  tint="bg-emerald-50 text-emerald-600" note="Redemptions in period" loading={loading}/>
-            <Stat title="Average sale" value={money(totals.count ? totals.revenue / totals.count : 0)} icon={BarChart3}
-                  tint="bg-amber-50 text-amber-600" note="Revenue per transaction" loading={loading}/>
-            <Stat title="Cars per day" value={tradingDays ? carsPerDay.toFixed(1) : '—'} icon={Car}
-                  tint="bg-sky-50 text-sky-600" loading={loading}
-                  note={tradingDays ? `Across ${tradingDays} day${tradingDays === 1 ? '' : 's'} with sales` : 'No sales in period'}/>
-        </div>
-        <SalesTrend sales={sales} filtered={filtered} range={range} loading={loading}/>
-        <section className="mt-7 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+        <section className="mb-7 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
             <div className="flex items-center gap-3">
                 <div className="grid h-11 w-11 place-items-center rounded-xl bg-emerald-50 text-emerald-600"><PiggyBank/>
                 </div>
@@ -1354,6 +1340,20 @@ function Reports({sales, loyalty, expenses, loading}: {
                     <p className="mt-1 text-xl font-bold">{money(netIncome)}</p>}</div>
             </div>
         </section>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            <Stat title="Revenue" value={money(totals.revenue)} icon={CircleDollarSign} tint="bg-blue-50 text-blue-600"
+                  note={`${totals.count} sales`} loading={loading}/>
+            <Stat title="Loyalty points" value={String(points)} icon={Gift} tint="bg-violet-50 text-violet-600"
+                  note="Currently held by customers" loading={loading}/>
+            <Stat title="Free washes" value={String(totals.redemptions)} icon={Sparkles}
+                  tint="bg-emerald-50 text-emerald-600" note="Redemptions in period" loading={loading}/>
+            <Stat title="Average sale" value={money(totals.count ? totals.revenue / totals.count : 0)} icon={BarChart3}
+                  tint="bg-amber-50 text-amber-600" note="Revenue per transaction" loading={loading}/>
+            <Stat title="Cars per day" value={tradingDays ? carsPerDay.toFixed(1) : '—'} icon={Car}
+                  tint="bg-sky-50 text-sky-600" loading={loading}
+                  note={tradingDays ? `Across ${tradingDays} day${tradingDays === 1 ? '' : 's'} with sales` : 'No sales in period'}/>
+        </div>
+        <SalesTrend sales={sales} filtered={filtered} range={range} loading={loading}/>
         <div className="mt-7 grid gap-6 lg:grid-cols-2">
             <section className="rounded-2xl border border-slate-200 bg-white p-5"><h2 className="font-bold">Sales by
                 service</h2>

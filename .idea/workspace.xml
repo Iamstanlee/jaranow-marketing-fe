@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add beanslabs mark" />
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add beanslabs mark">
+      <change beforePath="$PROJECT_DIR$/firestore.rules" beforeDir="false" afterPath="$PROJECT_DIR$/firestore.rules" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/Bookkeeping.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Bookkeeping.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -175,6 +178,8 @@
       <workItem from="1785226086815" duration="415000" />
       <workItem from="1785381117631" duration="1378000" />
       <workItem from="1785684877042" duration="23402000" />
+      <workItem from="1785834159142" duration="1735000" />
+      <workItem from="1786121610848" duration="2389000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

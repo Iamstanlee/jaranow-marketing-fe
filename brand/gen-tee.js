@@ -74,7 +74,7 @@ const GARMENTS = {
        makes the sheet lie about the cloth colour it exists to approve. */
     lift: "#FBFCFE",
     rib: "#E4E9F4",
-    mark: "duo",
+    mark: "black",
   },
 };
 

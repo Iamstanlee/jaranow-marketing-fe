@@ -40,6 +40,20 @@ service cloud.firestore {
       allow read, create, update, delete: if signedIn();
     }
 
+    // The team on the rota. Deletes are allowed for a row typed in by mistake; the desk
+    // steers towards archiving instead (active: false), which keeps a person's name on the
+    // weeks they actually worked. Like the sales ledger, the admin/staff split is enforced
+    // client-side only — anyone who can reach the collection can write to it.
+    match /car_wash_staff/{staffId} {
+      allow read, create, update, delete: if signedIn();
+    }
+
+    // Duty roster — one document per person per slot. `day` anchors the slot: the Monday of
+    // the week for Cleaning, the Sunday itself for Off. See src/book/roster.ts.
+    match /car_wash_roster/{dutyId} {
+      allow read, create, update, delete: if signedIn();
+    }
+
     // Deny everything else outright.
     match /{document=**} {
       allow read, write: if false;

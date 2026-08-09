@@ -11,6 +11,7 @@ import {PeriodFilter} from '../components/PeriodFilter';
 import {SalesTable} from '../components/SalesTable';
 import {Skeleton} from '../components/Skeleton';
 import {Stat} from '../components/Stat';
+import {ExpenseBreakdown} from './ExpenseBreakdown';
 import {SalesTrend} from './SalesTrend';
 
 export function Reports({sales, loyalty, expenses, loading}: {
@@ -76,6 +77,7 @@ export function Reports({sales, loyalty, expenses, loading}: {
                   note={tradingDays ? `Across ${tradingDays} day${tradingDays === 1 ? '' : 's'} with sales` : 'No sales in period'}/>
         </div>
         <SalesTrend sales={sales} filtered={filtered} range={range} loading={loading}/>
+        <ExpenseBreakdown expenses={filteredExpenses} revenue={totals.revenue} period={period} loading={loading}/>
         <div className="mt-7 grid gap-6 lg:grid-cols-2">
             <section className="rounded-2xl border border-slate-200 bg-white p-5"><h2 className="font-bold">Sales by
                 service</h2>

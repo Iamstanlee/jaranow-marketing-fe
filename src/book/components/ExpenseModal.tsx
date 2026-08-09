@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import {EXPENSE_CATEGORIES} from '../constants';
 import type {Expense} from '../types';
 import {Modal} from './Modal';
 
@@ -9,7 +10,12 @@ export function ExpenseModal({record, close, save}: {
     close: () => void;
     save: (record: Omit<Expense, 'id' | 'createdAt'>) => Promise<void>
 }) {
-    const [category, setCategory] = useState(record?.category || 'Supplies'),
+    // An expense filed under a category that has since been renamed or dropped still has to
+    // edit as itself — without its own option the select would fall to the first entry and
+    // silently refile it the moment anything else on the form was corrected.
+    const options: string[] = record?.category && !EXPENSE_CATEGORIES.includes(record.category as typeof EXPENSE_CATEGORIES[number])
+        ? [record.category, ...EXPENSE_CATEGORIES] : [...EXPENSE_CATEGORIES];
+    const [category, setCategory] = useState(record?.category || options[0]),
         [payment, setPayment] = useState(record?.payment || 'Cash'), [note, setNote] = useState(record?.note || ''),
         [amount, setAmount] = useState(record ? String(record.amount) : '');
     const [submitting, setSubmitting] = useState(false), [error, setError] = useState('');
@@ -31,12 +37,7 @@ export function ExpenseModal({record, close, save}: {
         <form onSubmit={submit} className="space-y-4"><label className="block text-sm font-medium">Category<select value={category}
                                                                                               onChange={e => setCategory(e.target.value)}
                                                                                               className="mt-1 w-full rounded-xl border-slate-200">
-            <option>Supplies</option>
-            <option>Staff</option>
-            <option>Utilities</option>
-            <option>Maintenance</option>
-            <option>Transport</option>
-            <option>Other</option>
+            {options.map(option => <option key={option}>{option}</option>)}
         </select></label><label className="block text-sm font-medium">Payment source<select value={payment}
                                                                                             onChange={e => setPayment(e.target.value)}
                                                                                             className="mt-1 w-full rounded-xl border-slate-200">

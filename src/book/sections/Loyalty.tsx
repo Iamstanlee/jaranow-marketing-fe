@@ -11,11 +11,15 @@ export function LoyaltySection({members, loading}: { members: Loyalty[]; loading
     // Points are floored at 0 for display: deleting a sale whose point was already spent
     // leaves the stored balance short, and a card reading "−1 / 5 points" is not something a
     // customer holding a stamp card can be shown. See removeSale.
+    // Sorting happens after the map, never before: codeFor() reads the position in `members`,
+    // and that same list order is what SaleModal and removeSale resolve a typed code against.
+    // Reordering the input would hand a member somebody else's number.
+    // Sort on the number, not the string, so LOY-9 comes before LOY-10.
     const coded = useMemo(() => members.map((m, i) => ({
         ...m,
         code: codeFor(m, i),
         points: Math.max(0, m.points)
-    })), [members]);
+    })).sort((a, b) => Number(a.code.replace(/\D/g, '')) - Number(b.code.replace(/\D/g, ''))), [members]);
     const {slice, ...pager} = usePage(coded, undefined, 9);
     // Cards, not a spinner, and the same grid they will land in — the stamp row is the shape
     // this section is recognised by, so the skeleton keeps it.

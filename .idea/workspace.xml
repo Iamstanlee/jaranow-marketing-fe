@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Cleanup and rota feature">
-      <change beforePath="$PROJECT_DIR$/src/book/components/ExpenseModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/components/ExpenseModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/constants.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/constants.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/sections/Reports.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Reports.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Cleanup and rota feature" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -181,7 +177,8 @@
       <workItem from="1785684877042" duration="23402000" />
       <workItem from="1785834159142" duration="1735000" />
       <workItem from="1786121610848" duration="4222000" />
-      <workItem from="1786264788918" duration="1336000" />
+      <workItem from="1786264788918" duration="1791000" />
+      <workItem from="1786294520290" duration="1236000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

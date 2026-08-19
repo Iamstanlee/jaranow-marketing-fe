@@ -77,25 +77,97 @@ const joined = (person: Staff) => person.createdAt?.toDate().getTime() ?? 0;
 export const rotation = (staff: Staff[], duty: Duty) => staff.filter(p => inRotation(p, duty))
     .sort((a, b) => joined(a) - joined(b) || a.name.localeCompare(b.name));
 
-// Whose turn a slot falls to. Off is offset one place along the cycle so the person carrying
-// cleaning for the week is not also the one away on its Sunday — with a team of one there is
-// nobody else to be, and the same name correctly comes back for both.
+// Weeks before the epoch give a negative turn, and JS % keeps the sign.
+const turnAt = (order: Staff[], turn: number) => order[((turn % order.length) + order.length) % order.length];
+const gcd = (a: number, b: number): number => b ? gcd(b, a % b) : a;
+
+// Whose turn a slot falls to.
 //
-// Exemptions can make the two cycles different lists, and offsetting within one list is then
-// no longer enough to keep those two picks apart: the offset lands on whoever is next in the
-// OFF order, who may well be the person the cleaning order chose. So the collision is checked
-// for and stepped past. With one shared list this is unreachable — the offset already
-// guarantees a different name — so it costs nothing in the ordinary case.
+// Cleaning is the plain cycle — one person per week, straight down the list — so with `n`
+// people in it everybody has it once every `n` weeks and nobody has it twice running.
+//
+// Off is that cycle offset one place along, so whoever is carrying cleaning for the week is
+// not also the one away on its Sunday. The offset is enough on its own while the two
+// rotations are the same list of people, which they are until somebody is exempt from one.
+//
+// Exemptions make them two lists of different lengths, and then the offset can land on
+// exactly the person the cleaning order chose. Stepping one further along the cycle looks
+// like the fix and is not: it eats the following week's turn a week early, so that person
+// comes round twice in a row and the person stepped over loses their turn altogether. With
+// four people off and three cleaning that put one name on two Sundays running while another
+// went six weeks without one.
+//
+// So a clash moves a turn WITHIN its own cycle instead of stepping outside it. The two cycles
+// line up again every lcm(off, cleaning) weeks, so that whole period is laid out in one go and
+// each run of `n` weeks in it is dealt out as a permutation of the `n` people. Which week
+// somebody is off can move; how many turns they get cannot. That is what makes the guarantee
+// hold by construction rather than by inspection: everybody in the rotation is off exactly
+// once every `n` weeks, and never two weeks running.
+//
+// One full period of Sunday-off turns, indexed by week-within-period. It is laid out week by
+// week, taking the plain next turn wherever that works and backing up to try the one after it
+// where it does not — a search rather than an arithmetic trick, because the two cycles are
+// genuinely two cycles and there is no offset that reconciles every pair of lengths. It is a
+// handful of weeks over a handful of people, so it is recomputed per call; caching it would
+// mean holding a snapshot of the team that the next joiner makes wrong.
+const offPeriod = (staff: Staff[]): Staff[] => {
+    const off = rotation(staff, 'Off'), cleaning = rotation(staff, 'Cleaning');
+    const n = off.length, span = cleaning.length || 1;
+    const length = n / gcd(n, span) * span;
+    const cleanerOn = (p: number) => cleaning.length ? turnAt(cleaning, p) : null;
+    // `clear` keeps a week's Sunday off away from its own cleaning turn, `apart` keeps anybody
+    // from taking two Sundays running. Both are asked for first and given up in that order,
+    // because some teams cannot have them: one person cleaning every week has to spend one of
+    // their own Sundays off eventually, and a two-person rotation has to alternate whatever
+    // the cleaning cycle is doing. Sharing a week with cleaning is the worse of the two — one
+    // is unfair, the other is incoherent — so it is the last thing dropped.
+    const lay = (apart: boolean, clear: boolean): Staff[] | null => {
+        const picks: Staff[] = [];
+        // A search that cannot pay for itself: the periods here are a dozen weeks or so and
+        // settle in a few hundred steps, so a budget this size is only ever spent by a shape
+        // with no answer, and spending it is how that shape is recognised.
+        let budget = 5000;
+        const allowed = (p: number, person: Staff) => {
+            if (clear && cleanerOn(p)?.id === person.id) return false;
+            if (!apart) return true;
+            if (p > 0 && picks[p - 1].id === person.id) return false;
+            // The period repeats, so the week after the last one is the first one.
+            return !(p > 0 && p === length - 1 && picks[0].id === person.id);
+        };
+        const fill = (p: number): boolean => {
+            if (p === length) return true;
+            if (budget-- < 0) return false;
+            const taken = picks.slice(p - (p % n), p);
+            // Candidates in cycle order from whoever's turn it plainly is, so a team with
+            // nothing to settle comes out as the turn-by-turn cycle it always was, and a week
+            // that has to move moves as little as it can.
+            for (let step = 0; step < n; step++) {
+                const person = turnAt(off, p + 1 + step);
+                if (taken.some(t => t.id === person.id) || !allowed(p, person)) continue;
+                picks[p] = person;
+                if (fill(p + 1)) return true;
+            }
+            picks.length = p;
+            return false;
+        };
+        return fill(0) ? picks : null;
+    };
+    // The last resort is the plain cycle: a team of one is off on the Sunday of the week they
+    // clean, because there is nobody else to be either.
+    return lay(true, true) || lay(false, true) || lay(true, false)
+        || Array.from({length}, (_, p) => turnAt(off, p + 1));
+};
+
+// A hand-written swap is not consulted here: the rotation is derived from the team alone, so
+// swapping somebody into a cleaning week can still put their name in both panels. That is a
+// decision somebody made rather than a clash the rota caused.
 export const dueFor = (duty: Duty, monday: Date, staff: Staff[]): Staff | null => {
     const order = rotation(staff, duty);
     if (!order.length) return null;
-    // Weeks before the epoch give a negative turn, and JS % keeps the sign.
-    const at = (turn: number) => order[((turn % order.length) + order.length) % order.length];
     const week = weekNumber(monday);
-    if (duty !== 'Off') return at(week);
-    const pick = at(week + 1);
-    const cleaner = dueFor('Cleaning', monday, staff);
-    return cleaner && cleaner.id === pick.id && order.length > 1 ? at(week + 2) : pick;
+    if (duty !== 'Off') return turnAt(order, week);
+    const period = offPeriod(staff);
+    return period[((week % period.length) + period.length) % period.length];
 };
 
 // A slot filled by the rotation rather than by a person. It is shaped like a stored entry so

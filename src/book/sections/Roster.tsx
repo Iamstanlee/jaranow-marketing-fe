@@ -1,5 +1,5 @@
 import {useMemo, useState} from 'react';
-import {CalendarDays, ChevronLeft, ChevronRight, Coffee, Plus, SprayCan, UserPlus, Users} from 'lucide-react';
+import {BroomSparkles, CalendarDays, ChevronLeft, ChevronRight, Parasol, Plus, UserPlus, Users} from 'lucide-react';
 import {DUTIES, type Duty} from '../constants';
 import {addDays, isoDay, startOfWeek} from '../format';
 import {type Assignment, nameOf, rotation, slotLabel, sundayOf, weekRoster, weekSpan} from '../roster';
@@ -12,9 +12,9 @@ import {StaffModal} from '../components/StaffModal';
 
 // How each duty reads. Never colour alone: the icon and the word carry the difference, so a
 // panel photographed and sent on WhatsApp still says which is which.
-const DUTY_STYLE: Record<Duty, { chip: string; tint: string; icon: typeof SprayCan }> = {
-    Cleaning: {chip: 'bg-blue-50 text-blue-900 border-blue-100', tint: 'bg-blue-50 text-blue-600', icon: SprayCan},
-    Off: {chip: 'bg-amber-50 text-amber-900 border-amber-100', tint: 'bg-amber-50 text-amber-600', icon: Coffee}
+const DUTY_STYLE: Record<Duty, { chip: string; tint: string; icon: typeof BroomSparkles }> = {
+    Cleaning: {chip: 'bg-blue-50 text-blue-900 border-blue-100', tint: 'bg-blue-50 text-blue-600', icon: BroomSparkles},
+    Off: {chip: 'bg-amber-50 text-amber-900 border-amber-100', tint: 'bg-amber-50 text-amber-600', icon: Parasol}
 };
 const STEP = 'grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-500';
 
@@ -203,7 +203,7 @@ export function Roster({staff, roster, role, loading, onAddStaff, onUpdateStaff,
 //
 // The badge says where the name came from. Without it a swapped week and a week that simply
 // came round are indistinguishable, and the difference matters: one survives a change to the
-// team and the other is recomputed from it.
+// team and the other are recomputed from it.
 function DutyRow({entry, staff, onEdit}: { entry: Assignment; staff: Staff[]; onEdit?: () => void }) {
     const {chip} = DUTY_STYLE[entry.duty];
     const label = nameOf(entry, staff);

@@ -108,6 +108,39 @@ describe('dueFor', () => {
         }
     });
 
+    it('gives everybody one Sunday off per cycle, and never two weeks running', () => {
+        // The case the old rotation got wrong. Four people take Sundays off, three of them
+        // clean, so the two cycles are different lengths and the offset alone stops keeping
+        // them apart. Stepping past a clash used to consume the next week's turn a week
+        // early: one name took two Sundays running while another went six weeks without one.
+        const team4 = [...team, person('d', 'Bimpe Ali', '2024-04-01')];
+        const mixed = [team4[0], team4[1], team4[2], exempt(team4[3], 'Cleaning')];
+        const offs: string[] = [];
+        for (let i = 0; i < 24; i++) {
+            const week = new Date(monday('2024-01-01').getTime() + i * 604_800_000);
+            offs.push(dueFor('Off', week, mixed)!.id);
+            expect(dueFor('Off', week, mixed)!.id).not.toBe(dueFor('Cleaning', week, mixed)!.id);
+        }
+        expect(offs.slice(1).filter((id, i) => id === offs[i])).toEqual([]);
+        // Four in the rotation, so every four-week cycle holds all four exactly once.
+        for (let start = 0; start + 4 <= offs.length; start += 4)
+            expect(Array.from(new Set(offs.slice(start, start + 4)))).toHaveLength(4);
+    });
+
+    it('keeps the turns of the week either side of a cycle apart too', () => {
+        // A trade at the end of one cycle can hand the same person the start of the next,
+        // which is once per cycle and still two Sundays running. The period wraps for exactly
+        // this reason, so the boundary is checked like any other week.
+        const mixed = [team[0], exempt(team[1], 'Cleaning'), team[2]];
+        let previous = '';
+        for (let i = -12; i < 36; i++) {
+            const week = new Date(monday('2024-01-01').getTime() + i * 604_800_000);
+            const id = dueFor('Off', week, mixed)!.id;
+            expect(id).not.toBe(previous);
+            previous = id;
+        }
+    });
+
     it('gives a team of one both duties rather than nothing', () => {
         const solo = [team[0]];
         expect(dueFor('Cleaning', monday('2024-05-06'), solo)!.id).toBe('a');

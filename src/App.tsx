@@ -8,7 +8,12 @@ const WashLanding = React.lazy(() => import('./pages/WashLanding'));
 const WashRecommendation = React.lazy(() => import('./pages/WashRecommendation'));
 const Deck = React.lazy(() => import("./pages/Deck"));
 const Pricing = React.lazy(() => import('./pages/Pricing'));
-const Bookkeeping = React.lazy(() => import('./pages/Bookkeeping'));
+// Named so the build can find its chunk by filename and preload it (and its firebase and
+// vendor siblings) from build/__/book/index.html — see scripts/prerender-meta.js. Without
+// that, reaching the desk costs three serial round trips: main.js, then this chunk, then the
+// firebase chunk it turns out to need. Do not rename without changing `preloadChunk` in
+// src/seo/routes.json to match.
+const Bookkeeping = React.lazy(() => import(/* webpackChunkName: "book" */ './pages/Bookkeeping'));
 
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center bg-white">

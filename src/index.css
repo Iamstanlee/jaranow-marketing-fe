@@ -61,3 +61,35 @@ code {
 .animation-delay-2000 {
   animation-delay: 2s;
 }
+
+/* Business desk toasts. These were framer-motion `motion.button`s inside an AnimatePresence,
+   which pulled the whole 41KB (gzipped) animation runtime into the /__/book bundle for one
+   fade — on a route whose load time is the thing being optimised. The motion is identical;
+   Toasts.tsx holds a card in the leaving state for the length of the transition so the exit
+   still plays before the list drops it.
+
+   What is deliberately NOT reproduced is framer's `layout` animation: when one of a stack of
+   toasts goes, the ones below it now snap up rather than sliding. That is the whole cost. */
+@keyframes book-toast-in {
+  from { opacity: 0; transform: translateY(-14px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.book-toast {
+  animation: book-toast-in 180ms ease-out both;
+  transition: opacity 180ms ease-in, transform 180ms ease-in;
+}
+
+.book-toast-leaving {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
+  /* Beats the entrance keyframe, which would otherwise hold the card at its `to` state. */
+  animation: none;
+}
+
+/* The desk is a touchscreen and these are informational; honour a stated preference for
+   less motion by simply having them appear. */
+@media (prefers-reduced-motion: reduce) {
+  .book-toast { animation: none; transition: none; }
+  .book-toast-leaving { opacity: 0; transform: none; }
+}

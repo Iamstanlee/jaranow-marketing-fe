@@ -3,6 +3,7 @@ import {Plus} from 'lucide-react';
 import {dateOf, dayLabel, money, timeLabel} from '../format';
 import {inRange, rangeKey, rangeLabel} from '../period';
 import type {Role, Sale} from '../types';
+import {useHistory} from '../hooks/useHistory';
 import {usePage} from '../hooks/usePage';
 import {useRange} from '../hooks/useRange';
 import {ConfirmDelete} from '../components/ConfirmDelete';
@@ -12,10 +13,12 @@ import {SalesTable} from '../components/SalesTable';
 import {Skeleton} from '../components/Skeleton';
 import {EditSaleModal} from '../components/SaleModal';
 
-export function Sales({sales, role, loading, onSale, onUpdate, onDelete}: {
+export function Sales({sales, role, loading, requestHistory, historyLoading, onSale, onUpdate, onDelete}: {
     sales: Sale[];
     role: Role;
     loading: boolean;
+    requestHistory: (from: number) => void;
+    historyLoading: boolean;
     onSale: () => void;
     onUpdate: (id: string, patch: Pick<Sale, 'service' | 'payment' | 'amount'>) => Promise<void>;
     onDelete?: (s: Sale) => Promise<void>
@@ -24,6 +27,12 @@ export function Sales({sales, role, loading, onSale, onUpdate, onDelete}: {
     // sales behind a default filter would read as records having gone missing. Staff, who
     // cannot filter past yesterday at all, open on today instead.
     const [range, setRange] = useRange(role, 'All time');
+    // 'All time' is the default here, so opening this section is what pulls the older records
+    // in — the desk itself boots on Overview and never pays for them.
+    useHistory(range, requestHistory);
+    // The count and the total are wrong until the history for this range has landed, so the
+    // section keeps its skeletons up rather than showing a figure it is about to change.
+    const pending = loading || historyLoading;
     const [editing, setEditing] = useState<Sale | null>(null), [deleting, setDeleting] = useState<Sale | null>(null);
     const filtered = useMemo(() => sales.filter(s => inRange(dateOf(s), range)), [sales, range]);
     const total = filtered.reduce((sum, s) => sum + s.amount, 0);
@@ -40,13 +49,13 @@ export function Sales({sales, role, loading, onSale, onUpdate, onDelete}: {
         <section className="rounded-2xl border border-slate-200 bg-white">
             <div
                 className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
-                <div>{loading ? <><Skeleton className="h-6 w-28"/><Skeleton className="mt-2 h-3 w-36"/></> : <><h2
+                <div>{pending ? <><Skeleton className="h-6 w-28"/><Skeleton className="mt-2 h-3 w-36"/></> : <><h2
                     className="font-bold">{money(total)}</h2><p
                     className="text-xs text-slate-400">{filtered.length} sale{filtered.length === 1 ? '' : 's'} · {rangeLabel(range)}</p></>}
                 </div>
                 <PeriodFilter range={range} setRange={setRange} role={role} label="Filter sales by date"/>
             </div>
-            <SalesTable sales={slice} empty="No sales in this date range." loading={loading} rows={5}
+            <SalesTable sales={slice} empty="No sales in this date range." loading={pending} rows={5}
                         onEdit={setEditing}
                         onDelete={onDelete && setDeleting}/><Pagination {...pager}/></section>
         {editing && <EditSaleModal sale={editing} close={() => setEditing(null)} save={onUpdate}/>}

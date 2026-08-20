@@ -13,12 +13,20 @@
      bleed 1075 x 721 px  <- the emitted page size
    Content sits 4mm inside the trim, so nothing important lands near a blade.
 
-   Usage: node gen-card.js <outdir>
+   Usage: node gen-card.js [outdir] [--batch[=SPEC]]
+          outdir defaults to brand/card, which is where rasterize-card.sh looks.
+          SPEC is a count (100) or an inclusive serial range (101-200).
 */
 const fs = require("fs");
 const path = require("path");
 
-const OUT = process.argv[2] || path.join(__dirname, "card");
+/* Output directory: optional, positional, and defaults to brand/card - which is
+   what rasterize-card.sh reads, so there is rarely a reason to pass it.
+   Flags are skipped when looking for it. Taking argv[2] blindly meant
+   `gen-card.js --batch=100` read the flag as the path and quietly wrote a
+   directory literally named "--batch=100" into the cwd. */
+const OUT =
+  process.argv.slice(2).find((a) => !a.startsWith("-")) || path.join(__dirname, "card");
 const SVG = path.join(__dirname, "jaranow-blue", "svg");
 fs.mkdirSync(path.join(OUT, "html"), { recursive: true });
 
@@ -249,22 +257,66 @@ console.log(`\n${CARDS.length} templates written to ${path.join(OUT, "html")}`);
 console.log(`page ${PAGE_W}x${PAGE_H}px = 85x55mm trim + ${BLEED}mm bleed @ ${DPI}dpi`);
 
 /* ---- numbered batch ------------------------------------------------------
-   `node gen-card.js <outdir> --batch[=N]` writes N serialised loyalty backs to
+   `node gen-card.js <outdir> --batch[=SPEC]` writes serialised loyalty backs to
    <outdir>/batch/html. Only the BACK varies - every front is identical, so the
    press runs one static front and N variable backs.
+
+   SPEC is either a count, which starts at 1, or an explicit inclusive range:
+
+     --batch           LOY-001..LOY-100   (the default run)
+     --batch=250       LOY-001..LOY-250
+     --batch=101-200   LOY-101..LOY-200   <- the second run of 100
+     --batch=101..200  same, if you prefer the other separator
+
+   The range form is the one to reach for on a reprint. A serial is the handle
+   the ledger keys a customer's balance off, so regenerating from 1 reissues
+   numbers that are already in customers' hands and silently puts two people on
+   one balance. Start where the last run ended: after 1-100, print 101-200.
+
+   Nothing here knows what has already been printed - that is the ledger's job,
+   not the generator's. It will happily reissue a range if you ask it to.
 -------------------------------------------------------------------------- */
+
+/* A count ("250") or an inclusive range ("101-200" / "101..200"). Returns null
+   for anything else so the caller can print usage rather than guess. */
+function parseBatch(spec) {
+  if (!spec) return { from: 1, to: 100 };
+  const range = spec.match(/^(\d+)(?:-|\.\.)(\d+)$/);
+  if (range) return { from: Number(range[1]), to: Number(range[2]) };
+  if (/^\d+$/.test(spec)) return { from: 1, to: Number(spec) };
+  return null;
+}
+
 const batchArg = process.argv.find((a) => a.startsWith("--batch"));
 if (batchArg) {
-  const count = Number(batchArg.split("=")[1] || 100);
-  if (!Number.isInteger(count) || count < 1) {
-    console.error(`--batch needs a positive whole number, got: ${batchArg}`);
+  const spec = batchArg.includes("=") ? batchArg.split("=").slice(1).join("=") : "";
+  const batch = parseBatch(spec);
+  if (!batch) {
+    console.error(`--batch needs a count or a range, got: ${batchArg}`);
+    console.error(`  --batch=250      LOY-001..LOY-250`);
+    console.error(`  --batch=101-200  LOY-101..LOY-200`);
     process.exit(1);
   }
+  const { from, to } = batch;
+  /* Serial 0 is the specimen back written above, so a run starts at 1. */
+  if (from < 1) {
+    console.error(`--batch starts at 1 (LOY-000 is the specimen), got: ${from}`);
+    process.exit(1);
+  }
+  if (to < from) {
+    console.error(`--batch range runs backwards: ${cardNo(from)}..${cardNo(to)}`);
+    process.exit(1);
+  }
+  const count = to - from + 1;
+
   const dir = path.join(OUT, "batch", "html");
+  /* Wiped first, so a re-run never leaves last run's serials behind to be
+     printed twice. One directory is one press run: to keep an earlier run,
+     copy it out before generating the next range. */
   fs.rmSync(path.join(OUT, "batch"), { recursive: true, force: true });
   fs.mkdirSync(dir, { recursive: true });
 
-  for (let n = 1; n <= count; n++) {
+  for (let n = from; n <= to; n++) {
     const no = cardNo(n);
     fs.writeFileSync(
       path.join(dir, `card-carwash-loyalty-back-${no}.html`),
@@ -272,7 +324,17 @@ if (batchArg) {
     );
   }
   console.log(
-    `\nbatch: ${count} numbered backs (${cardNo(1)}..${cardNo(count)}) -> ${dir}`
+    `\nbatch: ${count} numbered backs (${cardNo(from)}..${cardNo(to)}) -> ${dir}`
   );
   console.log(`fronts are identical - print card-carwash-loyalty-front once, x${count}`);
+  /* Past the pad width the serials get wider (LOY-999 -> LOY-1000), so a run
+     that straddles the boundary prints two different-looking cards. Not fatal,
+     but it is the kind of thing you want to hear before the press does. */
+  if (to >= 10 ** SERIAL.pad) {
+    console.warn(
+      `\nnote: ${cardNo(to)} is wider than ${SERIAL.pad} digits - this run mixes serial widths.`
+    );
+    console.warn(`      raise SERIAL.pad if the whole run should line up.`);
+  }
+  console.log(`next run starts at --batch=${to + 1}-${to + count}`);
 }

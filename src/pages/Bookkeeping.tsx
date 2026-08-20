@@ -168,7 +168,9 @@ export default function Bookkeeping() {
                           rosterLoading={!ready.staff || !ready.roster}
                           onSale={() => setSaleModal(true)}
                           onChange={setSection}/>} {section === 'sales' &&
-                <Sales sales={book.sales} role={role} loading={!ready.sales} onSale={() => setSaleModal(true)}
+                <Sales sales={book.sales} role={role} loading={!ready.sales}
+                       requestHistory={book.requestHistory} historyLoading={book.historyLoading}
+                       onSale={() => setSaleModal(true)}
                        onUpdate={book.updateSale}
                        onDelete={role === 'admin' ? book.removeSale : undefined}/>} {section === 'loyalty' &&
                 <LoyaltySection members={book.loyalty} loading={!ready.loyalty}/>} {section === 'expenses' &&
@@ -184,7 +186,8 @@ export default function Bookkeeping() {
                 <Eod totals={book.totals} expenses={book.expenseRecords}
                      loading={!ready.sales || !ready.expenses}/>} {section === 'reports' && role === 'admin' &&
                 <Reports sales={book.sales} loyalty={book.loyalty} expenses={book.expenseRecords}
-                         loading={!ready.sales || !ready.loyalty || !ready.expenses}/>}</div>
+                         loading={!ready.sales || !ready.loyalty || !ready.expenses}
+                         requestHistory={book.requestHistory} historyLoading={book.historyLoading}/>}</div>
         </main>
         {saleModal && <SaleModal members={book.loyalty} close={() => setSaleModal(false)} save={book.addSale}/>}
         {expenseModal && <ExpenseModal close={() => setExpenseModal(false)} save={book.addExpense}/>}

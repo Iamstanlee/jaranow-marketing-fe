@@ -1,5 +1,11 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import type { FirebaseApp } from 'firebase/app';
+import {
+  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 
 const config = {
@@ -14,7 +20,30 @@ const config = {
 export const firebaseEnabled = Boolean(config.apiKey && config.projectId);
 
 const app = firebaseEnabled ? initializeApp(config) : null;
-export const db = app ? getFirestore(app) : null;
+
+// A persistent cache rather than the default in-memory one. The desk is opened cold on a
+// forecourt tablet several times a day, and with a memory cache every one of those reads
+// every document back over mobile data before a single figure appears. Backed by IndexedDB
+// the reload paints from disk and the listeners then deliver only what changed since — which
+// is the difference between waiting on the network and waiting on nothing.
+//
+// The multi-tab manager is what makes that safe when the book is open in more than one tab:
+// without it the first tab takes an exclusive lock and every other tab silently falls back to
+// no persistence at all.
+function startFirestore(instance: FirebaseApp) {
+  try {
+    return initializeFirestore(instance, {
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+    });
+  } catch (error) {
+    // Private browsing and locked-down webviews have no usable IndexedDB. Falling back costs
+    // the reload speed, not the data — better than a desk that will not open at all.
+    console.warn('Firestore persistence unavailable — using the in-memory cache.', error);
+    return getFirestore(instance);
+  }
+}
+
+export const db = app ? startFirestore(app) : null;
 
 // The bookkeeping UI is gated by a client-side PIN, but that PIN never reaches the
 // server, so Firestore must not trust the client on its own. We sign in anonymously

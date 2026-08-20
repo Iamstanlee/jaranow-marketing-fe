@@ -1,25 +1,31 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
     addDoc,
     collection,
     deleteDoc,
     doc,
+    getDocs,
     increment,
+    limit,
     onSnapshot,
     orderBy,
     query,
     serverTimestamp,
-    updateDoc
+    updateDoc,
+    where
 } from 'firebase/firestore';
 import type {DocumentData, Query} from 'firebase/firestore';
 import {authReady, db, firebaseEnabled} from '../../lib/firebase';
-import {COLLECTIONS, DUTIES} from '../constants';
+import {COLLECTIONS, DUTIES, LIVE_WINDOW} from '../constants';
 import {codeFor, dateOf, money, startOfDay} from '../format';
 import {slotLabel} from '../roster';
 import {seedExpenses, seedLoyalty, seedRoster, seedSales, seedStaff} from '../seed';
 import {totalSales} from '../totals';
-import type {Expense, Loyalty, RosterEntry, Sale, Staff} from '../types';
+import type {Expense, Loyalty, RosterEntry, Sale, Staff, Timestamp} from '../types';
 import type {Notify} from './useToasts';
+
+// What both ledgers have in common, and all the merge and window helpers below need of them.
+type Dated = { createdAt?: Timestamp };
 
 type Feed = 'sales' | 'loyalty' | 'expenses' | 'staff' | 'roster';
 const FEEDS: Feed[] = ['sales', 'loyalty', 'expenses', 'staff', 'roster'];
@@ -69,14 +75,22 @@ export function useBook(day: number, toast: Notify) {
                 apply(s.docs.map(d => ({id: d.id, ...d.data()})) as T[]);
                 done(feed);
             }, onError(feed));
+            // Each feed that grows without bound is capped at its LIVE_WINDOW — the desk has to
+            // paint before it can be useful, and re-reading every wash ever recorded to show
+            // today's takings is most of why it did not. Older records are fetched once, on
+            // demand, by loadHistory below.
             offs = [
-                watch<Sale>('sales', query(collection(db, COLLECTIONS.sales), orderBy('createdAt', 'desc')), setSales),
+                watch<Sale>('sales', query(collection(db, COLLECTIONS.sales), orderBy('createdAt', 'desc'), limit(LIVE_WINDOW.sales)), setSales),
+                // Unbounded on purpose: codeFor numbers members by their position in this
+                // list, so a truncated one issues codes that belong to somebody else.
                 watch<Loyalty>('loyalty', collection(db, COLLECTIONS.loyalty), setLoyalty),
-                watch<Expense>('expenses', query(collection(db, COLLECTIONS.expenses), orderBy('createdAt', 'desc')), setExpenseRecords),
+                watch<Expense>('expenses', query(collection(db, COLLECTIONS.expenses), orderBy('createdAt', 'desc'), limit(LIVE_WINDOW.expenses)), setExpenseRecords),
                 // Ordered by name, which is the order the rota picker and the team list both
                 // want; a rota read by eye is looked up by person, not by when they joined.
                 watch<Staff>('staff', query(collection(db, COLLECTIONS.staff), orderBy('name')), setStaff),
-                watch<RosterEntry>('roster', query(collection(db, COLLECTIONS.roster), orderBy('day', 'desc')), setRoster)
+                // The rota is one entry per person per slot, so its window is years deep. It
+                // has no history path because nothing in the app navigates that far back.
+                watch<RosterEntry>('roster', query(collection(db, COLLECTIONS.roster), orderBy('day', 'desc'), limit(LIVE_WINDOW.roster)), setRoster)
             ];
         }).catch(e => {
             console.error('Firebase authentication failed', e);
@@ -88,6 +102,78 @@ export function useBook(day: number, toast: Notify) {
             offs.forEach(off => off());
         };
     }, []);
+
+    // --- History -----------------------------------------------------------------------
+    // Records older than the live window, fetched when a section is actually filtered to a
+    // period that reaches back past it.
+    //
+    // `wanted` is how far back the section on screen needs to see (0 = the beginning of the
+    // book); `archivedFrom` is how far back the archive in hand already goes, null until
+    // anything has been fetched. Keeping the two apart is what makes this driven by the data
+    // rather than by the moment a section happened to ask: the first ask arrives before any
+    // snapshot has landed, when every feed still looks complete because it is still empty, and
+    // a one-shot request made then would decide no history was needed and never revisit it.
+    // The effect below re-checks on every snapshot instead.
+    const [archive, setArchive] = useState<{ sales: Sale[]; expenses: Expense[] }>({sales: [], expenses: []});
+    const [archivedFrom, setArchivedFrom] = useState<number | null>(null);
+    const [wanted, setWanted] = useState<number | null>(null);
+    const [historyLoading, setHistoryLoading] = useState(false);
+    // One fetch at a time. If the filter widens while one is in flight this skips, and the
+    // effect re-runs when it settles — so the wider ask is picked up rather than raced.
+    const fetching = useRef(false);
+
+    // Sections call this from an effect, so it has to keep a stable identity. It only records
+    // what is needed; deciding whether that means a fetch is the effect's job.
+    const requestHistory = useCallback((from: number) => setWanted(from), []);
+
+    useEffect(() => {
+        if (!db || wanted === null || fetching.current) return;
+        // How far back a feed's live window reaches. A window that came back short of its
+        // limit is the entire collection, so it reaches the beginning of time — -Infinity
+        // rather than 0, because 0 is a real instant (the epoch) that a comparison against a
+        // requested `from` would get wrong. On a young book both feeds are in this state and
+        // none of this ever runs.
+        const reachOf = (rows: Dated[], cap: number) =>
+            rows.length < cap ? -Infinity : dateOf(rows[rows.length - 1]).getTime();
+        // The shallower of the two windows decides: history is needed if EITHER ledger fails
+        // to reach back as far as the range does. Taking the deeper one would let a short
+        // expense window mask a capped sales window and quietly under-report the period.
+        const reach = Math.max(reachOf(sales, LIVE_WINDOW.sales), reachOf(expenseRecords, LIVE_WINDOW.expenses));
+        if (wanted >= reach) return;
+        if (archivedFrom !== null && wanted >= archivedFrom) return;
+
+        fetching.current = true;
+        setHistoryLoading(true);
+        const from = wanted;
+        // Bounded by the range where there is one, so widening the filter a step does not cost
+        // the whole ledger. Ordered and filtered on the same field, so no composite index.
+        const older = <T, >(name: string) => {
+            const base = collection(db!, name);
+            return getDocs(from
+                ? query(base, orderBy('createdAt', 'desc'), where('createdAt', '>=', new Date(from)))
+                : query(base, orderBy('createdAt', 'desc')))
+                .then(snap => snap.docs.map(d => ({id: d.id, ...d.data()})) as T[]);
+        };
+        Promise.all([older<Sale>(COLLECTIONS.sales), older<Expense>(COLLECTIONS.expenses)])
+            .then(([olderSales, olderExpenses]) => {
+                setArchive({sales: olderSales, expenses: olderExpenses});
+                setArchivedFrom(from);
+            })
+            .catch(e => {
+                console.error('Firestore history fetch failed', e);
+                setSyncError('Could not load the older records for this period — the figures below cover the recent ones only.');
+            })
+            .finally(() => {
+                fetching.current = false;
+                setHistoryLoading(false);
+            });
+    }, [wanted, archivedFrom, sales, expenseRecords]);
+
+    // The live window plus whatever history has been pulled in, deduplicated by id — the two
+    // overlap, because a range-bounded history fetch returns recent records as well. Sorted
+    // newest first, the order every list and every report below expects.
+    const allSales = useMemo(() => mergeById(sales, archive.sales), [sales, archive.sales]);
+    const allExpenses = useMemo(() => mergeById(expenseRecords, archive.expenses), [expenseRecords, archive.expenses]);
 
     // Overview and end-of-day are both "today" views — the stat cards say so — so they read
     // today's records only. Reports is the section for looking across days.
@@ -270,9 +356,12 @@ export function useBook(day: number, toast: Notify) {
     }, [toast]);
 
     return {
-        sales, loyalty, expenseRecords, staff, roster,
+        // The merged views, so a section filtered to a wide period sees the history it pulled
+        // in. Today's figures are derived from the live window above and are never affected.
+        sales: allSales, loyalty, expenseRecords: allExpenses, staff, roster,
         todaySales, todayExpenses, totals,
         ready, syncError,
+        requestHistory, historyLoading,
         addSale, updateSale, removeSale,
         addExpense, updateExpense, removeExpense,
         addStaff, updateStaff, removeStaff,
@@ -285,3 +374,12 @@ export function useBook(day: number, toast: Notify) {
 // would have to be vague enough to be right for both.
 const dutyLine = (record: Omit<RosterEntry, 'id' | 'createdAt'>) =>
     `${record.staffName} · ${record.duty === 'Off' ? 'off' : 'on cleaning'} · ${slotLabel(record.duty, record.day)}.`;
+
+// Newest first, one row per id. The live window and a history fetch overlap by design, so the
+// live copy is the one kept — it is the one a pending serverTimestamp settles into.
+function mergeById<T extends Dated & { id: string }>(live: T[], older: T[]): T[] {
+    if (!older.length) return live;
+    const seen = new Set(live.map(row => row.id));
+    const merged = [...live, ...older.filter(row => !seen.has(row.id))];
+    return merged.sort((a, b) => dateOf(b).getTime() - dateOf(a).getTime());
+}

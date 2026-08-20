@@ -15,6 +15,18 @@
  *
  * Metadata comes from src/seo/routes.json, which is the same file the runtime
  * <SeoTags> component reads, so the static and client tags cannot drift.
+ *
+ * Two per-route fields here are about load time rather than crawlers, and apply
+ * only to the route that declares them:
+ *
+ *   preloadChunk  Emit <link rel="preload"> for a lazy route's own chunk and the
+ *                 siblings webpack loads alongside it. Without it the browser
+ *                 cannot know a route needs those files until main.js has parsed
+ *                 and React has matched the route - three serial round trips to
+ *                 first paint instead of one.
+ *   lean          Drop the marketing head this document inherits from
+ *                 public/index.html: analytics, third-party preconnects, the hero
+ *                 logo preload, and the display face. For internal tools.
  */
 
 const fs = require('fs');
@@ -68,6 +80,84 @@ function stripAppTags(html, meta) {
   return out;
 }
 
+/**
+ * Webpack does not write a route -> chunk map we can read, so we recover one from
+ * the built main.js, which contains both halves of it:
+ *
+ *   - the runtime's id -> contenthash table, e.g. {40:"fe2ea15a",533:"857b4646"}
+ *   - each lazy import compiled to Promise.all([n.e(920),n.e(703),n.e(533)])
+ *
+ * A named chunk (webpackChunkName) lands as `<name>.<hash>.chunk.js` on disk, so we
+ * find the file, take its id from the runtime table, and preload the whole group
+ * that mentions it. Everything here degrades to "no preload tags" rather than
+ * failing the build: a webpack upgrade that changes this output should cost the
+ * optimisation, not the deploy.
+ */
+function findChunkGroup(chunkName) {
+  const jsDir = path.join(BUILD_DIR, 'static', 'js');
+  if (!fs.existsSync(jsDir)) return null;
+
+  const files = fs.readdirSync(jsDir);
+  const entry = files.find((f) => new RegExp(`^${chunkName}\\.[a-f0-9]+\\.chunk\\.js$`).test(f));
+  if (!entry) {
+    console.warn(`[prerender-meta] WARNING: no chunk named "${chunkName}" in the build - skipping preload.`);
+    return null;
+  }
+
+  const mainFile = files.find((f) => /^main\.[a-f0-9]+\.js$/.test(f));
+  if (!mainFile) return null;
+  const main = fs.readFileSync(path.join(jsDir, mainFile), 'utf8');
+
+  // id -> contenthash, from the runtime's chunk filename helper.
+  const table = main.match(/\{(?:\d+:"[a-f0-9]+",){2,}\d+:"[a-f0-9]+"\}/);
+  if (!table) return null;
+  const byId = new Map();
+  for (const [, id, hash] of table[0].matchAll(/(\d+):"([a-f0-9]+)"/g)) byId.set(id, hash);
+
+  const entryHash = entry.slice(chunkName.length + 1).split('.')[0];
+  const entryId = [...byId].find(([, hash]) => hash === entryHash)?.[0];
+  if (!entryId) return null;
+
+  // The lazy import group that pulls this chunk in. Its siblings are the vendor
+  // chunks (firebase, and whatever else webpack split out) that the route cannot
+  // start rendering without, so they are exactly what is worth preloading.
+  for (const [, group] of main.matchAll(/Promise\.all\(\[([^\]]*)\]\)/g)) {
+    const ids = [...group.matchAll(/\.e\((\d+)\)/g)].map((m) => m[1]);
+    if (!ids.includes(entryId)) continue;
+    return ids
+      .map((id) => (id === entryId ? entry : files.find((f) => f.endsWith(`.${byId.get(id)}.chunk.js`))))
+      .filter(Boolean)
+      .map((file) => `/static/js/${file}`);
+  }
+  // A chunk not inside a Promise.all group is loaded on its own.
+  return [`/static/js/${entry}`];
+}
+
+function preloadTags(chunkName) {
+  const chunks = findChunkGroup(chunkName);
+  if (!chunks || !chunks.length) return [];
+  console.log(`[prerender-meta]   preloading ${chunks.length} chunk(s) for "${chunkName}"`);
+  return chunks.map((href) => `<link rel="preload" as="script" href="${escapeAttr(href)}"/>`);
+}
+
+/**
+ * The marketing head, removed for routes that are not marketing pages. Each of these
+ * costs a connection or a render-blocking request on a page that has no use for it:
+ * a PIN-gated internal tool does not need product analytics, a customer chat widget,
+ * the homepage hero logo, or the display face it never sets.
+ */
+function stripMarketingHead(html) {
+  return html
+    .replace(/<script[^>]*googletagmanager\.com[^>]*><\/script>/gi, '')
+    .replace(/<script>[^<]*gtag\([^<]*<\/script>/gi, '')
+    .replace(/<script[^>]*analytics\.ahrefs\.com[^>]*><\/script>/gi, '')
+    .replace(/<link\s+rel="(?:preconnect|dns-prefetch)"[^>]*(?:googletagmanager|google-analytics|ahrefs|chatway)[^>]*>/gi, '')
+    .replace(/<link\s+rel="preload"\s+as="image"[^>]*>/gi, '')
+    // Keep Rubik, which is the desk's body face; drop Archivo Black, which is a
+    // signage face used only by the marketing pages (see BRAND-STANDARD 6.2).
+    .replace(/(<link[^>]+fonts\.googleapis\.com[^>]*)&(?:amp;)?family=Archivo\+Black/gi, '$1');
+}
+
 function buildTags(routePath, meta, config) {
   const url = `${config.siteUrl}${routePath === '/' ? '' : routePath}`;
   const image = `${config.siteUrl}${meta.ogImage}`;
@@ -85,6 +175,8 @@ function buildTags(routePath, meta, config) {
     // iOS ignores the manifest's icons when adding to the home screen.
     ...(meta.appleTouchIcon ? [`<link rel="apple-touch-icon" href="${escapeAttr(meta.appleTouchIcon)}"/>`] : []),
     ...(meta.noindex ? [`<meta name="robots" content="noindex, nofollow"/>`] : []),
+    // Load-time plumbing, not metadata - see the preloadChunk note at the top.
+    ...(meta.preloadChunk ? preloadTags(meta.preloadChunk) : []),
     `<meta property="og:type" content="website"/>`,
     `<meta property="og:site_name" content="${escapeAttr(meta.siteName)}"/>`,
     `<meta property="og:locale" content="en_NG"/>`,
@@ -134,7 +226,8 @@ function main() {
       );
     }
 
-    const html = stripAppTags(stripManagedTags(template), meta).replace(
+    const base = meta.lean ? stripMarketingHead(template) : template;
+    const html = stripAppTags(stripManagedTags(base), meta).replace(
       /<\/head>/i,
       `${buildTags(routePath, meta, config)}</head>`
     );

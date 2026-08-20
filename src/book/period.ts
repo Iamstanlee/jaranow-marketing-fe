@@ -66,3 +66,30 @@ export function inRange(date: Date, range: Range) {
     if (range.from && date < startOfDay(dayFrom(range.from))) return false;
     return !(range.to && date > endOfDay(dayFrom(range.to)));
 }
+
+// --- What a range needs from the ledger ----------------------------------------------
+// The live listeners only carry a recent window (LIVE_WINDOW), so a section has to be able
+// to say how far back the range it is showing actually reaches. 0 means "the beginning of
+// the book" — All time, and a custom range left open at the bottom end.
+
+export function rangeStart(range: Range) {
+    if (range.preset === CUSTOM) return range.from ? startOfDay(dayFrom(range.from)).getTime() : 0;
+    if (range.preset === 'All time') return 0;
+    return periodStart(range.preset).getTime();
+}
+
+export function rangeEnd(range: Range) {
+    if (range.preset === CUSTOM) return (range.to ? endOfDay(dayFrom(range.to)) : endOfDay(new Date())).getTime();
+    if (range.preset === 'All time') return endOfDay(new Date()).getTime();
+    return periodEnd(range.preset).getTime();
+}
+
+// Reports draws each period against the one immediately before it, so it needs one window
+// more history than it displays — without it the comparison reads as a collapse in trading
+// that is really just the edge of what was loaded. An open-ended range already reaches the
+// beginning of the book, so there is nothing further back to ask for.
+export function comparisonStart(range: Range) {
+    const from = rangeStart(range);
+    if (from === 0) return 0;
+    return from - Math.max(0, rangeEnd(range) - from);
+}

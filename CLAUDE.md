@@ -150,19 +150,35 @@ logo, lockup or brand colour.
   the 5th free", a different and more expensive offer. The free wash is the
   **sixth** visit, so never write copy promising a free *fifth* wash.
 
-  Loyalty cards carry a **printed serial** (`JC-001`…), so there is no write-in
-  field. Generate a numbered run with:
+  Loyalty cards carry a **printed serial** (`LOY-001`…, from `SERIAL` at the top
+  of `gen-card.js`), so there is no write-in field. Generate a numbered run with:
 
   ```bash
-  node brand/gen-card.js brand/card --batch=100   # -> card/batch/html
-  brand/rasterize-card.sh batch                   # -> card/batch/png
+  node brand/gen-card.js --batch=100       # LOY-001..LOY-100
+  node brand/gen-card.js --batch=101-200   # the next run of 100
+  brand/rasterize-card.sh batch            # -> card/batch/png
   ```
 
+  The output directory is an optional first argument defaulting to `brand/card`,
+  which is where `rasterize-card.sh` looks — so pass it only when you deliberately
+  want the output somewhere else.
+
   Only the **back** varies — every front is identical, so the press runs one
-  static front and N variable backs. `--batch` wipes `card/batch/` first, so
-  re-running it with a different N will not leave stale serials behind. Reprinting
-  the same range reissues numbers that are already in customers' hands; start the
-  next run where the last one ended rather than regenerating from 1.
+  static front and N variable backs.
+
+  `--batch` takes a count, which starts at 1, or an **inclusive range**. Reach for
+  the range form on every run after the first: a serial is the handle the ledger
+  keys a customer's balance off, so regenerating from 1 reissues numbers that are
+  already in customers' hands and silently puts two people on one balance. The
+  generator does not know what has already been printed and will reissue a range
+  if asked — it prints the next run's flags after each batch, which is the thing
+  to copy. Start where the last run ended.
+
+  `--batch` also wipes `card/batch/` first, so a re-run never leaves stale serials
+  behind to be printed twice. One directory is one press run: copy an earlier run
+  out before generating the next range if you still need it. Past `SERIAL.pad`
+  digits the serials get wider (`LOY-999` → `LOY-1000`) and the run mixes widths;
+  the generator warns when a range crosses that boundary.
 
   The serial is a handle for the ledger, not an enforcement mechanism — nothing
   stops a card being stamped twice or a number being reused. Whoever holds the

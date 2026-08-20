@@ -171,7 +171,7 @@ const LISTS = [
                     {
                         name: "Premium detailing",
                         note: "Body wash · deep interior cleaning & vacuum · engine area · polish & wax",
-                        price: 25000,
+                        price: 35000,
                         badge: "Premium",
                     },
                 ],
@@ -179,16 +179,16 @@ const LISTS = [
             {
                 title: "Rug",
                 items: [
-                    {name: "Small rug", note: "Up to 3ft · bedside or centre rug", price: 10000},
-                    {name: "Medium rug", note: "Up to 5ft · large bedside or centre rug", price: 15000},
-                    {name: "Large rug", note: "Over 7ft · sitting room size rug", price: 20000},
+                    {name: "Small rug", note: "Bedside or centre rug", price: 10000},
+                    {name: "Medium rug", note: "Big bedside or centre rug", price: 15000},
+                    {name: "Large rug", note: "Sitting room size rug", price: 20000},
                 ],
             },
         ],
         footer: {left: "", right: ""},
         note: "We treat every car like it's the only one we're washing today.",
         cover: {
-            sub: "Exterior, full and vacuum washes - done properly.",
+            sub: "",
         },
     },
     {

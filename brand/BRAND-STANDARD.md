@@ -318,6 +318,7 @@ them:
 | Site header | Master, or the page's service line | Contextual to the page. |
 | Site footer | **Always master** | The footer is corporate, the header is contextual. |
 | Signage | Sub-brand, knockout on dark grounds | The lockup says who, not what — pair it with the service in type. |
+| Bay interior | Sub-brand once, on the back wall | Three walls are one room. All copy in the 1500–2700mm band — below that is behind a parked car. |
 | Print (price lists, flyers, cards) | Sub-brand | Prices are stated as fact; the sheet sells the care (§1). |
 | Garments | Sub-brand small on the chest, address lockup across the back | The address is inside the artwork, never a caption beside it. |
 | App icon / favicon | Symbol (monogram for internal tools only) | Separate builds — see §7.2. |

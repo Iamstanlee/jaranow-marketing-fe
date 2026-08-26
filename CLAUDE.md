@@ -477,6 +477,98 @@ logo, lockup or brand colour.
   deliberately absent — see "Brand positioning". There is no "drive in" line on
   either panel; it was dropped deliberately, so re-adding it is a decision, not
   a fix.
+- **Wash-bay banners** — the inside of the bay itself: `brand/gen-bay.js` +
+  `brand/rasterize-bay.sh` emit
+  `brand/bay/png/bay-carwash-{back,left,right}-{ink,paper}.png`, plus a 3D
+  mockup of the room and an A3 print-spec sheet.
+
+  ```bash
+  node brand/gen-bay.js         # -> brand/bay/html/*.html + sizes.txt
+  brand/rasterize-bay.sh        # html -> brand/bay/png/*.png
+  ```
+
+  Measured sizes, ordered in feet and designed in millimetres:
+
+  | file | trim | zones | says |
+  |---|---|---|---|
+  | `back` | 40 × 7 ft (12192 × 2134mm), **one piece** | 3 | the promise · who we are · the reassurance |
+  | `left` | 17 × 7 ft (5182 × 2134mm) | 1 | the offer, and the number — driver's side |
+  | `right` | 17 × 7 ft (5182 × 2134mm) | 1 | the care — passenger side |
+  | `bay-mockup-{ink,paper}` | — | — | placement/colourway approval, **not artwork** |
+  | `bay-spec` | A3 landscape | — | the sheet that goes to the printer |
+
+  **The bay is wide, not deep** — four cars park side by side, so the back is
+  the long wall and the two returns are short. All three banners are the same
+  height, which is what lets the whole room use **one construction**: dot field,
+  a ghost drop per zone, centred copy, accent bar. Five zones in total, built
+  identically and differing only in what they say. `BAY` at the top of the
+  script carries the geometry; re-measure for a second site and everything
+  follows.
+
+  **All three hang with their tops on one line at 2700mm AFL** (bottom edge 566).
+  That single line all the way round is what makes three surfaces read as one
+  room rather than three signs. Copy is **centred in the panel**, so the block's
+  optical centre lands at ~1660mm — about standing eye height in the bay. Worth
+  knowing: a parked saloon masks the wall to roughly 1380mm seen from outside
+  the opening, so the last line of a tall block (a sub line, the contact chip)
+  can fall behind a car when the bay is full. That is accepted; the fix on a
+  site where it bites is to raise the whole banner, not to shuffle copy upward
+  inside it.
+
+  **The back wall's three zones are thirds of the wall, not one per bay.** Four
+  bays at a 3048mm pitch against three zones at 4064mm means the boundaries fall
+  mid-bay and the centre zone serves the two middle cars — the right trade,
+  because it puts the lockup dead centre, and that is the shot every finished
+  car gets photographed in front of.
+
+  **The four values are spread one per zone and never repeated.** "WE TAKE OUR
+  TIME" already says "we don't rush your car", so only one of them is on a wall;
+  two lines saying the same thing in one room is the failure mode. The right
+  wall used to carry the three wash names and a pointer to the price board —
+  that was a price list with the figures taken out, and it is deliberately gone.
+  The wash names live on the laminated A4 (`gen-pricelist.js`) and `/pricing`.
+
+  **Every heading is Archivo Black, and that is a documented departure from
+  BRAND-STANDARD §8.12**, which lists "more than once on a surface" as misuse.
+  The back wall is one 40ft banner carrying two of them (the promise in zone 1,
+  the reassurance in zone 3). The reasoning: §8.12 exists so one line is the
+  loudest thing a viewer takes in, and a 12m wall read from four different bays
+  is three surfaces in every sense except how it is printed — a driver in bay 1
+  never sees zone 3 as competition. **Hierarchy is therefore carried by size,
+  not by face**: zone 1 at 430mm leads, the statements sit at 310–360, and Rubik
+  700 is left to the sub lines and the phone number. Keep any new zone below
+  430mm or the wall stops having a lead line. On a smaller surface §8.12 still
+  applies as written — this file is not a precedent for a flyer or a card.
+  **The lockup appears once in the whole room**, in the back wall's centre zone;
+  the other zones carry the ghost drop only.
+
+  **Alternative copy for both statements is kept in the `zones` data** as
+  commented lists beside the line in use — swap `copy`/`sub` and re-check the
+  width against the zone (3824mm on the back, 4662mm on a return). Archivo Black
+  measures roughly 0.67 × its font size per capital, so a longer line has to
+  come down in size.
+
+  **Ink or Paper, one ground for the whole room.** No blue field — a whole room
+  of accent has no accent (§9). Ink for an open or sunlit bay, and it is what
+  makes a wet car read as clean in front of it; Paper for a covered or dim one.
+  A mixed set reads as three separate signs.
+
+  Rendering the back in one piece needs a trick worth knowing: 12,232mm at
+  2px/mm is 24,464px and **headless Chrome will not open a window past
+  ~16,384px**. The page is authored at half the unit and shot with
+  `--force-device-scale-factor=2`, so the window is legal and the screenshot is
+  full size. `sizes.txt` carries a fourth `dsf` column, `emit` picks it
+  automatically above `WINDOW_MAX`, and `rasterize-bay.sh` must pass it through
+  — dropping the column silently halves the back wall's resolution.
+
+  Panels are **2px/mm (~51dpi at full size)**, the same as the roadside signage
+  and correct for large format; do not "fix" it to 300dpi. Every panel is
+  fixed-size with `overflow:hidden` and every line is `white-space:nowrap`, so
+  copy that outgrows a zone is clipped rather than wrapped — always eyeball the
+  PNGs and read the legibility table the script prints. Like the other print
+  pieces, rasterizing pulls Rubik and Archivo Black from Google Fonts, so it
+  needs network.
+
 - **Tee mockups** work the same way: `brand/gen-tee.js` +
   `brand/rasterize-tee.sh` emit `brand/tee/png/mockup-carwash-tee-{ink,paper}.png`,
   each an 1800×1100 sheet showing front and back.
@@ -618,7 +710,6 @@ npm test         # Run tests
 ## Brand positioning — core values
 
 Jaranow sells on **attention to detail, care, convenience and integrity**.
-**Price is never the pitch.**
 
 Marketing copy must not use price as a selling point. Specifically, do not
 reintroduce: "fixed price", "no negotiation", "no hidden charges/fees",

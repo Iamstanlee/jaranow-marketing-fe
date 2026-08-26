@@ -1,6 +1,6 @@
 import {useMemo, useState} from 'react';
 import {BarChart3, Car, CircleDollarSign, Gift, PiggyBank, Sparkles} from 'lucide-react';
-import {SERVICES, type Service} from '../constants';
+import {currentService, SERVICES, type Service} from '../constants';
 import {dateOf, isoDay, money} from '../format';
 import {inRange, type Range, rangeKey, rangeLabel, rangeOf} from '../period';
 import {useHistory} from '../hooks/useHistory';
@@ -94,7 +94,7 @@ export function Reports({sales, loyalty, expenses, loading, requestHistory, hist
                 {/* The service names are known before the data is, so they stay put and only
                     the figure and its bar wait — the panel reads as itself while it fills in. */}
                 <div aria-busy={pending} className="mt-6 space-y-5">{(Object.keys(SERVICES) as Service[]).map(service => {
-                    const value = filtered.filter(s => s.service === service).reduce((sum, s) => sum + s.amount, 0);
+                    const value = filtered.filter(s => currentService(s.service) === service).reduce((sum, s) => sum + s.amount, 0);
                     const width = `${Math.min(100, (value / Math.max(1, totals.revenue)) * 100)}%`;
                     return <div key={service}>
                         <div className="mb-2 flex items-center justify-between text-sm"><span>{service}</span>{pending ?

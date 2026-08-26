@@ -2,8 +2,32 @@
 // and the Firestore collections it is allowed to touch (see firestore.rules — the rules and
 // this list have to name the same collections).
 
-export const SERVICES = {'Exterior wash': 2000, 'Full wash': 3000, 'Deep/Vacuum wash': 4000} as const;
+// The board, in the order it is printed. The authority is the `LISTS` array in
+// brand/gen-pricelist.js — the laminated A4 on the wall and this menu have to agree, because a
+// customer reads one and is charged from the other. Change a price there and here together.
+//
+// Rug washing is on the printed list, so it is sellable at the desk too. It does inflate
+// "cars per day" in Reports, which counts sales rather than cars — a rug is not a car.
+export const SERVICES = {
+    'Body wash': 2000,
+    'Full wash': 3000,
+    'Wash & vacuum': 4000,
+    'Full wash + engine': 7000,
+    'Deep wash': 10000,
+    'Buffing & polish': 20000,
+    'Premium detailing': 35000,
+} as const;
 export type Service = keyof typeof SERVICES;
+
+// Two services were renamed when the board grew, and every sale already in Firestore carries
+// the name it was sold under. Nothing rewrites those documents, so the old strings have to keep
+// resolving: without this they drop out of the Reports breakdown (which matches on the name)
+// and an old sale opened for editing shows a service it was not.
+const RENAMED: Record<string, Service> = {
+    'Exterior wash': 'Body wash',
+    'Deep/Vacuum wash': 'Wash & vacuum'
+};
+export const currentService = (name: string) => RENAMED[name] ?? (name as Service);
 
 export const EOD_REPORT_PHONE = '2347048667650';
 

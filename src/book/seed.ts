@@ -16,16 +16,16 @@ export const seedSales: Sale[] = [{
     id: 's2',
     loyaltyCode: 'LOY-002',
     customer: 'Tunde Adeyemi',
-    service: 'Exterior wash',
+    service: 'Body wash',
     payment: 'POS',
-    amount: SERVICES['Exterior wash']
+    amount: SERVICES['Body wash']
 }, {
     id: 's3',
     loyaltyCode: 'LOY-003',
     customer: 'Amina Bello',
-    service: 'Deep/Vacuum wash',
+    service: 'Wash & vacuum',
     payment: 'Cash',
-    amount: SERVICES['Deep/Vacuum wash']
+    amount: SERVICES['Wash & vacuum']
 }];
 
 export const seedLoyalty: Loyalty[] = [{

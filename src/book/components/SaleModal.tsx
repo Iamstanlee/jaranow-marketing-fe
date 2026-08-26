@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {SERVICES, type Service} from '../constants';
+import {currentService, SERVICES, type Service} from '../constants';
 import {codeFor, dateOf, dayLabel, timeLabel} from '../format';
 import type {Loyalty, Sale} from '../types';
 import {Modal} from './Modal';
@@ -14,8 +14,8 @@ export function SaleModal({members, close, save}: {
         phone: string
     }) => Promise<void>
 }) {
-    const [code, setCode] = useState(''), [service, setService] = useState<Service>('Exterior wash'), [payment, setPayment] = useState('Transfer'), [redeem, setRedeem] = useState(false), [customer, setCustomer] = useState(''), [phone, setPhone] = useState('');
-    const [price, setPrice] = useState(String(SERVICES['Exterior wash']));
+    const [code, setCode] = useState(''), [service, setService] = useState<Service>('Body wash'), [payment, setPayment] = useState('Transfer'), [redeem, setRedeem] = useState(false), [customer, setCustomer] = useState(''), [phone, setPhone] = useState('');
+    const [price, setPrice] = useState(String(SERVICES['Body wash']));
     const [submitting, setSubmitting] = useState(false), [error, setError] = useState('');
     // Codes are stored zero-padded to three digits (LOY-001) so a typed "1" and the
     // auto-generated "001" are the same member. Match, save and display the padded form.
@@ -101,7 +101,7 @@ export function EditSaleModal({sale, close, save}: {
     close: () => void;
     save: (id: string, patch: Pick<Sale, 'service' | 'payment' | 'amount'>) => Promise<void>
 }) {
-    const [service, setService] = useState<Service>(sale.service), [payment, setPayment] = useState(sale.payment);
+    const [service, setService] = useState<Service>(currentService(sale.service)), [payment, setPayment] = useState(sale.payment);
     const [price, setPrice] = useState(String(sale.amount));
     const [submitting, setSubmitting] = useState(false), [error, setError] = useState('');
     const submit = async (e: React.FormEvent) => {

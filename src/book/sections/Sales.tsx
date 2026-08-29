@@ -6,7 +6,7 @@ import type {Role, Sale} from '../types';
 import {useHistory} from '../hooks/useHistory';
 import {usePage} from '../hooks/usePage';
 import {useRange} from '../hooks/useRange';
-import {ConfirmDelete} from '../components/ConfirmDelete';
+import {ConfirmDelete} from '../components/Confirm';
 import {Pagination} from '../components/Pagination';
 import {PeriodFilter} from '../components/PeriodFilter';
 import {SalesTable} from '../components/SalesTable';

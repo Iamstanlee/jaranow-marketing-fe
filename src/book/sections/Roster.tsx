@@ -4,7 +4,7 @@ import {DUTIES, type Duty} from '../constants';
 import {addDays, isoDay, startOfWeek} from '../format';
 import {type Assignment, nameOf, rotation, slotLabel, sundayOf, weekRoster, weekSpan} from '../roster';
 import type {Role, RosterEntry, Staff} from '../types';
-import {ConfirmDelete} from '../components/ConfirmDelete';
+import {ConfirmDelete} from '../components/Confirm';
 import {DutyModal} from '../components/DutyModal';
 import {RowActions} from '../components/RowActions';
 import {Skeleton} from '../components/Skeleton';

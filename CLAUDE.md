@@ -569,6 +569,61 @@ logo, lockup or brand colour.
   pieces, rasterizing pulls Rubik and Archivo Black from Google Fonts, so it
   needs network.
 
+- **"No parking" notices are generated too.** `brand/gen-noparking.js` +
+  `brand/rasterize-noparking.sh` emit
+  `brand/noparking/png/noparking-{a3,a2,gate}-{ink,paper}.png`, plus
+  `noparking-formats.png`, an A3 comparison sheet showing all three at 1:5.
+
+  ```bash
+  node brand/gen-noparking.js    # -> brand/noparking/html/*.html + sizes.txt
+  brand/rasterize-noparking.sh   # html -> brand/noparking/png/*.png
+  ```
+
+  | format | trim | headline | reads at | where |
+  |---|---|---|---|---|
+  | `a3` | 297 × 420mm | 48mm, two lines | ~4.1m | wall plate beside the bay |
+  | `a2` | 420 × 594mm | 70mm, two lines | ~6.0m | frontage plate |
+  | `gate` | 900 × 300mm | 98mm, **one line** | ~8.5m | gate, rail or bay head |
+
+  **This is a private-property notice, not a statutory traffic sign.** It has no
+  legal force and it deliberately does not imitate one: no red, no
+  circle-and-bar roundel, no reflective spec. Red is a second accent hue
+  (BRAND-STANDARD §4.2) and a blue roundel is a counterfeit road sign — it reads
+  as one at a glance, carries none of the authority, and looks worse the closer
+  you get. Anything enforceable (tow-away, clamping, a statutory restriction) is
+  a regulated artefact with prescribed colours and wording, and does not belong
+  in this file.
+
+  **The reason line is the point.** "NO PARKING" alone is an instruction from
+  nobody; the same words over a line explaining that cars move in and out all
+  day, with a number to call if somebody is blocked in, is care and integrity
+  applied to the least glamorous surface the business owns. Do not strip it to
+  tidy the layout.
+
+  **The headline is knocked out of a full-bleed accent block**, unlike every
+  other piece in the system, which sets type on the field. A colour block
+  spanning the full width has the visual grammar of a sign, and this notice has
+  to be distinguishable at a glance from marketing on the same wall — anyone who
+  reads it as an advert ignores it. The block also carries less side padding
+  than the field (0.6 × safe), because knockout type can sit closer to the trim
+  than type on the field; that margin is what pays for the headline size.
+
+  **The strip reads furthest despite being the smallest sheet** — "NO PARKING"
+  fits on one line there, so the headline is not width-bound by "PARKING". Same
+  trade as landscape vs portrait on the roadside panels; prefer it wherever
+  there is somewhere to fix it. It is also the format that runs out of room
+  first, and on height, not width: its headline could go to ~111mm on width
+  alone but there would be nowhere to put the reason.
+
+  Headline sizes are solved against a **measured** metric — Archivo Black runs
+  ~0.706 × its font size per capital at this tracking, so "PARKING" is 4.94× and
+  "NO PARKING" 7.06×. Every size leaves ~10% slack either side; do not spend it,
+  because a headline touching the block edge reads as a mistake even though the
+  block bleeds. 300dpi with 3mm bleed, same as the other print pieces. Read the
+  legibility table the script prints after any change, and eyeball the PNGs —
+  rasterizing pulls Rubik and Archivo Black from Google Fonts, so it needs
+  network.
+
 - **Tee mockups** work the same way: `brand/gen-tee.js` +
   `brand/rasterize-tee.sh` emit `brand/tee/png/mockup-carwash-tee-{ink,paper}.png`,
   each an 1800×1100 sheet showing front and back.

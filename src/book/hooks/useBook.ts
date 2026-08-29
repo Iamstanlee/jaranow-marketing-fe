@@ -269,6 +269,39 @@ export function useBook(day: number, toast: Notify) {
         toast(`Sale deleted · ${money(sale.amount)}${member ? ` · ${sale.loyaltyCode} ${sale.redeemed ? 'refunded 5 points' : 'lost 1 point'}` : ''}`, 'warning');
     }, [loyalty, toast]);
 
+    // Moving a balance by hand. Points ordinarily move as a side effect of a sale, and that
+    // path is the one to trust — this is the correction for when the card and the book have
+    // already parted company: a wash stamped at the pump while the tablet was flat, or a card
+    // stamped twice for one wash. It writes no sale, so a point added here is deliberately not
+    // backed by any takings, which is why the desk keeps it behind the admin PIN and behind a
+    // dialog that says what the balance is about to become.
+    //
+    // Takes an id rather than a member, because the Loyalty cards render a floored copy of the
+    // balance (see the section) and correcting against that copy would lose the shortfall the
+    // floor is hiding.
+    const adjustPoints = useCallback(async (id: string, delta: number) => {
+        const index = loyalty.findIndex(x => x.id === id);
+        const member = loyalty[index];
+        if (!member) return;
+        const code = codeFor(member, index);
+        // Expressed against the balance on SCREEN, not the stored one. The two part company
+        // when a deleted sale takes a balance negative (see removeSale): from a stored -1,
+        // +1 lands on 0 and looks to the person pressing it like nothing happened. Adding a
+        // point from there pays off the shortfall as well, which is the right answer — a
+        // negative balance is an accounting artefact, and the card in the customer's hand is
+        // the thing being reconciled to.
+        const shown = Math.max(0, member.points);
+        const next = Math.max(0, shown + delta);
+        if (next === shown) return; // Already at zero and being taken down: nothing to write.
+        const moved = next - shown;
+        // Still written as a delta, for the same reason every other point write is one: two
+        // desks correcting the same card at once would otherwise each store the total they
+        // last read, and one of the two corrections would vanish.
+        if (db) await updateDoc(doc(db, COLLECTIONS.loyalty, member.id), {points: increment(next - member.points)});
+        else setLoyalty(list => list.map(x => x.id === member.id ? {...x, points: next} : x));
+        toast(`${code} · ${Math.abs(moved)} point${Math.abs(moved) === 1 ? '' : 's'} ${moved > 0 ? 'added' : 'removed'} · now ${next} / 5.`, 'info');
+    }, [loyalty, toast]);
+
     const addExpense = useCallback(async (record: Omit<Expense, 'id' | 'createdAt'>) => {
         if (db) await addDoc(collection(db, COLLECTIONS.expenses), {
             ...record,
@@ -363,6 +396,7 @@ export function useBook(day: number, toast: Notify) {
         ready, syncError,
         requestHistory, historyLoading,
         addSale, updateSale, removeSale,
+        adjustPoints,
         addExpense, updateExpense, removeExpense,
         addStaff, updateStaff, removeStaff,
         assignDuty, updateDuty, removeDuty

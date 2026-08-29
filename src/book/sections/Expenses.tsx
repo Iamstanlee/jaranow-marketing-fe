@@ -5,7 +5,7 @@ import {inRange, rangeKey, rangeLabel} from '../period';
 import type {Expense, Role} from '../types';
 import {usePage} from '../hooks/usePage';
 import {useRange} from '../hooks/useRange';
-import {ConfirmDelete} from '../components/ConfirmDelete';
+import {ConfirmDelete} from '../components/Confirm';
 import {ExpenseModal} from '../components/ExpenseModal';
 import {Pagination} from '../components/Pagination';
 import {PeriodFilter} from '../components/PeriodFilter';

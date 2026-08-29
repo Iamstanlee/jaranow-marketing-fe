@@ -173,7 +173,8 @@ export default function Bookkeeping() {
                        onSale={() => setSaleModal(true)}
                        onUpdate={book.updateSale}
                        onDelete={role === 'admin' ? book.removeSale : undefined}/>} {section === 'loyalty' &&
-                <LoyaltySection members={book.loyalty} loading={!ready.loyalty}/>} {section === 'expenses' &&
+                <LoyaltySection members={book.loyalty} loading={!ready.loyalty}
+                                onAdjust={role === 'admin' ? book.adjustPoints : undefined}/>} {section === 'expenses' &&
                 <Expenses records={book.expenseRecords} role={role} loading={!ready.expenses}
                           onAdd={() => setExpenseModal(true)}
                           onUpdate={book.updateExpense}

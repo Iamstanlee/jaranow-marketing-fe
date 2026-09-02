@@ -1,0 +1,407 @@
+<title>Jaranow Car Wash Handbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Rubik:wght@400;500;600;700&display=swap">
+<style>
+  /* ---- Jaranow house tokens. Light is the base state. ------------------- */
+  :root{
+    --ink:#0E1526;
+    --paper:#F2F5FB;
+    --accent:#2563EB;
+
+    --bg:var(--paper);
+    --surface:#E7ECF6;         /* blue-biased, not grey */
+    --text:var(--ink);
+    --text-muted:#59637A;
+    --rule:#CBD5E8;
+    --rule-soft:#DCE3F0;
+    --chip-bg:#DDE5F4;
+    --chip-text:#1B2841;
+    --accent-text:var(--accent);
+
+    /* severity red. Semantic, not a second brand accent - it appears only on
+       sanctions that end employment and nowhere else on the page. */
+    --danger:#C42B1C;
+    --danger-fill:#C42B1C;
+    --danger-on-fill:#FFF3F1;
+    --danger-text:#A32316;
+
+    --mark-ink:var(--ink);
+    --mark-accent:var(--accent);
+
+    --measure:34rem;
+    --gutter:3.75rem;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#0B111F;
+      --surface:#151D2F;
+      --text:var(--paper);
+      --text-muted:#96A1B8;
+      --rule:#26314A;
+      --rule-soft:#1C2438;
+      --chip-bg:#1D2740;
+      --chip-text:#DCE4F4;
+      --accent-text:#7BA2F5;
+      --danger:#E5534B;
+      --danger-fill:#E5534B;
+      --danger-on-fill:#14070A;
+      --danger-text:#FF9A90;
+      --mark-ink:var(--paper);
+      --mark-accent:#6F9AF4;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0B111F;
+    --surface:#151D2F;
+    --text:var(--paper);
+    --text-muted:#96A1B8;
+    --rule:#26314A;
+    --rule-soft:#1C2438;
+    --chip-bg:#1D2740;
+    --chip-text:#DCE4F4;
+    --accent-text:#7BA2F5;
+    --danger:#E5534B;
+    --danger-fill:#E5534B;
+    --danger-on-fill:#14070A;
+    --danger-text:#FF9A90;
+    --mark-ink:var(--paper);
+    --mark-accent:#6F9AF4;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:Rubik,"Helvetica Neue",Arial,sans-serif;
+    font-size:16px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* the accent bar that terminates every printed piece in this system */
+  .topbar{height:6px;background:var(--accent)}
+
+  .sheet{
+    max-width:calc(var(--measure) + var(--gutter) + 3rem);
+    margin:0 auto;
+    padding:3.5rem 1.5rem 5rem;
+  }
+
+  /* ---- masthead --------------------------------------------------------- */
+  .masthead{
+    display:flex;
+    flex-direction:column;
+    gap:2rem;
+    padding-bottom:1.75rem;
+    border-bottom:2px solid var(--text);
+  }
+  .lockup{width:172px;height:auto;display:block}
+  .masthead h1{
+    font-family:"Archivo Black",Rubik,Arial,sans-serif;
+    font-weight:400;
+    font-size:clamp(2rem,7vw,2.85rem);
+    line-height:1.02;
+    letter-spacing:-.015em;
+    text-wrap:balance;
+    margin:0;
+  }
+  .standfirst{
+    margin:.9rem 0 0;
+    max-width:var(--measure);
+    color:var(--text-muted);
+    font-size:1.0625rem;
+  }
+
+  .facts{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.35rem 2.25rem;
+    margin-top:1.9rem;
+    list-style:none;
+    padding:0;
+  }
+  .facts div{display:flex;flex-direction:column;gap:.1rem}
+  .label{
+    font-size:.6875rem;
+    font-weight:600;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .facts b{font-weight:500;font-size:.9375rem;font-variant-numeric:tabular-nums}
+
+  /* ---- sections --------------------------------------------------------- */
+  section{margin-top:3.25rem}
+  .sec-head{
+    display:flex;
+    align-items:baseline;
+    gap:.85rem;
+    padding-bottom:.7rem;
+    border-bottom:1px solid var(--rule);
+  }
+  .sec-num{
+    font-family:"Archivo Black",Rubik,Arial,sans-serif;
+    font-size:1.05rem;
+    color:var(--accent-text);
+    font-variant-numeric:tabular-nums;
+  }
+  .sec-head h2{
+    font-family:"Archivo Black",Rubik,Arial,sans-serif;
+    font-weight:400;
+    font-size:1.3125rem;
+    letter-spacing:-.005em;
+    margin:0;
+  }
+  .sec-note{
+    margin:1.1rem 0 0;
+    max-width:var(--measure);
+    color:var(--text-muted);
+    font-size:.9375rem;
+  }
+
+  /* ---- clauses ----------------------------------------------------------
+     Exactly two grid children per row: the citation number hanging in the
+     gutter, and one body wrapper. Everything else nests inside .ctext - a
+     third direct child would wrap onto an implicit row in the narrow
+     gutter column and render at a fraction of the width.
+  ------------------------------------------------------------------------ */
+  .clauses{list-style:none;margin:1.4rem 0 0;padding:0}
+  .clauses li{
+    display:grid;
+    grid-template-columns:var(--gutter) minmax(0,1fr);
+    padding:.9rem 0;
+    border-bottom:1px solid var(--rule-soft);
+  }
+  .clauses li:last-child{border-bottom:0}
+  .cid{
+    font-weight:600;
+    font-size:.875rem;
+    font-variant-numeric:tabular-nums;
+    color:var(--accent-text);
+    padding-top:.18rem;
+  }
+  .ctext{min-width:0;max-width:var(--measure)}
+  .ctext p{margin:0}
+  .ctext p + p{margin-top:.4rem}
+  .sub{font-size:.9375rem;color:var(--text-muted)}
+
+  /* ---- offences: consequence is what gets scanned, so it gets the form -- */
+  .offences li{
+    grid-template-columns:var(--gutter) minmax(0,1fr) auto;
+    gap:0 1.5rem;
+    align-items:start;
+  }
+  .sanction{
+    justify-self:end;
+    white-space:nowrap;
+    font-size:.8125rem;
+    font-weight:600;
+    font-variant-numeric:tabular-nums;
+    padding:.28rem .7rem;
+    border-radius:2px;
+    background:var(--chip-bg);
+    color:var(--chip-text);
+  }
+  .sanction.severe{background:var(--danger-fill);color:var(--danger-on-fill)}
+  .sanction.staged{
+    background:transparent;
+    color:var(--danger-text);
+    box-shadow:inset 0 0 0 1.5px var(--danger);
+  }
+
+  .process{
+    margin-top:1.6rem;
+    padding:1.15rem 1.35rem;
+    background:var(--surface);
+    border-left:3px solid var(--accent);
+  }
+  .process p{margin:.45rem 0 0;max-width:var(--measure);font-size:.9375rem}
+  .process p:first-of-type{margin-top:.35rem}
+
+  /* ---- revenue split ---------------------------------------------------- */
+  .split{
+    display:flex;
+    gap:1.75rem;
+    margin-top:.85rem;
+    padding-top:.6rem;
+    border-top:1px solid var(--rule-soft);
+    font-size:.875rem;
+    font-variant-numeric:tabular-nums;
+  }
+  .split div{display:flex;flex-direction:column}
+  .split b{font-family:"Archivo Black",Rubik,Arial,sans-serif;font-weight:400;font-size:1.05rem}
+
+  /* ---- acknowledgement -------------------------------------------------- */
+  .ack{margin-top:1.4rem;max-width:var(--measure)}
+  .ack p{margin:0 0 1.9rem}
+  .siglines{display:grid;gap:1.9rem 1.75rem;grid-template-columns:1fr}
+  @media(min-width:34rem){.siglines{grid-template-columns:2fr 1fr}}
+  .sig{border-bottom:1.5px solid var(--text);height:2.6rem}
+  .sig + .label{display:block;margin-top:.45rem}
+
+  footer{
+    margin-top:3.5rem;
+    padding-top:1.1rem;
+    border-top:1px solid var(--rule);
+    display:flex;
+    flex-wrap:wrap;
+    gap:.35rem 1.5rem;
+    justify-content:space-between;
+    font-size:.8125rem;
+    color:var(--text-muted);
+  }
+
+  @media(max-width:32rem){
+    :root{--gutter:2.9rem}
+    .offences li{grid-template-columns:var(--gutter) minmax(0,1fr)}
+    .offences .sanction{grid-column:2;justify-self:start;margin-top:.6rem}
+  }
+
+  @media print{
+    :root{--bg:#fff;--text:#0E1526;--rule:#bbb;--rule-soft:#ddd;--surface:#f2f5fb;--chip-bg:#e6ebf6}
+    body{font-size:10.5pt}
+    .sheet{max-width:none;padding:0 0 1rem}
+    section{margin-top:2rem}
+    /* Keep a clause and a heading intact, but let sections flow across pages -
+       break-inside:avoid on the whole section stranded a third of page 1. */
+    .clauses li,.process,.split,.siglines>div{break-inside:avoid}
+    .sec-head,.sec-note{break-after:avoid}
+    .masthead,.facts{break-inside:avoid}
+    .sanction{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="topbar"></div>
+
+<div class="sheet">
+
+  <header class="masthead">
+    <svg class="lockup" xmlns="http://www.w3.org/2000/svg" viewBox="-27 -4 625.7 207" role="img" aria-label="carwash by Jaranow" fill="none" stroke="var(--mark-ink)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(-10.4,34.5) scale(1.3)"><path fill-rule="evenodd" fill="var(--mark-accent)" stroke="none" d="M50 8 L81 44 A34 34 0 1 1 19 44 Z M50 51 A13 13 0 1 1 50 77 A13 13 0 1 1 50 51 Z"/></g><g transform="translate(150.7,0)"><g><path d="M21 53 V108 A14 14 0 0 1 7 122"/><path d="M14 23 H28 V37 H14 Z" fill="var(--mark-ink)" stroke="none"/></g><g transform="translate(40,0)"><path d="M47 53 V100 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"/></g><g transform="translate(106,0)"><path d="M7 100 V67 A14 14 0 0 1 21 53 H30"/></g><g transform="translate(155,0)"><path d="M47 53 V100 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"/></g><g transform="translate(221,0)"><path d="M7 100 V67 A14 14 0 0 1 21 53 H33 A14 14 0 0 1 47 67 V100"/></g><g transform="translate(287,0)"><path d="M7 67 A14 14 0 0 1 21 53 H33 A14 14 0 0 1 47 67 V79 A14 14 0 0 1 33 93 H21 A14 14 0 0 1 7 79 Z"/></g><g transform="translate(353,0)"><path d="M7 53 L20 100 L34 56 L48 100 L61 53"/></g></g><g transform="translate(150.7,136) scale(0.4)" stroke="var(--mark-accent)"><g><path d="M47 62 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 84"/></g><g transform="translate(100,0)"><path d="M47 53 V100 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"/></g><g transform="translate(200,0)"><path d="M7 100 V67 A14 14 0 0 1 21 53 H30"/></g><g transform="translate(283,0)"><path d="M7 53 L20 100 L34 56 L48 100 L61 53"/></g><g transform="translate(397,0)"><path d="M47 53 V100 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"/></g><g transform="translate(497,0)"><path d="M47 60 C47 49 7 48 7 63 C7 77 47 74 47 88 C47 101 9 102 9 89"/></g><g transform="translate(597,0)"><path d="M7 100 V16 M7 67 A14 14 0 0 1 21 53 H33 A14 14 0 0 1 47 67 V100"/></g></g></svg>
+
+    <div>
+      <h1>Employee Handbook</h1>
+      <p class="standfirst">The work rules for everyone employed at the wash. Read it, ask your supervisor about anything that is not clear, and sign the last page.</p>
+    </div>
+  </header>
+
+  <ul class="facts">
+    <div><span class="label">Site</span><b>6th Avenue, Gwarinpa, Abuja</b></div>
+    <div><span class="label">Work hours</span><b>8:00am &ndash; 7:00pm daily</b></div>
+    <div><span class="label">Effective</span><b>1 September 2026</b></div>
+    <div><span class="label">Version</span><b>1.0</b></div>
+  </ul>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">1</span><h2>General conduct</h2></div>
+    <ol class="clauses">
+      <li><span class="cid">1.1</span><div class="ctext"><p>The work tee&#8209;shirt is worn at all times during work hours, 8:00am to 7:00pm.</p></div></li>
+      <li><span class="cid">1.2</span><div class="ctext"><p>Employees are to be on the work premises throughout work hours.</p></div></li>
+      <li><span class="cid">1.3</span><div class="ctext"><p>Tell your supervisor and get their permission before leaving the premises during work hours.</p></div></li>
+      <li><span class="cid">1.4</span><div class="ctext"><p>Stay calm and speak politely at all times when dealing with a customer, including when the customer does not.</p></div></li>
+      <li><span class="cid">1.5</span><div class="ctext"><p>Never negotiate a price with a customer. Prices are fixed and published on the price list.</p><p class="sub">A customer who asks for a discount is referred to the supervisor or the cashier. It is not your decision to make, and taking it out of your hands is what protects you.</p></div></li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">2</span><h2>Equipment and premises</h2></div>
+    <ol class="clauses">
+      <li><span class="cid">2.1</span><div class="ctext"><p>All work equipment is cleaned properly at the start of every business day, before the first car.</p></div></li>
+      <li><span class="cid">2.2</span><div class="ctext"><p>The premises are swept and cleaned at the start of every business day, and kept clean throughout the day by the employee on cleaning duty.</p></div></li>
+      <li><span class="cid">2.3</span><div class="ctext"><p>All equipment, tools and machines are used correctly, maintained, and returned to their proper storage after use.</p></div></li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">3</span><h2>Offences and sanctions</h2></div>
+    <p class="sec-note">Each offence carries the sanction stated against it.</p>
+    <ol class="clauses offences">
+      <li>
+        <span class="cid">3.1</span>
+        <div class="ctext"><p>Stealing; failing to remit a payment into the company account; or collecting a customer&rsquo;s payment through a personal account.</p></div>
+        <span class="sanction severe">Immediate termination</span>
+      </li>
+      <li>
+        <span class="cid">3.2</span>
+        <div class="ctext"><p>Quarrelling, fighting, or harassment of any kind, whether with a colleague or a customer.</p></div>
+        <span class="sanction staged">Warning, then termination</span>
+      </li>
+      <li>
+        <span class="cid">3.3</span>
+        <div class="ctext"><p>Using company equipment or materials &mdash; fuel, detergent and the like &mdash; outside of work, without the supervisor&rsquo;s approval.</p></div>
+        <span class="sanction">&#8358;5,000</span>
+      </li>
+      <li>
+        <span class="cid">3.4</span>
+        <div class="ctext"><p>Asking a customer for a tip.</p></div>
+        <span class="sanction">&#8358;5,000</span>
+      </li>
+      <li>
+        <span class="cid">3.5</span>
+        <div class="ctext"><p>Smoking within the work premises.</p></div>
+        <span class="sanction">&#8358;5,000</span>
+      </li>
+      <li>
+        <span class="cid">3.6</span>
+        <div class="ctext"><p>Failing to clean the premises, or to keep them clean, when on cleaning duty.</p></div>
+        <span class="sanction">&#8358;5,000</span>
+      </li>
+    </ol>
+
+    <div class="process">
+      <span class="label">3.7 &nbsp;How a sanction is applied</span>
+      <p>Every fine or warning is issued by the supervisor, recorded in writing, and the reason given to the employee at the time it is issued.</p>
+      <p>Before a sanction is recorded, the employee is told what they are accused of and given the chance to explain.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">4</span><h2>Revenue sharing</h2></div>
+    <p class="sec-note">These are jobs worked by employees, and the money from them is shared among employees.</p>
+    <ol class="clauses">
+      <li>
+        <span class="cid">4.1</span>
+        <div class="ctext">
+          <p><b>Rug washing.</b> The revenue from every rug washed goes to the employees.</p>
+          <p class="sub">The detergent and fuel used on the rugs are paid for out of that revenue, not by the company. The split below applies to what is left after those costs.</p>
+          <div class="split">
+            <div><b>80%</b><span class="label">Attendants</span></div>
+            <div><b>20%</b><span class="label">Cashier</span></div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <span class="cid">4.2</span>
+        <div class="ctext"><p><b>Motorbike washing.</b> Employees keep 100% of the revenue from every motorbike washed. Turns are taken on the daily rotation.</p></div>
+      </li>
+      <li>
+        <span class="cid">4.3</span>
+        <div class="ctext">
+          <p><b>Polish.</b> Employees may offer polish to a customer as a paid add&#8209;on, on the daily rotation, and keep the revenue from it.</p>
+          <p class="sub">Polish is not sold as an add&#8209;on on the premium wash service &mdash; the company already includes it there.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">5</span><h2>Acknowledgement</h2></div>
+    <div class="ack">
+      <p>I have read this handbook, or had it read to me. I understand the rules in it, the offences listed in section&nbsp;3 and the sanctions they carry, and I agree to work by them.</p>
+      <div class="siglines">
+        <div><div class="sig"></div><span class="label">Employee name</span></div>
+        <div><div class="sig"></div><span class="label">Date</span></div>
+        <div><div class="sig"></div><span class="label">Employee signature</span></div>
+        <div><div class="sig"></div><span class="label">Supervisor</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Carwash by Jaranow &middot; 6th Avenue, Gwarinpa, Abuja</span>
+    <span>Employee Handbook v1.0 &middot; Effective 1 September 2026</span>
+  </footer>
+
+</div>

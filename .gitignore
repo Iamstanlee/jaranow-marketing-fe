@@ -27,3 +27,4 @@ yarn-error.log*
 /brand/**/svg
 /brand/**/batch
 /brand/**/html
+/docs/pdf

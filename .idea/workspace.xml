@@ -5,14 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Cleanup and rota feature">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CLAUDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/CLAUDE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/components/ConfirmDelete.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/components/Confirm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/hooks/useBook.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/hooks/useBook.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/sections/Expenses.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Expenses.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/sections/Loyalty.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Loyalty.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/sections/Roster.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Roster.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/sections/Sales.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Sales.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/Bookkeeping.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Bookkeeping.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brand/BRAND-STANDARD.md" beforeDir="false" afterPath="$PROJECT_DIR$/brand/BRAND-STANDARD.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brand/gen-noparking.js" beforeDir="false" afterPath="$PROJECT_DIR$/brand/gen-noparking.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/attendant-sop.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/cashier-sop.md" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -191,7 +189,7 @@
       <workItem from="1786294520290" duration="1236000" />
       <workItem from="1786614825967" duration="321000" />
       <workItem from="1786827707746" duration="24694000" />
-      <workItem from="1787471316833" duration="29553000" />
+      <workItem from="1787471316833" duration="45685000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

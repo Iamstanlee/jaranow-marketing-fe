@@ -1,0 +1,444 @@
+<title>Cashier Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Rubik:wght@400;500;600;700&display=swap">
+<style>
+  /* ---- Jaranow house tokens. Shared with the Employee Handbook. --------- */
+  :root{
+    --ink:#0E1526;
+    --paper:#F2F5FB;
+    --accent:#2563EB;
+
+    --bg:var(--paper);
+    --surface:#E7ECF6;         /* blue-biased, not grey */
+    --text:var(--ink);
+    --text-muted:#59637A;
+    --rule:#CBD5E8;
+    --rule-soft:#DCE3F0;
+    --box:#FFFFFF;
+    --box-edge:#A9B6D0;
+
+    --mark-ink:var(--ink);
+    --mark-accent:var(--accent);
+
+    --measure:34rem;
+    --gutter:2.25rem;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#0B111F;
+      --surface:#151D2F;
+      --text:var(--paper);
+      --text-muted:#96A1B8;
+      --rule:#26314A;
+      --rule-soft:#1C2438;
+      --box:#0F1728;
+      --box-edge:#3A4767;
+      --accent:#3B79F5;
+      --mark-ink:var(--paper);
+      --mark-accent:#6F9AF4;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0B111F;
+    --surface:#151D2F;
+    --text:var(--paper);
+    --text-muted:#96A1B8;
+    --rule:#26314A;
+    --rule-soft:#1C2438;
+    --box:#0F1728;
+    --box-edge:#3A4767;
+    --accent:#3B79F5;
+    --mark-ink:var(--paper);
+    --mark-accent:#6F9AF4;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:Rubik,"Helvetica Neue",Arial,sans-serif;
+    font-size:16px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* the accent bar that terminates every printed piece in this system */
+  .topbar{height:6px;background:var(--accent)}
+
+  .sheet{
+    max-width:calc(var(--measure) + var(--gutter) + 4rem);
+    margin:0 auto;
+    padding:3.5rem 1.5rem 5rem;
+  }
+
+  /* ---- masthead --------------------------------------------------------- */
+  .masthead{
+    display:flex;
+    flex-direction:column;
+    gap:2rem;
+    padding-bottom:1.75rem;
+    border-bottom:2px solid var(--text);
+  }
+  .lockup{width:172px;height:auto;display:block}
+  .role{
+    display:inline-block;
+    font-size:.6875rem;
+    font-weight:600;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:.5rem;
+  }
+  .masthead h1{
+    font-family:"Archivo Black",Rubik,Arial,sans-serif;
+    font-weight:400;
+    font-size:clamp(2rem,7vw,2.85rem);
+    line-height:1.02;
+    letter-spacing:-.015em;
+    text-wrap:balance;
+    margin:0;
+  }
+  .job{
+    margin:1rem 0 0;
+    max-width:var(--measure);
+    font-size:1.0625rem;
+  }
+  .values{
+    margin:.55rem 0 0;
+    max-width:var(--measure);
+    color:var(--text-muted);
+    font-size:.9375rem;
+  }
+  .values b{color:var(--text);font-weight:500}
+
+  .facts{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.35rem 2.25rem;
+    margin-top:1.9rem;
+    padding:0;
+    list-style:none;
+  }
+  .facts div{display:flex;flex-direction:column;gap:.1rem}
+  .label{
+    font-size:.6875rem;
+    font-weight:600;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .facts b{font-weight:500;font-size:.9375rem;font-variant-numeric:tabular-nums}
+
+  /* ---- sections --------------------------------------------------------- */
+  section{margin-top:3rem}
+  .sec-head{
+    display:flex;
+    align-items:baseline;
+    gap:.85rem;
+    padding-bottom:.7rem;
+    border-bottom:1px solid var(--rule);
+  }
+  .sec-num{
+    font-family:"Archivo Black",Rubik,Arial,sans-serif;
+    font-size:1.05rem;
+    color:var(--accent);
+    font-variant-numeric:tabular-nums;
+  }
+  .sec-head h2{
+    font-family:"Archivo Black",Rubik,Arial,sans-serif;
+    font-weight:400;
+    font-size:1.3125rem;
+    letter-spacing:-.005em;
+    margin:0;
+  }
+  h3{
+    font-size:.8125rem;
+    font-weight:600;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    margin:1.9rem 0 .75rem;
+  }
+  section > p{margin:1.1rem 0 0;max-width:var(--measure)}
+
+  /* ---- task lists: accent tick in a fixed gutter ------------------------ */
+  .tasks{list-style:none;margin:1.15rem 0 0;padding:0;max-width:var(--measure)}
+  .tasks li{
+    position:relative;
+    padding:0 0 0 var(--gutter);
+    margin-top:.62rem;
+  }
+  .tasks li:first-child{margin-top:0}
+  .tasks li::before{
+    content:"";
+    position:absolute;
+    left:.4rem;
+    top:.66em;
+    width:.4rem;
+    height:.4rem;
+    border-radius:50%;
+    background:var(--accent);
+  }
+  .tasks b{font-weight:600}
+  .tasks .nested{list-style:none;margin:.45rem 0 0;padding:0}
+  .tasks .nested li{padding-left:1.15rem;margin-top:.3rem;font-size:.9375rem}
+  .tasks .nested li::before{
+    left:0;top:.72em;width:.32rem;height:.32rem;border-radius:0;
+    background:var(--box-edge);
+  }
+
+  /* ---- price table ------------------------------------------------------ */
+  .table-wrap{overflow-x:auto;margin-top:1.15rem;max-width:var(--measure)}
+  table{border-collapse:collapse;width:100%;font-size:.9375rem}
+  th,td{text-align:left;padding:.6rem .9rem;border-bottom:1px solid var(--rule-soft)}
+  th{
+    font-size:.6875rem;
+    font-weight:600;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    border-bottom:1px solid var(--rule);
+  }
+  td.price{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+  tbody tr:last-child td{border-bottom:0}
+
+  /* ---- the market pitch: a line said out loud, so it is set as speech --- */
+  .say{
+    margin:1.15rem 0 0;
+    max-width:var(--measure);
+    padding:1.05rem 1.3rem;
+    background:var(--surface);
+    border-left:3px solid var(--accent);
+    font-size:1.0625rem;
+    line-height:1.5;
+  }
+  .say p{margin:0}
+  .say .label{display:block;margin-bottom:.5rem}
+
+  /* ---- checklist -------------------------------------------------------- */
+  .checklist{margin-top:1.4rem;display:grid;gap:1.75rem;grid-template-columns:1fr}
+  /* A scan grid, not prose - so it is allowed out past the text measure once
+     the viewport can pay for it. Three columns inside the measure squeeze
+     each item to about three words a line. */
+  @media(min-width:44rem){.checklist{grid-template-columns:repeat(3,1fr);gap:2rem}}
+  @media(min-width:62rem){.checklist{margin-inline:-6rem;gap:2.5rem}}
+  .checklist h3{margin-top:0}
+  .checklist ul{list-style:none;margin:0;padding:0}
+  .checklist li{margin-top:.7rem}
+  .checklist li:first-child{margin-top:0}
+  .checklist label{
+    display:grid;
+    grid-template-columns:1.15rem minmax(0,1fr);
+    gap:.65rem;
+    align-items:start;
+    font-size:.9375rem;
+    cursor:pointer;
+  }
+  .checklist input{
+    appearance:none;-webkit-appearance:none;
+    margin:0;
+    width:1.15rem;height:1.15rem;
+    margin-top:.16rem;
+    border:1.5px solid var(--box-edge);
+    border-radius:2px;
+    background:var(--box);
+    display:grid;place-content:center;
+  }
+  .checklist input::before{
+    content:"";
+    width:.62rem;height:.62rem;
+    transform:scale(0);
+    background:var(--accent);
+    clip-path:polygon(14% 44%,0 60%,39% 100%,100% 18%,84% 3%,37% 68%);
+  }
+  .checklist input:checked::before{transform:scale(1)}
+  .checklist input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .checklist input:checked + span{color:var(--text-muted);text-decoration:line-through}
+
+  /* ---- closing note ----------------------------------------------------- */
+  .closing{
+    margin-top:2.75rem;
+    padding:1.15rem 1.35rem;
+    background:var(--surface);
+    border-left:3px solid var(--accent);
+    max-width:var(--measure);
+  }
+  .closing p{margin:0;font-size:.9375rem}
+
+  footer{
+    margin-top:3.25rem;
+    padding-top:1.1rem;
+    border-top:1px solid var(--rule);
+    display:flex;
+    flex-wrap:wrap;
+    gap:.35rem 1.5rem;
+    justify-content:space-between;
+    font-size:.8125rem;
+    color:var(--text-muted);
+  }
+
+  @media print{
+    :root{--bg:#fff;--text:#0E1526;--rule:#bbb;--rule-soft:#ddd;--surface:#f2f5fb;--box:#fff;--box-edge:#888}
+    body{font-size:10.5pt}
+    .sheet{max-width:none;padding:0 0 1rem}
+    section{margin-top:1.9rem}
+    .sec-head,.sec-note,h3{break-after:avoid}
+    .tasks li,.say,.closing,.checklist>div,tr{break-inside:avoid}
+    .masthead,.facts{break-inside:avoid}
+    .checklist{grid-template-columns:repeat(3,1fr);gap:1.25rem}
+    .topbar,.tasks li::before,.checklist input{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="topbar"></div>
+
+<div class="sheet">
+
+  <header class="masthead">
+    <svg class="lockup" xmlns="http://www.w3.org/2000/svg" viewBox="-27 -4 625.7 207" role="img" aria-label="carwash by Jaranow" fill="none" stroke="var(--mark-ink)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(-10.4,34.5) scale(1.3)"><path fill-rule="evenodd" fill="var(--mark-accent)" stroke="none" d="M50 8 L81 44 A34 34 0 1 1 19 44 Z M50 51 A13 13 0 1 1 50 77 A13 13 0 1 1 50 51 Z"/></g><g transform="translate(150.7,0)"><g><path d="M21 53 V108 A14 14 0 0 1 7 122"/><path d="M14 23 H28 V37 H14 Z" fill="var(--mark-ink)" stroke="none"/></g><g transform="translate(40,0)"><path d="M47 53 V100 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"/></g><g transform="translate(106,0)"><path d="M7 100 V67 A14 14 0 0 1 21 53 H30"/></g><g transform="translate(155,0)"><path d="M47 53 V100 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"/></g><g transform="translate(221,0)"><path d="M7 100 V67 A14 14 0 0 1 21 53 H33 A14 14 0 0 1 47 67 V100"/></g><g transform="translate(287,0)"><path d="M7 67 A14 14 0 0 1 21 53 H33 A14 14 0 0 1 47 67 V79 A14 14 0 0 1 33 93 H21 A14 14 0 0 1 7 79 Z"/></g><g transform="translate(353,0)"><path d="M7 53 L20 100 L34 56 L48 100 L61 53"/></g></g><g transform="translate(150.7,136) scale(0.4)" stroke="var(--mark-accent)"><g><path d="M47 62 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 84"/></g><g transform="translate(100,0)"><path d="M47 53 V100 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"/></g><g transform="translate(200,0)"><path d="M7 100 V67 A14 14 0 0 1 21 53 H30"/></g><g transform="translate(283,0)"><path d="M7 53 L20 100 L34 56 L48 100 L61 53"/></g><g transform="translate(397,0)"><path d="M47 53 V100 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"/></g><g transform="translate(497,0)"><path d="M47 60 C47 49 7 48 7 63 C7 77 47 74 47 88 C47 101 9 102 9 89"/></g><g transform="translate(597,0)"><path d="M7 100 V16 M7 67 A14 14 0 0 1 21 53 H33 A14 14 0 0 1 47 67 V100"/></g></g></svg>
+
+    <div>
+      <span class="role">Cashier</span>
+      <h1>Cashier Guide</h1>
+      <p class="job"><b>Your job:</b> take care of the customer, take the money cleanly, and keep an honest record of the day.</p>
+      <p class="values">We win on <b>care, detail, convenience and honesty</b>.</p>
+    </div>
+  </header>
+
+  <ul class="facts">
+    <div><span class="label">Site</span><b>6th Avenue, Gwarinpa, Abuja</b></div>
+    <div><span class="label">Open</span><b>Daily, 8am &ndash; 7pm</b></div>
+    <div><span class="label">WhatsApp</span><b>0903 862 2012</b></div>
+  </ul>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">1</span><h2>Customers &amp; payment</h2></div>
+
+    <h3>Every customer</h3>
+    <ul class="tasks">
+      <li>Greet everyone with a smile.</li>
+      <li>Ask which wash they want.</li>
+      <li>Tell them what the wash includes.</li>
+    </ul>
+
+    <h3>Prices &mdash; say it plain</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Wash</th><th scope="col">Price</th><th scope="col">Includes</th></tr></thead>
+        <tbody>
+          <tr><td>Exterior</td><td class="price">&#8358;2,000</td><td>Body, wheels, glass</td></tr>
+          <tr><td>Full</td><td class="price">&#8358;3,000</td><td>Inside cleaned too</td></tr>
+          <tr><td>Vacuum</td><td class="price">&#8358;4,000</td><td>Inside vacuumed too</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="tasks">
+      <li>Same price for everybody. Don&rsquo;t bargain.</li>
+      <li>If they beg, explain what they get. Don&rsquo;t drop the price.</li>
+      <li>Never quote a price that is not on this list. If unsure, ask the supervisor.</li>
+    </ul>
+
+    <h3>Collect payment (after the wash)</h3>
+    <ul class="tasks">
+      <li>First make sure the customer is happy. Fix anything they point out.</li>
+      <li>Take payment only by <b>POS</b> or <b>transfer to the Jaranow bank account</b>.</li>
+      <li>Give the account card so they can transfer. Never accept any other means.</li>
+      <li>Cash is the only exception &mdash; if the customer pays cash, accept it and record it.</li>
+      <li>Check the money enters before the car leaves.</li>
+      <li>Say thank you.</li>
+    </ul>
+
+    <h3>Loyalty card</h3>
+    <ul class="tasks">
+      <li>5 washes, then the 6th wash is free.</li>
+      <li>Stamp one box for each wash (boxes 1&ndash;5).</li>
+      <li>Write every stamp in the ledger by card number (LOY&#8209;001, LOY&#8209;002&hellip;).</li>
+      <li>The ledger is the real record, not the card. If a card is lost, the ledger still knows how many washes they&rsquo;ve had.</li>
+      <li>When they get the free 6th wash, mark it in the ledger and give a new card.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">2</span><h2>Keep records</h2></div>
+    <ul class="tasks">
+      <li>Write down every wash, payment and expense at once. Don&rsquo;t wait till closing.</li>
+      <li>Keep all receipts.</li>
+      <li>For each wash, note: time, wash type, and the loyalty card number if they have one.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">3</span><h2>End of day &mdash; send to supervisor on WhatsApp</h2></div>
+    <ul class="tasks">
+      <li>How many washes (by type).</li>
+      <li>Money expected vs money received &mdash; they must match.</li>
+      <li>Expenses and cash left.</li>
+      <li>Loyalty stamps and free washes given.</li>
+      <li>Cars you brought from the market.</li>
+      <li>Anything else worth knowing &mdash; a complaint, a repeat customer, something we ran out of.</li>
+    </ul>
+    <div class="say">
+      <p>If the money does not balance, say so. An honest report beats a tidy wrong one.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">4</span><h2>Bring cars from the market</h2></div>
+    <p>The market close by is full of people who would wash their car if it were easy. Our offer to them is simple: <b>wash it while you shop.</b></p>
+    <p>When the carwash is free, walk up to someone parked nearby and say:</p>
+    <div class="say">
+      <span class="label">Say this</span>
+      <p>&ldquo;Hello sir, my name is [your name] from Jaranow Carwash. Come and park at our space, let&rsquo;s wash your car while you shop.&rdquo;</p>
+    </div>
+    <ul class="tasks">
+      <li>Say &ldquo;sir&rdquo; or &ldquo;ma&rdquo; to match who you are talking to.</li>
+      <li>If they say no, say thank you and leave them. Don&rsquo;t follow anyone.</li>
+      <li>Don&rsquo;t block traffic or crowd people at their car.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">&#10003;</span><h2>Daily checklist</h2></div>
+    <div class="checklist">
+      <div>
+        <h3>Opening</h3>
+        <ul>
+          <li><label><input type="checkbox"><span>Desk ready: account cards, loyalty cards, pen, the ledger, POS device</span></label></li>
+          <li><label><input type="checkbox"><span>Yesterday&rsquo;s report sent and money balanced</span></label></li>
+          <li><label><input type="checkbox"><span>Carwash and desk clean</span></label></li>
+        </ul>
+      </div>
+      <div>
+        <h3>During the day</h3>
+        <ul>
+          <li><label><input type="checkbox"><span>Greet every customer, state prices plainly</span></label></li>
+          <li><label><input type="checkbox"><span>Take payment after each wash, check it landed, say thank you</span></label></li>
+          <li><label><input type="checkbox"><span>Stamp and log every loyalty card by its number</span></label></li>
+          <li><label><input type="checkbox"><span>Write down every wash, payment and expense as it happens</span></label></li>
+          <li><label><input type="checkbox"><span>Talk to people at the market when the carwash is free</span></label></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Closing</h3>
+        <ul>
+          <li><label><input type="checkbox"><span>Balance the money against the washes logged</span></label></li>
+          <li><label><input type="checkbox"><span>Send the end-of-day report to the supervisor</span></label></li>
+          <li><label><input type="checkbox"><span>Desk tidy, ledger, POS and cards put away and kept safe</span></label></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="closing">
+    <p>Not sure about anything? Ask the supervisor. Never guess a price, a rule or a promise.</p>
+  </div>
+
+  <footer>
+    <span>Carwash by Jaranow &middot; 6th Avenue, Gwarinpa, Abuja</span>
+    <span>Cashier Guide</span>
+  </footer>
+
+</div>

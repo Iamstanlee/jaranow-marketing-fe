@@ -19,12 +19,16 @@
    and it does not belong in this file.
 
    ---- the design ----
-   Prohibition first, brand second, and the REASON is what makes it Jaranow's.
-   "NO PARKING" on its own is an instruction from nobody; the same words over a
-   line explaining that cars move in and out all day, with a number to call if
-   somebody is blocked in, is care and integrity applied to the least glamorous
-   surface the business owns. Do not strip the reason line to "tidy it up" - it
-   is the whole argument for this sign looking like ours.
+   Prohibition first, brand second, and NOTHING ELSE. The lockup, the headline,
+   the accent bar. An earlier version carried a reason line and a number to call
+   if somebody was blocked in; that was removed deliberately, and the copy is
+   parked in COPY below rather than deleted.
+
+   What the sheet gives up in warmth it gets back in obedience: a notice read
+   from a moving car has one job, and every additional line is something the
+   driver is not reading. It is also the only piece in the system with no
+   sentence on it at all, which is itself a signal - anything on this wall with
+   a paragraph is marketing, and this is not.
 
    The headline is knocked out of a FULL-BLEED ACCENT BLOCK rather than set on
    the field like every other piece. That is deliberate: a colour block spanning
@@ -66,6 +70,12 @@ const DPI = 300;
 const BLEED = 3;
 const px = (n) => Math.round((n * DPI) / 25.4);
 
+/* The sub-brand lockup's frame is 625.7 x 207 (BRAND-STANDARD §3), so its
+   height is a fixed fraction of whatever width it is set at. Needed below to
+   balance the plate: the lockup sits ABOVE the block and its mass has to be
+   answered by equal space below, or the block rides high on the sheet. */
+const LOCKUP_RATIO = 207 / 625.7;
+
 const HEADLINE = { family: "Archivo Black", weight: 400, capRatio: 0.72 };
 const BODY = { family: "Rubik", capRatio: 0.72 };
 
@@ -84,9 +94,19 @@ const readAt = (fontMm, face) => (capOf(fontMm, face) * 120) / 1000;
 const COPY = {
   headline: ["NO", "PARKING"],
   headlineOneLine: ["NO PARKING"],
-  reason: ["We move cars in and out all day.", "Please keep this space clear."],
-  footLabel: "Blocked in, or need a car moved?",
-  tel: "0903 862 2012",
+  /* The notice is DELIBERATELY the lockup and the headline, nothing else.
+     It carried a reason line and a contact block and they were removed on
+     purpose - so re-adding them is a decision, not a fix. Kept here because
+     they are the copy to bring back if the sheet ever needs to explain itself:
+
+       reason:    ["We move cars in and out all day.",
+                   "Please keep this space clear."]
+       footLabel: "Blocked in, or need a car moved?"
+       tel:       "0903 862 2012"
+
+     Anything restored has to be re-solved against the height table below, not
+     just dropped in: the gate strip's headline is 110mm precisely BECAUSE
+     nothing sits under the block, and it was 90mm when something did. */
 };
 
 /* ---- formats ----
@@ -108,14 +128,14 @@ const FORMATS = [
     h: 420,
     safe: 18,
     bar: 10,
-    lockup: 120,
+    lockup: 150,
+    blockPad: 34,
     style: "stack",
-    type: {
-      headline: { mm: 48, face: HEADLINE, at: 4 },
-      reason: { mm: 14, face: BODY, at: 1.2 },
-      label: { mm: 9.5, face: BODY, at: 0.8 },
-      tel: { mm: 26, face: BODY, at: 2 },
-    },
+    /* Width-bound, not height-bound: the block's 275mm inner width caps a
+       stacked "PARKING" at ~50mm however much vertical room is going spare.
+       Removing the reason line bought this format almost nothing in size - what
+       it bought was air, which is why the block padding runs generous. */
+    type: { headline: { mm: 50, face: HEADLINE, at: 4 } },
   },
   {
     name: "a2",
@@ -124,14 +144,13 @@ const FORMATS = [
     h: 594,
     safe: 25,
     bar: 14,
-    lockup: 172,
+    lockup: 240,
+    blockPad: 60,
     style: "stack",
-    type: {
-      headline: { mm: 70, face: HEADLINE, at: 6 },
-      reason: { mm: 20, face: BODY, at: 1.6 },
-      label: { mm: 13, face: BODY, at: 1.1 },
-      tel: { mm: 36, face: BODY, at: 2.8 },
-    },
+    /* Width-bound like the A3, and set to the same proportions: block ~42% of
+       the sheet, content ~71% of the usable height. The two plates have to look
+       like one another at a glance or they read as two different notices. */
+    type: { headline: { mm: 71, face: HEADLINE, at: 6 } },
   },
   {
     /* The one to fix wherever there is a gate or a rail. "NO PARKING" on one
@@ -144,19 +163,16 @@ const FORMATS = [
     h: 300,
     safe: 24,
     bar: 12,
-    lockup: 110,
+    lockup: 120,
+    blockPad: 24,
     style: "strip",
-    /* 300mm of height is the binding constraint here, not the 900mm of width.
-       Everything below is solved against 240mm of usable height: lockup 43 +
-       block 118 + the row at 53, plus margins. The headline could go to ~111mm
-       on width alone - it does not, because there would be nowhere to put the
-       reason. If a line grows, this is the format that clips first. */
-    type: {
-      headline: { mm: 98, face: HEADLINE, at: 7.5 },
-      reason: { mm: 18, face: BODY, at: 1.5 },
-      label: { mm: 12, face: BODY, at: 1 },
-      tel: { mm: 32, face: BODY, at: 2.6 },
-    },
+    /* This is the format that gained from stripping the sheet back. With a
+       contact row under the block it was height-bound at 98mm; with nothing
+       under it, 110mm fits in the 240mm of usable height AND still leaves 47mm
+       either side of the type inside the block. That is ~9.5m against 8.5m, on
+       a sheet less than a third of the A2's area. Still the one to fix wherever
+       there is somewhere to fix it. */
+    type: { headline: { mm: 110, face: HEADLINE, at: 9 } },
   },
 ];
 
@@ -197,6 +213,14 @@ const CSS = (f, g) => {
   const s = `.n-${f.name}`;
   const T = f.type;
   const strip = f.style === "strip";
+  /* The block is the sign; it wants to sit on the plate's centre line. The
+     stack centres the whole group, so the space UNDER the block has to equal
+     the lockup plus its gap or the block rides high - which is exactly how it
+     looked before this was worked out. The strip has no room for that: at
+     240mm of usable height the block already takes 158, so it keeps a symmetric
+     gap and lets the lockup sit snug above. */
+  const gapAbove = strip ? 14 : 26;
+  const gapBelow = strip ? 14 : gapAbove + f.lockup * LOCKUP_RATIO;
   return `
   ${s}{
     position:relative; overflow:hidden;
@@ -227,45 +251,18 @@ const CSS = (f, g) => {
   ${s} .block{
     position:relative; z-index:2; width:100%; flex:0 0 auto;
     background:${g.block}; color:${g.blockFg};
-    padding:${U(strip ? 10 : 16)} ${UB(f.safe * 0.6)};
-    margin:${U(strip ? 14 : 26)} 0 ${U(strip ? 14 : 24)};
+    padding:${U(f.blockPad)} ${UB(f.safe * 0.6)};
+    margin:${U(gapAbove)} 0 ${U(gapBelow)};
   }
   ${s} h1{
     font-family:'${HEADLINE.family}',system-ui,sans-serif;
     font-weight:${HEADLINE.weight}; font-size:${U(T.headline.mm)};
     line-height:${strip ? "1" : ".9"}; letter-spacing:-.005em; white-space:nowrap;
   }
-  ${s} .reason{
-    font-size:${U(T.reason.mm)}; font-weight:500; line-height:1.4;
-    opacity:.86;
-  }
-  /* The resolution line. A prohibition with no way out of it is just a scold;
-     this is the part that makes it Jaranow's. */
-  ${s} .foot{margin-top:${U(strip ? 14 : 20)}}
-  ${s} .label{
-    display:block; font-size:${U(T.label.mm)}; font-weight:400;
-    letter-spacing:.1em; text-transform:uppercase; opacity:.6;
-  }
-  ${s} .tel{
-    display:block; font-size:${U(T.tel.mm)}; font-weight:700; line-height:1.1;
-    font-variant-numeric:tabular-nums; margin-top:${U(strip ? 3 : 4)};
-  }
   ${s} .bar{
     position:absolute; left:0; right:0; bottom:0; z-index:3;
     height:${UB(f.bar)}; background:${g.block};
-  }
-${
-  strip
-    ? `  /* The strip has width to spare and no height to waste, so the reason and
-     the resolution line sit side by side under the block instead of stacking. */
-  ${s}{justify-content:center}
-  ${s} .row{
-    display:flex; align-items:center; justify-content:center;
-    gap:${U(60)}; text-align:left;
-  }
-  ${s} .foot{margin-top:0; text-align:left}`
-    : ""
-}`;
+  }`;
 };
 
 const panel = (f, g) => `<div class="np n-${f.name}">
@@ -275,17 +272,6 @@ const panel = (f, g) => `<div class="np n-${f.name}">
   <div class="block">
     <h1>${(f.style === "strip" ? COPY.headlineOneLine : COPY.headline).join("<br>")}</h1>
   </div>
-${
-  f.style === "strip"
-    ? `  <div class="pad row">
-    <p class="reason">${COPY.reason.join("<br>")}</p>
-    <p class="foot"><span class="label">${COPY.footLabel}</span><span class="tel">${COPY.tel}</span></p>
-  </div>`
-    : `  <div class="pad">
-    <p class="reason">${COPY.reason.join("<br>")}</p>
-    <p class="foot"><span class="label">${COPY.footLabel}</span><span class="tel">${COPY.tel}</span></p>
-  </div>`
-}
   <div class="bar"></div>
 </div>`;
 

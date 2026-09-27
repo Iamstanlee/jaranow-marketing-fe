@@ -47,12 +47,27 @@
    because it puts the lockup dead centre on the wall and that is the shot every
    finished car gets photographed in front of.
 
-   RENDERING THE BACK IN ONE PIECE NEEDS THE DEVICE-SCALE TRICK. 12,232mm at
-   2px/mm is 24,464px and headless Chrome will not open a window past ~16,384.
-   The page is authored at half the unit and shot with
-   `--force-device-scale-factor=2`: the window is legal, the screenshot is full
-   size. `dsf` in the manifest carries that per file and `emit` picks it
-   automatically above WINDOW_MAX, so a bigger bay keeps working.
+   RENDERING THE BACK IN ONE PIECE TAKES TWO TRICKS, and they solve two
+   different ceilings. 12,232mm at 2px/mm is 24,464px.
+
+   First, headless Chrome will not OPEN a window past ~16,384px. The page is
+   authored at half the unit and shot with `--force-device-scale-factor=2`, so
+   the window is legal at 12,232 and the screenshot still comes out full size.
+   `dsf` in the manifest carries that per file, picked automatically above
+   WINDOW_MAX.
+
+   Second - and this is the one the scale factor does NOT solve - Chrome will
+   not PAINT a surface that wide either, and it fails silently: the screenshot
+   is the right size, a band at the top left has artwork in it and the rest is
+   flat background. The surface is sized in DEVICE pixels, which is exactly what
+   the scale factor multiplies, so 2x moves the problem rather than fixing it.
+   Above PAINT_MAX the page is therefore emitted as several TILES - the same
+   page, each clipped to a different whole-pixel window - and rasterize-bay.sh
+   shoots each and joins them with stitch-png.js. The seam is invisible by
+   construction: identical layout at an integer offset, so glyphs land on the
+   same subpixel positions in every tile.
+
+   Both ceilings are picked automatically, so a bigger bay keeps working.
 
    ---- rules carried over from the rest of the system ----
    EVERY HEADING IS ARCHIVO BLACK, and that is a DELIBERATE DEPARTURE from
@@ -102,6 +117,11 @@ const ft = (n) => Math.round(n * 304.8);
 const PX_PER_MM = 2;
 const BLEED = 20; // fabrication allowance; a hemmed banner takes its hem from it
 const WINDOW_MAX = 16000; // headless Chrome stops opening windows around 16,384px
+/* Widest surface Chrome paints in full, in DEVICE pixels. Conservative: the
+   17ft returns come out whole at 10,444 and the 40ft back wall came out as a
+   ~7,200px band at 24,464, so the true ceiling is somewhere between. Anything
+   wider is tiled. Lower it if a panel ever renders part-painted. */
+const PAINT_MAX = 12000;
 const mm = (n) => Math.round(n * PX_PER_MM);
 
 const HEADLINE = { family: "Archivo Black", weight: 400, capRatio: 0.72 };
@@ -153,20 +173,33 @@ const PANELS = [
     label: "Back wall — the promise, who we are, the reassurance",
     ftSize: "40 × 7 ft",
     w: BAY.w,
-    /* Sized to sit inside a 4064mm third with air either side. "OUR TIME" is
-       the binding word at ~5.9x its font size in Archivo Black; "before you
-       pay." at ~8.3x in Rubik 700. Both have ~1000mm of slack at these sizes -
-       lengthen a line and re-solve from whichever is now longest. */
-    lockup: 2300,
+    /* The one lockup in the whole room, and the shot every finished car is
+       photographed in front of, so it is sized to carry the centre zone on its
+       own rather than to match the headlines either side. Width-bound by the
+       zone content box (4064 less 120 padding a side = 3824mm): 3000 fills 78%
+       of it and stands 992mm on the §3 sub-brand frame (207/625.7), which
+       still leaves ~400mm of air above and below inside the 1794mm copy band. */
+    lockup: 3200,
+    /* SOLVED FROM MEASURED WIDTHS, not chosen by eye. Per font size the
+       binding lines run: "GET A FREE WASH." 8.72x and "CONFIDENCE" 6.28x in
+       Archivo Black, "Ask for your loyalty card." 10.36x in Rubik 400. A zone
+       is a 4064mm third less 120mm of padding a side, so a line has 3824mm to
+       live in. Lengthen a line and re-solve from whichever is then widest.
+
+       Both flanking zones are set BELOW what fits, because what has to lead
+       this wall is the lockup in the middle. At 430mm the headline ran 3750mm
+       - 98% of its box - so it crowded its own zone and argued with the mark;
+       340 brings it to 2965mm and leaves ~430mm of air either side. */
     type: {
-      headline: { mm: 430, face: HEADLINE, at: 20 },
+      headline: { mm: 340, face: HEADLINE, at: 20 },
       sub: { mm: 108, face: BODY, at: 8 },
       hours: { mm: 110, face: BODY, at: 8 },
-      /* Archivo Black, so 14 characters is a much wider line than zone 1's
-         "OUR TIME" at the same size. 310 keeps the line to 76% of the zone and
-         keeps zone 1 leading on cap height, which is what carries hierarchy at
-         distance - line length just reflects word count. */
-      value: { mm: 310, face: HEADLINE, at: 12 },
+      /* Archivo Black, so a long single word is a much wider line than zone
+         1's at the same size. 250 puts "CONFIDENCE" at 1571mm, 41% of the
+         zone, and keeps zone 1 leading on cap height (245mm against 180mm) -
+         cap height is what carries hierarchy at distance, line length just
+         reflects word count. */
+      value: { mm: 250, face: HEADLINE, at: 12 },
     },
     zones: [
       /* "WE TAKE OUR TIME" is the promise and it is doing a second job: it
@@ -174,7 +207,10 @@ const PANELS = [
          stated exactly where impatience happens. The sub line is what stops it
          reading as "we are slow", so do not drop it. Stacked because one line
          of Archivo Black in a 4064mm zone would cap at ~340mm. */
-      { kind: "promise", copy: ["WE TAKE", "OUR TIME"], sub: "so your car leaves clean, inside and out." },
+      {
+        kind: "promise", copy: ["WASH FIVE TIMES", "GET A FREE WASH."],
+        sub: "Ask for your loyalty card.",
+      },
       { kind: "brand", copy: "" },
       /* The reassurance. An invitation rather than a claim, and it states the
          actual policy: nobody pays for a wash they have not looked at.
@@ -186,7 +222,7 @@ const PANELS = [
                                                promise of rework, so only use it
                                                if that is genuinely the policy
            ["WE FINISH", "WHAT WE START"]      care rather than inspection */
-      { kind: "value", copy: ["CLEAN CAR", "", "ELEVATED" ,"CONFIDENCE"] },
+      {kind: "value", copy: ["A CLEAN CAR", "=", "ELEVATED", "CONFIDENCE"]},
     ],
     spec: {
       distance: "4m (the driver, stopped) to 20m (from the street)",
@@ -449,31 +485,62 @@ const FONTS = `<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Archivo+Black&display=block" rel="stylesheet">`;
 
-const page = (title, w, h, css, body) => `<!doctype html><html><head><meta charset="utf-8">
-<title>${title}</title>
+/* `slice` renders a vertical strip of the same page: the viewport shrinks to
+   the tile width and the whole composition is shifted left inside it. Nothing
+   in the layout changes - the wrapper is the full page size and the panel is
+   sized in absolute units - so the tiles join seamlessly. */
+const page = (title, w, h, css, body, slice) => `<!doctype html><html><head><meta charset="utf-8">
+<title>${title}${slice ? ` [tile @${slice.x}]` : ""}</title>
 ${FONTS}
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{width:${w}px;height:${h}px;overflow:hidden}
+  html,body{width:${slice ? slice.w : w}px;height:${h}px;overflow:hidden}
 ${css}
 </style></head><body>
-${body}
+${
+  slice
+    ? `<div style="position:absolute;left:${-slice.x}px;top:0;width:${w}px;height:${h}px">${body}</div>`
+    : body
+}
 </body></html>`;
 
 /* ---- emit ----
-   `dsf` is the device-scale trick described at the top: anything whose final
-   pixel size would exceed the window ceiling is authored at half the unit and
-   shot at 2x. The manifest carries the WINDOW size and the scale factor; the
-   rasterizer multiplies. Picked automatically so a bigger bay keeps working. */
+   Applies both ceilings described at the top. `dsf` is the device-scale trick:
+   anything whose final pixel size would exceed the window ceiling is authored
+   at half the unit and shot at 2x. `tiles` is the paint ceiling: a file wider
+   than PAINT_MAX in device pixels is written as N strips, `<base>.t<i>.html`,
+   and joined after rasterizing.
+
+   The manifest is one line per OUTPUT PNG, six columns:
+
+     base  winW  winH  dsf  tiles  tileW
+
+   all four numbers in CSS pixels of the window to open (multiply by dsf for the
+   file). Tiles are tileW wide except the last, which is the remainder - the
+   rasterizer works that out rather than the manifest listing every strip. */
 const sizes = [];
 const emit = (base, wPx, hPx, mkPage) => {
   const dsf = Math.max(wPx, hPx) > WINDOW_MAX ? 2 : 1;
   const winW = Math.round(wPx / dsf);
   const winH = Math.round(hPx / dsf);
-  fs.writeFileSync(path.join(OUT, "html", `${base}.html`), mkPage(dsf, winW, winH));
-  sizes.push(`${base} ${winW} ${winH} ${dsf}`);
+  const tiles = Math.ceil(wPx / PAINT_MAX);
+  const tileW = Math.ceil(winW / tiles);
+  const write = (name, html) => fs.writeFileSync(path.join(OUT, "html", name), html);
+
+  if (tiles === 1) write(`${base}.html`, mkPage(dsf, winW, winH, null));
+  else
+    for (let i = 0; i < tiles; i++) {
+      const x = i * tileW;
+      write(`${base}.t${i}.html`, mkPage(dsf, winW, winH, { x, w: Math.min(tileW, winW - x) }));
+    }
+
+  sizes.push(`${base} ${winW} ${winH} ${dsf} ${tiles} ${tileW}`);
   console.log(
-    `  ${base}.html`.padEnd(36) + `${wPx}x${hPx}px` + (dsf > 1 ? `  (window ${winW}x${winH} @${dsf}x)` : "")
+    `  ${base}.html`.padEnd(36) +
+      `${wPx}x${hPx}px` +
+      (dsf > 1 ? `  (window ${winW}x${winH} @${dsf}x` : "") +
+      (tiles > 1 ? `${dsf > 1 ? ", " : "  ("}${tiles} tiles of ${tileW}px` : "") +
+      (dsf > 1 || tiles > 1 ? ")" : "")
   );
 };
 
@@ -481,13 +548,14 @@ const emit = (base, wPx, hPx, mkPage) => {
 console.log("print files");
 for (const p of PANELS) {
   for (const [gname, g] of Object.entries(GROUNDS)) {
-    emit(`bay-carwash-${p.id}-${gname}`, mm(p.w + BLEED * 2), mm(p.h + BLEED * 2), (dsf, w, h) =>
+    emit(`bay-carwash-${p.id}-${gname}`, mm(p.w + BLEED * 2), mm(p.h + BLEED * 2), (dsf, w, h, slice) =>
       page(
         `${p.label} (${gname})`,
         w,
         h,
         `  body{--u:${PX_PER_MM / dsf}px; --bleed:${BLEED}}\n${CSS(p, g)}`,
-        panel(p, g)
+        panel(p, g),
+        slice
       )
     );
   }

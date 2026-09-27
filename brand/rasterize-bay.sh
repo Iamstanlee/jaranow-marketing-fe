@@ -13,12 +13,26 @@
 #
 # Panels are 2px/mm (~51dpi at full size, correct for large format).
 #
-# The manifest carries FOUR columns - base, window width, window height and a
-# device scale factor - because the back wall is 25,680px wide and headless
-# Chrome will not open a window past ~16,384. gen-bay.js authors that page at
-# half the unit and flags dsf=2; Chrome renders the smaller window at 2x and the
-# screenshot comes out at full size. Read all four columns and pass the scale
-# through - dropping it silently halves the back wall's resolution.
+# THE MANIFEST HAS SIX COLUMNS - base, window width, window height, device scale
+# factor, tile count and tile width - because the back wall is 24,464px wide and
+# headless Chrome clears neither of its two ceilings at that size. It will not
+# OPEN a window past ~16,384px, so gen-bay.js authors that page at half the unit
+# and flags dsf=2; Chrome renders the smaller window at 2x and the screenshot
+# comes out at full size. Read all the columns and pass the scale through -
+# dropping it silently halves the back wall's resolution.
+#
+# The scale factor does NOT fix the second ceiling. Chrome also will not PAINT a
+# surface that wide, and it fails silently rather than erroring: the PNG is the
+# right size, a band at the top left has artwork in it and everything else is
+# flat background - no headline, no lockup, no accent bar. The surface is sized
+# in device pixels, which is precisely what the scale factor multiplies. So such
+# a page is emitted as TILES (<base>.t0.html, .t1.html, ...), each shot inside
+# both ceilings, and joined here by stitch-png.js into the one file the printer
+# gets. A tiled panel is still ONE banner - the tiles are a rendering detail and
+# never reach the print shop.
+#
+# Tiles are tileW wide except the last, which takes the remainder. If a panel
+# ever comes back part-painted, lower PAINT_MAX in gen-bay.js and re-run both.
 #
 # The PNGs are production files for a banner printer; the mockup and spec sheet
 # are not - hand those over as reference, and send the lockup SVGs from
@@ -35,19 +49,42 @@ SIZES="$HTMLDIR/sizes.txt"
 [ -f "$SIZES" ] || { echo "No manifest at $SIZES - run: node brand/gen-bay.js" >&2; exit 1; }
 
 mkdir -p "$PNGDIR"
+TILEDIR="$(mktemp -d)"
+trap 'rm -rf "$TILEDIR"' EXIT
 
-while read -r base w h dsf; do
-  [ -n "$base" ] || continue
-  dsf="${dsf:-1}"
-  html="$HTMLDIR/$base.html"
-  [ -f "$html" ] || { echo "missing $html" >&2; exit 1; }
+# shoot <html> <png> <window width> <window height> <device scale factor>
+shoot() {
+  [ -f "$1" ] || { echo "missing $1" >&2; exit 1; }
   "$CHROME" --headless=new --disable-gpu --hide-scrollbars \
     --allow-file-access-from-files \
-    --force-device-scale-factor="$dsf" \
-    --window-size="$w,$h" \
+    --force-device-scale-factor="$5" \
+    --window-size="$3,$4" \
     --virtual-time-budget=12000 \
-    --screenshot="$PNGDIR/$base.png" "file://$html" >/dev/null 2>&1
-  echo "$base.png  $((w * dsf))x$((h * dsf))$([ "$dsf" -gt 1 ] && echo "  (${w}x${h} @${dsf}x)")"
+    --screenshot="$2" "file://$1" >/dev/null 2>&1 </dev/null
+}
+
+while read -r base w h dsf tiles tileW; do
+  [ -n "$base" ] || continue
+  dsf="${dsf:-1}"; tiles="${tiles:-1}"; tileW="${tileW:-$w}"
+
+  if [ "$tiles" -le 1 ]; then
+    shoot "$HTMLDIR/$base.html" "$PNGDIR/$base.png" "$w" "$h" "$dsf"
+    echo "$base.png  $((w * dsf))x$((h * dsf))$([ "$dsf" -gt 1 ] && echo "  (${w}x${h} @${dsf}x)")"
+  else
+    parts=()
+    i=0
+    while [ "$i" -lt "$tiles" ]; do
+      # Every tile is tileW wide but the last, which takes what is left over.
+      x=$((i * tileW))
+      tw=$tileW
+      if [ $((x + tw)) -gt "$w" ]; then tw=$((w - x)); fi
+      shoot "$HTMLDIR/$base.t$i.html" "$TILEDIR/$base.t$i.png" "$tw" "$h" "$dsf"
+      parts[$i]="$TILEDIR/$base.t$i.png"
+      i=$((i + 1))
+    done
+    echo "$base.png  $((w * dsf))x$((h * dsf))  ($tiles tiles @${dsf}x, joined)"
+    node "$ROOT/stitch-png.js" "$PNGDIR/$base.png" "${parts[@]}" </dev/null
+  fi
 done < "$SIZES"
 
 echo

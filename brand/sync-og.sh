@@ -22,3 +22,5 @@ copy opengraph-jaranow  jaranow/opengraph.png
 copy opengraph-carwash  carwash/opengraph.png
 copy opengraph-laundry  wash/opengraph.png
 copy opengraph-pricing  jaranow/opengraph-pricing.png
+copy opengraph-business business/opengraph.png
+copy opengraph-rugs     rugs/opengraph.png

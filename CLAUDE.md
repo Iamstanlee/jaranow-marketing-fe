@@ -1,7 +1,8 @@
 # Jaranow Marketing Website — Claude Context
 
 Marketing site for Jaranow: home (`/`), car wash (`/carwash`), laundry
-(`/laundry`), pricing (`/pricing`), pitch deck (`/pitch-deck`), internal books
+(`/laundry`), rug cleaning (`/rugs`), fleet & corporate car wash
+(`/business`), pricing (`/pricing`), pitch deck (`/pitch-deck`), internal books
 app (`/__/book`).
 
 ## Tech stack
@@ -22,7 +23,8 @@ src/
 ├── components/
 │   ├── common/    # Header, Footer, OptimizedImage, PreloadImages
 │   ├── home/  carwash/  wash/     # "wash" = laundry; folder predates the rename
-├── pages/         # Home, CarwashLanding, WashLanding, WashRecommendation, Deck, Pricing
+├── pages/         # Home, CarwashLanding, WashLanding, WashRecommendation, Rugs, Business, Deck, Pricing
+├── data/          # carwashPrices.ts - mirrors the printed carwash price list
 ├── seo/           # routes.json + SeoTags.tsx
 └── App.tsx        # routing, lazy-loaded pages
 
@@ -66,6 +68,11 @@ Page sections are built from `components/common/ui.tsx` (`SectionHeader`,
 `PageHero`, `FactPanel`, `NumberedGrid`, `StepRow`, `TestimonialGrid`,
 `FaqList`, `btn.*`, `openWhatsApp`). Use them rather than re-styling a section
 by hand, so every page stays one system. Sections alternate Ink / Paper / white.
+
+Enquiry forms that hand off to WhatsApp (the business quote, the rug pickup)
+use `components/common/WhatsAppForm.tsx`: fields are a config array, so a new
+enquiry type is data rather than another copy of the carwash `BookingForm`.
+Each page closes on `CtaBand`, the one full-accent surface per page.
 
 Laundry plans are defined once, as `LAUNDRY_PLANS` in
 `wash/PricingPlans.tsx`; `/pricing` imports them along with `PlanCard` and
@@ -642,8 +649,14 @@ curtains).
 - Never use price as a selling point.
 - Keep JSON-LD prices in sync with the visible page — they drifted once (₦15,999
   vs ₦14,999) and search results showed the wrong figure.
-- The car wash is **drive-in**. Do not describe it as doorstep or pickup. Only
-  laundry is collected and delivered.
+- The car wash is **drive-in** for individual customers. Do not describe it as
+  doorstep or pickup. Laundry and rugs are collected and delivered.
+- **Fleet / corporate / business / school** washing (`/business`) happens at 6th
+  Avenue **or on site at the organisation's premises** - both confirmed. It is
+  quoted per organisation, so that page carries no prices.
+- **Rug cleaning** (`/rugs`) is collected from the door and returned. No
+  turnaround is promised - the return date is confirmed at collection. Its
+  prices come from the Rug section of `src/data/carwashPrices.ts`.
 - Unverified social proof ("Trusted by 1000+ customers", "100% satisfaction
   guarantee", "follow up within 2 hours") is inherited copy — confirm before
   repeating or expanding it.

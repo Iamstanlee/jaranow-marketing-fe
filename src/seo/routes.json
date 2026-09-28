@@ -5,7 +5,7 @@
   "routes": {
     "/": {
       "file": "index.html",
-      "title": "Jaranow | Car Wash in Gwarinpa & Laundry Pickup in Abuja",
+      "title": "Jaranow | Car wash in Gwarinpa & Laundry Pickup in Abuja",
       "description": "Car wash at 6th Avenue, Gwarinpa, open every day 8am–7pm, and laundry collected from your door across Abuja - washed, ironed, folded, back in 48 hours.",
       "ogTitle": "Jaranow - Your car and laundry, handled.",
       "ogDescription": "A car wash in Gwarinpa and laundry pickup across Abuja. A clean car and fresh, folded clothes - without the hassle.",
@@ -15,9 +15,9 @@
     },
     "/carwash": {
       "file": "carwash/index.html",
-      "title": "Car Wash in Gwarinpa, Abuja | Carwash by Jaranow",
+      "title": "Car wash in Gwarinpa, Abuja | Carwash by Jaranow",
       "description": "Carwash by Jaranow, 6th Avenue, Gwarinpa. Exterior, full and vacuum washes while you wait - drive off in a clean, fresh car. Open every day, 8am–7pm.",
-      "ogTitle": "Carwash by Jaranow - Car Wash in Gwarinpa, Abuja",
+      "ogTitle": "Carwash by Jaranow - Car wash in Gwarinpa, Abuja",
       "ogDescription": "Your car, handled. Washed at 6th Avenue, Gwarinpa, by a team trained to look twice.",
       "ogImage": "/carwash/opengraph.png",
       "ogImageAlt": "Carwash by Jaranow - car wash in Gwarinpa, Abuja",
@@ -45,12 +45,32 @@
     },
     "/pricing": {
       "file": "pricing/index.html",
-      "title": "Car Wash & Laundry Prices in Abuja | Jaranow",
+      "title": "Car wash & Laundry Prices in Abuja | Jaranow",
       "description": "Jaranow prices in one place: car washes at 6th Avenue, Gwarinpa, and laundry plans or pay-per-item pricing with pickup and delivery across Abuja.",
-      "ogTitle": "Jaranow Pricing - Car Wash & Laundry",
+      "ogTitle": "Jaranow Pricing - Car wash & Laundry",
       "ogDescription": "Every car wash and laundry price in one place.",
       "ogImage": "/jaranow/opengraph-pricing.png",
       "ogImageAlt": "Jaranow pricing",
+      "siteName": "Jaranow"
+    },
+    "/business": {
+      "file": "business/index.html",
+      "title": "Fleet & Corporate Car wash in Abuja | Carwash by Jaranow",
+      "description": "Car washing for fleets, corporates, businesses and schools in Abuja - at 6th Avenue, Gwarinpa, or on site at your premises, on a schedule agreed with you.",
+      "ogTitle": "Fleet & Corporate Car wash - Carwash by Jaranow",
+      "ogDescription": "Every vehicle, handled. Fleets, offices, businesses and schools - washed at our site or yours.",
+      "ogImage": "/business/opengraph.png",
+      "ogImageAlt": "Carwash by Jaranow - fleet and corporate car wash in Abuja",
+      "siteName": "Carwash by Jaranow"
+    },
+    "/rugs": {
+      "file": "rugs/index.html",
+      "title": "Rug Cleaning with Pickup & Delivery in Abuja | Jaranow",
+      "description": "Rug cleaning in Abuja, collected from your door and returned fresh. Small, medium and sitting-room rugs, priced by size. Book a pickup on WhatsApp.",
+      "ogTitle": "Rug Cleaning with Pickup & Delivery - Jaranow",
+      "ogDescription": "Your rugs, handled. Collected from your door, cleaned thoroughly and brought back fresh.",
+      "ogImage": "/rugs/opengraph.png",
+      "ogImageAlt": "Jaranow - rug cleaning with pickup and delivery in Abuja",
       "siteName": "Jaranow"
     },
     "/__/book": {

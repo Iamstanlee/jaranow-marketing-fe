@@ -7,6 +7,8 @@ const CarwashLanding = React.lazy(() => import('./pages/CarwashLanding'));
 const WashLanding = React.lazy(() => import('./pages/WashLanding'));
 const WashRecommendation = React.lazy(() => import('./pages/WashRecommendation'));
 const Pricing = React.lazy(() => import('./pages/Pricing'));
+const Business = React.lazy(() => import('./pages/Business'));
+const Rugs = React.lazy(() => import('./pages/Rugs'));
 // Named so the build can find its chunk by filename and preload it (and its firebase and
 // vendor siblings) from build/__/book/index.html — see scripts/prerender-meta.js. Without
 // that, reaching the desk costs three serial round trips: main.js, then this chunk, then the
@@ -15,10 +17,10 @@ const Pricing = React.lazy(() => import('./pages/Pricing'));
 const Bookkeeping = React.lazy(() => import(/* webpackChunkName: "book" */ './pages/Bookkeeping'));
 
 const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-white">
+  <div className="min-h-screen flex items-center justify-center bg-paper">
     <div className="flex flex-col items-center space-y-4">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-      <p className="text-gray-600">Loading...</p>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      <p className="text-ink/60">Loading...</p>
     </div>
   </div>
 );
@@ -34,6 +36,8 @@ function App() {
                     <Route path="/laundry" element={<WashLanding/>}/>
                     <Route path="/laundry/recommendation" element={<WashRecommendation/>}/>
                     <Route path="/pricing" element={<Pricing/>}/>
+                    <Route path="/business" element={<Business/>}/>
+                    <Route path="/rugs" element={<Rugs/>}/>
                     <Route path="__/book" element={<Bookkeeping/>}/>
                 </Routes>
               </Suspense>

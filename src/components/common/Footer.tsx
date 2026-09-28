@@ -29,8 +29,10 @@ const socialLinks = [
 ];
 
 const serviceLinks = [
-    {name: 'Car Wash', to: '/carwash'},
+    {name: 'Car wash', to: '/carwash'},
     {name: 'Laundry', to: '/laundry'},
+    {name: 'Rug cleaning', to: '/rugs'},
+    {name: 'Fleet & business', to: '/business'},
     {name: 'Pricing', to: '/pricing'},
 ];
 

@@ -27,6 +27,7 @@ export const btn = {
     paper: `${btnBase} bg-paper text-ink hover:bg-white`,
     ghostOnDark: `${btnBase} border border-paper/25 text-white hover:border-paper/60 hover:bg-white/5`,
     ghostOnLight: `${btnBase} border border-ink/15 text-ink hover:border-ink/40`,
+    ghostOnAccent: `${btnBase} border border-white/40 text-white hover:border-white hover:bg-white/10`,
 };
 
 /** Hover lift for buttons and cards - the only motion allowed outside hero entrances. */
@@ -155,6 +156,21 @@ export const FactPanel: React.FC<{ facts: Fact[] }> = ({facts}) => (
             </div>
         ))}
     </dl>
+);
+
+/** The closing blue band: one heading, one line, the actions as children.
+ *  The only full accent surface on a page (§9 - accent is punctuation). */
+export const CtaBand: React.FC<{ title: string; body: string; children: React.ReactNode }> = ({title, body, children}) => (
+    <section className="bg-paper px-4 pb-20 sm:px-6 sm:pb-28 lg:px-8">
+        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl bg-primary-600 px-7 py-14 text-white sm:px-14 sm:py-20">
+            <Drop className="absolute -right-16 -bottom-24 h-[420px] w-auto text-paper opacity-[0.08]"/>
+            <div className="relative max-w-2xl">
+                <h2 className="heading-display text-4xl leading-[1.05] sm:text-5xl">{title}</h2>
+                <p className="mt-5 text-lg leading-relaxed text-white/85">{body}</p>
+                <div className="mt-9 flex flex-col gap-3 sm:flex-row">{children}</div>
+            </div>
+        </div>
+    </section>
 );
 
 /** 2x2 numbered grid, used for the four values and anything shaped like them. */

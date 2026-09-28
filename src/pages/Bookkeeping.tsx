@@ -141,7 +141,7 @@ export default function Bookkeeping() {
                     <Icon size={19}/>{item.label}</button>;
             })}</nav>
             <div className="absolute bottom-6 left-5 right-5 rounded-2xl bg-slate-900 p-4 text-white"><p
-                className="text-sm font-semibold">Jaranow Car Wash</p><p
+                className="text-sm font-semibold">Jaranow Car wash</p><p
                 className="mt-1 text-xs capitalize text-slate-400">{role} access</p>
                 <button onClick={lock}
                         className="mt-4 flex items-center gap-2 text-xs text-slate-300"><LogOut size={14}/> Lock book

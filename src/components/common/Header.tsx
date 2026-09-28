@@ -40,7 +40,9 @@ export interface HeaderProps {
 }
 
 const navLinks = [
-    {to: '/carwash', label: 'Car Wash'},
+    {to: '/carwash', label: 'Car wash'},
+    {to: '/rugs', label: 'Rugs'},
+    {to: '/business', label: 'Business'},
     {to: '/laundry', label: 'Laundry'},
     {to: '/pricing', label: 'Pricing'},
 ];

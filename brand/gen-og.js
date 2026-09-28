@@ -56,6 +56,22 @@ const CARDS = [
     meta: "Ready to wear · Pickup & delivery · Abuja",
   },
   {
+    file: "opengraph-business",
+    lockup: "jaranow-carwash-by-jaranow-white",
+    lockupH: 80,
+    headline: "Every vehicle, handled.",
+    sub: "Fleets, offices and schools, washed at our site or\u00a0yours.",
+    meta: "Fleet & corporate car wash · Abuja",
+  },
+  {
+    file: "opengraph-rugs",
+    lockup: "jaranow-lockup-horizontal-white",
+    lockupH: 62,
+    headline: "Your rugs, handled.",
+    sub: "Collected from your door, cleaned thoroughly, brought back\u00a0fresh.",
+    meta: "Rug cleaning · Pickup & delivery · Abuja",
+  },
+  {
     file: "opengraph-pricing",
     lockup: "jaranow-lockup-horizontal-white",
     lockupH: 62,

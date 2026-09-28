@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import Header from '../components/common/Header';
 import Hero from '../components/home/Hero';
@@ -9,11 +9,10 @@ import FAQ from '../components/home/FAQ';
 import ClosingCta from '../components/home/ClosingCta';
 import Footer from '../components/common/Footer';
 import SeoTags from '../seo/SeoTags';
+import { useLandingScroll } from '../utils/useLandingScroll';
 
 const Home: React.FC = () => {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+  useLandingScroll();
 
   return (
     <>

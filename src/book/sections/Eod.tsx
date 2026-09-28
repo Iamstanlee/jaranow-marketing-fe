@@ -20,7 +20,7 @@ export function Eod({totals, expenses, loading}: {
     // less cash than the day took, and the deduction has to be checkable from the message
     // alone — they cannot see the desk. Asterisks are WhatsApp's bold.
     const report = [
-        '*Jaranow Car Wash — End of day*',
+        '*Jaranow Car wash — End of day*',
         longDate(),
         '',
         `Sales: ${totals.count} transaction${totals.count === 1 ? '' : 's'} · ${money(totals.revenue)}`,

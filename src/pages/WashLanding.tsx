@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {Helmet} from 'react-helmet-async';
 
 import Header from '../components/common/Header';
@@ -12,17 +12,10 @@ import FAQ from '../components/wash/FAQ';
 import Footer from '../components/common/Footer';
 import SeoTags from '../seo/SeoTags';
 import {scrollToElement} from '../utils/formatters';
+import {useLandingScroll} from '../utils/useLandingScroll';
 
 const WashLanding: React.FC = () => {
-  useEffect(() => {
-    // Scroll to element if hash is present in URL
-    const hash = window.location.hash.substring(1); // Remove the '#' character
-    if (hash) {
-      setTimeout(() => {
-        scrollToElement(hash);
-      }, 100);
-    }
-  }, []);
+  useLandingScroll();
 
   const scrollToPricing = () => {
     scrollToElement('pricing');

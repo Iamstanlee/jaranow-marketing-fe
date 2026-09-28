@@ -1,6 +1,6 @@
 import React, {forwardRef, useImperativeHandle, useState} from 'react';
 import {CheckCircle} from 'lucide-react';
-import {btn, Container, SectionHeader, WHATSAPP_NUMBER} from '../common/ui';
+import {btn, Container, SectionHeader, openWhatsApp} from '../common/ui';
 import {validatePhoneNumber} from '../../utils/formatters';
 
 export interface BookingFormHandle {
@@ -106,8 +106,7 @@ Preferred time: ${form.preferredTime}
 
 Location: 6th Avenue, Gwarinpa, Abuja`;
 
-        const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-        window.open(whatsappUrl, '_blank');
+        openWhatsApp(message);
         setSubmitted(true);
     };
 

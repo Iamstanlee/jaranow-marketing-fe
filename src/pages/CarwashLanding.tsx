@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useRef} from 'react';
 import {Helmet} from 'react-helmet-async';
 
 import Header from '../components/common/Header';
@@ -10,6 +10,7 @@ import BookingForm, {BookingFormHandle} from '../components/carwash/BookingForm'
 import Footer from '../components/common/Footer';
 import SeoTags from '../seo/SeoTags';
 import {scrollToElement} from '../utils/formatters';
+import {useLandingScroll} from '../utils/useLandingScroll';
 import {CARWASH_PRICE_LIST} from '../data/carwashPrices';
 
 /* Services beyond the three cards, from the same data the "More prices" list
@@ -28,9 +29,7 @@ const extraOffers = CARWASH_PRICE_LIST.flatMap((section) =>
 const CarwashLanding: React.FC = () => {
     const bookingRef = useRef<BookingFormHandle>(null);
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
+    useLandingScroll();
 
     const goToBooking = (washType?: string) => {
         if (washType) {
@@ -68,7 +67,7 @@ const CarwashLanding: React.FC = () => {
                         priceRange: '₦₦',
                         hasOfferCatalog: {
                             '@type': 'OfferCatalog',
-                            name: 'Car Wash Services',
+                            name: 'Car wash Services',
                             itemListElement: [
                                 {
                                     '@type': 'Offer',

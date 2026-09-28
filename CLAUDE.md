@@ -214,6 +214,7 @@ hand edit is silently overwritten on the next run.
 | Price lists | `gen-pricelist.js` · `rasterize-pricelist.sh` | `pricelist/png/` | `LISTS` |
 | A5 flyer | `gen-flyer.js` · `rasterize-flyer.sh` | `flyer/png/` | `FLYERS` |
 | Recruitment posters | `gen-poster.js` · `rasterize-poster.sh` | `poster/png/` | `JOBS`, `FORMATS` |
+| Meta ads (rugs, business) | `gen-ad.js` · `rasterize-ad.sh` | `ad/png/` | `ADS`, `FORMATS` |
 | Roadside signage | `gen-sign.js` · `rasterize-sign.sh` | `sign/png/` | panels, `SERVICES` |
 | Wash-bay banners | `gen-bay.js` · `rasterize-bay.sh` | `bay/png/` | `BAY`, zones |
 | No-parking notices | `gen-noparking.js` · `rasterize-noparking.sh` | `noparking/png/` | `COPY` |
@@ -350,6 +351,21 @@ accent (carwash roles: ₦50,000–70,000/month). **Do not print a wage, shift
 pattern or benefit that has not been confirmed** — a sheet on a wall outlives the
 conversation that set it. Meta throttles text-heavy creative; pair these with
 short primary text rather than adding copy to the image.
+
+**Meta ads.** One campaign device: a flat **before/after split** of the thing
+we clean (a rug, a company van), dingy left and fresh right with a slider
+handle between, so the result lands before a word is read. Then an Archivo
+Black headline selling the end result, one sentence, a blue button-shaped pill
+and the WhatsApp number. `feed` 1080×1350 and `story` 1080×1920 (content kept
+out of Meta's top 13% / bottom 18% - the empty bands are deliberate).
+
+Grime is Ink at low opacity, never a brown (one accent, §4.2), and is clipped to
+the object's silhouette as well as the left half - without the silhouette clip
+stains float on the panel. The handle height is per drawing (`handleY`) so it
+never covers text; on the van it sits between the wheels, off the YOUR BRAND
+panel. **No prices** (flyer rule). Headline breaks are `\n` only; a script
+shrinks the headline after fonts load until the longest line fits. Alternative
+headlines to A/B test are listed above `ADS`.
 
 **Roadside signage.** 21 panels — seven layouts × three grounds, each plus 20mm
 bleed (a fabrication allowance, not a proportion). The last four are alternative

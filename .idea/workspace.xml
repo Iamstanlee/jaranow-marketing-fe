@@ -4,28 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Update gen-bay.js">
-      <change beforePath="$PROJECT_DIR$/brand/gen-og.js" beforeDir="false" afterPath="$PROJECT_DIR$/brand/gen-og.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/brand/sync-og.sh" beforeDir="false" afterPath="$PROJECT_DIR$/brand/sync-og.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/employee-handbook.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/employee-handbook.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/sitemap.xml" beforeDir="false" afterPath="$PROJECT_DIR$/public/sitemap.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/sections/Eod.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Eod.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/carwash/BookingForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/carwash/BookingForm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/common/Footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/common/Footer.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/common/Header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/common/Header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/common/ui.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/common/ui.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/home/ClosingCta.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/home/ClosingCta.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/wash/PlanRecommendation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/PlanRecommendation.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/wash/PricingPlans.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/wash/PricingPlans.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/Bookkeeping.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Bookkeeping.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/CarwashLanding.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/CarwashLanding.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/Home.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Home.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/Pricing.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Pricing.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/WashLanding.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/WashLanding.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/seo/routes.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/seo/routes.json" afterDir="false" />
-    </list>
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Update gen-bay.js" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -208,7 +187,7 @@
       <workItem from="1789719534619" duration="6727000" />
       <workItem from="1790250791842" duration="727000" />
       <workItem from="1790260382060" duration="394000" />
-      <workItem from="1790358488160" duration="19585000" />
+      <workItem from="1790358488160" duration="20919000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

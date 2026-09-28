@@ -65,10 +65,10 @@
     },
     "/rugs": {
       "file": "rugs/index.html",
-      "title": "Rug Cleaning with Pickup & Delivery in Abuja | Jaranow",
-      "description": "Rug cleaning in Abuja, collected from your door and returned fresh. Small, medium and sitting-room rugs, priced by size. Book a pickup on WhatsApp.",
-      "ogTitle": "Rug Cleaning with Pickup & Delivery - Jaranow",
-      "ogDescription": "Your rugs, handled. Collected from your door, cleaned thoroughly and brought back fresh.",
+      "title": "Rug Cleaning in Abuja - Free Pickup & Delivery | Jaranow",
+      "description": "Rug cleaning in Abuja with free pickup and delivery. Collected from your door, deep-cleaned and brought back fresh. Priced by size - book on WhatsApp.",
+      "ogTitle": "Rug Cleaning with Free Pickup & Delivery - Jaranow",
+      "ogDescription": "Your rugs, handled. Free pickup from your door, cleaned thoroughly and brought back fresh.",
       "ogImage": "/rugs/opengraph.png",
       "ogImageAlt": "Jaranow - rug cleaning with pickup and delivery in Abuja",
       "siteName": "Jaranow"

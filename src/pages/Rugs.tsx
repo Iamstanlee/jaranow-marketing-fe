@@ -34,7 +34,7 @@ import SeoTags from '../seo/SeoTags';
 const rugs = CARWASH_PRICE_LIST.find((s) => s.title === 'Rug')?.items ?? [];
 
 const facts = [
-    {icon: <HomeIcon size={17}/>, label: 'Pickup', value: 'Collected from your door, returned to it'},
+    {icon: <HomeIcon size={17}/>, label: 'Pickup & delivery', value: 'Free - from your door and back again'},
     {icon: <Ruler size={17}/>, label: 'Sizes', value: 'Bedside, centre and sitting-room rugs'},
     {icon: <MessageCircle size={17}/>, label: 'Arranged on', value: 'WhatsApp - send a photo, we do the rest'},
     {icon: <Sparkles size={17}/>, label: 'You get', value: 'A fresh, clean rug, back on your floor'},
@@ -89,7 +89,7 @@ const faqs: FaqItem[] = [
     },
     {
         question: 'Do you collect rugs from my home?',
-        answer: 'Yes. We collect from your door and bring the rug back to you. Send your address on WhatsApp or through the form and we will confirm your pickup.',
+        answer: 'Yes, and pickup and delivery are free. We collect from your door and bring the rug back to you. Send your address on WhatsApp or through the form and we will confirm your pickup.',
     },
     {
         question: 'How long does it take?',
@@ -125,10 +125,10 @@ const Rugs: React.FC = () => {
                     {JSON.stringify({
                         '@context': 'https://schema.org',
                         '@type': 'Service',
-                        name: 'Rug cleaning with pickup & delivery',
+                        name: 'Rug cleaning with free pickup & delivery',
                         serviceType: 'Rug cleaning',
                         description:
-                            'Rug cleaning in Abuja with pickup and delivery. Collected from your door, cleaned thoroughly and returned fresh.',
+                            'Rug cleaning in Abuja with free pickup and delivery. Collected from your door, cleaned thoroughly and returned fresh.',
                         url: 'https://jaranow.com/rugs',
                         areaServed: {'@type': 'City', name: 'Abuja'},
                         provider: {'@type': 'LocalBusiness', name: 'Jaranow', telephone: '+234-903-862-2012'},
@@ -160,11 +160,11 @@ const Rugs: React.FC = () => {
                             className="grid gap-14 lg:grid-cols-12 lg:items-end lg:gap-12"
                         >
                             <div className="lg:col-span-7">
-                                <HeroTitle kicker="Rug cleaning with pickup & delivery in Abuja">
+                                <HeroTitle kicker="Rug cleaning with free pickup & delivery in Abuja">
                                     Your rugs, handled<span className="text-primary-600">.</span>
                                 </HeroTitle>
                                 <motion.p variants={fadeInUp} className="mt-7 max-w-xl text-lg leading-relaxed text-paper/75 sm:text-xl">
-                                    We collect your rugs from your door, clean them thoroughly and bring them back fresh and
+                                    We collect your rugs from your door for free, clean them thoroughly and bring them back fresh and
                                     ready to lay down. Your floor looks new again, and you never lift a thing.
                                 </motion.p>
                                 <motion.div variants={fadeInUp} className="mt-10 flex flex-col gap-3 sm:flex-row">
@@ -194,7 +194,7 @@ const Rugs: React.FC = () => {
                         <SectionHeader
                             eyebrow="Rug cleaning prices"
                             title="Priced by size."
-                            intro="One clear price per rug, whatever it needs. Not sure of the size? Send us a photo on WhatsApp."
+                            intro="One clear price per rug, with pickup and delivery free. Not sure of the size? Send us a photo on WhatsApp."
                             className="max-w-2xl"
                         />
                         <div className="mt-14 grid gap-6 lg:grid-cols-3">

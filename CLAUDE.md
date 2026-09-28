@@ -352,7 +352,21 @@ pattern or benefit that has not been confirmed** — a sheet on a wall outlives 
 conversation that set it. Meta throttles text-heavy creative; pair these with
 short primary text rather than adding copy to the image.
 
-**Meta ads.** One campaign device: a flat **before/after split** of the thing
+**Meta ads.** Two concepts per offer, built to be A/B tested against each
+other - they differ in idea *and* look, so a winner tells you something:
+**A "result"** (Ink, `split` layout, before/after art) and **B "problem"**
+(Paper, `stage` layout - headline first - with a situation drawing: the rug too
+big for the washing machine, the fleet parked in its own car park). Each ad sets
+`ground` and `layout`; on Paper the lockup must be the `-duo` file (§8.8).
+**C "outcome"** runs on a deep navy (`NAVY`, 40% accent into Ink - a shade of
+the palette, not a new hue) and shows life after the service and what it buys
+you: a fresh rug in a living room ("Fresh, clean rugs. Free pickup &
+delivery."), a spotless fleet lined up ("A spotless fleet. A sharper brand.").
+Say a benefit once or twice, not in every slot - the rug ad carries "free" in
+the headline and the button only. An `accent` ground also exists (Paper
+button, Ink bar and stop) but is not in use.
+
+Concept A's device: a flat **before/after split** of the thing
 we clean (a rug, a company van), dingy left and fresh right with a slider
 handle between, so the result lands before a word is read. Then an Archivo
 Black headline selling the end result, one sentence, a blue button-shaped pill
@@ -670,7 +684,8 @@ curtains).
 - **Fleet / corporate / business / school** washing (`/business`) happens at 6th
   Avenue **or on site at the organisation's premises** - both confirmed. It is
   quoted per organisation, so that page carries no prices.
-- **Rug cleaning** (`/rugs`) is collected from the door and returned. No
+- **Rug cleaning** (`/rugs`) is collected from the door and returned, and
+  **pickup and delivery are free** (confirmed by the owner, September 2026). No
   turnaround is promised - the return date is confirmed at collection. Its
   prices come from the Rug section of `src/data/carwashPrices.ts`.
 - Unverified social proof ("Trusted by 1000+ customers", "100% satisfaction

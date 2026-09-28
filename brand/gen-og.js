@@ -69,7 +69,7 @@ const CARDS = [
     lockupH: 62,
     headline: "Your rugs, handled.",
     sub: "Collected from your door, cleaned thoroughly, brought back\u00a0fresh.",
-    meta: "Rug cleaning · Pickup & delivery · Abuja",
+    meta: "Rug cleaning · Free pickup & delivery · Abuja",
   },
   {
     file: "opengraph-pricing",

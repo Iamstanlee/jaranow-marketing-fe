@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Update gen-bay.js" />
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add rug and business ad design">
+      <change beforePath="$PROJECT_DIR$/brand/gen-ad.js" beforeDir="false" afterPath="$PROJECT_DIR$/brand/gen-ad.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -187,7 +189,7 @@
       <workItem from="1789719534619" duration="6727000" />
       <workItem from="1790250791842" duration="727000" />
       <workItem from="1790260382060" duration="394000" />
-      <workItem from="1790358488160" duration="20919000" />
+      <workItem from="1790358488160" duration="22442000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -341,7 +343,23 @@
       <option name="project" value="LOCAL" />
       <updated>1790534279036</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Add rug and business ad design">
+      <option name="closed" value="true" />
+      <created>1790575463839</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1790575463839</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Add rug and business ad design">
+      <option name="closed" value="true" />
+      <created>1790575495980</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1790575495980</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -375,7 +393,8 @@
     <MESSAGE value="Add docs html" />
     <MESSAGE value="Cleanup and rota feature" />
     <MESSAGE value="Update gen-bay.js" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update gen-bay.js" />
+    <MESSAGE value="Add rug and business ad design" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add rug and business ad design" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

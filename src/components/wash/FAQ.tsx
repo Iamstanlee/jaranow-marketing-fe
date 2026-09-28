@@ -6,20 +6,28 @@ import {Container, FaqItem, FaqList, SectionHeader, btn, whatsappUrl} from '../c
 // 30-minute follow-up promises, phone hours, and 24/7 support.
 const faqs: FaqItem[] = [
   {
-    question: 'Which days do you collect?',
-    answer: 'Lite plans collect on Tuesday and Saturday. Premium adds Thursday. We confirm on WhatsApp before we come.',
+    question: 'Which days do you collect laundry?',
+    answer: 'Lite plans are collected on Tuesday and Saturday. Premium adds Thursday. We confirm on WhatsApp before we come.',
   },
   {
-    question: 'How quickly will I get my clothes back?',
-    answer: 'Within 48 hours of pickup - washed, dried, ironed and folded.',
+    question: 'How long does laundry take?',
+    answer: 'Everything is back at your door within 48 hours of pickup.',
   },
   {
-    question: 'Which areas do you cover?',
+    question: 'Is ironing and folding included?',
+    answer: 'Yes. Every item is washed, dried, ironed and folded, so it comes back fresh and ready to wear.',
+  },
+  {
+    question: 'Which parts of Abuja do you cover?',
     answer: 'We collect and deliver across Abuja. Send us your address on WhatsApp and we will confirm your pickup.',
   },
   {
+    question: 'Can I pay per item instead of a monthly plan?',
+    answer: 'Yes. Regular items such as shirts, trousers, dresses, skirts and tops are ₦700 each; special items are ₦2,000 each.',
+  },
+  {
     question: 'What counts as a special item?',
-    answer: 'Suits, long dresses, towels, duvet sets and curtains. They are included on Premium, and ₦2,000 per item on pay-per-item pricing.',
+    answer: 'Suits, long dresses, towels, duvet sets and curtains. They are included on the Premium Plan.',
   },
   {
     question: 'Do I need to be home for pickup?',

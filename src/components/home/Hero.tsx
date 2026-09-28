@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom';
 import {motion} from 'framer-motion';
 import {ArrowRight, ArrowUpRight, Clock, MapPin, Truck} from 'lucide-react';
 import {fadeInUp, staggerContainer} from '../../utils/animations';
-import {InkBackdrop} from '../common/ui';
+import {HeroTitle, InkBackdrop} from '../common/ui';
 
 interface ServiceEntry {
     to: string;
@@ -19,7 +19,7 @@ const entries: ServiceEntry[] = [
         title: 'Drive in. Drive off clean.',
         facts: [
             {icon: <MapPin size={15}/>, text: '6th Avenue, Gwarinpa'},
-            {icon: <Clock size={15}/>, text: 'Open daily, 8am–7pm'},
+            {icon: <Clock size={15}/>, text: 'Open every day, 8am–7pm'},
         ],
     },
     {
@@ -27,7 +27,7 @@ const entries: ServiceEntry[] = [
         line: 'Laundry by Jaranow',
         title: 'Collected. Cared for. Returned folded.',
         facts: [
-            {icon: <Truck size={15}/>, text: 'Pickup from your door'},
+            {icon: <Truck size={15}/>, text: 'Collected from your door'},
             {icon: <Clock size={15}/>, text: 'Back in 48 hours'},
         ],
     },
@@ -46,26 +46,16 @@ const Hero: React.FC = () => {
                     className="grid gap-14 lg:grid-cols-12 lg:gap-12 lg:items-end"
                 >
                     <div className="lg:col-span-7">
-                        <motion.p
-                            variants={fadeInUp}
-                            className="mb-6 text-xs font-medium uppercase tracking-[0.25em] text-primary-400"
-                        >
-                            Car wash &amp; laundry · Abuja
-                        </motion.p>
-
-                        <motion.h1
-                            variants={fadeInUp}
-                            className="heading-display text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-7xl xl:text-[5.25rem]"
-                        >
+                        <HeroTitle kicker="Car wash in Gwarinpa · Laundry pickup across Abuja" className="text-[2.6rem] sm:text-6xl lg:text-7xl xl:text-[5.25rem]">
                             Your car and laundry, handled<span className="text-primary-600">.</span>
-                        </motion.h1>
+                        </HeroTitle>
 
                         <motion.p
                             variants={fadeInUp}
                             className="mt-7 max-w-xl text-lg leading-relaxed text-paper/75 sm:text-xl"
                         >
-                            A hand car wash in Gwarinpa, and laundry collected from your door. Both held to one
-                            standard: done properly, and checked before it comes back to you.
+                            Get your car washed properly at 6th Avenue, Gwarinpa, open every day. Or have your laundry
+                            collected from your door and returned ironed and folded within 48 hours.
                         </motion.p>
 
                         <motion.div variants={fadeInUp} className="mt-10 flex flex-col gap-3 sm:flex-row">

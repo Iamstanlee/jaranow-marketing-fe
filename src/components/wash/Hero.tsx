@@ -2,7 +2,7 @@ import React from 'react';
 import {motion} from 'framer-motion';
 import {ArrowRight, CalendarDays, Clock, MessageCircle, Shirt} from 'lucide-react';
 import {fadeInUp, staggerContainer} from '../../utils/animations';
-import {btn, Container, Eyebrow, FactPanel, InkBackdrop} from '../common/ui';
+import {btn, Container, FactPanel, HeroTitle, InkBackdrop} from '../common/ui';
 
 interface HeroProps {
   onSchedulePickup: () => void;
@@ -11,9 +11,9 @@ interface HeroProps {
 
 const facts = [
   {icon: <CalendarDays size={17} />, label: 'Pickup days', value: 'Tuesday & Saturday · Thursday too on Premium'},
-  {icon: <Clock size={17} />, label: 'Turnaround', value: 'Back within 48 hours of pickup'},
+  {icon: <Clock size={17} />, label: 'Turnaround', value: 'Back at your door within 48 hours'},
   {icon: <Shirt size={17} />, label: 'Included', value: 'Washed, dried, ironed and folded'},
-  {icon: <MessageCircle size={17} />, label: 'Arranged on', value: 'WhatsApp - no app, no account'},
+  {icon: <MessageCircle size={17} />, label: 'Arranged on', value: 'WhatsApp - pickups, changes, questions'},
 ];
 
 const Hero: React.FC<HeroProps> = ({ onSchedulePickup, onFindPlan }) => {
@@ -29,26 +29,19 @@ const Hero: React.FC<HeroProps> = ({ onSchedulePickup, onFindPlan }) => {
           className="grid gap-14 lg:grid-cols-12 lg:items-end lg:gap-12"
         >
           <div className="lg:col-span-7">
-            <motion.div variants={fadeInUp}>
-              <Eyebrow tone="dark">Laundry by Jaranow · Abuja</Eyebrow>
-            </motion.div>
-
-            <motion.h1
-              variants={fadeInUp}
-              className="heading-display mt-6 text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-7xl"
-            >
+            <HeroTitle kicker="Laundry pickup & delivery in Abuja">
               Laundry, off your list<span className="text-primary-600">.</span>
-            </motion.h1>
+            </HeroTitle>
 
             <motion.p variants={fadeInUp} className="mt-7 max-w-xl text-lg leading-relaxed text-paper/75 sm:text-xl">
-              We collect from your door, sort, wash, iron and fold, and bring it back within 48 hours. Every item is
-              checked before it leaves us.
+              We collect from your door, wash, iron and fold, and have everything back with you within 48 hours.
+              Choose a monthly plan or pay per item - all arranged on WhatsApp.
             </motion.p>
 
             <motion.div variants={fadeInUp} className="mt-10 flex flex-col gap-3 sm:flex-row">
               <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
                 <button onClick={onSchedulePickup} className={`${btn.primary} group w-full`}>
-                  See the plans
+                  See plans and prices
                   <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5" />
                 </button>
               </motion.div>

@@ -13,7 +13,7 @@ const testimonials: Testimonial[] = [
     {
         name: 'Emeka Nwosu',
         role: 'Student',
-        content: 'They asked about my valuables before cleaning the interior and never moved my car. Little things like that made me trust them instantly.',
+        content: 'They asked about my valuables before cleaning the interior. Little things like that made me trust them instantly.',
         tag: 'Car wash',
     },
     {

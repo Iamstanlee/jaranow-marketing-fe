@@ -2,21 +2,26 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 import {Container, FaqItem, FaqList, SectionHeader, whatsappUrl} from '../common/ui';
 
+// Questions are phrased the way people search for them.
 const faqs: FaqItem[] = [
     {
-        question: 'Do I need to book the car wash?',
-        answer: 'No. Drive in to 6th Avenue, Gwarinpa any day between 8am and 7pm. If you would rather book ahead, use the form on the car wash page or message us on WhatsApp.',
+        question: 'Where is the Jaranow car wash?',
+        answer: 'On 6th Avenue, Gwarinpa, Abuja. We are open every day from 8am to 7pm.',
     },
     {
-        question: 'How does laundry pickup work?',
-        answer: 'Choose a monthly plan and we collect from your door on your pickup days - Tuesday and Saturday on Lite, plus Thursday on Premium. Everything comes back washed, dried, ironed and folded within 48 hours of pickup.',
+        question: 'How do I book a car wash?',
+        answer: 'Use the booking form on the car wash page or message us on WhatsApp with your car and a preferred time, and we will confirm your slot.',
     },
     {
-        question: 'Where do you operate?',
-        answer: 'The car wash is at 6th Avenue, Gwarinpa, Abuja. Laundry is collected and delivered across Abuja. Lagos, Port Harcourt and Ibadan are next.',
+        question: 'How does laundry pickup and delivery work?',
+        answer: 'Choose a monthly plan or pay per item, and we collect from your door on your pickup days - Tuesday and Saturday on Lite, plus Thursday on Premium. Everything comes back washed, dried, ironed and folded within 48 hours of pickup.',
     },
     {
-        question: 'How much does it cost?',
+        question: 'Which parts of Abuja do you cover?',
+        answer: 'The car wash is in Gwarinpa. Laundry is collected and delivered across Abuja - send us your address on WhatsApp and we will confirm your pickup. Lagos, Port Harcourt and Ibadan are next.',
+    },
+    {
+        question: 'How much do the car wash and laundry cost?',
         answer: (
             <>
                 Every price for both services is on our{' '}
@@ -40,7 +45,7 @@ const FAQ: React.FC = () => {
                 <SectionHeader
                     className="lg:col-span-4"
                     eyebrow="Questions"
-                    title="Before you come in."
+                    title="Questions, answered."
                     intro={
                         <>
                             Anything else,{' '}

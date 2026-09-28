@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {AnimatePresence, motion} from 'framer-motion';
 import {Plus} from 'lucide-react';
 import Drop from './Drop';
+import {fadeInUp} from '../../utils/animations';
 
 /* Shared building blocks for the marketing pages, so every page reads as one
    system: Ink and Paper grounds, Jaranow Blue as the only accent (BRAND-STANDARD §4). */
@@ -96,6 +97,19 @@ export const InkBackdrop: React.FC = () => (
     </>
 );
 
+/** Hero h1 for the landing pages. The kicker carries the plain search phrase
+ *  ("Car wash in Gwarinpa, Abuja"); the display line carries the voice. */
+export const HeroTitle: React.FC<{ kicker: string; children: React.ReactNode; className?: string }> = ({
+    kicker,
+    children,
+    className = 'text-[2.6rem] sm:text-6xl lg:text-7xl',
+}) => (
+    <motion.h1 variants={fadeInUp}>
+        <span className="block text-xs font-medium uppercase tracking-[0.25em] text-primary-400">{kicker}</span>
+        <span className={`heading-display mt-6 block leading-[1.02] ${className}`}>{children}</span>
+    </motion.h1>
+);
+
 interface PageHeroProps {
     eyebrow: string;
     title: React.ReactNode;
@@ -108,8 +122,12 @@ export const PageHero: React.FC<PageHeroProps> = ({eyebrow, title, intro, childr
     <section className="relative overflow-hidden bg-ink text-white">
         <InkBackdrop/>
         <Container className="relative pt-32 pb-14 sm:pt-40 sm:pb-16">
-            <Eyebrow tone="dark">{eyebrow}</Eyebrow>
-            <h1 className="heading-display mt-5 max-w-3xl text-[2.5rem] leading-[1.04] sm:text-6xl">{title}</h1>
+            {/* The eyebrow is part of the h1: it carries the plain search phrase,
+                the display line carries the voice. */}
+            <h1>
+                <span className="block text-xs font-medium uppercase tracking-[0.25em] text-primary-400">{eyebrow}</span>
+                <span className="heading-display mt-5 block max-w-3xl text-[2.5rem] leading-[1.04] sm:text-6xl">{title}</span>
+            </h1>
             {intro && <p className="mt-6 max-w-xl text-lg leading-relaxed text-paper/75 sm:text-xl">{intro}</p>}
             {children}
         </Container>

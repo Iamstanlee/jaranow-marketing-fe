@@ -32,7 +32,7 @@ const WashLanding: React.FC = () => {
     <div className="min-h-screen bg-paper">
       <SeoTags route="/laundry" />
       <Helmet>
-        <meta name="keywords" content="laundry service Abuja, subscription laundry, doorstep laundry pickup, premium laundry service, professional dry cleaning Abuja, laundry delivery service Nigeria" />
+        <meta name="keywords" content="laundry pickup Abuja, laundry delivery Abuja, laundry service Abuja, wash and fold Abuja, ironing service Abuja, laundry subscription Abuja, laundry Gwarinpa" />
         <link rel="icon" href="/wash/favicon.ico" />
         <link rel="apple-touch-icon" href="/wash/apple-touch-icon.png" />
         <link rel="manifest" href="/wash-manifest.json" />
@@ -42,11 +42,11 @@ const WashLanding: React.FC = () => {
             "@context": "https://schema.org",
             "@type": "LocalBusiness",
             "name": "Laundry by Jaranow",
-            "description": "Premium subscription-based laundry service with professional doorstep pickup and delivery in Abuja",
+            "description": "Laundry pickup and delivery across Abuja. Collected from your door, washed, ironed and folded, and returned within 48 hours. Monthly plans or pay per item.",
             "url": "https://jaranow.com/laundry",
             "logo": "https://jaranow.com/wash/icon-512.png",
             "telephone": "+234-903-862-2012",
-            "email": "hello@jaranow.com",
+            "email": "support@jaranow.com",
             "address": {
               "@type": "PostalAddress",
               "addressLocality": "Abuja",
@@ -58,7 +58,6 @@ const WashLanding: React.FC = () => {
               "latitude": 9.0579,
               "longitude": 7.4951
             },
-            "openingHours": "Mo-Sa 08:00-18:00",
             "priceRange": "₦₦₦",
             "serviceArea": {
               "@type": "City",
@@ -73,7 +72,7 @@ const WashLanding: React.FC = () => {
                   "itemOffered": {
                     "@type": "Service",
                     "name": "Lite Laundry Plan",
-                    "description": "Essential laundry service with pickup and delivery"
+                    "description": "2 washes a month, up to 12 clothes each, collected Tuesday and Saturday"
                   },
                   "price": "14999",
                   "priceCurrency": "NGN",
@@ -84,7 +83,7 @@ const WashLanding: React.FC = () => {
                   "itemOffered": {
                     "@type": "Service",
                     "name": "Premium Laundry Plan",
-                    "description": "Premium laundry service with delicate fabric care and stain treatment"
+                    "description": "3 washes a month, up to 15 clothes each, special items included, collected Tuesday, Thursday and Saturday"
                   },
                   "price": "24999",
                   "priceCurrency": "NGN",

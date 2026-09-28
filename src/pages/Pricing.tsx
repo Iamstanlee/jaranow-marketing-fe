@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from 'react-router-dom';
-import { Banknote, CalendarCheck, Car, Clock, MapPin, Shirt } from 'lucide-react';
+import { CalendarCheck, Car, Clock, MapPin, Shirt } from 'lucide-react';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import PlanRecommendation from '../components/wash/PlanRecommendation';
-import { WashOption, WashOptionCard } from '../components/carwash/Pricing';
+import { MoreCarwashPrices, WashOption, WashOptionCard } from '../components/carwash/Pricing';
 import {
   CUSTOM_PRICING_MESSAGE,
   CustomPricingCard,
@@ -23,12 +23,12 @@ const carwashOptions: WashOption[] = [
   {
     name: 'Exterior Wash',
     price: '₦2,000',
-    tagline: 'The outside, washed and finished by hand.',
+    tagline: 'For when the outside needs its shine back.',
     includes: [
-      'Full exterior hand wash',
+      'Full exterior wash',
       'Wheels & tyres cleaned',
       'Windows & mirrors wiped down',
-      'Dried and finished by hand',
+      'Dried and finished properly',
     ],
   },
   {
@@ -46,9 +46,9 @@ const carwashOptions: WashOption[] = [
   {
     name: 'Vacuum Wash',
     price: '₦4,000',
-    tagline: 'A full exterior wash with a deep interior vacuum.',
+    tagline: 'The full exterior wash, plus a deep machine vacuum inside.',
     includes: [
-      'Full exterior hand wash',
+      'Full exterior wash',
       'Interior machine-vacuumed throughout',
       'Seats, carpets & boot cleaned out',
       'Dashboard & console wiped down',
@@ -56,13 +56,10 @@ const carwashOptions: WashOption[] = [
   },
 ];
 
-// Payment is a transfer to the business account. "Card payment" and "mobile
-// wallets" used to be listed here and were never confirmed.
 const carwashNotes = [
   { icon: <MapPin size={18} />, title: 'Where', body: '6th Avenue, Gwarinpa, Abuja' },
-  { icon: <Clock size={18} />, title: 'When', body: 'Open daily, 8am–7pm' },
-  { icon: <CalendarCheck size={18} />, title: 'Booking', body: 'No appointment needed - just drive in' },
-  { icon: <Banknote size={18} />, title: 'Paying', body: 'Transfer to the Jaranow business account after the wash' },
+  { icon: <Clock size={18} />, title: 'When', body: 'Open every day, 8am–7pm' },
+  { icon: <CalendarCheck size={18} />, title: 'Booking', body: 'Book a time on WhatsApp' },
 ];
 
 const tabs: Array<{ id: ServiceTab; label: string; icon: React.ReactNode }> = [
@@ -112,9 +109,9 @@ const Pricing: React.FC = () => {
 
       <main>
         <PageHero
-          eyebrow="Pricing"
+          eyebrow="Car wash & laundry prices in Abuja"
           title="What it costs."
-          intro="Everything we offer, in one place - so you can pick what suits you and get on with your day."
+          intro="Every car wash and laundry price in one place, so you can pick what suits you and get on with your day."
         >
           <div role="tablist" aria-label="Service" className="mt-10 inline-flex rounded-full border border-paper/15 bg-white/[0.04] p-1.5">
             {tabs.map((tab) => {
@@ -144,7 +141,7 @@ const Pricing: React.FC = () => {
               <SectionHeader
                 eyebrow="Carwash by Jaranow"
                 title="Three washes. One standard."
-                intro="Every wash is done by hand and checked before you drive off."
+                intro="Car washes at 6th Avenue, Gwarinpa. Whichever you choose, you drive off in a clean, fresh car."
                 className="max-w-2xl"
               />
 
@@ -156,7 +153,9 @@ const Pricing: React.FC = () => {
                 ))}
               </div>
 
-              <dl className="mt-6 grid gap-px overflow-hidden rounded-3xl border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-4">
+              <MoreCarwashPrices />
+
+              <dl className="mt-6 grid gap-px overflow-hidden rounded-3xl border border-ink/10 bg-ink/10 sm:grid-cols-3">
                 {carwashNotes.map((note) => (
                   <div key={note.title} className="bg-white p-6">
                     <dt className="flex items-center gap-2 text-sm font-medium text-ink">

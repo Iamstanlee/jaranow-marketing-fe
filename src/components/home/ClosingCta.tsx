@@ -13,7 +13,7 @@ const ClosingCta: React.FC = () => {
                 <div className="relative max-w-2xl">
                     <h2 className="heading-display text-4xl leading-[1.05] sm:text-5xl">Ready when you are.</h2>
                     <p className="mt-5 text-lg leading-relaxed text-white/85">
-                        Drive in today, or send us a message and we will set up your laundry pickups.
+                        Drive in to 6th Avenue, Gwarinpa today, or message us on WhatsApp and we will set up your first laundry pickup.
                     </p>
 
                     <div className="mt-9 flex flex-col gap-3 sm:flex-row">

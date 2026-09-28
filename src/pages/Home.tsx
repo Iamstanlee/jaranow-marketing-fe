@@ -21,7 +21,7 @@ const Home: React.FC = () => {
       <Helmet>
         <meta
           name="keywords"
-          content="Jaranow, convenience service, car wash Abuja, car wash Gwarinpa, laundry service Abuja, subscription laundry, doorstep laundry pickup"
+          content="Jaranow, car wash Gwarinpa, car wash Abuja, laundry pickup Abuja, laundry delivery Abuja, laundry service Abuja, wash and fold Abuja"
         />
 
         {/* Structured Data */}
@@ -32,7 +32,7 @@ const Home: React.FC = () => {
             name: 'Jaranow',
             url: 'https://jaranow.com',
             logo: 'https://jaranow.com/jaranow/icon-512.png',
-            description: 'Convenience as a Service platform offering hand car washing in Gwarinpa and subscription laundry across Abuja',
+            description: 'Car wash in Gwarinpa and laundry pickup and delivery across Abuja.',
             address: {
               '@type': 'PostalAddress',
               addressLocality: 'Abuja',
@@ -58,15 +58,15 @@ const Home: React.FC = () => {
                   itemOffered: {
                     '@type': 'Service',
                     name: 'Carwash by Jaranow',
-                    description: 'Hand car washing in Gwarinpa, Abuja. Drive in, we wash, you drive off.',
+                    description: 'Car wash at 6th Avenue, Gwarinpa, Abuja. Drive in, we wash, you drive off.',
                   },
                 },
                 {
                   '@type': 'Offer',
                   itemOffered: {
                     '@type': 'Service',
-                    name: 'Premium Laundry Service',
-                    description: 'Subscription-based laundry service with doorstep pickup and delivery',
+                    name: 'Laundry by Jaranow',
+                    description: 'Laundry collected from your door across Abuja, washed, ironed, folded and returned within 48 hours.',
                   },
                 },
               ],

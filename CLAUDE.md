@@ -604,9 +604,15 @@ the JSON-LD `OfferCatalog` in `src/pages/CarwashLanding.tsx`, the `washTypes`
 dropdown in `src/components/carwash/BookingForm.tsx`, and `gen-pricelist.js`'s
 `LISTS`. Change one, change all five.
 
-**Buffing (₦20,000) was withdrawn in August 2026** and removed from all five. Do
-not reintroduce without confirmation. The grids are sized for three cards
-(`lg:grid-cols-3`) — a fourth service means revisiting them. `gen-sign.js`'s
+The cards show the three everyday washes only. **Every other carwash price** -
+engine wash, deep wash, buffing & polish, premium detailing, rugs - lives in
+`src/data/carwashPrices.ts`, which mirrors the `pricelist-carwash` entry in
+`gen-pricelist.js`'s `LISTS` (the site cannot import the generator). It renders
+as the "More prices" list under the cards on `/carwash` and `/pricing`, and the
+`/carwash` JSON-LD builds its extra offers from it. Change the printed sheet,
+change that file. Buffing & polish (₦20,000) returned to the list in September
+2026. The card grids are sized for three (`lg:grid-cols-3`) - add new services
+to the list, not as a fourth card. `gen-sign.js`'s
 `SERVICES` still advertises "Detailing" in buffing's old slot; confirm it is
 offered before reprinting a panel.
 
@@ -641,6 +647,32 @@ curtains).
 - Unverified social proof ("Trusted by 1000+ customers", "100% satisfaction
   guarantee", "follow up within 2 hours") is inherited copy — confirm before
   repeating or expanding it.
+
+Removed from all site copy, meta and OG cards in September 2026 at the owner's
+instruction — do not reintroduce:
+
+- **"Washed by hand" / "hand car wash"** in any form, including "trained hands".
+  The search phrase is "car wash in Gwarinpa", not "hand car wash".
+- **"Your car is never moved" / "your keys stay with you".** No longer true.
+- **"No appointment needed" / "just drive in"**, and **"no app, no account"**.
+  Describe booking positively instead: book on WhatsApp or the form.
+- **Car wash payment method.** The site does not say how to pay; that is handled
+  at the counter.
+- **"Checked before you leave" / "checked with you"** and other handover
+  process lines. Say what the customer ends up with instead - "drive off in a
+  clean, fresh car", "back fresh, crisp and ready to wear". (Checking with a
+  customer about valuables before an interior clean is a different thing and
+  stays.)
+
+### SEO copy pattern
+
+Each landing hero's `<h1>` is two lines via `HeroTitle` (`common/ui.tsx`): a
+small kicker carrying the plain search phrase ("Car wash in Gwarinpa, Abuja",
+"Laundry pickup & delivery in Abuja") and the display line carrying the voice.
+Keep search phrases in kickers, eyebrows, meta and FAQ questions, where they read
+naturally; keep display headlines short and unstuffed. Titles stay under 60
+characters and descriptions under 160. `public/index.html`'s fallback head
+mirrors the `/` entry in `routes.json`.
 
 ## Contact
 

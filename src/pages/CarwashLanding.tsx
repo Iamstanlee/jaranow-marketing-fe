@@ -10,6 +10,20 @@ import BookingForm, {BookingFormHandle} from '../components/carwash/BookingForm'
 import Footer from '../components/common/Footer';
 import SeoTags from '../seo/SeoTags';
 import {scrollToElement} from '../utils/formatters';
+import {CARWASH_PRICE_LIST} from '../data/carwashPrices';
+
+/* Services beyond the three cards, from the same data the "More prices" list
+   renders - so the JSON-LD cannot drift from what the page shows. */
+const extraOffers = CARWASH_PRICE_LIST.flatMap((section) =>
+    section.items
+        .filter((item) => !item.onCards)
+        .map((item) => ({
+            '@type': 'Offer',
+            itemOffered: {'@type': 'Service', name: item.name, description: item.note},
+            price: String(item.price),
+            priceCurrency: 'NGN',
+        }))
+);
 
 const CarwashLanding: React.FC = () => {
     const bookingRef = useRef<BookingFormHandle>(null);
@@ -31,7 +45,7 @@ const CarwashLanding: React.FC = () => {
             <Helmet>
                 <meta
                     name="keywords"
-                    content="car wash Abuja, car wash Gwarinpa, hand car wash, Jaranow carwash, interior car cleaning Abuja, exterior car wash Nigeria"
+                    content="car wash Gwarinpa, car wash Abuja, car wash near me Gwarinpa, interior car cleaning Abuja, car vacuum Abuja, Carwash by Jaranow"
                 />
 
                 <script type="application/ld+json">
@@ -40,7 +54,7 @@ const CarwashLanding: React.FC = () => {
                         '@type': 'AutoWash',
                         name: 'Carwash by Jaranow',
                         description:
-                            'Hand car washing in Gwarinpa, Abuja. Drive in, we wash, you drive off.',
+                            'Car wash at 6th Avenue, Gwarinpa, Abuja. Exterior, full and vacuum washes while you wait - drive off in a clean, fresh car.',
                         url: 'https://jaranow.com/carwash',
                         telephone: '+234-903-862-2012',
                         address: {
@@ -61,7 +75,7 @@ const CarwashLanding: React.FC = () => {
                                     itemOffered: {
                                         '@type': 'Service',
                                         name: 'Exterior Wash',
-                                        description: 'Full exterior hand wash',
+                                        description: 'Full exterior wash, wheels, tyres and glass',
                                     },
                                     price: '2000',
                                     priceCurrency: 'NGN',
@@ -86,6 +100,7 @@ const CarwashLanding: React.FC = () => {
                                     price: '4000',
                                     priceCurrency: 'NGN',
                                 },
+                                ...extraOffers,
                             ],
                         },
                         sameAs: [

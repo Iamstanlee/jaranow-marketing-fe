@@ -185,7 +185,6 @@ const LISTS = [
                 ],
             },
         ],
-        footer: {left: "", right: ""},
         note: "We treat every car like it's the only one we're washing today.",
         cover: {
             sub: "",
@@ -235,7 +234,6 @@ const LISTS = [
                 ],
             },
         ],
-        footer: {left: "Pickup and delivery", right: "48-hour turnaround"},
         note: "Pickup windows: Tuesday & Saturday (Lite) · Tuesday, Thursday & Saturday (Premium).",
         cover: {
             sub: "Picked up, cleaned and returned within 48 hours.",
@@ -641,18 +639,13 @@ ${watermark()}
 <div class="list">
 ${l.sections.map(section).filter(Boolean).join("\n")}
 </div>
-<div class="foot">
-  <span>${l.footer.left}</span>
-  <span class="right">${l.footer.right}</span>
-</div>
 ${l.note ? `<p class="note">${l.note}</p>` : ""}`;
 
 const coverBody = (l) => `<div class="dots"></div>
 ${watermark()}
 <div class="cover-mark">${mark(l.lockup, mm(30))}</div>
 ${l.cover.headline ? `<h1 class="cover-headline">${l.cover.headline}</h1>` : ""}
-<p class="cover-sub">${l.cover.sub}</p>
-<div class="cover-foot">${l.footer.left}</div>`;
+<p class="cover-sub">${l.cover.sub}</p>`;
 
 let warnings = 0;
 

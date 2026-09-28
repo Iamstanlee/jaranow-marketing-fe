@@ -18,20 +18,20 @@ const tracks: Track[] = [
     {
         id: 'carwash',
         line: 'Carwash by Jaranow',
-        headline: 'A hand wash, while you wait.',
+        headline: 'A proper wash, while you wait.',
         summary: '6th Avenue, Gwarinpa. Open daily, 8am–7pm.',
         steps: [
             {
                 title: 'Drive in',
-                body: 'No appointment needed. If you would rather know we are ready for you, book ahead on WhatsApp.',
+                body: 'Come to 6th Avenue, Gwarinpa any day between 8am and 7pm, or book a time ahead on WhatsApp.',
             },
             {
-                title: 'We wash by hand',
-                body: 'Exterior, full or vacuum wash - you choose. Your car stays where you parked it.',
+                title: 'We wash it properly',
+                body: 'Exterior, full or vacuum wash - you choose, and we get to work while you wait.',
             },
             {
-                title: 'Checked, then yours',
-                body: 'We go over it once more before you get the keys back. Pay by transfer once the wash is done.',
+                title: 'Drive off clean',
+                body: 'You leave in a car that is clean, fresh and ready to be seen in.',
             },
         ],
         detailsTo: '/carwash',
@@ -42,19 +42,19 @@ const tracks: Track[] = [
         id: 'laundry',
         line: 'Laundry by Jaranow',
         headline: 'Laundry that leaves the house, and comes back done.',
-        summary: 'Monthly plans, collected and delivered across Abuja.',
+        summary: 'Monthly plans or pay per item, collected and delivered across Abuja.',
         steps: [
             {
                 title: 'Pick a plan',
-                body: 'Lite or Premium, depending on how much your household goes through in a month.',
+                body: 'Lite or Premium, depending on how much your household gets through - or pay per item if you only need us now and then.',
             },
             {
                 title: 'We collect',
-                body: 'On your pickup days - Tuesday and Saturday, with Thursday added on Premium.',
+                body: 'From your door on your pickup days: Tuesday and Saturday, with Thursday added on Premium.',
             },
             {
                 title: 'Back in 48 hours',
-                body: 'Washed, dried, ironed and folded. Every item is checked before it leaves us.',
+                body: 'Washed, dried, ironed and folded - back fresh, crisp and ready to wear.',
             },
         ],
         detailsTo: '/laundry',

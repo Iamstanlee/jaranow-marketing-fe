@@ -4,15 +4,15 @@ import {Container, NumberedGrid, SectionHeader} from '../common/ui';
 const reasons = [
     {
         title: 'Attention to detail',
-        body: 'Washed by hand, panel by panel, by a team trained to look twice. We finish to a standard, not to a stopwatch.',
+        body: 'Washed panel by panel by a team trained to look twice. We finish to a standard, not to a stopwatch.',
     },
     {
         title: 'Care',
-        body: 'Your car is treated like it belongs to someone who loves it - because it does. Trained hands, the right products, no shortcuts.',
+        body: 'We treat your car like it belongs to someone who loves it - because it does. A trained team, the right products, no shortcuts.',
     },
     {
         title: 'Convenience',
-        body: 'Drive in, no appointment needed. We wash it in place while you wait - you keep the keys and your car never leaves your sight.',
+        body: 'We wash it while you wait, on 6th Avenue in Gwarinpa, every day from 8am to 7pm. Book ahead on WhatsApp and we will be ready for you.',
     },
     {
         title: 'Integrity',

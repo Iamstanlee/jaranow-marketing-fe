@@ -30,7 +30,7 @@ const socialLinks = [
 
 const serviceLinks = [
     {name: 'Car Wash', to: '/carwash'},
-    {name: 'Laundry Service', to: '/laundry'},
+    {name: 'Laundry', to: '/laundry'},
     {name: 'Pricing', to: '/pricing'},
 ];
 
@@ -43,8 +43,8 @@ const Footer: React.FC = () => {
                     <div>
                         <img src="/brand/jaranow-logo-white.svg" alt="Jaranow - Convenience as a Service" className="h-12 w-auto mb-5"/>
                         <p className="text-paper/60 leading-relaxed mb-6">
-                            Convenience as a Service. From hand car washing to premium laundry care,
-                            Jaranow brings attention to detail, care and integrity to your day.
+                            A car wash in Gwarinpa and laundry pickup and delivery across Abuja,
+                            done with attention to detail, care and integrity.
                         </p>
                         <div className="flex space-x-4">
                             {socialLinks.map((link) => (

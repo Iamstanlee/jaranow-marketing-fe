@@ -131,9 +131,9 @@ const PricingPlans: React.FC = () => {
     <section id="pricing" className="bg-white py-20 sm:py-28">
       <Container>
         <SectionHeader
-          eyebrow="Plans"
+          eyebrow="Laundry plans & prices"
           title="Pick your rhythm."
-          intro="Two monthly plans, set around your pickup days. If you only need us now and then, pay per item instead."
+          intro="Two monthly plans built around your pickup days. If you only need us now and then, pay per item instead."
           className="max-w-2xl"
         />
 

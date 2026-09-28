@@ -121,9 +121,9 @@ Location: 6th Avenue, Gwarinpa, Abuja`;
             <Container className="grid gap-12 lg:grid-cols-12">
                 <div className="lg:col-span-5">
                     <SectionHeader
-                        eyebrow="Book ahead"
-                        title="Rather know we're ready?"
-                        intro="You never need to book - but if you would like a time held for you, send us the details and we will confirm on WhatsApp."
+                        eyebrow="Book a car wash"
+                        title="Book your wash."
+                        intro="Tell us your car, the wash you want and when suits you. We will confirm your slot on WhatsApp."
                     />
                     <ol className="mt-10 space-y-4 text-ink/70">
                         {['Fill in the form', 'WhatsApp opens with your details', 'We reply to confirm your time'].map((item, i) => (

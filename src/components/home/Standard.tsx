@@ -5,19 +5,19 @@ import {Container, NumberedGrid, SectionHeader} from '../common/ui';
 const values = [
     {
         title: 'Attention to detail',
-        body: 'Door shuts, wheel arches, the inside of a collar. We go over the places most people skip, then look again before handing back.',
+        body: 'From door frames and wheel arches to shirt collars and cuffs, we clean the spots others miss, so your car shines and your clothes come back crisp.',
     },
     {
         title: 'Care',
-        body: 'Cars are washed by hand. Clothes are sorted by colour and fabric, and stains are treated before anything goes in.',
+        body: 'Cars are washed carefully, never rushed through. Clothes are sorted by colour and fabric, and stains are treated before anything goes in.',
     },
     {
         title: 'Convenience',
-        body: 'No app, no account. Drive in without an appointment, or have your laundry picked up from your door.',
+        body: 'Open every day in Gwarinpa for your car. For laundry, one WhatsApp message and we collect from your door on your pickup day.',
     },
     {
         title: 'Integrity',
-        body: 'Your car is never moved and your keys never leave you. If something is not right, we tell you, and we put it right.',
+        body: 'We tell you what we will do, then we do it. If something is not right, you hear it from us first - and we put it right.',
     },
 ];
 
@@ -29,7 +29,7 @@ const Standard: React.FC = () => {
                     className="lg:col-span-4"
                     eyebrow="The standard"
                     title="Two services. One way of working."
-                    intro="Whether it is your car or your clothes, the job is not finished until it has been checked."
+                    intro="Your car or your clothes - either way, you get it back looking its best."
                 />
                 <NumberedGrid items={values} className="lg:col-span-8"/>
             </Container>

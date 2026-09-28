@@ -1,6 +1,9 @@
-import React from 'react';
-import {Check} from 'lucide-react';
-import {btn, Container, Lift, SectionHeader} from '../common/ui';
+import React, {useState} from 'react';
+import {AnimatePresence, motion} from 'framer-motion';
+import {Check, ChevronDown} from 'lucide-react';
+import {btn, Container, Lift, SectionHeader, whatsappUrl} from '../common/ui';
+import {formatCurrency} from '../../utils/formatters';
+import {CARWASH_PRICE_LIST} from '../../data/carwashPrices';
 
 export interface WashOption {
     name: string;
@@ -47,6 +50,88 @@ export const WashOptionCard: React.FC<{ option: WashOption; onBook: () => void }
     );
 };
 
+/** "More prices" - the whole forecourt price list, folded away under the cards
+ *  so the three everyday washes stay the first thing people see. */
+export const MoreCarwashPrices: React.FC = () => {
+    const [open, setOpen] = useState(false);
+
+    return (
+        <div className="mt-8">
+            <button
+                onClick={() => setOpen(!open)}
+                aria-expanded={open}
+                aria-controls="carwash-price-list"
+                className={`${btn.ghostOnLight} group w-full sm:w-auto`}
+            >
+                {open ? 'Fewer prices' : 'More prices'}
+                <ChevronDown size={18} className={`transition-transform duration-300 ${open ? 'rotate-180' : ''}`}/>
+            </button>
+
+            <AnimatePresence initial={false}>
+                {open && (
+                    <motion.div
+                        id="carwash-price-list"
+                        initial={{height: 0, opacity: 0}}
+                        animate={{height: 'auto', opacity: 1}}
+                        exit={{height: 0, opacity: 0}}
+                        transition={{duration: 0.3}}
+                        className="overflow-hidden"
+                    >
+                        <div className="mt-6 grid gap-10 rounded-3xl border border-ink/10 bg-white p-7 sm:p-10 lg:grid-cols-12">
+                            {CARWASH_PRICE_LIST.map((section) => (
+                                <section
+                                    key={section.title}
+                                    aria-labelledby={`prices-${section.title}`}
+                                    className={section.items.length > 4 ? 'lg:col-span-7' : 'lg:col-span-5'}
+                                >
+                                    <h3
+                                        id={`prices-${section.title}`}
+                                        className="border-b border-ink/10 pb-3 text-xs font-medium uppercase tracking-[0.25em] text-ink/50"
+                                    >
+                                        {section.title}
+                                    </h3>
+                                    <ul className="divide-y divide-ink/10">
+                                        {section.items.map((item) => (
+                                            <li key={item.name} className="flex items-baseline justify-between gap-6 py-4">
+                                                <div>
+                                                    <p className="font-medium text-ink">
+                                                        {item.name}
+                                                        {item.badge && (
+                                                            <span className="ml-2 inline-block rounded-full bg-primary-600 px-2.5 py-0.5 align-middle text-[10px] font-medium uppercase tracking-[0.16em] text-white">
+                                                                {item.badge}
+                                                            </span>
+                                                        )}
+                                                    </p>
+                                                    {item.note && <p className="mt-1 text-sm leading-relaxed text-ink/55">{item.note}</p>}
+                                                </div>
+                                                <p className="whitespace-nowrap text-lg font-bold tracking-tight text-ink tabular-nums">
+                                                    {formatCurrency(item.price)}
+                                                </p>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </section>
+                            ))}
+                            <p className="text-sm text-ink/55 lg:col-span-12">
+                                To book any of these,{' '}
+                                <a
+                                    href={whatsappUrl()}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="font-medium text-primary-600 underline underline-offset-4"
+                                >
+                                    message us on WhatsApp
+                                </a>
+                                .
+                            </p>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
 interface PricingProps {
     onBook?: (washType: string) => void;
 }
@@ -55,12 +140,12 @@ const options: WashOption[] = [
     {
         name: 'Exterior Wash',
         price: '₦2,000',
-        tagline: 'The outside, washed and finished by hand.',
+        tagline: 'For when the outside needs its shine back.',
         includes: [
-            'Full exterior hand wash',
+            'Full exterior wash',
             'Wheels & tyres cleaned',
             'Windows & mirrors wiped down',
-            'Dried and finished by hand',
+            'Dried and finished properly',
         ],
     },
     {
@@ -78,9 +163,9 @@ const options: WashOption[] = [
     {
         name: 'Vacuum Wash',
         price: '₦4,000',
-        tagline: 'A full exterior wash with a deep interior vacuum.',
+        tagline: 'The full exterior wash, plus a deep machine vacuum inside.',
         includes: [
-            'Full exterior hand wash',
+            'Full exterior wash',
             'Interior machine-vacuumed throughout',
             'Seats, carpets & boot cleaned out',
             'Dashboard & console wiped down',
@@ -93,9 +178,9 @@ const Pricing: React.FC<PricingProps> = ({onBook}) => {
         <section id="pricing" className="bg-paper py-20 sm:py-28">
             <Container>
                 <SectionHeader
-                    eyebrow="The washes"
+                    eyebrow="Car wash prices"
                     title="Choose your wash."
-                    intro="Three ways to have your car cared for. Every one washed by hand and finished to the same standard."
+                    intro="Three washes, from a quick exterior clean to a deep interior vacuum. Whichever you pick, it gets the same care."
                     className="max-w-2xl"
                 />
 
@@ -106,6 +191,8 @@ const Pricing: React.FC<PricingProps> = ({onBook}) => {
                         <WashOptionCard key={option.name} option={option} onBook={() => onBook?.(option.name)}/>
                     ))}
                 </div>
+
+                <MoreCarwashPrices/>
             </Container>
         </section>
     );

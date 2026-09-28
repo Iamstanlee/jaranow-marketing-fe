@@ -13,8 +13,8 @@ const benefits = [
     body: 'Clothes are sorted by colour and fabric, and stains are treated before anything goes in. Tell us about anything delicate and we handle it accordingly.',
   },
   {
-    title: 'Checked item by item',
-    body: 'Nothing comes back to you until it has been looked over. If it is not right, it does not leave us.',
+    title: 'Ready to wear',
+    body: 'Everything comes back fresh, pressed and neatly folded - straight into the wardrobe, nothing left to redo.',
   },
   {
     title: 'Straight with you',
@@ -30,7 +30,7 @@ const Benefits: React.FC = () => {
           className="lg:col-span-4"
           eyebrow="What you get"
           title="Your week, minus the laundry."
-          intro="Arrange everything on WhatsApp - a pickup, a change of date, a stubborn stain. No app to download, no account to create."
+          intro="Arrange everything on WhatsApp - a pickup, a change of date, a stubborn stain you want us to look at."
         />
         <NumberedGrid items={benefits} className="lg:col-span-8" />
       </Container>

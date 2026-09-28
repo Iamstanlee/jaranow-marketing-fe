@@ -29,7 +29,7 @@ const WashLanding: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-paper">
       <SeoTags route="/laundry" />
       <Helmet>
         <meta name="keywords" content="laundry service Abuja, subscription laundry, doorstep laundry pickup, premium laundry service, professional dry cleaning Abuja, laundry delivery service Nigeria" />
@@ -104,7 +104,7 @@ const WashLanding: React.FC = () => {
       <Header logo="laundry" ctaLabel="Schedule pickup" onCtaClick={scrollToPricing} />
 
       <main>
-        <Hero onSchedulePickup={scrollToPricing} />
+        <Hero onSchedulePickup={scrollToPricing} onFindPlan={() => scrollToElement('plan-recommendation')} />
 
         <Benefits />
 
@@ -116,9 +116,7 @@ const WashLanding: React.FC = () => {
           <PlanRecommendation />
         </div>
 
-        <div id="pricing">
-          <PricingPlans />
-        </div>
+        <PricingPlans />
 
         <Testimonials />
 

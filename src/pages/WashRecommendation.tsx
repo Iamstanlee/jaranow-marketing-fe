@@ -1,13 +1,15 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 import Header from '../components/common/Header';
 import PlanRecommendation from '../components/wash/PlanRecommendation';
 import Footer from '../components/common/Footer';
+import { Container, PageHero } from '../components/common/ui';
 import SeoTags from '../seo/SeoTags';
 
 const WashRecommendation: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-paper">
       <SeoTags route="/laundry/recommendation" />
       <Helmet>
         <meta name="keywords" content="laundry plan recommendation, subscription laundry Abuja, custom laundry service, Laundry by Jaranow" />
@@ -15,18 +17,26 @@ const WashRecommendation: React.FC = () => {
 
       <Header logo="laundry" ctaLabel="Schedule pickup" ctaTo="/laundry" />
 
-      {/* Hero band (blends with the fixed header) */}
-      <section className="pt-28 pb-12 bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl heading-display text-white mb-4">Find Your Perfect Plan</h1>
-          <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-            Answer a few quick questions and we'll recommend the laundry plan that fits you best.
-          </p>
-        </div>
-      </section>
-
       <main>
-        <PlanRecommendation />
+        <PageHero
+          eyebrow="Laundry by Jaranow · Plan finder"
+          title="Find the plan that fits."
+          intro="Four quick questions about your week, and we'll point you to the option that fits how you actually live."
+        />
+
+        <section className="py-16 sm:py-24">
+          <Container>
+            <div className="mx-auto max-w-4xl">
+              <PlanRecommendation showHeader={false} />
+              <p className="mt-8 text-center text-ink/60">
+                Rather see everything side by side?{' '}
+                <Link to="/pricing?service=wash" className="font-medium text-primary-600 underline underline-offset-4">
+                  Compare the plans
+                </Link>
+              </p>
+            </div>
+          </Container>
+        </section>
       </main>
 
       <Footer />

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {AnimatePresence, motion} from 'framer-motion';
-import { CheckCircle, XCircle, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Check, ArrowRight, ArrowLeft, RotateCcw } from 'lucide-react';
+import { btn, Container, SectionHeader, openWhatsApp } from '../common/ui';
 
 interface RecommendationResult {
   recommendedPlan: 'lite' | 'premium' | 'custom';
@@ -9,7 +10,68 @@ interface RecommendationResult {
   clothesPerMonth: number;
 }
 
-const PlanRecommendation: React.FC = () => {
+type FieldKey = 'washFrequency' | 'clothesPerWash' | 'hasSpecialItems' | 'budget';
+
+interface Question {
+  field: FieldKey;
+  title: string;
+  hint: string;
+  options: Array<{ value: string; label: string; subtitle: string }>;
+}
+
+const questions: Question[] = [
+  {
+    field: 'washFrequency',
+    title: 'How often do you need a wash?',
+    hint: 'How many times a month would you like us to collect?',
+    options: [
+      { value: '1', label: 'Once a month', subtitle: 'Light, occasional use' },
+      { value: '2', label: 'Twice a month', subtitle: 'A steady rhythm' },
+      { value: '3', label: '3 times a month', subtitle: 'A busy household' },
+      { value: '4', label: '4+ times a month', subtitle: 'A lot going through' },
+    ],
+  },
+  {
+    field: 'clothesPerWash',
+    title: 'How many clothes per wash?',
+    hint: 'A rough count of the items you would send each time.',
+    options: [
+      { value: '8', label: '5–10 items', subtitle: 'Light load' },
+      { value: '12', label: '10–15 items', subtitle: 'Medium load' },
+      { value: '18', label: '15–20 items', subtitle: 'Heavy load' },
+      { value: '25', label: '20+ items', subtitle: 'Extra heavy load' },
+    ],
+  },
+  {
+    field: 'hasSpecialItems',
+    title: 'Any special items?',
+    hint: 'Suits, long dresses, towels, duvet sets and curtains.',
+    options: [
+      { value: 'yes', label: 'Yes, some special items', subtitle: 'Suits, dresses, duvets and the like' },
+      { value: 'no', label: 'No, mostly everyday clothes', subtitle: 'Shirts, trousers, tops' },
+    ],
+  },
+  {
+    field: 'budget',
+    title: 'What do you expect to spend a month?',
+    hint: 'So we point you at an option that fits.',
+    options: [
+      { value: '10000', label: 'Under ₦15,000', subtitle: 'Pay per item likely suits' },
+      { value: '15000', label: '₦15,000 – ₦20,000', subtitle: 'Around the Lite Plan' },
+      { value: '25000', label: '₦20,000 – ₦30,000', subtitle: 'Around the Premium Plan' },
+      { value: '35000', label: 'Above ₦30,000', subtitle: 'Open' },
+    ],
+  },
+];
+
+const PLAN_LABELS = { lite: 'Lite Plan', premium: 'Premium Plan', custom: 'Pay per item' } as const;
+
+interface PlanRecommendationProps {
+  /** Hide the section heading when the page already carries one (the plan-finder page). */
+  showHeader?: boolean;
+}
+
+const PlanRecommendation: React.FC<PlanRecommendationProps> = ({ showHeader = true }) => {
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState({
     washFrequency: '',
@@ -34,8 +96,8 @@ const PlanRecommendation: React.FC = () => {
     if (washesPerMonth <= 1 || totalClothesPerMonth <= 15) {
       // Low volume - recommend custom pricing
       recommendedPlan = 'custom';
-      reasons.push('Your wash volume is low enough that custom pricing would be more cost-effective');
-      reasons.push('No monthly commitment required - perfect for occasional needs');
+      reasons.push('Your volume is light enough that paying per item suits you better than a plan');
+      reasons.push('No monthly plan - you pay for what you send');
 
       const estimatedRegularItems = hasSpecialItems ? clothesPerWash * 0.7 : clothesPerWash;
       const estimatedSpecialItems = hasSpecialItems ? clothesPerWash * 0.3 : 0;
@@ -47,7 +109,7 @@ const PlanRecommendation: React.FC = () => {
       reasons.push('Your needs perfectly match the Lite Plan (2 washes, up to 12 clothes each)');
       reasons.push('A predictable rhythm - two scheduled pickups you never have to think about');
       if (budget && budget < 20000) {
-        reasons.push('Fits comfortably within your budget');
+        reasons.push('Sits within what you expect to spend');
       }
     } else if ((washesPerMonth >= 3 || clothesPerWash > 12 || hasSpecialItems) && totalClothesPerMonth <= 45) {
       // Good fit for Premium
@@ -74,8 +136,8 @@ const PlanRecommendation: React.FC = () => {
     if (budget && budget < 15000) {
       recommendedPlan = 'custom';
       reasons.length = 0;
-      reasons.push('Based on your budget, custom pricing would be more suitable');
-      reasons.push('Pay only for what you need without monthly commitment');
+      reasons.push('For what you expect to spend, paying per item fits best');
+      reasons.push('No monthly plan - you pay for what you send');
 
       const estimatedRegularItems = hasSpecialItems ? clothesPerWash * 0.7 : clothesPerWash;
       const estimatedSpecialItems = hasSpecialItems ? clothesPerWash * 0.3 : 0;
@@ -83,7 +145,7 @@ const PlanRecommendation: React.FC = () => {
       estimatedMonthlyCost = Math.round(costPerWash * washesPerMonth);
     } else if (budget && budget >= 25000 && recommendedPlan === 'lite' && (hasSpecialItems || totalClothesPerMonth > 20)) {
       recommendedPlan = 'premium';
-      reasons.push('Your budget allows for Premium Plan with more flexibility and benefits');
+      reasons.push('Premium gives you a third pickup day and covers special items');
     }
 
     return {
@@ -125,7 +187,6 @@ const PlanRecommendation: React.FC = () => {
   };
 
   const handlePlanSelect = (planType: string) => {
-    const phoneNumber = '2349038622012';
     let message = '';
 
     if (planType === 'lite') {
@@ -156,395 +217,168 @@ My estimated needs:
 I'd like to get started with pay-as-you-go pricing. When is the next available pickup?`;
     }
 
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+    openWhatsApp(message);
   };
 
-  const isStepComplete = () => {
-    switch (step) {
-      case 1:
-        return formData.washFrequency !== '';
-      case 2:
-        return formData.clothesPerWash !== '';
-      case 3:
-        return formData.hasSpecialItems !== '';
-      case 4:
-        return formData.budget !== '';
-      default:
-        return true;
-    }
-  };
+  const question = step <= 4 ? questions[step - 1] : null;
+  const isStepComplete = () => !question || formData[question.field] !== '';
+  const progress = step <= 4 ? (step / 4) * 100 : 100;
 
-  const renderProgressBar = () => {
-    const progress = step <= 4 ? (step / 4) * 100 : 100;
-    return (
+  const card = (
+    <div className="rounded-3xl border border-ink/10 bg-white p-7 sm:p-10">
+      {/* Progress */}
       <div className="mb-8">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-600">
-            {step <= 4 ? `Step ${step} of 4` : 'Your Recommendation'}
-          </span>
-          <span className="text-sm font-medium text-primary-600">{Math.round(progress)}%</span>
+        <div className="mb-3 flex items-center justify-between text-sm">
+          <span className="font-medium text-ink/60">{step <= 4 ? `Question ${step} of 4` : 'Your recommendation'}</span>
+          <span className="font-medium tabular-nums text-primary-600">{Math.round(progress)}%</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div className="bg-primary-600 h-2 rounded-full" />
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink/10">
+          <div className="h-full rounded-full bg-primary-600 transition-[width] duration-300" style={{ width: `${progress}%` }} />
         </div>
       </div>
-    );
-  };
 
-  return (
-    <section className="py-20 sm:py-24 bg-white">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-primary-50 text-primary-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-            <Sparkles className="w-4 h-4" />
-            Smart Recommendation
-          </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl text-gray-900 mb-4 heading-display">
-            Find Your <span className="text-primary-600">Perfect Plan</span>
-          </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Answer a few quick questions and we'll recommend the best plan for your needs
-          </p>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 md:p-12">
-          {renderProgressBar()}
-
-          <AnimatePresence mode="wait">
-            {/* Step 1: Wash Frequency */}
-            {step === 1 && (
-              <motion.div
-                key="step1"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  How often do you need laundry service?
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Select how many times per month you'd like us to pick up your laundry
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[
-                    { value: '1', label: 'Once a month', subtitle: 'Perfect for light users' },
-                    { value: '2', label: 'Twice a month', subtitle: 'Most popular choice' },
-                    { value: '3', label: '3 times a month', subtitle: 'Great for busy professionals' },
-                    { value: '4', label: '4+ times a month', subtitle: 'For heavy users' }
-                  ].map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => setFormData({ ...formData, washFrequency: option.value })}
-                      className={`p-6 rounded-xl border-2 text-left transition-all duration-300 ${
-                        formData.washFrequency === option.value
-                          ? 'border-primary-500 bg-primary-50'
-                          : 'border-gray-200 hover:border-primary-300'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="font-semibold text-gray-900 mb-1">{option.label}</p>
-                          <p className="text-sm text-gray-600">{option.subtitle}</p>
-                        </div>
-                        {formData.washFrequency === option.value && (
-                          <CheckCircle className="w-6 h-6 text-primary-600 flex-shrink-0" />
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 2: Clothes Per Wash */}
-            {step === 2 && (
-              <motion.div
-                key="step2"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  How many clothes per wash?
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Estimate the number of items you'd send for each wash
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[
-                    { value: '8', label: '5-10 items', subtitle: 'Light load' },
-                    { value: '12', label: '10-15 items', subtitle: 'Medium load' },
-                    { value: '18', label: '15-20 items', subtitle: 'Heavy load' },
-                    { value: '25', label: '20+ items', subtitle: 'Extra heavy load' }
-                  ].map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => setFormData({ ...formData, clothesPerWash: option.value })}
-                      className={`p-6 rounded-xl border-2 text-left transition-all duration-300 ${
-                        formData.clothesPerWash === option.value
-                          ? 'border-primary-500 bg-primary-50'
-                          : 'border-gray-200 hover:border-primary-300'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="font-semibold text-gray-900 mb-1">{option.label}</p>
-                          <p className="text-sm text-gray-600">{option.subtitle}</p>
-                        </div>
-                        {formData.clothesPerWash === option.value && (
-                          <CheckCircle className="w-6 h-6 text-primary-600 flex-shrink-0" />
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 3: Special Items */}
-            {step === 3 && (
-              <motion.div
-                key="step3"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  Do you have special items?
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Special items include suits, long dresses, towels, duvet sets, and curtains
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[
-                    {
-                      value: 'yes',
-                      label: 'Yes, I have special items',
-                      subtitle: 'Suits, dresses, duvets, etc.',
-                      icon: CheckCircle
-                    },
-                    {
-                      value: 'no',
-                      label: 'No, mostly regular items',
-                      subtitle: 'Shirts, trousers, tops, etc.',
-                      icon: XCircle
-                    }
-                  ].map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => setFormData({ ...formData, hasSpecialItems: option.value })}
-                      className={`p-6 rounded-xl border-2 text-left transition-all duration-300 ${
-                        formData.hasSpecialItems === option.value
-                          ? 'border-primary-500 bg-primary-50'
-                          : 'border-gray-200 hover:border-primary-300'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="font-semibold text-gray-900 mb-1">{option.label}</p>
-                          <p className="text-sm text-gray-600">{option.subtitle}</p>
-                        </div>
-                        {formData.hasSpecialItems === option.value && (
-                          <CheckCircle className="w-6 h-6 text-primary-600 flex-shrink-0" />
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 4: Budget */}
-            {step === 4 && (
-              <motion.div
-                key="step4"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  What's your monthly budget?
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  This helps us recommend the most cost-effective option for you
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[
-                    { value: '10000', label: 'Under ₦15,000', subtitle: 'Budget-friendly' },
-                    { value: '15000', label: '₦15,000 - ₦20,000', subtitle: 'Lite Plan range' },
-                    { value: '25000', label: '₦20,000 - ₦30,000', subtitle: 'Premium Plan range' },
-                    { value: '35000', label: 'Above ₦30,000', subtitle: 'Flexible budget' }
-                  ].map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => setFormData({ ...formData, budget: option.value })}
-                      className={`p-6 rounded-xl border-2 text-left transition-all duration-300 ${
-                        formData.budget === option.value
-                          ? 'border-primary-500 bg-primary-50'
-                          : 'border-gray-200 hover:border-primary-300'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <p className="font-semibold text-gray-900 mb-1">{option.label}</p>
-                          <p className="text-sm text-gray-600">{option.subtitle}</p>
-                        </div>
-                        {formData.budget === option.value && (
-                          <CheckCircle className="w-6 h-6 text-primary-600 flex-shrink-0" />
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 5: Recommendation */}
-            {step === 5 && recommendation && (
-              <motion.div
-                key="step5"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.5 }}
-              >
-                <div className="text-center mb-8">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 mb-4">
-                    <Sparkles className="w-8 h-8 text-primary-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    We Recommend the{' '}
-                    <span className="text-primary-600">
-                      {recommendation.recommendedPlan === 'lite'
-                        ? 'Lite Plan'
-                        : recommendation.recommendedPlan === 'premium'
-                        ? 'Premium Plan'
-                        : 'Custom Pricing'}
+      <AnimatePresence mode="wait">
+        {question && (
+          <motion.div
+            key={question.field}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.25 }}
+          >
+            <h3 className="text-2xl font-bold tracking-tight text-ink">{question.title}</h3>
+            <p className="mt-2 text-ink/60">{question.hint}</p>
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2" role="radiogroup" aria-label={question.title}>
+              {question.options.map((option) => {
+                const selected = formData[question.field] === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => setFormData({ ...formData, [question.field]: option.value })}
+                    className={`flex items-start justify-between gap-4 rounded-2xl border p-5 text-left transition-colors ${
+                      selected ? 'border-primary-600 bg-primary-50' : 'border-ink/10 hover:border-ink/30'
+                    }`}
+                  >
+                    <span>
+                      <span className="block font-medium text-ink">{option.label}</span>
+                      <span className="mt-1 block text-sm text-ink/55">{option.subtitle}</span>
                     </span>
-                  </h3>
-                  <p className="text-gray-600">
-                    Based on your needs of ~{recommendation.clothesPerMonth} clothes per month
-                  </p>
-                </div>
+                    <span
+                      className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border ${
+                        selected ? 'border-primary-600 bg-primary-600 text-white' : 'border-ink/20'
+                      }`}
+                    >
+                      {selected && <Check size={12} strokeWidth={3} />}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
 
-                {/* Recommendation Card */}
-                <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl p-8 mb-6 border-2 border-primary-200">
-                  {recommendation.recommendedPlan === 'lite' && (
-                    <div>
-                      <div className="flex items-baseline justify-center mb-4">
-                        <span className="text-4xl font-bold text-gray-900">₦14,999</span>
-                        <span className="text-gray-600 ml-2">/month</span>
-                      </div>
-                      <p className="text-center text-gray-700 font-semibold mb-4">
-                        Lite Plan - 2 washes, up to 12 clothes each
-                      </p>
-                    </div>
-                  )}
-                  {recommendation.recommendedPlan === 'premium' && (
-                    <div>
-                      <div className="flex items-baseline justify-center mb-4">
-                        <span className="text-4xl font-bold text-gray-900">₦24,999</span>
-                        <span className="text-gray-600 ml-2">/month</span>
-                      </div>
-                      <p className="text-center text-gray-700 font-semibold mb-4">
-                        Premium Plan - 3 washes, up to 15 clothes each
-                      </p>
-                    </div>
-                  )}
-                  {recommendation.recommendedPlan === 'custom' && (
-                    <div>
-                      {recommendation.estimatedMonthlyCost && (
-                        <div className="flex items-baseline justify-center mb-4">
-                          <span className="text-sm text-gray-600 mr-2">Estimated:</span>
-                          <span className="text-4xl font-bold text-gray-900">
-                            ₦{recommendation.estimatedMonthlyCost.toLocaleString()}
-                          </span>
-                          <span className="text-gray-600 ml-2">/month</span>
-                        </div>
-                      )}
-                      <p className="text-center text-gray-700 font-semibold mb-4">
-                        Custom Pricing - Pay only for what you use
-                      </p>
-                    </div>
-                  )}
+        {step === 5 && recommendation && (
+          <motion.div
+            key="result"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ duration: 0.3 }}
+          >
+            <p className="text-sm font-medium text-ink/60">Based on about {recommendation.clothesPerMonth} clothes a month</p>
+            <h3 className="mt-2 text-3xl font-bold tracking-tight text-ink">
+              We'd suggest the <span className="text-primary-600">{PLAN_LABELS[recommendation.recommendedPlan]}</span>
+            </h3>
 
-                  <div className="bg-white/70 rounded-lg p-4">
-                    <h4 className="font-semibold text-gray-900 mb-3">Why this plan?</h4>
-                    <ul className="space-y-2">
-                      {recommendation.reasons.map((reason, index) => (
-                        <li key={index} className="flex items-start text-sm text-gray-700">
-                          <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                          <span>{reason}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
+            <div className="mt-8 rounded-2xl bg-paper p-6 sm:p-8">
+              <p className="flex items-baseline gap-2">
+                {recommendation.recommendedPlan === 'lite' && (
+                  <>
+                    <span className="text-4xl font-bold tracking-tight text-ink">₦14,999</span>
+                    <span className="text-ink/50">per month · 2 washes, up to 12 clothes each</span>
+                  </>
+                )}
+                {recommendation.recommendedPlan === 'premium' && (
+                  <>
+                    <span className="text-4xl font-bold tracking-tight text-ink">₦24,999</span>
+                    <span className="text-ink/50">per month · 3 washes, up to 15 clothes each</span>
+                  </>
+                )}
+                {recommendation.recommendedPlan === 'custom' && recommendation.estimatedMonthlyCost && (
+                  <>
+                    <span className="text-sm text-ink/50">About</span>
+                    <span className="text-4xl font-bold tracking-tight text-ink">
+                      ₦{recommendation.estimatedMonthlyCost.toLocaleString()}
+                    </span>
+                    <span className="text-ink/50">a month, paid per item</span>
+                  </>
+                )}
+              </p>
 
-                {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <motion.button
-                    onClick={() => handlePlanSelect(recommendation.recommendedPlan)}
-                    className="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Get Started
-                    <ArrowRight className="w-5 h-5" />
-                  </motion.button>
-                  <motion.button
-                    onClick={handleRestart}
-                    className="flex-1 bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-300 py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Start Over
-                  </motion.button>
-                </div>
+              <ul className="mt-6 space-y-3 border-t border-ink/10 pt-6">
+                {recommendation.reasons.map((reason) => (
+                  <li key={reason} className="flex items-start gap-3 text-ink/75">
+                    <Check size={18} className="mt-0.5 flex-shrink-0 text-primary-600" />
+                    <span>{reason}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-                <p className="text-center text-sm text-gray-500 mt-6">
-                  Not sure? Scroll down to view all plans and pricing details
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Navigation Buttons */}
-          {step <= 4 && (
-            <div className="flex justify-between mt-8 pt-8 border-t border-gray-200">
-              <button
-                onClick={handleBack}
-                disabled={step === 1}
-                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
-                  step === 1
-                    ? 'text-gray-400 cursor-not-allowed'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <ArrowLeft className="w-5 h-5" />
-                Back
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button onClick={() => handlePlanSelect(recommendation.recommendedPlan)} className={`${btn.primary} group flex-1`}>
+                Arrange it on WhatsApp
+                <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5" />
               </button>
-              <button
-                onClick={handleNext}
-                disabled={!isStepComplete()}
-                className={`flex items-center gap-2 px-8 py-3 rounded-lg font-semibold transition-all duration-300 ${
-                  isStepComplete()
-                    ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                }`}
-              >
-                {step === 4 ? 'Get Recommendation' : 'Next'}
-                <ArrowRight className="w-5 h-5" />
+              <button onClick={handleRestart} className={`${btn.ghostOnLight} flex-1`}>
+                <RotateCcw size={16} />
+                Start over
               </button>
             </div>
-          )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {step <= 4 && (
+        <div className="mt-8 flex items-center justify-between border-t border-ink/10 pt-8">
+          <button
+            onClick={handleBack}
+            disabled={step === 1}
+            className="inline-flex items-center gap-2 rounded-full px-4 py-3 font-medium text-ink/70 transition-colors hover:text-ink disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <ArrowLeft size={18} />
+            Back
+          </button>
+          <button
+            onClick={handleNext}
+            disabled={!isStepComplete()}
+            className={`${btn.ink} px-6 py-3 disabled:cursor-not-allowed disabled:bg-ink/15 disabled:text-ink/40`}
+          >
+            {step === 4 ? 'See my recommendation' : 'Next'}
+            <ArrowRight size={18} />
+          </button>
         </div>
-      </div>
+      )}
+    </div>
+  );
+
+  if (!showHeader) {
+    return card;
+  }
+
+  return (
+    <section className="bg-paper py-20 sm:py-28">
+      <Container className="grid gap-12 lg:grid-cols-12">
+        <SectionHeader
+          className="lg:col-span-4"
+          eyebrow="Plan finder"
+          title="Not sure which plan?"
+          intro="Four quick questions about your week, and we'll point you to the option that fits how you actually live."
+        />
+        <div className="lg:col-span-8">{card}</div>
+      </Container>
     </section>
   );
 };

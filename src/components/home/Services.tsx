@@ -1,139 +1,127 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
-import {ArrowRight, Heart, MapPin, ShieldCheck, Shirt, Sparkles, Truck} from 'lucide-react';
+import {motion} from 'framer-motion';
+import {ArrowRight} from 'lucide-react';
 
-interface ServiceCardProps {
-    title: string;
-    description: string;
-    features: Array<{ icon: React.ReactNode; text: string }>;
-    link: string;
-    gradient: string;
+interface Track {
+    id: string;
+    line: string;
+    headline: string;
+    summary: string;
+    steps: Array<{ title: string; body: string }>;
+    detailsTo: string;
+    detailsLabel: string;
+    pricingTo: string;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({
-                                                     title,
-                                                     description,
-                                                     features,
-                                                     link,
-                                                     gradient,
-                                                 }) => {
-    return (
-        <div>
-            <Link to={link} className="block group">
-                <div
-                    className={`relative h-full bg-gradient-to-br ${gradient} rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden`}>
-                    {/* Background Pattern */}
-                    <div className="absolute inset-0 opacity-5">
-                        <div className="absolute inset-0" style={{
-                            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-                            backgroundSize: '30px 30px'
-                        }}></div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="relative z-10">
-                        {/* Title */}
-                        <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">
-                            {title}
-                        </h3>
-
-                        {/* Description */}
-                        <p className="text-white/90 text-lg mb-6 leading-relaxed">
-                            {description}
-                        </p>
-
-                        {/* Features */}
-                        <div className="space-y-3 mb-8">
-                            {features.map((feature, index) => (
-                                <div key={index} className="flex items-start space-x-3">
-                                    <div className="flex-shrink-0 mt-1">
-                                        {feature.icon}
-                                    </div>
-                                    <span className="text-white/90">{feature.text}</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* CTA */}
-                        <div
-                            className="flex items-center space-x-2 text-white font-semibold group-hover:translate-x-2 transition-transform">
-                            <span>Learn More</span>
-                            <ArrowRight size={20}/>
-                        </div>
-                    </div>
-
-                    {/* Decorative Element */}
-                    <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                </div>
-            </Link>
-        </div>
-    );
-};
+const tracks: Track[] = [
+    {
+        id: 'carwash',
+        line: 'Carwash by Jaranow',
+        headline: 'A hand wash, while you wait.',
+        summary: '6th Avenue, Gwarinpa. Open daily, 8am–7pm.',
+        steps: [
+            {
+                title: 'Drive in',
+                body: 'No appointment needed. If you would rather know we are ready for you, book ahead on WhatsApp.',
+            },
+            {
+                title: 'We wash by hand',
+                body: 'Exterior, full or vacuum wash - you choose. Your car stays where you parked it.',
+            },
+            {
+                title: 'Checked, then yours',
+                body: 'We go over it once more before you get the keys back. Pay by transfer once the wash is done.',
+            },
+        ],
+        detailsTo: '/carwash',
+        detailsLabel: 'Book a car wash',
+        pricingTo: '/pricing?service=carwash',
+    },
+    {
+        id: 'laundry',
+        line: 'Laundry by Jaranow',
+        headline: 'Laundry that leaves the house, and comes back done.',
+        summary: 'Monthly plans, collected and delivered across Abuja.',
+        steps: [
+            {
+                title: 'Pick a plan',
+                body: 'Lite or Premium, depending on how much your household goes through in a month.',
+            },
+            {
+                title: 'We collect',
+                body: 'On your pickup days - Tuesday and Saturday, with Thursday added on Premium.',
+            },
+            {
+                title: 'Back in 48 hours',
+                body: 'Washed, dried, ironed and folded. Every item is checked before it leaves us.',
+            },
+        ],
+        detailsTo: '/laundry',
+        detailsLabel: 'Start a laundry plan',
+        pricingTo: '/pricing?service=wash',
+    },
+];
 
 const Services: React.FC = () => {
-    const services: ServiceCardProps[] = [
-        {
-            title: 'Carwash by Jaranow',
-            description: 'Hand-washed car care in Gwarinpa. Drive in, we wash, you drive off.',
-            features: [
-                {
-                    icon: <Sparkles size={18} className="text-blue-200"/>,
-                    text: 'Washed by hand, checked twice'
-                },
-                {
-                    icon: <MapPin size={18} className="text-blue-200"/>,
-                    text: '6th Avenue, Gwarinpa, Abuja'
-                },
-                {
-                    icon: <ShieldCheck size={18} className="text-blue-200"/>,
-                    text: 'Your keys, your car, never moved'
-                }
-            ],
-            link: '/carwash',
-            gradient: 'from-primary-500 via-primary-600 to-primary-700',
-        },
-        {
-            title: 'Laundry by Jaranow',
-            description: 'Monthly plans. We collect, wash, iron and bring it back folded.',
-            features: [
-                {
-                    icon: <Shirt size={18} className="text-blue-200"/>,
-                    text: 'Wash, dry, iron & fold included'
-                },
-                {
-                    icon: <Truck size={18} className="text-blue-200"/>,
-                    text: 'Doorstep pickup & delivery'
-                },
-                {
-                    icon: <Heart size={18} className="text-blue-200"/>,
-                    text: 'Sorted, treated and handled with care'
-                }
-            ],
-            link: '/laundry',
-            gradient: 'from-blue-500 via-blue-600 to-blue-700',
-        }
-    ];
-
     return (
-        <section id="services" className="py-20 bg-gray-50">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div>
-                    {/* Section Header */}
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl sm:text-5xl heading-display text-gray-900 mb-4">
-                            Our Services
-                        </h2>
-                        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                            Two services today. More on the way.
-                        </p>
-                    </div>
+        <section id="services" className="bg-white py-20 sm:py-28">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-2xl">
+                    <p className="text-xs font-medium uppercase tracking-[0.25em] text-primary-600">How it works</p>
+                    <h2 className="heading-display mt-4 text-4xl leading-[1.05] text-ink sm:text-5xl">
+                        Three steps, either way.
+                    </h2>
+                </div>
 
-                    {/* Service Cards */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-                        {services.map((service, index) => (
-                            <ServiceCard key={index} {...service} />
-                        ))}
-                    </div>
+                <div className="mt-14 grid gap-6 lg:grid-cols-2">
+                    {tracks.map((track) => (
+                        <article
+                            key={track.id}
+                            aria-labelledby={`track-${track.id}`}
+                            className="flex flex-col rounded-3xl border border-ink/10 bg-paper/60 p-7 sm:p-10"
+                        >
+                            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-primary-600">
+                                {track.line}
+                            </p>
+                            <h3 id={`track-${track.id}`} className="mt-3 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+                                {track.headline}
+                            </h3>
+                            <p className="mt-2 text-ink/60">{track.summary}</p>
+
+                            <ol className="mt-8 flex-1 space-y-6 border-t border-ink/10 pt-8">
+                                {track.steps.map((step, index) => (
+                                    <li key={step.title} className="flex gap-5">
+                                        <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-ink text-sm font-medium text-white tabular-nums">
+                                            {index + 1}
+                                        </span>
+                                        <div>
+                                            <p className="font-bold text-ink">{step.title}</p>
+                                            <p className="mt-1 leading-relaxed text-ink/65">{step.body}</p>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ol>
+
+                            <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4">
+                                <motion.div whileHover={{y: -2}} whileTap={{scale: 0.98}}>
+                                    <Link
+                                        to={track.detailsTo}
+                                        className="group inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-medium text-white transition-colors hover:bg-primary-600"
+                                    >
+                                        {track.detailsLabel}
+                                        <ArrowRight size={17} className="transition-transform group-hover:translate-x-0.5"/>
+                                    </Link>
+                                </motion.div>
+                                <Link
+                                    to={track.pricingTo}
+                                    className="font-medium text-ink/70 underline decoration-ink/20 underline-offset-4 transition-colors hover:text-primary-600 hover:decoration-primary-600"
+                                >
+                                    See prices
+                                </Link>
+                            </div>
+                        </article>
+                    ))}
                 </div>
             </div>
         </section>

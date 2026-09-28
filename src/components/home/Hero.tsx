@@ -1,102 +1,131 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import {ArrowRight, Zap, Car, Shirt} from 'lucide-react';
-import { fadeInUp, staggerContainer } from '../../utils/animations';
+import {Link} from 'react-router-dom';
+import {motion} from 'framer-motion';
+import {ArrowRight, ArrowUpRight, Clock, MapPin, Truck} from 'lucide-react';
+import {fadeInUp, staggerContainer} from '../../utils/animations';
+import {InkBackdrop} from '../common/ui';
+
+interface ServiceEntry {
+    to: string;
+    line: string;
+    title: string;
+    facts: Array<{ icon: React.ReactNode; text: string }>;
+}
+
+const entries: ServiceEntry[] = [
+    {
+        to: '/carwash',
+        line: 'Carwash by Jaranow',
+        title: 'Drive in. Drive off clean.',
+        facts: [
+            {icon: <MapPin size={15}/>, text: '6th Avenue, Gwarinpa'},
+            {icon: <Clock size={15}/>, text: 'Open daily, 8am–7pm'},
+        ],
+    },
+    {
+        to: '/laundry',
+        line: 'Laundry by Jaranow',
+        title: 'Collected. Cared for. Returned folded.',
+        facts: [
+            {icon: <Truck size={15}/>, text: 'Pickup from your door'},
+            {icon: <Clock size={15}/>, text: 'Back in 48 hours'},
+        ],
+    },
+];
 
 const Hero: React.FC = () => {
-  return (
-    <section className="relative min-h-svh flex items-center justify-center bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }}></div>
-      </div>
+    return (
+        <section className="relative overflow-hidden bg-ink text-white">
+            <InkBackdrop/>
 
-      {/* Animated Blobs */}
-      <div className="absolute top-20 right-10 w-72 h-72 bg-primary-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-      <div className="absolute bottom-20 left-10 w-72 h-72 bg-primary-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20 sm:pt-40 lg:pb-28">
+                <motion.div
+                    variants={staggerContainer}
+                    initial="hidden"
+                    animate="show"
+                    className="grid gap-14 lg:grid-cols-12 lg:gap-12 lg:items-end"
+                >
+                    <div className="lg:col-span-7">
+                        <motion.p
+                            variants={fadeInUp}
+                            className="mb-6 text-xs font-medium uppercase tracking-[0.25em] text-primary-400"
+                        >
+                            Car wash &amp; laundry · Abuja
+                        </motion.p>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="show"
-          className="max-w-4xl mx-auto text-center"
-        >
-          {/* Main Headline */}
-          <motion.h1
-            variants={fadeInUp}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl heading-display text-white mb-6 leading-tight"
-          >
-            Your car and laundry,{' '}
-            <span className="text-cyan-300">handled.</span>
-          </motion.h1>
+                        <motion.h1
+                            variants={fadeInUp}
+                            className="heading-display text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-7xl xl:text-[5.25rem]"
+                        >
+                            Your car and laundry, handled<span className="text-primary-600">.</span>
+                        </motion.h1>
 
-          {/* Subheadline */}
-          <motion.p
-            variants={fadeInUp}
-            className="text-lg sm:text-xl md:text-2xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed"
-          >
-            Hand car wash in Gwarinpa. Subscription laundry, collected and returned. Both done with the same care and eye for detail.
-          </motion.p>
+                        <motion.p
+                            variants={fadeInUp}
+                            className="mt-7 max-w-xl text-lg leading-relaxed text-paper/75 sm:text-xl"
+                        >
+                            A hand car wash in Gwarinpa, and laundry collected from your door. Both held to one
+                            standard: done properly, and checked before it comes back to you.
+                        </motion.p>
 
-          {/* Dual CTAs */}
-          <motion.div
-            variants={fadeInUp}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
-          >
-            <Link
-              to="/carwash"
-              className="group w-full sm:w-auto px-8 py-4 bg-white text-primary-600 rounded-xl font-bold text-lg hover:bg-gray-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105 flex items-center justify-center space-x-2"
-            >
-              <Car size={20} className="text-primary-600" />
-              <span>Car Wash</span>
-              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link
-              to="/laundry"
-              className="group w-full sm:w-auto px-8 py-4 bg-primary-500/20 backdrop-blur-sm text-white border-2 border-white rounded-xl font-bold text-lg hover:bg-white hover:text-primary-600 transition-all shadow-xl hover:shadow-2xl hover:scale-105 flex items-center justify-center space-x-2"
-            >
-              <Shirt size={20} />
-              <span>Laundry Service</span>
-              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </motion.div>
+                        <motion.div variants={fadeInUp} className="mt-10 flex flex-col gap-3 sm:flex-row">
+                            <motion.div whileHover={{y: -2}} whileTap={{scale: 0.98}}>
+                                <Link
+                                    to="/carwash"
+                                    className="group flex items-center justify-center gap-2 rounded-full bg-primary-600 px-7 py-4 font-medium text-white transition-colors hover:bg-primary-500"
+                                >
+                                    Book a car wash
+                                    <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5"/>
+                                </Link>
+                            </motion.div>
+                            <motion.div whileHover={{y: -2}} whileTap={{scale: 0.98}}>
+                                <Link
+                                    to="/laundry"
+                                    className="flex items-center justify-center gap-2 rounded-full border border-paper/25 px-7 py-4 font-medium text-white transition-colors hover:border-paper/60 hover:bg-white/5"
+                                >
+                                    Start a laundry plan
+                                </Link>
+                            </motion.div>
+                        </motion.div>
+                    </div>
 
-          {/* Trust Indicators */}
-          <motion.div
-            variants={fadeInUp}
-            className="flex flex-col sm:flex-row gap-8 justify-center items-center text-white/80"
-          >
-            <div className="flex items-center space-x-2">
-              <svg className="w-5 h-5 text-cyan-300" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-              <span className="text-sm font-medium">Trusted by 1000+ customers</span>
+                    {/* Service chooser - the two ways in */}
+                    <motion.div variants={fadeInUp} className="lg:col-span-5">
+                        <ul className="divide-y divide-paper/10 overflow-hidden rounded-2xl border border-paper/10 bg-white/[0.03]">
+                            {entries.map((entry) => (
+                                <li key={entry.to}>
+                                    <Link
+                                        to={entry.to}
+                                        className="group flex items-start justify-between gap-6 p-6 transition-colors hover:bg-white/[0.04] sm:p-7"
+                                    >
+                                        <div>
+                                            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-primary-400">
+                                                {entry.line}
+                                            </p>
+                                            <p className="mt-2 text-xl font-bold tracking-tight text-white sm:text-2xl">
+                                                {entry.title}
+                                            </p>
+                                            <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-paper/60">
+                                                {entry.facts.map((fact) => (
+                                                    <li key={fact.text} className="flex items-center gap-1.5">
+                                                        <span className="text-primary-400">{fact.icon}</span>
+                                                        {fact.text}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                        <span className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-paper/15 text-paper/70 transition-colors group-hover:border-primary-600 group-hover:bg-primary-600 group-hover:text-white">
+                                            <ArrowUpRight size={18}/>
+                                        </span>
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </motion.div>
+                </motion.div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Zap size={20} className="text-cyan-300" />
-              <span className="text-sm font-medium">Available in Abuja</span>
-            </div>
-          </motion.div>
-        </motion.div>
-      </div>
-
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-2"
-        >
-          <div className="w-1 h-2 bg-white/50 rounded-full"></div>
-        </motion.div>
-      </div>
-    </section>
-  );
+        </section>
+    );
 };
 
 export default Hero;

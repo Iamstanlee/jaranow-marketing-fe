@@ -1,16 +1,74 @@
 import React, { useState, useEffect } from 'react';
-import {motion} from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from 'react-router-dom';
-import { Check, CreditCard, Smartphone, Shield, Car, Sparkles, MapPin, Wind } from 'lucide-react';
-import { SubscriptionPlan } from '../types';
-import { formatCurrency } from '../utils/formatters';
+import { Banknote, CalendarCheck, Car, Clock, MapPin, Shirt } from 'lucide-react';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import PlanRecommendation from '../components/wash/PlanRecommendation';
+import { WashOption, WashOptionCard } from '../components/carwash/Pricing';
+import {
+  CUSTOM_PRICING_MESSAGE,
+  CustomPricingCard,
+  LAUNDRY_PLANS,
+  PlanCard,
+  planWhatsAppMessage,
+} from '../components/wash/PricingPlans';
+import { Container, PageHero, SectionHeader, openWhatsApp } from '../components/common/ui';
 import SeoTags from '../seo/SeoTags';
 
 type ServiceTab = 'carwash' | 'wash';
+
+// One of the five places the carwash services must stay in step (see CLAUDE.md).
+const carwashOptions: WashOption[] = [
+  {
+    name: 'Exterior Wash',
+    price: '₦2,000',
+    tagline: 'The outside, washed and finished by hand.',
+    includes: [
+      'Full exterior hand wash',
+      'Wheels & tyres cleaned',
+      'Windows & mirrors wiped down',
+      'Dried and finished by hand',
+    ],
+  },
+  {
+    name: 'Full Wash',
+    price: '₦3,000',
+    tagline: 'Inside and out, cleaned properly.',
+    includes: [
+      'Everything in the Exterior Wash',
+      'Interior vacuum & wipe down',
+      'Dashboard & console cleaned',
+      'Mats cleaned and refreshed',
+    ],
+    featured: true,
+  },
+  {
+    name: 'Vacuum Wash',
+    price: '₦4,000',
+    tagline: 'A full exterior wash with a deep interior vacuum.',
+    includes: [
+      'Full exterior hand wash',
+      'Interior machine-vacuumed throughout',
+      'Seats, carpets & boot cleaned out',
+      'Dashboard & console wiped down',
+    ],
+  },
+];
+
+// Payment is a transfer to the business account. "Card payment" and "mobile
+// wallets" used to be listed here and were never confirmed.
+const carwashNotes = [
+  { icon: <MapPin size={18} />, title: 'Where', body: '6th Avenue, Gwarinpa, Abuja' },
+  { icon: <Clock size={18} />, title: 'When', body: 'Open daily, 8am–7pm' },
+  { icon: <CalendarCheck size={18} />, title: 'Booking', body: 'No appointment needed - just drive in' },
+  { icon: <Banknote size={18} />, title: 'Paying', body: 'Transfer to the Jaranow business account after the wash' },
+];
+
+const tabs: Array<{ id: ServiceTab; label: string; icon: React.ReactNode }> = [
+  { id: 'carwash', label: 'Car wash', icon: <Car size={18} /> },
+  { id: 'wash', label: 'Laundry', icon: <Shirt size={18} /> },
+];
 
 const Pricing: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,41 +87,9 @@ const Pricing: React.FC = () => {
     }
   }, [searchParams]);
 
-  const phoneNumber = "2349038622012";
-
   const handleCarwashBook = (washType?: string) => {
     const chosen = washType ? `\nWash type: ${washType}` : '';
-    const message = `Hi Jaranow! I'd like to book a car wash at 6th Avenue, Gwarinpa, Abuja.${chosen}\n\nCan you help me get started?`;
-    const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappURL, '_blank');
-  };
-
-  const handleWashPlanSelect = (plan: SubscriptionPlan) => {
-    const message = `Hi Jaranow! I'm interested in scheduling laundry pickup for the _${plan.name}_ (₦${plan.price.toLocaleString()}/month).
-
-${plan.name} Details:
-• ${plan.features.join('\n• ')}
-
-I'd like to get started. When is the next available pickup?`;
-
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-  };
-
-  const handleCustomPlanSelect = () => {
-    const message = `Hi Jaranow! I'm interested in scheduling laundry pickup for the _Custom Pricing Plan_.
-
-Custom Plan Details:
-• Pay as you go - no monthly commitment
-• ₦700 per regular item (shirts, trousers, dresses, skirts, tops, etc.)
-• ₦2,000 per special item (suits, long dresses, towels, duvet sets, curtains)
-• Premium wash, iron and folding included
-• Free pickup and delivery
-
-I'd like to get started. When is the next available pickup?`;
-
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+    openWhatsApp(`Hi Jaranow! I'd like to book a car wash at 6th Avenue, Gwarinpa, Abuja.${chosen}\n\nCan you help me get started?`);
   };
 
   const handleTabChange = (tab: ServiceTab) => {
@@ -71,462 +97,115 @@ I'd like to get started. When is the next available pickup?`;
     setSearchParams({ service: tab });
   };
 
-  const paymentMethods = [
-    { name: "Bank Transfer (business account)", icon: <CreditCard className="w-5 h-5" /> },
-    { name: "Card Payment", icon: <CreditCard className="w-5 h-5" /> },
-    { name: "Mobile Wallets", icon: <Smartphone className="w-5 h-5" /> }
-  ];
-
-  const carwashOptions = [
-    {
-      name: 'Exterior Wash',
-      price: '₦2,000',
-      tagline: 'A clean, gleaming outside - quick and thorough.',
-      includes: [
-        'Full exterior hand wash',
-        'Wheels & tyres cleaned',
-        'Windows & mirrors wiped down',
-        'Dried and finished by hand'
-      ],
-      icon: <Car className="w-7 h-7 text-primary-700" />,
-      featured: false
-    },
-    {
-      name: 'Full Wash',
-      price: '₦3,000',
-      tagline: 'Interior + exterior. Inside and out, spotless.',
-      includes: [
-        'Everything in the Exterior Wash',
-        'Interior vacuum & wipe down',
-        'Dashboard & console cleaned',
-        'Mats cleaned and refreshed'
-      ],
-      icon: <Sparkles className="w-7 h-7 text-cyan-600" />,
-      featured: true
-    },
-    {
-      name: 'Vacuum Wash',
-      price: '₦4,000',
-      tagline: 'A full exterior wash with a deep interior vacuum.',
-      includes: [
-        'Full exterior hand wash',
-        'Interior machine-vacuumed throughout',
-        'Seats, carpets & boot cleaned out',
-        'Dashboard & console wiped down'
-      ],
-      icon: <Wind className="w-7 h-7 text-primary-700" />,
-      featured: false
-    }
-  ];
-
-  const washPlans: SubscriptionPlan[] = [
-    {
-      id: 'lite',
-      name: 'Lite Plan',
-      price: 14999,
-      currency: '₦',
-      washCount: 2,
-      maxClothes: 12,
-      features: [
-        'Premium Hand/Machine wash',
-        'Iron and folding included',
-        '2 washes per month',
-        'Max 12 clothes per wash',
-        'Free pickup and delivery (Pickup days: Tuesday & Thursday)',
-        'Dedicated premium support',
-        'Quality guarantee'
-      ]
-    },
-    {
-      id: 'premium',
-      name: 'Premium Plan',
-      price: 24999,
-      currency: '₦',
-      washCount: 3,
-      maxClothes: 15,
-      isPopular: true,
-      features: [
-        'Premium Hand/Machine wash',
-        'Iron and folding included',
-        '3 washes per month',
-        'Max 15 clothes per wash',
-        'Special clothing (suit, longdress, towel, duvet set, curtains)',
-        'Free pickup and delivery (Pickup days: Tuesday, Thursday & Saturday)',
-        'Dedicated premium support',
-        'Quality guarantee'
-      ]
-    }
-  ];
-
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-paper">
       <SeoTags route="/pricing" />
       <Helmet>
         <meta name="keywords" content="Jaranow pricing, car wash cost Abuja, laundry service prices Nigeria, car wash Gwarinpa" />
       </Helmet>
 
-      <Header
-        ctaLabel={activeTab === 'carwash' ? 'Book a wash' : 'Schedule pickup'}
-        onCtaClick={
-          activeTab === 'carwash'
-            ? () => handleCarwashBook()
-            : () => { window.location.href = '/laundry#pricing'; }
-        }
-      />
+      {activeTab === 'carwash' ? (
+        <Header ctaLabel="Book a wash" onCtaClick={() => handleCarwashBook()} />
+      ) : (
+        <Header ctaLabel="Schedule pickup" ctaTo="/laundry#pricing" />
+      )}
 
-      {/* Hero band (blends with the fixed header) */}
-      <section className="pt-28 pb-12 bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl heading-display text-white mb-6">
-              What It <span className="text-cyan-300">Costs</span>
-            </h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              Everything we offer, in one place - so you can pick what suits you and get on with your day.
-            </p>
+      <main>
+        <PageHero
+          eyebrow="Pricing"
+          title="What it costs."
+          intro="Everything we offer, in one place - so you can pick what suits you and get on with your day."
+        >
+          <div role="tablist" aria-label="Service" className="mt-10 inline-flex rounded-full border border-paper/15 bg-white/[0.04] p-1.5">
+            {tabs.map((tab) => {
+              const active = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  role="tab"
+                  aria-selected={active}
+                  aria-controls={`panel-${tab.id}`}
+                  onClick={() => handleTabChange(tab.id)}
+                  className={`inline-flex items-center gap-2 rounded-full px-6 py-3 font-medium transition-colors ${
+                    active ? 'bg-paper text-ink' : 'text-paper/70 hover:text-white'
+                  }`}
+                >
+                  {tab.icon}
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
+        </PageHero>
 
-          {/* Service Tabs */}
-          <div className="flex justify-center">
-            <div className="bg-white rounded-xl p-2 shadow-lg inline-flex">
-              <button
-                onClick={() => handleTabChange('carwash')}
-                className={`px-8 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center space-x-2 ${
-                  activeTab === 'carwash'
-                    ? 'bg-[#2563eb] text-white'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Car className="w-5 h-5" />
-                <span>Car Wash</span>
-              </button>
-              <button
-                onClick={() => handleTabChange('wash')}
-                className={`px-8 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center space-x-2 ${
-                  activeTab === 'wash'
-                    ? 'bg-[#2563eb] text-white'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Sparkles className="w-5 h-5" />
-                <span>Laundry Service</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+        {activeTab === 'carwash' && (
+          <section id="panel-carwash" role="tabpanel" className="py-16 sm:py-24">
+            <Container>
+              <SectionHeader
+                eyebrow="Carwash by Jaranow"
+                title="Three washes. One standard."
+                intro="Every wash is done by hand and checked before you drive off."
+                className="max-w-2xl"
+              />
 
-      {/* Pricing content */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-          {/* Car Wash Pricing */}
-          {activeTab === 'carwash' && (
-            <div>
               {/* Three cards: one column until lg, then three across. A 2-column
                   grid dangles the third card on its own row. */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
                 {carwashOptions.map((option) => (
-                  <div
-                    key={option.name}
-                    className={`relative rounded-2xl p-8 flex flex-col transition-all duration-300 hover:-translate-y-1 ${
-                      option.featured
-                        ? 'bg-gradient-to-br from-primary-700 to-primary-900 text-white shadow-2xl'
-                        : 'bg-white border border-gray-200 shadow-lg'
-                    }`}
-                  >
-                    {option.featured && (
-                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                        <span className="bg-cyan-400 text-primary-900 px-5 py-1.5 rounded-full text-sm font-semibold shadow-lg">
-                          Most popular
-                        </span>
-                      </div>
-                    )}
-
-                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 bg-white ${option.featured ? '' : 'shadow-sm'}`}>
-                      {option.icon}
-                    </div>
-
-                    <h3 className={`text-2xl font-bold mb-2 ${option.featured ? 'text-white' : 'text-gray-900'}`}>
-                      {option.name}
-                    </h3>
-                    <p className={`mb-6 ${option.featured ? 'text-white/80' : 'text-gray-600'}`}>
-                      {option.tagline}
-                    </p>
-
-                    <div className="mb-8">
-                      <span className={`text-5xl font-bold ${option.featured ? 'text-cyan-300' : 'text-primary-700'}`}>
-                        {option.price}
-                      </span>
-                      <span className={`ml-2 ${option.featured ? 'text-white/70' : 'text-gray-500'}`}>/ wash</span>
-                    </div>
-
-                    <ul className="space-y-3 mb-8 flex-grow">
-                      {option.includes.map((item, i) => (
-                        <li key={i} className="flex items-start">
-                          <Check className={`w-5 h-5 mt-0.5 mr-3 flex-shrink-0 ${option.featured ? 'text-cyan-300' : 'text-green-500'}`} />
-                          <span className={option.featured ? 'text-white/90' : 'text-gray-700'}>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <button
-                      onClick={() => handleCarwashBook(option.name)}
-                      className={`mt-auto w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
-                        option.featured
-                          ? 'bg-cyan-400 hover:bg-cyan-300 text-primary-900'
-                          : 'bg-primary-700 hover:bg-primary-800 text-white'
-                      }`}
-                    >
-                      Book {option.name}
-                    </button>
-                  </div>
+                  <WashOptionCard key={option.name} option={option} onBook={() => handleCarwashBook(option.name)} />
                 ))}
               </div>
 
-              <p className="text-center text-gray-500 mt-8 text-sm">
-                Washed by hand · Checked before you drive off · Your keys stay with you
-              </p>
-
-              {/* Location + Payment */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto mt-16">
-                <div className="bg-gradient-to-br from-primary-100 to-blue-100 rounded-2xl p-8 border border-primary-200 shadow-lg">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 text-center flex items-center justify-center space-x-2">
-                    <MapPin className="w-6 h-6 text-[#2563eb]" />
-                    <span>Where to find us</span>
-                  </h3>
-                  <p className="text-gray-700 text-center mb-2 font-semibold">6th Avenue, Gwarinpa, Abuja</p>
-                  <p className="text-gray-600 text-center text-sm">Open daily · 8:00 AM – 7:00 PM. No appointment needed - just drive in.</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-primary-100 to-blue-100 rounded-2xl p-8 border border-primary-200 shadow-lg">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6 text-center flex items-center justify-center space-x-2">
-                    <Shield className="w-6 h-6 text-[#2563eb]" />
-                    <span>How you pay</span>
-                  </h3>
-                  <div className="space-y-3">
-                    {paymentMethods.map((method, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center space-x-3 bg-white rounded-lg p-4 border border-primary-200"
-                      >
-                        <div className="text-[#2563eb]">{method.icon}</div>
-                        <span className="text-gray-700 font-medium">{method.name}</span>
-                      </div>
-                    ))}
+              <dl className="mt-6 grid gap-px overflow-hidden rounded-3xl border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-4">
+                {carwashNotes.map((note) => (
+                  <div key={note.title} className="bg-white p-6">
+                    <dt className="flex items-center gap-2 text-sm font-medium text-ink">
+                      <span className="text-primary-600">{note.icon}</span>
+                      {note.title}
+                    </dt>
+                    <dd className="mt-2 leading-relaxed text-ink/65">{note.body}</dd>
                   </div>
-                  <p className="text-sm text-gray-600 mt-4 text-center">
-                    Pay to our Jaranow business account and drive off.
-                  </p>
-                </div>
-              </div>
+                ))}
+              </dl>
+            </Container>
+          </section>
+        )}
 
-              {/* CTA */}
-              <div className="mt-12 text-center">
-                <motion.button
-                  onClick={() => handleCarwashBook()}
-                  className="bg-[#2563eb] text-white px-12 py-4 rounded-xl font-semibold text-lg hover:bg-primary-700 transition-colors shadow-lg"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Book a wash via WhatsApp
-                </motion.button>
-              </div>
-            </div>
-          )}
+        {activeTab === 'wash' && (
+          <section id="panel-wash" role="tabpanel" className="py-16 sm:py-24">
+            <Container>
+              <SectionHeader
+                eyebrow="Laundry by Jaranow"
+                title="Two plans, or pay per item."
+                intro="Collected from your door, washed, ironed and folded, and back within 48 hours of pickup."
+                className="max-w-2xl"
+              />
 
-          {/* Wash Service Pricing */}
-          {activeTab === 'wash' && (
-            <div>
-              {/* Plan Recommendation Tool */}
-              <div className="mb-16">
-                <PlanRecommendation />
-              </div>
-
-              {/* Comparison Banner */}
-              <div className="max-w-4xl mx-auto mb-16">
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 p-8 md:p-10 shadow-2xl">
-                  <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-cyan-400/20 rounded-full blur-3xl"></div>
-                  <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-blue-400/20 rounded-full blur-3xl"></div>
-
-                  <div className="relative z-10">
-                    <div className="text-center mb-6">
-                      <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                        Cared For, Down To The Last Detail
-                      </h3>
-                      <p className="text-blue-100 text-lg">
-                        sorted, treated and finished the way you'd do it yourself - if you had the time
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
-                        <div className="text-3xl font-bold text-cyan-400 mb-1">Every</div>
-                        <div className="text-white text-sm">Item Checked</div>
-                      </div>
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
-                        <div className="text-3xl font-bold text-cyan-400 mb-1">0</div>
-                        <div className="text-white text-sm">Your Effort</div>
-                      </div>
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
-                        <div className="text-3xl font-bold text-cyan-400 mb-1">100%</div>
-                        <div className="text-white text-sm">Quality</div>
-                      </div>
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/20">
-                        <div className="text-3xl font-bold text-cyan-400 mb-1">Free</div>
-                        <div className="text-white text-sm">Delivery</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Subscription Plans */}
-              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch mb-16">
-                {washPlans.map((plan) => (
-                  <div
-                    key={plan.id}
-                    className={`relative bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 ${
-                      plan.isPopular ? 'border-2 border-blue-500' : 'border border-gray-200'
-                    }`}
-                  >
-                    {plan.isPopular && (
-                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                        <span className="bg-blue-500 text-white px-6 py-2 rounded-full text-sm font-semibold shadow-lg">
-                          Most Popular
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="p-8 flex flex-col h-full">
-                      <div className="text-center mb-8">
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                        <div className="flex items-baseline justify-center">
-                          <span className="text-4xl sm:text-5xl font-bold text-gray-900">
-                            {formatCurrency(plan.price)}
-                          </span>
-                          <span className="text-gray-500 ml-2">/month</span>
-                        </div>
-                        <p className="text-gray-600 mt-2">
-                          {plan.washCount} washes • Up to {plan.maxClothes} clothes each
-                        </p>
-                      </div>
-
-                      <ul className="space-y-4 mb-8 flex-grow">
-                        {plan.features.map((feature, featureIndex) => (
-                          <li key={featureIndex} className="flex items-start">
-                            <Check className="w-5 h-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
-                            <span className="text-gray-700">{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-
-                      <div className="mt-auto">
-                        <motion.button
-                          onClick={() => handleWashPlanSelect(plan)}
-                          className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
-                            plan.isPopular
-                              ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl'
-                              : 'bg-gray-900 hover:bg-gray-800 text-white'
-                          }`}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          Get Started with {plan.name}
-                        </motion.button>
-                      </div>
-                    </div>
-                  </div>
+              <div className="mt-12 grid items-stretch gap-6 md:grid-cols-2">
+                {LAUNDRY_PLANS.map((plan) => (
+                  <PlanCard key={plan.id} plan={plan} onSelect={() => openWhatsApp(planWhatsAppMessage(plan))} />
                 ))}
               </div>
 
-              {/* Custom Pricing */}
-              <div className="max-w-4xl mx-auto">
-                <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-                  <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-8 text-center">
-                    <h3 className="text-3xl font-bold text-white mb-2">Custom Pricing</h3>
-                    <p className="text-gray-300">Pay only for what you need - simple and flexible</p>
-                  </div>
+              <div className="mt-6">
+                <CustomPricingCard onSelect={() => openWhatsApp(CUSTOM_PRICING_MESSAGE)} />
+              </div>
 
-                  <div className="p-8 md:p-12">
-                    <div className="text-center mb-8">
-                      <p className="text-gray-600 text-lg mb-4">No commitment, pay as you go</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                        <div className="bg-blue-50 rounded-xl p-6 border-2 border-blue-200">
-                          <div className="flex items-baseline justify-center mb-2">
-                            <span className="text-4xl font-bold text-blue-700">
-                              {formatCurrency(700)}
-                            </span>
-                            <span className="text-gray-600 ml-2">/item</span>
-                          </div>
-                          <p className="text-gray-700 font-semibold">Regular Items</p>
-                        </div>
-                        <div className="bg-purple-50 rounded-xl p-6 border-2 border-purple-200">
-                          <div className="flex items-baseline justify-center mb-2">
-                            <span className="text-4xl font-bold text-purple-700">
-                              {formatCurrency(2000)}
-                            </span>
-                            <span className="text-gray-600 ml-2">/item</span>
-                          </div>
-                          <p className="text-gray-700 font-semibold">Special Items</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-50 rounded-xl p-6 mb-8">
-                      <h4 className="font-bold text-gray-900 text-lg mb-4">Pricing Breakdown</h4>
-                      <div className="space-y-3">
-                        <div className="flex items-start">
-                          <div className="bg-blue-100 rounded-lg px-3 py-1 mr-4 flex-shrink-0">
-                            <span className="font-bold text-blue-700">₦700</span>
-                          </div>
-                          <div>
-                            <p className="text-gray-900 font-semibold">Regular items</p>
-                            <p className="text-gray-600 text-sm">Shirts, trousers, dresses, skirts, tops, etc.</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start">
-                          <div className="bg-purple-100 rounded-lg px-3 py-1 mr-4 flex-shrink-0">
-                            <span className="font-bold text-purple-700">₦2,000</span>
-                          </div>
-                          <div>
-                            <p className="text-gray-900 font-semibold">Special items</p>
-                            <p className="text-gray-600 text-sm">Suits, long dresses, towels, duvet sets, curtains</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <ul className="space-y-3 mb-8">
-                      {[
-                        'Premium wash, iron and folding included',
-                        'Free pickup and delivery',
-                        'No monthly commitment required',
-                        'Perfect for occasional washing needs',
-                        'Quality guarantee'
-                      ].map((feature, index) => (
-                        <li key={index} className="flex items-start">
-                          <Check className="w-5 h-5 text-green-500 mt-1 mr-3 flex-shrink-0" />
-                          <span className="text-gray-700">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <motion.button
-                      onClick={handleCustomPlanSelect}
-                      className="w-full py-4 px-6 rounded-xl font-semibold text-lg bg-gray-900 hover:bg-gray-800 text-white transition-all duration-300"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      Get Started with Custom Pricing
-                    </motion.button>
-                  </div>
+              <div className="mt-20 grid gap-12 lg:grid-cols-12">
+                <SectionHeader
+                  className="lg:col-span-4"
+                  eyebrow="Plan finder"
+                  title="Not sure which?"
+                  intro="Four quick questions and we'll point you to the option that fits."
+                />
+                <div className="lg:col-span-8">
+                  <PlanRecommendation showHeader={false} />
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      </section>
+            </Container>
+          </section>
+        )}
+      </main>
 
       <Footer />
     </div>

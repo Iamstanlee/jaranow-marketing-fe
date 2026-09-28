@@ -1,12 +1,11 @@
 import React, {forwardRef, useImperativeHandle, useState} from 'react';
 import {CheckCircle} from 'lucide-react';
+import {btn, Container, SectionHeader, WHATSAPP_NUMBER} from '../common/ui';
 import {validatePhoneNumber} from '../../utils/formatters';
 
 export interface BookingFormHandle {
     setWashType: (washType: string) => void;
 }
-
-const WHATSAPP_NUMBER = '2349038622012';
 
 const washTypes = ['Exterior Wash - ₦2,000', 'Full Wash - ₦3,000', 'Vacuum Wash - ₦4,000'];
 
@@ -113,34 +112,46 @@ Location: 6th Avenue, Gwarinpa, Abuja`;
     };
 
     const inputClasses = (field: keyof FormErrors) =>
-        `w-full rounded-xl border px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-colors ${
-            errors[field] ? 'border-red-400' : 'border-gray-300'
+        `w-full rounded-xl border bg-paper/60 px-4 py-3 text-ink placeholder-ink/35 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+            errors[field] ? 'border-red-400' : 'border-ink/15'
         }`;
 
     return (
-        <section id="booking" className="py-20 bg-gray-50">
-            <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div>
-                    <div className="text-center mb-10">
-                        <h2 className="text-4xl sm:text-5xl heading-display text-gray-900 mb-4">Book a wash</h2>
-                        <p className="text-xl text-gray-600">
-                            Tell us a few details and we'll get you booked in.
-                        </p>
-                    </div>
+        <section id="booking" className="bg-paper py-20 sm:py-28">
+            <Container className="grid gap-12 lg:grid-cols-12">
+                <div className="lg:col-span-5">
+                    <SectionHeader
+                        eyebrow="Book ahead"
+                        title="Rather know we're ready?"
+                        intro="You never need to book - but if you would like a time held for you, send us the details and we will confirm on WhatsApp."
+                    />
+                    <ol className="mt-10 space-y-4 text-ink/70">
+                        {['Fill in the form', 'WhatsApp opens with your details', 'We reply to confirm your time'].map((item, i) => (
+                            <li key={item} className="flex items-center gap-4">
+                                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-ink/15 text-sm font-medium text-ink tabular-nums">
+                                    {i + 1}
+                                </span>
+                                {item}
+                            </li>
+                        ))}
+                    </ol>
+                </div>
+
+                <div className="lg:col-span-7">
 
                     {submitted ? (
-                        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center">
-                            <div className="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center mb-6">
-                                <CheckCircle className="w-9 h-9 text-green-600"/>
+                        <div className="rounded-3xl border border-ink/10 bg-white p-8 text-center sm:p-10">
+                            <div className="w-16 h-16 mx-auto rounded-full bg-primary-50 flex items-center justify-center mb-6">
+                                <CheckCircle className="w-9 h-9 text-primary-600"/>
                             </div>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-2">You're all set!</h3>
-                            <p className="text-gray-600 mb-6">
+                            <h3 className="text-2xl font-bold tracking-tight text-ink mb-2">You're all set!</h3>
+                            <p className="text-ink/65 mb-6">
                                 We've opened WhatsApp with your booking details. Send the message and
                                 we'll confirm your slot.
                             </p>
                             <button
                                 onClick={() => setSubmitted(false)}
-                                className="text-cyan-600 font-semibold hover:underline"
+                                className="font-medium text-primary-600 underline underline-offset-4"
                             >
                                 Book another wash
                             </button>
@@ -149,10 +160,10 @@ Location: 6th Avenue, Gwarinpa, Abuja`;
                         <form
                             onSubmit={handleSubmit}
                             noValidate
-                            className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 space-y-6"
+                            className="rounded-3xl border border-ink/10 bg-white p-7 sm:p-10 grid gap-6 sm:grid-cols-2"
                         >
                             <div>
-                                <label htmlFor="name" className="block text-sm font-semibold text-gray-900 mb-2">
+                                <label htmlFor="name" className="block text-sm font-medium text-ink mb-2">
                                     Name
                                 </label>
                                 <input
@@ -172,7 +183,7 @@ Location: 6th Avenue, Gwarinpa, Abuja`;
                             </div>
 
                             <div>
-                                <label htmlFor="phone" className="block text-sm font-semibold text-gray-900 mb-2">
+                                <label htmlFor="phone" className="block text-sm font-medium text-ink mb-2">
                                     Phone number
                                 </label>
                                 <input
@@ -192,7 +203,7 @@ Location: 6th Avenue, Gwarinpa, Abuja`;
                             </div>
 
                             <div>
-                                <label htmlFor="vehicle" className="block text-sm font-semibold text-gray-900 mb-2">
+                                <label htmlFor="vehicle" className="block text-sm font-medium text-ink mb-2">
                                     Vehicle
                                 </label>
                                 <input
@@ -212,7 +223,7 @@ Location: 6th Avenue, Gwarinpa, Abuja`;
                             </div>
 
                             <div>
-                                <label htmlFor="washType" className="block text-sm font-semibold text-gray-900 mb-2">
+                                <label htmlFor="washType" className="block text-sm font-medium text-ink mb-2">
                                     Wash type
                                 </label>
                                 <select
@@ -238,8 +249,8 @@ Location: 6th Avenue, Gwarinpa, Abuja`;
                                 )}
                             </div>
 
-                            <div>
-                                <label htmlFor="preferredTime" className="block text-sm font-semibold text-gray-900 mb-2">
+                            <div className="sm:col-span-2">
+                                <label htmlFor="preferredTime" className="block text-sm font-medium text-ink mb-2">
                                     Preferred time
                                 </label>
                                 <input
@@ -261,17 +272,17 @@ Location: 6th Avenue, Gwarinpa, Abuja`;
 
                             <button
                                 type="submit"
-                                className="w-full py-4 px-6 rounded-xl font-semibold text-lg bg-primary-700 hover:bg-primary-800 text-white transition-colors shadow-lg hover:shadow-xl"
+                                className={`${btn.primary} w-full sm:col-span-2`}
                             >
                                 Book a wash
                             </button>
-                            <p className="text-center text-sm text-gray-500">
+                            <p className="text-center text-sm text-ink/50 sm:col-span-2">
                                 We'll confirm your slot on WhatsApp.
                             </p>
                         </form>
                     )}
                 </div>
-            </div>
+            </Container>
         </section>
     );
 });

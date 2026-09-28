@@ -46,8 +46,8 @@ const navLinks = [
 ];
 
 const linkClasses = (isActive: boolean) =>
-    `px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors duration-300 hover:bg-white hover:text-primary-700 ${
-        isActive ? 'bg-white/10' : ''
+    `px-3 py-2 rounded-full text-sm font-medium transition-colors duration-300 hover:text-white ${
+        isActive ? 'text-white bg-white/10' : 'text-paper/75'
     }`;
 
 const Header: React.FC<HeaderProps> = ({ctaLabel = 'Book a wash', onCtaClick, ctaTo = '/carwash', logo = 'master'}) => {
@@ -62,7 +62,7 @@ const Header: React.FC<HeaderProps> = ({ctaLabel = 'Book a wash', onCtaClick, ct
     }, []);
 
     const renderCta = (fullWidth = false) => {
-        const classes = `${fullWidth ? 'block w-full text-left' : ''} px-6 py-2 rounded-lg font-semibold text-sm bg-cyan-400 hover:bg-cyan-300 text-primary-900 transition-colors duration-300`;
+        const classes = `${fullWidth ? 'block w-full text-center py-3' : 'py-2.5'} px-5 rounded-full font-medium text-sm bg-primary-600 hover:bg-primary-500 text-white transition-colors duration-300`;
 
         if (onCtaClick) {
             return (
@@ -88,7 +88,7 @@ const Header: React.FC<HeaderProps> = ({ctaLabel = 'Book a wash', onCtaClick, ct
     return (
         <nav
             className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
-                isScrolled ? 'bg-primary-900 shadow-lg' : 'bg-transparent'
+                isScrolled || isMobileMenuOpen ? 'bg-ink/95 backdrop-blur border-b border-paper/10' : 'bg-transparent'
             }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,7 +98,7 @@ const Header: React.FC<HeaderProps> = ({ctaLabel = 'Book a wash', onCtaClick, ct
                     </Link>
 
                     {/* Desktop nav */}
-                    <div className="hidden md:flex items-center space-x-2">
+                    <div className="hidden md:flex items-center space-x-1">
                         {navLinks.map((link) => (
                             <NavLink key={link.to} to={link.to} className={({isActive}) => linkClasses(isActive)}>
                                 {link.label}
@@ -113,6 +113,7 @@ const Header: React.FC<HeaderProps> = ({ctaLabel = 'Book a wash', onCtaClick, ct
                         className="md:hidden p-2 rounded-lg text-white transition-colors"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         aria-label="Toggle menu"
+                        aria-expanded={isMobileMenuOpen}
                     >
                         {isMobileMenuOpen ? <X size={24}/> : <Menu size={24}/>}
                     </button>
@@ -123,28 +124,28 @@ const Header: React.FC<HeaderProps> = ({ctaLabel = 'Book a wash', onCtaClick, ct
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <motion.div
-                        className="md:hidden bg-white shadow-lg"
+                        className="md:hidden border-t border-paper/10"
                         initial={{opacity: 0, y: -20}}
                         animate={{opacity: 1, y: 0}}
                         exit={{opacity: 0, y: -20}}
                         transition={{duration: 0.2}}
                     >
-                        <div className="px-4 pt-2 pb-4 space-y-1">
+                        <div className="px-4 pt-3 pb-5 space-y-1">
                             {navLinks.map((link) => (
                                 <NavLink
                                     key={link.to}
                                     to={link.to}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className={({isActive}) =>
-                                        `block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                                            isActive ? 'bg-gray-100 text-primary-700' : 'text-gray-700 hover:bg-gray-50 hover:text-primary-700'
+                                        `block px-3 py-3 rounded-xl text-base font-medium transition-colors ${
+                                            isActive ? 'bg-white/10 text-white' : 'text-paper/75 hover:bg-white/5 hover:text-white'
                                         }`
                                     }
                                 >
                                     {link.label}
                                 </NavLink>
                             ))}
-                            <div className="pt-2">{renderCta(true)}</div>
+                            <div className="pt-3">{renderCta(true)}</div>
                         </div>
                     </motion.div>
                 )}

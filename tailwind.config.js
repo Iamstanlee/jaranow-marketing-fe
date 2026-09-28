@@ -6,6 +6,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Brand neutrals
+        ink: '#0E1526',
+        paper: '#F2F5FB',
         primary: {
           50: '#eff6ff',
           100: '#dbeafe',

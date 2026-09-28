@@ -1,108 +1,39 @@
 import React from 'react';
-import {motion} from 'framer-motion';
-import { 
-  Clock,
-  Truck,
-  Gem,
-  Handshake,
-  Shield,
-  Smartphone
-} from 'lucide-react';
+import {Container, NumberedGrid, SectionHeader} from '../common/ui';
 
+// What a subscriber actually gets. The "3-5 hours saved", "99.9% satisfaction",
+// money-back and 24/7 claims that used to sit here were never confirmed.
 const benefits = [
   {
-    icon: Clock,
-    title: 'Save Time',
-    description: 'Get back 3-5 hours every week. Focus on what matters most while we handle your laundry.',
-    stats: '3-5 hours saved weekly'
+    title: 'Collected and returned',
+    body: 'We pick up from your door on your pickup days and bring everything back within 48 hours - washed, dried, ironed and folded.',
   },
   {
-    icon: Truck,
-    title: 'Doorstep Service',
-    description: 'Free pickup and delivery right to your doorstep. Schedule at your convenience.',
-    stats: 'Free pickup & delivery'
+    title: 'Sorted with care',
+    body: 'Clothes are sorted by colour and fabric, and stains are treated before anything goes in. Tell us about anything delicate and we handle it accordingly.',
   },
   {
-    icon: Gem,
-    title: 'Premium Quality',
-    description: 'Professional-grade machines, premium detergents, and expert care for your clothes.',
-    stats: '99.9% customer satisfaction'
+    title: 'Checked item by item',
+    body: 'Nothing comes back to you until it has been looked over. If it is not right, it does not leave us.',
   },
   {
-    icon: Handshake,
-    title: 'Integrity',
-    description: 'We tell you what we can do and then we do it. If something goes wrong, you hear it from us first.',
-    stats: 'We do what we said we would'
+    title: 'Straight with you',
+    body: 'We tell you what we can do and then we do it. If something goes wrong, you hear it from us first.',
   },
-  {
-    icon: Shield,
-    title: 'Guaranteed Care',
-    description: 'Damage protection, quality guarantee, and dedicated customer support.',
-    stats: '100% money-back guarantee'
-  },
-  {
-    icon: Smartphone,
-    title: 'Easy To Arrange',
-    description: 'Book a pickup, change a date or tell us about a stubborn stain - all on WhatsApp. No app to download, no account to create.',
-    stats: 'Updates at every stage'
-  }
 ];
 
 const Benefits: React.FC = () => {
   return (
-    <section className="py-20 sm:py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl text-gray-900 mb-4 heading-display">
-            Why Choose <span className="text-primary-600">Jaranow?</span>
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            More than just laundry service - we're your time-saving, quality-focused partner 
-            for a cleaner, more convenient lifestyle.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {benefits.map((benefit, index) => {
-            const IconComponent = benefit.icon;
-            return (
-              <motion.div key={index} className="bg-gray-50 rounded-2xl p-8 hover:bg-white hover:shadow-lg transition-all duration-300" transition={{ duration: 0.8, delay: index * 0.1 }} whileHover={{ y: -5 }}>
-                <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6">
-                  <IconComponent className="w-8 h-8 text-primary-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{benefit.title}</h3>
-                <p className="text-gray-600 mb-4 leading-relaxed">{benefit.description}</p>
-                <div className="text-sm font-semibold text-primary-600 bg-primary-50 rounded-lg px-3 py-2 inline-block">
-                  {benefit.stats}
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        <div className="mt-16 text-center">
-          <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-4">Ready to Experience the Difference?</h3>
-            <p className="text-blue-100 mb-6">
-              Join thousands of satisfied Nigerians who've made the smart switch to Jaranow.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-cyan-400">48hrs</div>
-                <div className="text-blue-100 text-sm">Typical turnaround</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-cyan-400">5-Star</div>
-                <div className="text-blue-100 text-sm">Average rating</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-cyan-400">24/7</div>
-                <div className="text-blue-100 text-sm">Customer support</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <section id="benefits" className="bg-paper py-20 sm:py-28">
+      <Container className="grid gap-12 lg:grid-cols-12">
+        <SectionHeader
+          className="lg:col-span-4"
+          eyebrow="What you get"
+          title="Your week, minus the laundry."
+          intro="Arrange everything on WhatsApp - a pickup, a change of date, a stubborn stain. No app to download, no account to create."
+        />
+        <NumberedGrid items={benefits} className="lg:col-span-8" />
+      </Container>
     </section>
   );
 };

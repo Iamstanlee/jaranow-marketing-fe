@@ -1,90 +1,72 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import {motion} from 'framer-motion';
+import {ArrowRight, CalendarDays, Clock, MessageCircle, Shirt} from 'lucide-react';
+import {fadeInUp, staggerContainer} from '../../utils/animations';
+import {btn, Container, Eyebrow, FactPanel, InkBackdrop} from '../common/ui';
 
 interface HeroProps {
   onSchedulePickup: () => void;
+  onFindPlan?: () => void;
 }
 
-const Hero: React.FC<HeroProps> = ({ onSchedulePickup }) => {
-  return (
-    <section className="relative min-h-svh flex items-center bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 overflow-hidden">
-      <div className="absolute inset-0 bg-black/10"></div>
+const facts = [
+  {icon: <CalendarDays size={17} />, label: 'Pickup days', value: 'Tuesday & Saturday · Thursday too on Premium'},
+  {icon: <Clock size={17} />, label: 'Turnaround', value: 'Back within 48 hours of pickup'},
+  {icon: <Shirt size={17} />, label: 'Included', value: 'Washed, dried, ironed and folded'},
+  {icon: <MessageCircle size={17} />, label: 'Arranged on', value: 'WhatsApp - no app, no account'},
+];
 
-      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16 sm:pt-32 sm:pb-20 md:pb-24 lg:pb-32">
-        <div className="text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="space-y-8"
-          >
-            <motion.h1 
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight heading-display"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
+const Hero: React.FC<HeroProps> = ({ onSchedulePickup, onFindPlan }) => {
+  return (
+    <section className="relative overflow-hidden bg-ink text-white">
+      <InkBackdrop />
+
+      <Container className="relative pt-32 pb-20 sm:pt-40 lg:pb-28">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="grid gap-14 lg:grid-cols-12 lg:items-end lg:gap-12"
+        >
+          <div className="lg:col-span-7">
+            <motion.div variants={fadeInUp}>
+              <Eyebrow tone="dark">Laundry by Jaranow · Abuja</Eyebrow>
+            </motion.div>
+
+            <motion.h1
+              variants={fadeInUp}
+              className="heading-display mt-6 text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-7xl"
             >
-              Never Worry About
-              <br />
-              <span className="text-cyan-400">Laundry Again</span>
+              Laundry, off your list<span className="text-primary-600">.</span>
             </motion.h1>
-            
-            <motion.p 
-              className="max-w-3xl mx-auto text-xl sm:text-2xl text-blue-100 leading-relaxed"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              Premium subscription-based laundry service with doorstep pickup and delivery. 
-              Professional cleaning, perfect folding, all at your convenience.
+
+            <motion.p variants={fadeInUp} className="mt-7 max-w-xl text-lg leading-relaxed text-paper/75 sm:text-xl">
+              We collect from your door, sort, wash, iron and fold, and bring it back within 48 hours. Every item is
+              checked before it leaves us.
             </motion.p>
 
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-            >
-              <motion.button
-                onClick={onSchedulePickup}
-                className="w-full sm:w-auto bg-cyan-400 hover:bg-cyan-500 text-primary-900 font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Schedule Laundry Pickup
-              </motion.button>
-              
-              <div className="text-blue-100 text-sm">
-                <span className="font-semibold">🚀 Launched in Abuja</span>
-                <br />
-                Nigeria's Capital City
-              </div>
+            <motion.div variants={fadeInUp} className="mt-10 flex flex-col gap-3 sm:flex-row">
+              <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
+                <button onClick={onSchedulePickup} className={`${btn.primary} group w-full`}>
+                  See the plans
+                  <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5" />
+                </button>
+              </motion.div>
+              {onFindPlan && (
+                <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
+                  <button onClick={onFindPlan} className={`${btn.ghostOnDark} w-full`}>
+                    Help me choose
+                  </button>
+                </motion.div>
+              )}
             </motion.div>
+          </div>
 
-            <motion.div 
-              className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-16 pt-8 border-t border-blue-400/20"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-cyan-400">2-4x</div>
-                <div className="text-blue-100">Faster than DIY</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-cyan-400">100%</div>
-                <div className="text-blue-100">Professional Quality</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-cyan-400">Free</div>
-                <div className="text-blue-100">Pickup & Delivery</div>
-              </div>
-            </motion.div>
+          <motion.div variants={fadeInUp} className="lg:col-span-5">
+            <FactPanel facts={facts} />
           </motion.div>
-        </div>
-      </div>
-
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+        </motion.div>
+      </Container>
     </section>
   );
 };

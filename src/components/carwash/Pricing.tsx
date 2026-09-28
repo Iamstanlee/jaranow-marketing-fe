@@ -1,149 +1,112 @@
 import React from 'react';
-import {Car, Check, Sparkles, Wind} from 'lucide-react';
+import {Check} from 'lucide-react';
+import {btn, Container, Lift, SectionHeader} from '../common/ui';
 
-interface WashOption {
+export interface WashOption {
     name: string;
     price: string;
     tagline: string;
     includes: string[];
-    icon: React.ReactNode;
     featured?: boolean;
 }
+
+/** One wash, stated plainly. The featured card is set on Ink rather than badged. */
+export const WashOptionCard: React.FC<{ option: WashOption; onBook: () => void }> = ({option, onBook}) => {
+    const dark = option.featured;
+    return (
+        <Lift className="h-full">
+            <article
+                className={`flex h-full flex-col rounded-3xl p-8 sm:p-9 ${
+                    dark ? 'bg-ink text-white' : 'border border-ink/10 bg-white'
+                }`}
+            >
+                <h3 className={`text-2xl font-bold tracking-tight ${dark ? 'text-white' : 'text-ink'}`}>{option.name}</h3>
+                <p className={`mt-2 ${dark ? 'text-paper/65' : 'text-ink/60'}`}>{option.tagline}</p>
+
+                <p className="mt-8 flex items-baseline gap-2">
+                    <span className={`text-5xl font-bold tracking-tight ${dark ? 'text-white' : 'text-ink'}`}>
+                        {option.price}
+                    </span>
+                    <span className={dark ? 'text-paper/55' : 'text-ink/50'}>per wash</span>
+                </p>
+
+                <ul className={`mt-8 flex-1 space-y-3 border-t pt-8 ${dark ? 'border-paper/10' : 'border-ink/10'}`}>
+                    {option.includes.map((item) => (
+                        <li key={item} className="flex items-start gap-3">
+                            <Check size={18} className={`mt-0.5 flex-shrink-0 ${dark ? 'text-primary-400' : 'text-primary-600'}`}/>
+                            <span className={dark ? 'text-paper/85' : 'text-ink/75'}>{item}</span>
+                        </li>
+                    ))}
+                </ul>
+
+                <button onClick={onBook} className={`mt-10 w-full ${dark ? btn.primary : btn.ink}`}>
+                    Book {option.name}
+                </button>
+            </article>
+        </Lift>
+    );
+};
 
 interface PricingProps {
     onBook?: (washType: string) => void;
 }
 
+const options: WashOption[] = [
+    {
+        name: 'Exterior Wash',
+        price: '₦2,000',
+        tagline: 'The outside, washed and finished by hand.',
+        includes: [
+            'Full exterior hand wash',
+            'Wheels & tyres cleaned',
+            'Windows & mirrors wiped down',
+            'Dried and finished by hand',
+        ],
+    },
+    {
+        name: 'Full Wash',
+        price: '₦3,000',
+        tagline: 'Inside and out, cleaned properly.',
+        includes: [
+            'Everything in the Exterior Wash',
+            'Interior vacuum & wipe down',
+            'Dashboard & console cleaned',
+            'Mats cleaned and refreshed',
+        ],
+        featured: true,
+    },
+    {
+        name: 'Vacuum Wash',
+        price: '₦4,000',
+        tagline: 'A full exterior wash with a deep interior vacuum.',
+        includes: [
+            'Full exterior hand wash',
+            'Interior machine-vacuumed throughout',
+            'Seats, carpets & boot cleaned out',
+            'Dashboard & console wiped down',
+        ],
+    },
+];
+
 const Pricing: React.FC<PricingProps> = ({onBook}) => {
-    const options: WashOption[] = [
-        {
-            name: 'Exterior Wash',
-            price: '₦2,000',
-            tagline: 'A clean, gleaming outside - quick and thorough.',
-            includes: [
-                'Full exterior hand wash',
-                'Wheels & tyres cleaned',
-                'Windows & mirrors wiped down',
-                'Dried and finished by hand',
-            ],
-            icon: <Car size={28} className="text-primary-700"/>,
-        },
-        {
-            name: 'Full Wash',
-            price: '₦3,000',
-            tagline: 'Interior + exterior. Inside and out, spotless.',
-            includes: [
-                'Everything in the Exterior Wash',
-                'Interior vacuum & wipe down',
-                'Dashboard & console cleaned',
-                'Mats cleaned and refreshed',
-            ],
-            icon: <Sparkles size={28} className="text-cyan-600"/>,
-            featured: true,
-        },
-        {
-            name: 'Vacuum Wash',
-            price: '₦4,000',
-            tagline: 'A full exterior wash with a deep interior vacuum.',
-            includes: [
-                'Full exterior hand wash',
-                'Interior machine-vacuumed throughout',
-                'Seats, carpets & boot cleaned out',
-                'Dashboard & console wiped down',
-            ],
-            icon: <Wind size={28} className="text-primary-700"/>,
-        },
-    ];
-
     return (
-        <section id="pricing" className="py-20 bg-white">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div>
-                    <div className="text-center mb-6">
-                        <h2 className="text-4xl sm:text-5xl heading-display text-gray-900 mb-4">
-                            Choose your wash
-                        </h2>
-                        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                            Three ways to have your car cared for. Every one washed by hand and
-                            finished to the same standard.
-                        </p>
-                    </div>
+        <section id="pricing" className="bg-paper py-20 sm:py-28">
+            <Container>
+                <SectionHeader
+                    eyebrow="The washes"
+                    title="Choose your wash."
+                    intro="Three ways to have your car cared for. Every one washed by hand and finished to the same standard."
+                    className="max-w-2xl"
+                />
 
-                    {/* Three cards: one column until lg, then three across. A 2-column
-                        grid dangles the third card on its own row. */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-5xl mx-auto mt-12">
-                        {options.map((option) => (
-                            <div key={option.name} className={`relative rounded-2xl p-8 flex flex-col transition-all duration-300 hover:-translate-y-1 ${
-                                    option.featured
-                                        ? 'bg-gradient-to-br from-primary-700 to-primary-900 text-white shadow-2xl'
-                                        : 'bg-gray-50 border border-gray-200 shadow-lg'
-                                }`}>
-                                {option.featured && (
-                                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                                        <span className="bg-cyan-400 text-primary-900 px-5 py-1.5 rounded-full text-sm font-semibold shadow-lg">
-                                            Most popular
-                                        </span>
-                                    </div>
-                                )}
-
-                                <div
-                                    className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 ${
-                                        option.featured ? 'bg-white' : 'bg-white shadow-sm'
-                                    }`}
-                                >
-                                    {option.icon}
-                                </div>
-
-                                <h3 className={`text-2xl font-bold mb-2 ${option.featured ? 'text-white' : 'text-gray-900'}`}>
-                                    {option.name}
-                                </h3>
-                                <p className={`mb-6 ${option.featured ? 'text-white/80' : 'text-gray-600'}`}>
-                                    {option.tagline}
-                                </p>
-
-                                <div className="mb-8">
-                                    <span className={`text-5xl font-bold ${option.featured ? 'text-cyan-300' : 'text-primary-700'}`}>
-                                        {option.price}
-                                    </span>
-                                    <span className={`ml-2 ${option.featured ? 'text-white/70' : 'text-gray-500'}`}>
-                                        / wash
-                                    </span>
-                                </div>
-
-                                <ul className="space-y-3 mb-8 flex-grow">
-                                    {option.includes.map((item, i) => (
-                                        <li key={i} className="flex items-start">
-                                            <Check
-                                                className={`w-5 h-5 mt-0.5 mr-3 flex-shrink-0 ${
-                                                    option.featured ? 'text-cyan-300' : 'text-green-500'
-                                                }`}
-                                            />
-                                            <span className={option.featured ? 'text-white/90' : 'text-gray-700'}>
-                                                {item}
-                                            </span>
-                                        </li>
-                                    ))}
-                                </ul>
-
-                                <button
-                                    onClick={() => onBook?.(option.name)}
-                                    className={`mt-auto w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
-                                        option.featured
-                                            ? 'bg-cyan-400 hover:bg-cyan-300 text-primary-900'
-                                            : 'bg-primary-700 hover:bg-primary-800 text-white'
-                                    }`}
-                                >
-                                    Book {option.name}
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-
-                    <p className="text-center text-gray-500 mt-10 text-sm">
-                        Washed by hand · Checked before you drive off · Your keys stay with you
-                    </p>
+                {/* Three cards: one column until lg, then three across. A 2-column
+                    grid dangles the third card on its own row. */}
+                <div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    {options.map((option) => (
+                        <WashOptionCard key={option.name} option={option} onBook={() => onBook?.(option.name)}/>
+                    ))}
                 </div>
-            </div>
+            </Container>
         </section>
     );
 };

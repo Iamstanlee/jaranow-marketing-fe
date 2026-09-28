@@ -3,9 +3,10 @@ import { Helmet } from 'react-helmet-async';
 import Header from '../components/common/Header';
 import Hero from '../components/home/Hero';
 import Services from '../components/home/Services';
-import HowItWorks from '../components/home/HowItWorks';
+import Standard from '../components/home/Standard';
 import Testimonials from '../components/home/Testimonials';
 import FAQ from '../components/home/FAQ';
+import ClosingCta from '../components/home/ClosingCta';
 import Footer from '../components/common/Footer';
 import SeoTags from '../seo/SeoTags';
 
@@ -74,13 +75,16 @@ const Home: React.FC = () => {
         </script>
       </Helmet>
 
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-paper">
         <Header />
-        <Hero />
-        <Services />
-        <HowItWorks />
-        <Testimonials />
-        <FAQ />
+        <main>
+          <Hero />
+          <Standard />
+          <Services />
+          <Testimonials />
+          <FAQ />
+          <ClosingCta />
+        </main>
         <Footer />
       </div>
     </>

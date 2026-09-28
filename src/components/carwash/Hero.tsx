@@ -1,71 +1,69 @@
 import React from 'react';
 import {motion} from 'framer-motion';
-import {ArrowRight, MapPin} from 'lucide-react';
+import {ArrowRight, CalendarCheck, Clock, KeyRound, MapPin} from 'lucide-react';
 import {fadeInUp, staggerContainer} from '../../utils/animations';
+import {btn, Container, Eyebrow, FactPanel, InkBackdrop} from '../common/ui';
 
 interface HeroProps {
     onBook?: () => void;
 }
 
+const facts = [
+    {icon: <MapPin size={17}/>, label: 'Where', value: '6th Avenue, Gwarinpa, Abuja'},
+    {icon: <Clock size={17}/>, label: 'When', value: 'Open daily, 8am–7pm'},
+    {icon: <CalendarCheck size={17}/>, label: 'Booking', value: 'No appointment needed - just drive in'},
+    {icon: <KeyRound size={17}/>, label: 'Your car', value: 'Professionally cared for and washed properly'},
+];
+
 const Hero: React.FC<HeroProps> = ({onBook}) => {
     return (
-        <section
-            className="relative min-h-svh flex items-center justify-center bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 overflow-hidden">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-10">
-                <div className="absolute inset-0" style={{
-                    backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-                    backgroundSize: '40px 40px'
-                }}></div>
-            </div>
+        <section className="relative overflow-hidden bg-ink text-white">
+            <InkBackdrop/>
 
-            {/* Soft accent glows */}
-            <div className="absolute top-24 right-10 w-72 h-72 bg-cyan-400 rounded-full mix-blend-screen filter blur-3xl opacity-20"></div>
-            <div className="absolute bottom-16 left-10 w-72 h-72 bg-primary-400 rounded-full mix-blend-screen filter blur-3xl opacity-20"></div>
-
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
+            <Container className="relative pt-32 pb-20 sm:pt-40 lg:pb-28">
                 <motion.div
                     variants={staggerContainer}
                     initial="hidden"
                     animate="show"
-                    className="max-w-4xl mx-auto text-center"
+                    className="grid gap-14 lg:grid-cols-12 lg:items-end lg:gap-12"
                 >
-                    {/* Headline */}
-                    <motion.h1
-                        variants={fadeInUp}
-                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl heading-display text-white mb-6 leading-tight"
-                    >
-                        Your car, handled.{' '}
-                        <span className="text-cyan-300">You don't lift a finger.</span>
-                    </motion.h1>
+                    <div className="lg:col-span-7">
+                        <motion.div variants={fadeInUp}>
+                            <Eyebrow tone="dark">Carwash by Jaranow · Gwarinpa</Eyebrow>
+                        </motion.div>
 
-                    {/* Subheadline */}
-                    <motion.p
-                        variants={fadeInUp}
-                        className="text-lg sm:text-xl md:text-2xl text-white/90 mb-10 max-w-2xl mx-auto leading-relaxed"
-                    >
-                        Drive in, we wash, you drive off. Trained hands, obsessive detail, every single time.
-                    </motion.p>
-
-                    {/* CTA */}
-                    <motion.div variants={fadeInUp} className="flex justify-center mb-8">
-                        <button
-                            onClick={onBook}
-                            className="group px-8 py-4 bg-cyan-400 text-primary-900 rounded-xl font-bold text-lg hover:bg-cyan-300 transition-all shadow-xl hover:shadow-2xl hover:scale-105 flex items-center justify-center space-x-2"
+                        <motion.h1
+                            variants={fadeInUp}
+                            className="heading-display mt-6 text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-7xl"
                         >
-                            <span>Book a wash</span>
-                            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform"/>
-                        </button>
-                    </motion.div>
+                            Your car, handled<span className="text-primary-600">.</span>
+                        </motion.h1>
 
-                    {/* Location line */}
-                    <motion.div variants={fadeInUp}
-                                className="inline-flex items-center space-x-2 text-white/80">
-                        <MapPin size={18} className="text-cyan-300"/>
-                        <span className="text-sm sm:text-base font-medium">6th Avenue, Gwarinpa, Abuja</span>
+                        <motion.p variants={fadeInUp} className="mt-7 max-w-xl text-lg leading-relaxed text-paper/75 sm:text-xl">
+                            Drive in, we wash it by hand, you drive off. A team trained to look twice, and a car that is
+                            checked before the keys go back in your hand.
+                        </motion.p>
+
+                        <motion.div variants={fadeInUp} className="mt-10 flex flex-col gap-3 sm:flex-row">
+                            <motion.div whileHover={{y: -2}} whileTap={{scale: 0.98}}>
+                                <button onClick={onBook} className={`${btn.primary} group w-full`}>
+                                    Book a wash
+                                    <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5"/>
+                                </button>
+                            </motion.div>
+                            <motion.div whileHover={{y: -2}} whileTap={{scale: 0.98}}>
+                                <a href="#pricing" className={`${btn.ghostOnDark} w-full`}>
+                                    See the washes
+                                </a>
+                            </motion.div>
+                        </motion.div>
+                    </div>
+
+                    <motion.div variants={fadeInUp} className="lg:col-span-5">
+                        <FactPanel facts={facts}/>
                     </motion.div>
                 </motion.div>
-            </div>
+            </Container>
         </section>
     );
 };

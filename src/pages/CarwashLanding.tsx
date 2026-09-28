@@ -26,7 +26,7 @@ const CarwashLanding: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-paper">
             <SeoTags route="/carwash"/>
             <Helmet>
                 <meta

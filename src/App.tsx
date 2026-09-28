@@ -1,12 +1,11 @@
 import React, { Suspense } from 'react';
-import {BrowserRouter as Router, Navigate, Route, Routes} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 
 const Home = React.lazy(() => import('./pages/Home'));
 const CarwashLanding = React.lazy(() => import('./pages/CarwashLanding'));
 const WashLanding = React.lazy(() => import('./pages/WashLanding'));
 const WashRecommendation = React.lazy(() => import('./pages/WashRecommendation'));
-const Deck = React.lazy(() => import("./pages/Deck"));
 const Pricing = React.lazy(() => import('./pages/Pricing'));
 // Named so the build can find its chunk by filename and preload it (and its firebase and
 // vendor siblings) from build/__/book/index.html — see scripts/prerender-meta.js. Without
@@ -34,11 +33,7 @@ function App() {
                     <Route path="/carwash" element={<CarwashLanding/>}/>
                     <Route path="/laundry" element={<WashLanding/>}/>
                     <Route path="/laundry/recommendation" element={<WashRecommendation/>}/>
-                    {/* Legacy /wash routes redirect to /laundry */}
-                    <Route path="/wash" element={<Navigate to="/laundry" replace/>}/>
-                    <Route path="/wash/recommendation" element={<Navigate to="/laundry/recommendation" replace/>}/>
                     <Route path="/pricing" element={<Pricing/>}/>
-                    <Route path="/pitch-deck" element={<Deck/>}/>
                     <Route path="__/book" element={<Bookkeeping/>}/>
                 </Routes>
               </Suspense>

@@ -36,13 +36,13 @@ const serviceLinks = [
 
 const Footer: React.FC = () => {
     return (
-        <footer className="bg-gray-900 text-white">
+        <footer className="bg-ink text-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
                     {/* Brand */}
                     <div>
                         <img src="/brand/jaranow-logo-white.svg" alt="Jaranow - Convenience as a Service" className="h-12 w-auto mb-5"/>
-                        <p className="text-gray-400 leading-relaxed mb-6">
+                        <p className="text-paper/60 leading-relaxed mb-6">
                             Convenience as a Service. From hand car washing to premium laundry care,
                             Jaranow brings attention to detail, care and integrity to your day.
                         </p>
@@ -53,7 +53,7 @@ const Footer: React.FC = () => {
                                     href={link.href}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-gray-400 hover:text-cyan-400 transition-colors duration-300"
+                                    className="text-paper/50 hover:text-white transition-colors duration-300"
                                     aria-label={link.name}
                                 >
                                     <BrandMark mark={link.mark}/>
@@ -64,17 +64,17 @@ const Footer: React.FC = () => {
 
                     {/* Services */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-4">Services</h3>
+                        <h3 className="text-xs font-medium uppercase tracking-[0.2em] text-paper/50 mb-5">Services</h3>
                         <ul className="space-y-2">
                             {serviceLinks.map((link) => (
                                 <li key={link.name}>
-                                    <Link to={link.to} className="text-gray-400 hover:text-white transition-colors duration-300">
+                                    <Link to={link.to} className="text-paper/60 hover:text-white transition-colors duration-300">
                                         {link.name}
                                     </Link>
                                 </li>
                             ))}
                             <li>
-                                <Link to="/" className="text-gray-400 hover:text-white transition-colors duration-300">
+                                <Link to="/" className="text-paper/60 hover:text-white transition-colors duration-300">
                                     All Services
                                 </Link>
                             </li>
@@ -83,24 +83,24 @@ const Footer: React.FC = () => {
 
                     {/* Support */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-4">Get in touch</h3>
-                        <ul className="space-y-3 text-gray-400">
+                        <h3 className="text-xs font-medium uppercase tracking-[0.2em] text-paper/50 mb-5">Get in touch</h3>
+                        <ul className="space-y-3 text-paper/60">
                             <li>
                                 <a href={`tel:+${phoneNumber}`} className="flex items-center space-x-3 hover:text-white transition-colors">
-                                    <Phone className="w-5 h-5 flex-shrink-0 text-cyan-400"/>
+                                    <Phone className="w-5 h-5 flex-shrink-0 text-primary-400"/>
                                     <span>{displayPhone}</span>
                                 </a>
                             </li>
                             <li>
                                 <a href={`https://wa.me/${phoneNumber}`} target="_blank" rel="noopener noreferrer"
                                    className="flex items-center space-x-3 hover:text-white transition-colors">
-                                    <BrandMark mark="whatsapp" className="w-5 h-5 flex-shrink-0 text-cyan-400"/>
+                                    <BrandMark mark="whatsapp" className="w-5 h-5 flex-shrink-0 text-primary-400"/>
                                     <span>WhatsApp</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="mailto:support@jaranow.com" className="flex items-center space-x-3 hover:text-white transition-colors">
-                                    <Mail className="w-5 h-5 flex-shrink-0 text-cyan-400"/>
+                                    <Mail className="w-5 h-5 flex-shrink-0 text-primary-400"/>
                                     <span>support@jaranow.com</span>
                                 </a>
                             </li>
@@ -109,14 +109,14 @@ const Footer: React.FC = () => {
 
                     {/* Visit us */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-4">Visit us</h3>
-                        <ul className="space-y-3 text-gray-400">
+                        <h3 className="text-xs font-medium uppercase tracking-[0.2em] text-paper/50 mb-5">Visit us</h3>
+                        <ul className="space-y-3 text-paper/60">
                             <li className="flex items-start space-x-3">
-                                <MapPin className="w-5 h-5 flex-shrink-0 text-cyan-400"/>
+                                <MapPin className="w-5 h-5 flex-shrink-0 text-primary-400"/>
                                 <span>6th Avenue, Gwarinpa, Abuja</span>
                             </li>
                             <li className="flex items-start space-x-3">
-                                <Clock className="w-5 h-5 flex-shrink-0 text-cyan-400"/>
+                                <Clock className="w-5 h-5 flex-shrink-0 text-primary-400"/>
                                 <span>Open daily · 8:00 AM – 7:00 PM</span>
                             </li>
                         </ul>
@@ -124,9 +124,9 @@ const Footer: React.FC = () => {
                 </div>
             </div>
 
-            <div className="border-t border-gray-800">
+            <div className="border-t border-paper/10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 gap-3">
+                    <div className="flex flex-col md:flex-row justify-between items-center text-sm text-paper/60 gap-3">
                         <div>© {new Date().getFullYear()} Beanslabs Technologies. All rights reserved.</div>
                         <div className="flex items-center space-x-2">
                             <span>Part of the Jaranow family</span>

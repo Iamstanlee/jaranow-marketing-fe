@@ -59,7 +59,17 @@ normalise them.
 ### Styling
 
 Tailwind. Primary Blue `#2563eb`, Ink `#0E1526`, Paper `#F2F5FB` — blue-biased
-neutrals, not plain grey.
+neutrals, not plain grey. `ink` and `paper` are Tailwind colours; blue is the
+only accent (no cyan, green or purple — §4.2).
+
+Page sections are built from `components/common/ui.tsx` (`SectionHeader`,
+`PageHero`, `FactPanel`, `NumberedGrid`, `StepRow`, `TestimonialGrid`,
+`FaqList`, `btn.*`, `openWhatsApp`). Use them rather than re-styling a section
+by hand, so every page stays one system. Sections alternate Ink / Paper / white.
+
+Laundry plans are defined once, as `LAUNDRY_PLANS` in
+`wash/PricingPlans.tsx`; `/pricing` imports them along with `PlanCard` and
+`CustomPricingCard`.
 
 ### Animation
 
@@ -225,6 +235,14 @@ is `node brand/gen-X.js && brand/rasterize-X.sh`.
   resample (`gen-appicon.js`). Above, author at half scale and shoot with
   `--force-device-scale-factor=2` (the `dsf` column in `sizes.txt`, used by the
   40ft bay back wall). Dropping the `dsf` column silently halves resolution.
+- **Chrome will not *paint* a surface that wide either, and fails silently** —
+  the PNG is the right size with artwork in a band at the top left and flat
+  background everywhere else. The surface is measured in *device* pixels, so
+  `dsf` moves this ceiling rather than clearing it. Past `PAINT_MAX` the page is
+  emitted as tiles (`<base>.t0.html`…) and rejoined after rasterizing by
+  `brand/stitch-png.js`; `gen-bay.js` and `rasterize-bay.sh` are the worked
+  example. Always eyeball a panel wider than ~12,000px — a part-painted file
+  looks like a successful run.
 - **Type is sized from viewing distance, not by eye** — roughly 25mm of cap
   height per 3m of comfortable reading.
 

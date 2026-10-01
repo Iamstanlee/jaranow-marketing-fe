@@ -25,6 +25,7 @@ import {CARWASH_PRICE_LIST} from '../data/carwashPrices';
 import {fadeInUp, staggerContainer} from '../utils/animations';
 import {formatCurrency, scrollToElement} from '../utils/formatters';
 import {useLandingScroll} from '../utils/useLandingScroll';
+import {trackLead} from '../utils/metaPixel';
 import SeoTags from '../seo/SeoTags';
 
 /* Rug cleaning with pickup and delivery. Prices come from the same data as the
@@ -105,8 +106,10 @@ const faqs: FaqItem[] = [
     },
 ];
 
-const bookRug = (name: string, price: number) =>
+const bookRug = (name: string, price: number) => {
+    trackLead(`Price card - ${name}`);
     openWhatsApp(`Hi Jaranow! I'd like to book a rug pickup.\n\nRug: ${name} (${formatCurrency(price)})`);
+};
 
 const Rugs: React.FC = () => {
     useLandingScroll();
@@ -281,6 +284,7 @@ const Rugs: React.FC = () => {
                             <WhatsAppForm
                                 fields={pickupFields}
                                 intro="Hi Jaranow! I'd like to book a rug pickup."
+                                leadName="Rug pickup"
                                 submitLabel="Book a pickup"
                                 successTitle="Pickup request ready"
                                 successBody="We've opened WhatsApp with your details. Send the message and we will confirm your pickup."

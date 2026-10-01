@@ -3,6 +3,7 @@ import {Check} from 'lucide-react';
 import {SubscriptionPlan} from '../../types';
 import {formatCurrency} from '../../utils/formatters';
 import {btn, Container, Lift, SectionHeader, openWhatsApp} from '../common/ui';
+import {trackLead} from '../../utils/metaPixel';
 
 // Features are limited to what is confirmed. Lite pickup days were listed here as
 // Tuesday & Thursday; the confirmed days are Tuesday & Saturday (Thursday is Premium's third).
@@ -86,7 +87,13 @@ export const PlanCard: React.FC<{ plan: SubscriptionPlan; onSelect: () => void }
           ))}
         </ul>
 
-        <button onClick={onSelect} className={`mt-10 w-full ${dark ? btn.primary : btn.ink}`}>
+        <button
+          onClick={() => {
+            trackLead(`Price card - ${plan.name}`);
+            onSelect();
+          }}
+          className={`mt-10 w-full ${dark ? btn.primary : btn.ink}`}
+        >
           Start the {plan.name}
         </button>
       </article>
@@ -119,7 +126,13 @@ export const CustomPricingCard: React.FC<{ onSelect: () => void }> = ({ onSelect
       ))}
     </dl>
     <div className="lg:col-span-12">
-      <button onClick={onSelect} className={`${btn.ghostOnLight} w-full sm:w-auto`}>
+      <button
+        onClick={() => {
+          trackLead('Price card - Laundry pay per item');
+          onSelect();
+        }}
+        className={`${btn.ghostOnLight} w-full sm:w-auto`}
+      >
         Arrange a pay-per-item pickup
       </button>
     </div>

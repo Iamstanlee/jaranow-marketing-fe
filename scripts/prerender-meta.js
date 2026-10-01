@@ -143,7 +143,7 @@ function preloadTags(chunkName) {
 /**
  * The marketing head, removed for routes that are not marketing pages. Each of these
  * costs a connection or a render-blocking request on a page that has no use for it:
- * a PIN-gated internal tool does not need product analytics, a customer chat widget,
+ * a PIN-gated internal tool does not need product analytics, the Meta Pixel, a customer chat widget,
  * the homepage hero logo, or the display face it never sets.
  */
 function stripMarketingHead(html) {
@@ -151,6 +151,9 @@ function stripMarketingHead(html) {
     .replace(/<script[^>]*googletagmanager\.com[^>]*><\/script>/gi, '')
     .replace(/<script>[^<]*gtag\([^<]*<\/script>/gi, '')
     .replace(/<script[^>]*analytics\.ahrefs\.com[^>]*><\/script>/gi, '')
+    .replace(/<!-- Meta Pixel[^>]*-->\s*/gi, '')
+    .replace(/<script>[^<]*fbq\([^<]*<\/script>/gi, '')
+    .replace(/<noscript><img[^>]*facebook\.com\/tr[^>]*\/><\/noscript>/gi, '')
     .replace(/<link\s+rel="(?:preconnect|dns-prefetch)"[^>]*(?:googletagmanager|google-analytics|ahrefs|chatway)[^>]*>/gi, '')
     .replace(/<link\s+rel="preload"\s+as="image"[^>]*>/gi, '')
     // Keep Rubik, which is the desk's body face; drop Archivo Black, which is a

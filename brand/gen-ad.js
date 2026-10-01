@@ -86,22 +86,22 @@ const FORMATS = [
 --------------------------------------------------------------------------- */
 const ADS = [
     {
-        file: "ad-rugs",
+        file: "ad-rugs-a",
         lockup: "jaranow-lockup-horizontal-white",
         kicker: "Rug cleaning · Free pickup & delivery · Abuja",
         art: "rug",
         headline: "Your rug, like the\nday you bought it.",
-        sub: "We collect it from your door, deep-clean it and bring it back fresh. You don't lift a thing.",
+        sub: "We collect it from your door, deep-clean it and bring it back fresh. You don't lift a thing.",
         cta: {button: "Book a pickup", number: "0903 862 2012"},
     },
     {
-        file: "ad-business",
+        file: "ad-business-a",
         lockup: "jaranow-carwash-by-jaranow-white",
         lockupScale: 1.3, // sub-brand frame is taller; keeps the wordmark the same size as the master's
         kicker: "Fleet & corporate car wash · Abuja",
         art: "van",
         headline: "Your fleet is\nyour billboard.",
-        sub: "Keep every company vehicle spotless. We wash them at your premises, on your schedule.",
+        sub: "Keep every company vehicle spotless. We wash them at your premises, on your schedule.",
         cta: {button: "Get a quote", number: "0903 862 2012"},
     },
     {
@@ -146,35 +146,6 @@ const ADS = [
         art: "fleet",
         headline: "A spotless fleet.\nA sharper brand.",
         sub: "Clean vehicles make a strong first impression. We keep every one of yours spotless, on a schedule that suits\u00a0you.",
-        cta: {button: "Get a quote", number: "0903 862 2012"},
-    },
-    {
-        file: "ad-rugs-d",
-        lockup: "jaranow-lockup-horizontal-duo",
-        ground: "paper",
-        layout: "list",
-        kicker: "Rug cleaning · Free pickup & delivery · Abuja",
-        headline: "Love your\nrug again.",
-        points: [
-            ["Looks new again", "Dust and everyday marks lifted, colours brighter"],
-            ["Smells fresh", "No more trapped dust and stale odours"],
-            ["Zero effort", "Free pickup and delivery from your door"],
-        ],
-        cta: {button: "Book free pickup", number: "0903 862 2012"},
-    },
-    {
-        file: "ad-business-d",
-        lockup: "jaranow-carwash-by-jaranow-duo",
-        lockupScale: 1.3,
-        ground: "paper",
-        layout: "list",
-        kicker: "Fleet & corporate car wash · Abuja",
-        headline: "First impressions,\nhandled.",
-        points: [
-            ["A sharper brand", "Every vehicle represents you well"],
-            ["Drivers stay on the job", "No more trips to the car wash"],
-            ["One simple plan", "Every vehicle, one schedule, one quote"],
-        ],
         cta: {button: "Get a quote", number: "0903 862 2012"},
     },
 ];

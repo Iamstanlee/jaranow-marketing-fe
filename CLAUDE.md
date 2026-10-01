@@ -134,6 +134,24 @@ the visible page. `theme_color` is `#2563EB` in both `manifest.json` and
 `public/_redirect` is an inert leftover (singular, so never valid even on
 Netlify). Ignore it.
 
+## Meta Pixel
+
+Pixel `1832433951223193` loads from `public/index.html` (base code + PageView)
+on every marketing route; `stripMarketingHead()` in `scripts/prerender-meta.js`
+removes it from `/__/book`. Booking-form submits fire a `Lead` event through
+`trackLead()` in `src/utils/metaPixel.ts`, named by `content_name`: "Car wash
+booking", "Rug pickup", "Fleet & corporate quote". It fires after validation
+passes, just before WhatsApp opens. A new booking form passes `leadName` to
+`WhatsAppForm`.
+
+Price-card buttons that open WhatsApp directly are Leads too, named
+"Price card - <item>": laundry plan and pay-per-item cards (tracked inside
+`PlanCard`/`CustomPricingCard`, so both `/laundry` and `/pricing` count), rug
+size cards, and the carwash cards on `/pricing`. The carwash cards on
+`/carwash` are **not** tracked - they scroll to the booking form, whose submit
+is the Lead, and counting both would double-count one booking. Verify in Events Manager -> Test Events, or with the Meta Pixel
+Helper extension.
+
 ## Staff documents
 
 `docs/` holds the documents staff read, as HTML rather than Markdown because they
@@ -365,6 +383,9 @@ delivery."), a spotless fleet lined up ("A spotless fleet. A sharper brand.").
 Say a benefit once or twice, not in every slot - the rug ad carries "free" in
 the headline and the button only. An `accent` ground also exists (Paper
 button, Ink bar and stop) but is not in use.
+**D "benefits"** (Paper, `list` layout, no drawing) is the headline then an Ink
+card of three ticked `points` - each a result or benefit the customer gets
+("Smells fresh", "Drivers stay on the job"), never a process step.
 
 Concept A's device: a flat **before/after split** of the thing
 we clean (a rug, a company van), dingy left and fresh right with a slider

@@ -14,6 +14,7 @@ import {
   planWhatsAppMessage,
 } from '../components/wash/PricingPlans';
 import { Container, PageHero, SectionHeader, openWhatsApp } from '../components/common/ui';
+import { trackLead } from '../utils/metaPixel';
 import SeoTags from '../seo/SeoTags';
 
 type ServiceTab = 'carwash' | 'wash';
@@ -149,7 +150,10 @@ const Pricing: React.FC = () => {
                   grid dangles the third card on its own row. */}
               <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
                 {carwashOptions.map((option) => (
-                  <WashOptionCard key={option.name} option={option} onBook={() => handleCarwashBook(option.name)} />
+                  <WashOptionCard key={option.name} option={option} onBook={() => {
+                    trackLead(`Price card - ${option.name}`);
+                    handleCarwashBook(option.name);
+                  }} />
                 ))}
               </div>
 

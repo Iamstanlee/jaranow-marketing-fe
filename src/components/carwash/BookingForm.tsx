@@ -1,6 +1,7 @@
 import React, {forwardRef, useImperativeHandle, useState} from 'react';
 import {CheckCircle} from 'lucide-react';
 import {btn, Container, SectionHeader, openWhatsApp} from '../common/ui';
+import {trackLead} from '../../utils/metaPixel';
 import {validatePhoneNumber} from '../../utils/formatters';
 
 export interface BookingFormHandle {
@@ -106,6 +107,7 @@ Preferred time: ${form.preferredTime}
 
 Location: 6th Avenue, Gwarinpa, Abuja`;
 
+        trackLead('Car wash booking');
         openWhatsApp(message);
         setSubmitted(true);
     };

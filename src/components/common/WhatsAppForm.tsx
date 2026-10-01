@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {CheckCircle} from 'lucide-react';
 import {validatePhoneNumber} from '../../utils/formatters';
 import {btn, openWhatsApp} from './ui';
+import {trackLead} from '../../utils/metaPixel';
 
 /* A validated enquiry form that hands off to WhatsApp. Fields are data, so a
    new enquiry type is a config array, not another copy of the carwash
@@ -27,6 +28,8 @@ interface WhatsAppFormProps {
     successBody: string;
     resetLabel: string;
     footnote?: string;
+    /** Names this form in the Meta Pixel Lead event, e.g. "Rug pickup". */
+    leadName: string;
 }
 
 const WhatsAppForm: React.FC<WhatsAppFormProps> = ({
@@ -37,6 +40,7 @@ const WhatsAppForm: React.FC<WhatsAppFormProps> = ({
     successBody,
     resetLabel,
     footnote,
+    leadName,
 }) => {
     const blank = Object.fromEntries(fields.map((f) => [f.name, '']));
     const [values, setValues] = useState<Record<string, string>>(blank);
@@ -72,6 +76,7 @@ const WhatsAppForm: React.FC<WhatsAppFormProps> = ({
         const lines = fields
             .filter((f) => values[f.name].trim())
             .map((f) => `${f.label}: ${values[f.name].trim()}`);
+        trackLead(leadName);
         openWhatsApp(`${intro}\n\n${lines.join('\n')}`);
         setSubmitted(true);
     };

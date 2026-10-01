@@ -377,6 +377,7 @@ const Business: React.FC = () => {
                             <WhatsAppForm
                                 fields={quoteFields}
                                 intro="Hi Jaranow! I'd like a quote for fleet / corporate car washing."
+                                leadName="Fleet & corporate quote"
                                 submitLabel="Request a quote"
                                 successTitle="Request ready to send"
                                 successBody="We've opened WhatsApp with your details. Send the message and we will come back with a plan and a quote."

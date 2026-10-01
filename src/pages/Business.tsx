@@ -201,7 +201,7 @@ const Business: React.FC = () => {
                 </script>
             </Helmet>
 
-            <Header logo="carwash" ctaLabel="Get a quote" onCtaClick={goToQuote}/>
+            <Header logo="business" ctaLabel="Get a quote" onCtaClick={goToQuote}/>
 
             <main>
                 {/* Hero */}

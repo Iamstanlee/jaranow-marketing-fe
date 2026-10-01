@@ -57,7 +57,7 @@ const CARDS = [
   },
   {
     file: "opengraph-business",
-    lockup: "jaranow-carwash-by-jaranow-white",
+    lockup: "jaranow-business-by-jaranow-white",
     lockupH: 80,
     headline: "Every vehicle, handled.",
     sub: "Fleets, offices and schools, washed at our site or\u00a0yours.",
@@ -65,8 +65,8 @@ const CARDS = [
   },
   {
     file: "opengraph-rugs",
-    lockup: "jaranow-lockup-horizontal-white",
-    lockupH: 62,
+    lockup: "jaranow-rugwash-by-jaranow-white",
+    lockupH: 80,
     headline: "Your rugs, handled.",
     sub: "Collected from your door, cleaned thoroughly, brought back\u00a0fresh.",
     meta: "Rug cleaning · Free pickup & delivery · Abuja",

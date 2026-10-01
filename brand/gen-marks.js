@@ -243,6 +243,8 @@ const CARWASH_ADDRESS = "6th avenue · gwarinpa";
 
 A["carwash-by-jaranow"] = (c) => subBrand("carwash", c);
 A["laundry-by-jaranow"] = (c) => subBrand("laundry", c);
+A["rugwash-by-jaranow"] = (c) => subBrand("rugwash", c);
+A["business-by-jaranow"] = (c) => subBrand("business", c);
 A["carwash-address"] = (c) => addressLockup("carwash", CARWASH_ADDRESS, c);
 
 /* Solid rounded square with the symbol centred.
@@ -265,6 +267,7 @@ const WAYS = {
 
 /* duo only means something where two elements can differ */
 const DUO_ONLY = ["lockup-horizontal", "lockup-stacked", "carwash-by-jaranow", "laundry-by-jaranow",
+                  "rugwash-by-jaranow", "business-by-jaranow",
                   "carwash-address"];
 const ALL = ["wordmark", "symbol", ...DUO_ONLY];
 

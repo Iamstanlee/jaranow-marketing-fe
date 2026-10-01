@@ -49,9 +49,9 @@ scripts/           # prerender-meta.js
 One shared `Header`/`Footer` for every page (no per-service Navigation).
 `Header` props: `ctaLabel`, `onCtaClick`/`ctaTo`, `logo`.
 
-`logo` selects the lockup: `'master' | 'carwash' | 'laundry'` (default
+`logo` selects the lockup: `'master' | 'carwash' | 'laundry' | 'rugwash' | 'business'` (default
 `master`). Service pages pass their own line; homepage, pricing and anything
-cross-service use master. A fourth line is one entry in the `LOGOS` map plus the
+cross-service use master; `/rugs` uses `rugwash`, `/business` uses `business`. Another line is one entry in the `LOGOS` map plus the
 SVG in `public/brand/`.
 
 Header logo heights differ per variant **on purpose** (`h-11` master, `h-14`
@@ -210,7 +210,16 @@ stems end at y=100 and overhang to 107, curved bottoms stop at 93.
 
 Live assets served from `public/brand/`: `jaranow-logo-white.svg` (master
 knockout), `jaranow-logo.svg` (master duo), `jaranow-carwash-white.svg`,
-`jaranow-laundry-white.svg`, `jaranow-symbol.svg`, `favicon.svg`.
+`jaranow-laundry-white.svg`, `jaranow-rugwash-white.svg`,
+`jaranow-business-white.svg`, `jaranow-symbol.svg`, `favicon.svg`. Each
+sub-brand file is a copy of `jaranow-<line>-by-jaranow-white.svg` from
+`brand/jaranow-blue/svg/` - regenerate there, then copy.
+
+Four service lines exist: `carwash`, `laundry`, `rugwash` (rug cleaning) and
+`business` (fleet & corporate car wash), all set from glyphs already in the
+table and all on the same 625.7 × 207 frame. A new line goes in `A` **and** in
+the `DUO_ONLY` emit list in `gen-marks.js` - the generator only writes what that
+list names, so an entry in `A` alone silently produces nothing.
 
 Sub-brand rule: service name under the wordmark, flush left, 40%, tracked wide —
 read as "Laundry by Jaranow"; the word "by" is never drawn. Symbol minimum 24px;
@@ -708,7 +717,9 @@ curtains).
 - **Rug cleaning** (`/rugs`) is collected from the door and returned, and
   **pickup and delivery are free** (confirmed by the owner, September 2026). No
   turnaround is promised - the return date is confirmed at collection. Its
-  prices come from the Rug section of `src/data/carwashPrices.ts`.
+  prices come from the Rug section of `src/data/carwashPrices.ts`, rendered by
+  `components/rugs/RugPrices.tsx` on both `/rugs` and the Rug wash tab of
+  `/pricing` - one component, so the two can't quote or book differently.
 - Unverified social proof ("Trusted by 1000+ customers", "100% satisfaction
   guarantee", "follow up within 2 hours") is inherited copy — confirm before
   repeating or expanding it.
@@ -753,7 +764,17 @@ mirrors the `/` entry in `routes.json`.
 - **Service areas:** Gwarinpa, Abuja (primary). Expanding to Lagos, Port
   Harcourt, Ibadan.
 
+## Section links
+
+Booking sections have stable ids - `/carwash#booking`, `/laundry#pricing`,
+`/laundry#plan-recommendation`, `/rugs#pickup`, `/business#quote` - and a URL
+carrying one opens on that section (`useLandingScroll`). In-page buttons scroll
+through `scrollToElement()`, which also writes the id into the address bar with
+`history.replaceState` (not push, so Back still leaves the page), so the URL is
+always a shareable link to what is on screen. Scroll with `scrollToElement`, not
+a bare `scrollIntoView`, or the URL will not follow.
+
 ## URL parameters
 
-`/pricing` defaults to car wash. `?service=carwash` · `?service=wash` ·
+`/pricing` defaults to car wash. `?service=carwash` · `?service=wash` · `?service=rugs` ·
 `?service=delivery` (legacy, redirects to the car wash tab).

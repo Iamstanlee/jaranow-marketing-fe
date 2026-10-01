@@ -18,21 +18,18 @@ import {
     NumberedGrid,
     SectionHeader,
     StepRow,
-    openWhatsApp,
     whatsappUrl,
 } from '../components/common/ui';
-import {CARWASH_PRICE_LIST} from '../data/carwashPrices';
+import RugPrices, {RUGS as rugs} from '../components/rugs/RugPrices';
 import {fadeInUp, staggerContainer} from '../utils/animations';
 import {formatCurrency, scrollToElement} from '../utils/formatters';
 import {useLandingScroll} from '../utils/useLandingScroll';
-import {trackLead} from '../utils/metaPixel';
 import SeoTags from '../seo/SeoTags';
 
 /* Rug cleaning with pickup and delivery. Prices come from the same data as the
    forecourt price list (src/data/carwashPrices.ts), so the two cannot disagree.
    No turnaround is promised - the return date is confirmed at collection. */
 
-const rugs = CARWASH_PRICE_LIST.find((s) => s.title === 'Rug')?.items ?? [];
 
 const facts = [
     {icon: <HomeIcon size={17}/>, label: 'Pickup & delivery', value: 'Free - from your door and back again'},
@@ -106,11 +103,6 @@ const faqs: FaqItem[] = [
     },
 ];
 
-const bookRug = (name: string, price: number) => {
-    trackLead(`Price card - ${name}`);
-    openWhatsApp(`Hi Jaranow! I'd like to book a rug pickup.\n\nRug: ${name} (${formatCurrency(price)})`);
-};
-
 const Rugs: React.FC = () => {
     useLandingScroll();
 
@@ -149,7 +141,7 @@ const Rugs: React.FC = () => {
                 </script>
             </Helmet>
 
-            <Header ctaLabel="Book a pickup" onCtaClick={goToPickup}/>
+            <Header logo="rugwash" ctaLabel="Book a pickup" onCtaClick={goToPickup}/>
 
             <main>
                 {/* Hero */}
@@ -200,31 +192,8 @@ const Rugs: React.FC = () => {
                             intro="One clear price per rug, with pickup and delivery free. Not sure of the size? Send us a photo on WhatsApp."
                             className="max-w-2xl"
                         />
-                        <div className="mt-14 grid gap-6 lg:grid-cols-3">
-                            {rugs.map((r, i) => {
-                                const dark = i === rugs.length - 1;
-                                return (
-                                    <Lift key={r.name} className="h-full">
-                                        <article
-                                            className={`flex h-full flex-col rounded-3xl p-8 sm:p-9 ${
-                                                dark ? 'bg-ink text-white' : 'border border-ink/10 bg-white'
-                                            }`}
-                                        >
-                                            <h3 className={`text-2xl font-bold tracking-tight ${dark ? 'text-white' : 'text-ink'}`}>{r.name}</h3>
-                                            <p className={`mt-2 ${dark ? 'text-paper/65' : 'text-ink/60'}`}>{r.note}</p>
-                                            <p className="mt-8 flex flex-1 items-baseline gap-2">
-                                                <span className={`text-5xl font-bold tracking-tight ${dark ? 'text-white' : 'text-ink'}`}>
-                                                    {formatCurrency(r.price)}
-                                                </span>
-                                                <span className={dark ? 'text-paper/55' : 'text-ink/50'}>per rug</span>
-                                            </p>
-                                            <button onClick={() => bookRug(r.name, r.price)} className={`mt-10 w-full ${dark ? btn.primary : btn.ink}`}>
-                                                Book a {r.name.toLowerCase()} pickup
-                                            </button>
-                                        </article>
-                                    </Lift>
-                                );
-                            })}
+                        <div className="mt-14">
+                            <RugPrices/>
                         </div>
                     </Container>
                 </section>

@@ -37,5 +37,7 @@ export const scrollToElement = (elementId: string): void => {
       behavior: 'smooth',
       block: 'start'
     });
+    const {pathname, search} = window.location;
+    window.history.replaceState(window.history.state, '', `${pathname}${search}#${elementId}`);
   }
 };

@@ -3,9 +3,9 @@ import {Link, NavLink} from 'react-router-dom';
 import {AnimatePresence, motion} from 'framer-motion';
 import {Menu, X} from 'lucide-react';
 
-/** Service lines that have their own sub-brand lockup. Adding a third is one
+/** Service lines that have their own sub-brand lockup. Adding another is one
  *  entry here plus the matching SVG in /public/brand - no layout changes. */
-export type BrandLine = 'master' | 'carwash' | 'laundry';
+export type BrandLine = 'master' | 'carwash' | 'laundry' | 'rugwash' | 'business';
 
 /* Sub-brand lockups share one 625.7 x 207 frame; the master lockup is
    625.7 x 160. The heights below keep the "jaranow" wordmark the same optical
@@ -24,6 +24,16 @@ const LOGOS: Record<BrandLine, { src: string; alt: string; height: string }> = {
     laundry: {
         src: '/brand/jaranow-laundry-white.svg',
         alt: 'Laundry by Jaranow',
+        height: 'h-14',
+    },
+    rugwash: {
+        src: '/brand/jaranow-rugwash-white.svg',
+        alt: 'Rugwash by Jaranow',
+        height: 'h-14',
+    },
+    business: {
+        src: '/brand/jaranow-business-white.svg',
+        alt: 'Business by Jaranow',
         height: 'h-14',
     },
 };

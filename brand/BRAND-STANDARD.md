@@ -100,7 +100,8 @@ hierarchy carries it.
 
 **Fixed properties — do not change these to fit a longer word:**
 
-- Both sub-brand lockups occupy an identical **625.7 × 207** frame.
+- Every sub-brand lockup (`carwash`, `laundry`, `rugwash`, `business`) occupies
+  an identical **625.7 × 207** frame.
 - The service baseline sits at **176 units**. Not arbitrary: it clears the `j`
   descender, which matters the moment a service name opens with an ascender.
   `laundry` does. So would `logistics`.

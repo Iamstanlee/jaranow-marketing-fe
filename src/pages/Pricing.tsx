@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useSearchParams } from 'react-router-dom';
-import { CalendarCheck, Car, Clock, MapPin, Shirt } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowRight, CalendarCheck, Car, Clock, MapPin, RectangleHorizontal, Shirt } from 'lucide-react';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import PlanRecommendation from '../components/wash/PlanRecommendation';
 import { MoreCarwashPrices, WashOption, WashOptionCard } from '../components/carwash/Pricing';
+import RugPrices from '../components/rugs/RugPrices';
 import {
   CUSTOM_PRICING_MESSAGE,
   CustomPricingCard,
@@ -17,7 +18,7 @@ import { Container, PageHero, SectionHeader, openWhatsApp } from '../components/
 import { trackLead } from '../utils/metaPixel';
 import SeoTags from '../seo/SeoTags';
 
-type ServiceTab = 'carwash' | 'wash';
+type ServiceTab = 'carwash' | 'wash' | 'rugs';
 
 // One of the five places the carwash services must stay in step (see CLAUDE.md).
 const carwashOptions: WashOption[] = [
@@ -66,19 +67,20 @@ const carwashNotes = [
 const tabs: Array<{ id: ServiceTab; label: string; icon: React.ReactNode }> = [
   { id: 'carwash', label: 'Car wash', icon: <Car size={18} /> },
   { id: 'wash', label: 'Laundry', icon: <Shirt size={18} /> },
+  { id: 'rugs', label: 'Rug wash', icon: <RectangleHorizontal size={18} /> },
 ];
 
 const Pricing: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const serviceParam = searchParams.get('service');
   const [activeTab, setActiveTab] = useState<ServiceTab>(
-    serviceParam === 'wash' ? 'wash' : 'carwash'
+    serviceParam === 'wash' || serviceParam === 'rugs' ? serviceParam : 'carwash'
   );
 
   useEffect(() => {
     const service = searchParams.get('service');
-    if (service === 'wash') {
-      setActiveTab('wash');
+    if (service === 'wash' || service === 'rugs') {
+      setActiveTab(service);
     } else if (service === 'carwash' || service === 'delivery') {
       // `delivery` is a legacy value kept working as a redirect to carwash.
       setActiveTab('carwash');
@@ -99,20 +101,18 @@ const Pricing: React.FC = () => {
     <div className="min-h-screen bg-paper">
       <SeoTags route="/pricing" />
       <Helmet>
-        <meta name="keywords" content="Jaranow pricing, car wash cost Abuja, laundry service prices Nigeria, car wash Gwarinpa" />
+        <meta name="keywords" content="Jaranow pricing, car wash cost Abuja, laundry service prices Nigeria, rug cleaning prices Abuja, car wash Gwarinpa" />
       </Helmet>
 
-      {activeTab === 'carwash' ? (
-        <Header ctaLabel="Book a wash" onCtaClick={() => handleCarwashBook()} />
-      ) : (
-        <Header ctaLabel="Schedule pickup" ctaTo="/laundry#pricing" />
-      )}
+      {activeTab === 'carwash' && <Header ctaLabel="Book a wash" onCtaClick={() => handleCarwashBook()} />}
+      {activeTab === 'wash' && <Header ctaLabel="Schedule pickup" ctaTo="/laundry#pricing" />}
+      {activeTab === 'rugs' && <Header ctaLabel="Book a pickup" ctaTo="/rugs#pickup" />}
 
       <main>
         <PageHero
-          eyebrow="Car wash & laundry prices in Abuja"
+          eyebrow="Car wash, laundry & rug prices in Abuja"
           title="What it costs."
-          intro="Every car wash and laundry price in one place, so you can pick what suits you and get on with your day."
+          intro="Every car wash, laundry and rug cleaning price in one place, so you can pick what suits you and get on with your day."
         >
           <div role="tablist" aria-label="Service" className="mt-10 inline-flex rounded-full border border-paper/15 bg-white/[0.04] p-1.5">
             {tabs.map((tab) => {
@@ -124,11 +124,12 @@ const Pricing: React.FC = () => {
                   aria-selected={active}
                   aria-controls={`panel-${tab.id}`}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`inline-flex items-center gap-2 rounded-full px-6 py-3 font-medium transition-colors ${
+                  className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-3 font-medium transition-colors sm:px-6 ${
                     active ? 'bg-paper text-ink' : 'text-paper/70 hover:text-white'
                   }`}
                 >
-                  {tab.icon}
+                  {/* Icons drop on phones so three tabs fit one row. */}
+                  <span className="hidden sm:inline-flex">{tab.icon}</span>
                   {tab.label}
                 </button>
               );
@@ -170,6 +171,29 @@ const Pricing: React.FC = () => {
                   </div>
                 ))}
               </dl>
+            </Container>
+          </section>
+        )}
+
+        {activeTab === 'rugs' && (
+          <section id="panel-rugs" role="tabpanel" className="py-16 sm:py-24">
+            <Container>
+              <SectionHeader
+                eyebrow="Rugwash by Jaranow"
+                title="Priced by size."
+                intro="Every rug is collected from your door and brought back fresh - pickup and delivery are free."
+                className="max-w-2xl"
+              />
+              <div className="mt-12">
+                <RugPrices />
+              </div>
+              <Link
+                to="/rugs"
+                className="group mt-8 inline-flex items-center gap-2 font-medium text-primary-600 underline-offset-4 hover:underline"
+              >
+                More about rug cleaning
+                <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
+              </Link>
             </Container>
           </section>
         )}

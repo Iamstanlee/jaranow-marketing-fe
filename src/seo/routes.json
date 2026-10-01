@@ -46,9 +46,9 @@
     "/pricing": {
       "file": "pricing/index.html",
       "title": "Car wash & Laundry Prices in Abuja | Jaranow",
-      "description": "Jaranow prices in one place: car washes at 6th Avenue, Gwarinpa, and laundry plans or pay-per-item pricing with pickup and delivery across Abuja.",
+      "description": "Jaranow prices in one place: car washes in Gwarinpa, laundry plans, and rug cleaning with free pickup and delivery across Abuja.",
       "ogTitle": "Jaranow Pricing - Car wash & Laundry",
-      "ogDescription": "Every car wash and laundry price in one place.",
+      "ogDescription": "Every car wash, laundry and rug cleaning price in one place.",
       "ogImage": "/jaranow/opengraph-pricing.png",
       "ogImageAlt": "Jaranow pricing",
       "siteName": "Jaranow"

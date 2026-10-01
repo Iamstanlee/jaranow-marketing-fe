@@ -87,7 +87,8 @@ const FORMATS = [
 const ADS = [
     {
         file: "ad-rugs-a",
-        lockup: "jaranow-lockup-horizontal-white",
+        lockup: "jaranow-rugwash-by-jaranow-white",
+        lockupScale: 1.3,
         kicker: "Rug cleaning · Free pickup & delivery · Abuja",
         art: "rug",
         headline: "Your rug, like the\nday you bought it.",
@@ -96,7 +97,7 @@ const ADS = [
     },
     {
         file: "ad-business-a",
-        lockup: "jaranow-carwash-by-jaranow-white",
+        lockup: "jaranow-business-by-jaranow-white",
         lockupScale: 1.3, // sub-brand frame is taller; keeps the wordmark the same size as the master's
         kicker: "Fleet & corporate car wash · Abuja",
         art: "van",
@@ -106,7 +107,8 @@ const ADS = [
     },
     {
         file: "ad-rugs-b",
-        lockup: "jaranow-lockup-horizontal-duo",
+        lockup: "jaranow-rugwash-by-jaranow-duo",
+        lockupScale: 1.3,
         ground: "paper",
         layout: "stage",
         kicker: "Rug cleaning · Free pickup & delivery · Abuja",
@@ -117,7 +119,7 @@ const ADS = [
     },
     {
         file: "ad-business-b",
-        lockup: "jaranow-carwash-by-jaranow-duo",
+        lockup: "jaranow-business-by-jaranow-duo",
         lockupScale: 1.3,
         ground: "paper",
         layout: "stage",
@@ -129,7 +131,8 @@ const ADS = [
     },
     {
         file: "ad-rugs-c",
-        lockup: "jaranow-lockup-horizontal-white",
+        lockup: "jaranow-rugwash-by-jaranow-white",
+        lockupScale: 1.3,
         ground: "navy",
         kicker: "Rug cleaning · Abuja",
         art: "room",
@@ -139,7 +142,7 @@ const ADS = [
     },
     {
         file: "ad-business-c",
-        lockup: "jaranow-carwash-by-jaranow-white",
+        lockup: "jaranow-business-by-jaranow-white",
         lockupScale: 1.3,
         ground: "navy",
         kicker: "Fleet & corporate car wash · Abuja",

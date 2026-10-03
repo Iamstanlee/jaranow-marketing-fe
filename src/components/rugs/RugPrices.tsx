@@ -36,11 +36,8 @@ const RugPrices: React.FC = () => (
                             </span>
                             <span className={dark ? 'text-paper/55' : 'text-ink/50'}>per rug</span>
                         </p>
-                        <p className={`mt-3 text-sm font-medium ${dark ? 'text-primary-400' : 'text-primary-600'}`}>
-                            Free pickup &amp; delivery
-                        </p>
-                        <button onClick={() => bookRug(r.name, r.price)} className={`mt-8 w-full ${dark ? btn.primary : btn.ink}`}>
-                            Book a {r.name.toLowerCase()} pickup
+                        <button onClick={() => bookRug(r.name, r.price)} className={`mt-10 w-full ${dark ? btn.primary : btn.ink}`}>
+                            Book free pickup
                         </button>
                     </article>
                 </Lift>

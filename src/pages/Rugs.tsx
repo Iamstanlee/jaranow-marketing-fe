@@ -141,7 +141,7 @@ const Rugs: React.FC = () => {
                 </script>
             </Helmet>
 
-            <Header logo="rugwash" ctaLabel="Book a pickup" onCtaClick={goToPickup}/>
+            <Header logo="rugwash" ctaLabel="Book free pickup" onCtaClick={goToPickup}/>
 
             <main>
                 {/* Hero */}
@@ -165,7 +165,7 @@ const Rugs: React.FC = () => {
                                 <motion.div variants={fadeInUp} className="mt-10 flex flex-col gap-3 sm:flex-row">
                                     <Lift>
                                         <button onClick={goToPickup} className={`${btn.primary} group w-full`}>
-                                            Book a pickup
+                                            Book free pickup
                                             <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5"/>
                                         </button>
                                     </Lift>
@@ -232,9 +232,9 @@ const Rugs: React.FC = () => {
                     <Container className="grid gap-12 lg:grid-cols-12">
                         <div className="lg:col-span-5">
                             <SectionHeader
-                                eyebrow="Book a pickup"
-                                title="Let's collect your rug."
-                                intro="Tell us where you are and what you have, and we will confirm your pickup on WhatsApp."
+                                eyebrow="Free pickup & delivery · Abuja"
+                                title="Book your free rug pickup."
+                                intro="Tell us your address and rug size, and we'll confirm your pickup day on WhatsApp. It takes under a minute."
                             />
                             <p className="mt-8 text-ink/60">
                                 Easier to show us?{' '}
@@ -254,7 +254,7 @@ const Rugs: React.FC = () => {
                                 fields={pickupFields}
                                 intro="Hi Jaranow! I'd like to book a rug pickup."
                                 leadName="Rug pickup"
-                                submitLabel="Book a pickup"
+                                submitLabel="Book free pickup"
                                 successTitle="Pickup request ready"
                                 successBody="We've opened WhatsApp with your details. Send the message and we will confirm your pickup."
                                 resetLabel="Book another pickup"
@@ -277,10 +277,10 @@ const Rugs: React.FC = () => {
                     </Container>
                 </section>
 
-                <CtaBand title="Ready for a fresh rug?" body="Book a pickup and we will take it from your door - and bring it back clean.">
+                <CtaBand title="Ready for a fresh rug?" body="Book a free pickup and we will collect it from your door - and bring it back clean.">
                     <Lift>
                         <button onClick={goToPickup} className={`${btn.paper} group w-full`}>
-                            Book a pickup
+                            Book free pickup
                             <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5"/>
                         </button>
                     </Lift>

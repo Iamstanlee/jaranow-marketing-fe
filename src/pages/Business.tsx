@@ -356,9 +356,9 @@ const Business: React.FC = () => {
                     <Container className="grid gap-12 lg:grid-cols-12">
                         <div className="lg:col-span-5">
                             <SectionHeader
-                                eyebrow="Get a quote"
-                                title="Tell us about your vehicles."
-                                intro="A few details and we will come back on WhatsApp with a plan and a quote for your organisation."
+                                eyebrow="Offices, schools & fleets · Abuja"
+                                title="Get a quote for your vehicles."
+                                intro="Tell us how many vehicles you have and where they are, and we'll send a plan and quote on WhatsApp. It takes about a minute."
                             />
                             <p className="mt-8 text-ink/60">
                                 Rather talk it through?{' '}
@@ -378,7 +378,7 @@ const Business: React.FC = () => {
                                 fields={quoteFields}
                                 intro="Hi Jaranow! I'd like a quote for fleet / corporate car washing."
                                 leadName="Fleet & corporate quote"
-                                submitLabel="Request a quote"
+                                submitLabel="Get a quote"
                                 successTitle="Request ready to send"
                                 successBody="We've opened WhatsApp with your details. Send the message and we will come back with a plan and a quote."
                                 resetLabel="Start a new request"

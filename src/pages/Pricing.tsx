@@ -106,7 +106,7 @@ const Pricing: React.FC = () => {
 
       {activeTab === 'carwash' && <Header ctaLabel="Book a wash" onCtaClick={() => handleCarwashBook()} />}
       {activeTab === 'wash' && <Header ctaLabel="Schedule pickup" ctaTo="/laundry#pricing" />}
-      {activeTab === 'rugs' && <Header ctaLabel="Book a pickup" ctaTo="/rugs#pickup" />}
+      {activeTab === 'rugs' && <Header ctaLabel="Book free pickup" ctaTo="/rugs#pickup" />}
 
       <main>
         <PageHero

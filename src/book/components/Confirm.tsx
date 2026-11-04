@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import {Modal} from './Modal';
 
 // Asks before a write that the person on the other side of the counter will feel: one that is
@@ -8,9 +8,11 @@ import {Modal} from './Modal';
 //
 // The confirm button holds its own in-flight state, so a forecourt tablet that does not answer
 // instantly cannot be tapped into writing twice.
-export function Confirm({title, detail, action, busyLabel = 'Saving…', tone = 'primary', error = 'Could not save this change. Please check your connection and try again.', close, confirm}: {
+export function Confirm({title, detail, action, busyLabel = 'Saving…', tone = 'primary', error = 'Could not save this change. Please check your connection and try again.', close, confirm, children}: {
     title: string;
     detail: string;
+    // Anything the confirmation needs to ask as well, such as how a payout was handed over.
+    children?: React.ReactNode;
     action: string;
     busyLabel?: string;
     // Red is for taking something away — a deleted record, a point off a card. Everything else
@@ -36,6 +38,7 @@ export function Confirm({title, detail, action, busyLabel = 'Saving…', tone = 
     };
     return <Modal title={title} close={close}>
         <p className="text-sm leading-6 text-slate-500">{detail}</p>
+        {children}
         {failed && <p role="alert" className="mt-3 text-sm text-red-600">{failed}</p>}
         <div className="mt-6 flex gap-3">
             <button type="button" onClick={close}

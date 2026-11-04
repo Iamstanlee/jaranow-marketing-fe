@@ -36,7 +36,9 @@ export const COLLECTIONS = {
     loyalty: 'car_wash_loyalty',
     expenses: 'car_wash_expenses',
     staff: 'car_wash_staff',
-    roster: 'car_wash_roster'
+    roster: 'car_wash_roster',
+    payouts: 'car_wash_payouts',
+    attendance: 'car_wash_attendance'
 } as const;
 
 export const EXPENSE_CATEGORIES = ['Detergent/Soap', 'Water', 'Fuel', 'Supplies', 'Transport', 'Staff', 'Utilities', 'Maintenance', 'Other'] as const;
@@ -58,4 +60,4 @@ export type Duty = typeof DUTIES[number];
 // has to be complete and stably ordered because `codeFor` numbers members by their POSITION
 // in it, so a truncated list would hand out codes that belong to somebody else. Staff is a
 // dozen rows at most.
-export const LIVE_WINDOW = {sales: 300, expenses: 300, roster: 400} as const;
+export const LIVE_WINDOW = {sales: 300, expenses: 300, roster: 400, payouts: 400, attendance: 120} as const;

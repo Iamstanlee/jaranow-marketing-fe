@@ -1,6 +1,6 @@
 import {useMemo, useState} from 'react';
 import {PieChart} from 'lucide-react';
-import {money} from '../format';
+import {money, percent} from '../format';
 import type {Expense} from '../types';
 import {Skeleton} from '../components/Skeleton';
 
@@ -50,12 +50,6 @@ function breakdown(expenses: Expense[]) {
     });
     return {slices, total};
 }
-
-const percent = (share: number) => {
-    const value = share * 100;
-    if (value > 0 && value < 0.1) return '<0.1%';
-    return `${value.toFixed(value < 10 && value > 0 ? 1 : 0)}%`;
-};
 
 export function ExpenseBreakdown({expenses, revenue, period, loading}: {
     expenses: Expense[];

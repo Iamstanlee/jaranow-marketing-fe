@@ -5,7 +5,7 @@ rules_version = '2';
 // The app authenticates the operator with a client-side PIN, which never reaches
 // Firestore. The real boundary is here: every request must carry an authenticated
 // session (the client signs in anonymously — see src/lib/firebase.ts), and only the
-// three car-wash collections are reachable. Everything else is denied by default.
+// car-wash collections are reachable. Everything else is denied by default.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -51,6 +51,21 @@ service cloud.firestore {
     // Duty roster — one document per person per slot. `day` anchors the slot: the Monday of
     // the week for Cleaning, the Sunday itself for Off. See src/book/roster.ts.
     match /car_wash_roster/{dutyId} {
+      allow read, create, update, delete: if signedIn();
+    }
+
+    // Revenue-share payouts — one document per person per paid week, with the figures the
+    // amount was worked out from. Deletes undo a payment marked by mistake. The Payments
+    // section is behind the admin PIN, which like everything else here is client-side only.
+    match /car_wash_payouts/{payoutId} {
+      allow read, create, update, delete: if signedIn();
+    }
+
+    // Attendance — one document per day (the id is the day), listing who was present. Each
+    // day's revenue share is split among the attendants on it, so this is what pays people.
+    // The cashier marks it on the staff PIN; like everything else here that split is
+    // client-side only.
+    match /car_wash_attendance/{day} {
       allow read, create, update, delete: if signedIn();
     }
 

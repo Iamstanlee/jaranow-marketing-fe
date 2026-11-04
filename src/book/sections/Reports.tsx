@@ -1,7 +1,7 @@
 import {useMemo, useState} from 'react';
 import {BarChart3, Car, CircleDollarSign, Gift, PiggyBank, Sparkles} from 'lucide-react';
 import {currentService, SERVICES, type Service} from '../constants';
-import {dateOf, isoDay, money} from '../format';
+import {dateOf, isoDay, money, percent} from '../format';
 import {inRange, type Range, rangeKey, rangeLabel, rangeOf} from '../period';
 import {useHistory} from '../hooks/useHistory';
 import {totalSales} from '../totals';
@@ -95,10 +95,13 @@ export function Reports({sales, loyalty, expenses, loading, requestHistory, hist
                     the figure and its bar wait — the panel reads as itself while it fills in. */}
                 <div aria-busy={pending} className="mt-6 space-y-5">{(Object.keys(SERVICES) as Service[]).map(service => {
                     const value = filtered.filter(s => currentService(s.service) === service).reduce((sum, s) => sum + s.amount, 0);
-                    const width = `${Math.min(100, (value / Math.max(1, totals.revenue)) * 100)}%`;
+                    const share = totals.revenue > 0 ? value / totals.revenue : 0;
+                    const width = `${Math.min(100, share * 100)}%`;
                     return <div key={service}>
                         <div className="mb-2 flex items-center justify-between text-sm"><span>{service}</span>{pending ?
-                            <Skeleton className="h-4 w-16"/> : <b>{money(value)}</b>}
+                            <Skeleton className="h-4 w-24"/> :
+                            <span className="flex items-baseline gap-2"><b>{money(value)}</b><span
+                                className="w-12 text-right tabular-nums text-slate-400">{percent(share)}</span></span>}
                         </div>
                         <div className="h-2 overflow-hidden rounded bg-slate-100">
                             {!pending && <div className="h-full rounded bg-blue-600" style={{width}}/>}

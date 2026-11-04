@@ -3,6 +3,7 @@ import {
     addDoc,
     collection,
     deleteDoc,
+    deleteField,
     doc,
     getDocs,
     increment,
@@ -11,24 +12,29 @@ import {
     orderBy,
     query,
     serverTimestamp,
+    setDoc,
+    arrayRemove,
+    arrayUnion,
     updateDoc,
-    where
+    where,
+    writeBatch
 } from 'firebase/firestore';
 import type {DocumentData, Query} from 'firebase/firestore';
 import {authReady, db, firebaseEnabled} from '../../lib/firebase';
 import {COLLECTIONS, DUTIES, LIVE_WINDOW} from '../constants';
-import {codeFor, dateOf, money, startOfDay} from '../format';
-import {slotLabel} from '../roster';
-import {seedExpenses, seedLoyalty, seedRoster, seedSales, seedStaff} from '../seed';
+import {codeFor, dateOf, dayFrom, dayLabel, money, startOfDay} from '../format';
+import {slotLabel, weekSpan} from '../roster';
+import {SHARE_RATE} from '../payments';
+import {seedAttendance, seedExpenses, seedLoyalty, seedPayouts, seedRoster, seedSales, seedStaff} from '../seed';
 import {totalSales} from '../totals';
-import type {Expense, Loyalty, RosterEntry, Sale, Staff, Timestamp} from '../types';
+import type {AttendantPay, Attendance, Expense, Loyalty, Payout, RosterEntry, Sale, Staff, Timestamp} from '../types';
 import type {Notify} from './useToasts';
 
 // What both ledgers have in common, and all the merge and window helpers below need of them.
 type Dated = { createdAt?: Timestamp };
 
-type Feed = 'sales' | 'loyalty' | 'expenses' | 'staff' | 'roster';
-const FEEDS: Feed[] = ['sales', 'loyalty', 'expenses', 'staff', 'roster'];
+type Feed = 'sales' | 'loyalty' | 'expenses' | 'staff' | 'roster' | 'payouts' | 'attendance';
+const FEEDS: Feed[] = ['sales', 'loyalty', 'expenses', 'staff', 'roster', 'payouts', 'attendance'];
 type Ready = Record<Feed, boolean>;
 
 // Every collection the desk reads and every write it makes, in one place. The page below is
@@ -42,6 +48,8 @@ export function useBook(day: number, toast: Notify) {
     const [expenseRecords, setExpenseRecords] = useState<Expense[]>(firebaseEnabled ? [] : seedExpenses);
     const [staff, setStaff] = useState<Staff[]>(firebaseEnabled ? [] : seedStaff);
     const [roster, setRoster] = useState<RosterEntry[]>(firebaseEnabled ? [] : seedRoster);
+    const [payouts, setPayouts] = useState<Payout[]>(firebaseEnabled ? [] : seedPayouts);
+    const [attendance, setAttendance] = useState<Attendance[]>(firebaseEnabled ? [] : seedAttendance);
     const [syncError, setSyncError] = useState('');
     // Until the first snapshot lands every collection is an empty array, which renders as a
     // business that took nothing today rather than as one still loading — and on a forecourt
@@ -90,7 +98,11 @@ export function useBook(day: number, toast: Notify) {
                 watch<Staff>('staff', query(collection(db, COLLECTIONS.staff), orderBy('name')), setStaff),
                 // The rota is one entry per person per slot, so its window is years deep. It
                 // has no history path because nothing in the app navigates that far back.
-                watch<RosterEntry>('roster', query(collection(db, COLLECTIONS.roster), orderBy('day', 'desc'), limit(LIVE_WINDOW.roster)), setRoster)
+                watch<RosterEntry>('roster', query(collection(db, COLLECTIONS.roster), orderBy('day', 'desc'), limit(LIVE_WINDOW.roster)), setRoster),
+                // One row per person per paid week — a handful a week, so the window is years.
+                watch<Payout>('payouts', query(collection(db, COLLECTIONS.payouts), orderBy('week', 'desc'), limit(LIVE_WINDOW.payouts)), setPayouts),
+                // One row per trading day; four months is far more than any payout looks back.
+                watch<Attendance>('attendance', query(collection(db, COLLECTIONS.attendance), orderBy('day', 'desc'), limit(LIVE_WINDOW.attendance)), setAttendance)
             ];
         }).catch(e => {
             console.error('Firebase authentication failed', e);
@@ -388,10 +400,82 @@ export function useBook(day: number, toast: Notify) {
         toast(`Swap undone · ${slotLabel(entry.duty, entry.day)} is back to taking turns.`, 'warning');
     }, [toast]);
 
+    // --- Revenue share ------------------------------------------------------------------
+    // Who is an attendant, and how they are paid. Undefined is written as a field delete
+    // rather than left out, so taking somebody out of the pool actually takes them out.
+    const setAttendantPay = useCallback(async (person: Staff, pay: AttendantPay | null) => {
+        if (db) await updateDoc(doc(db, COLLECTIONS.staff, person.id), {attendantPay: pay ?? deleteField()});
+        else setStaff(list => list.map(p => p.id === person.id ? {...p, attendantPay: pay ?? undefined} : p));
+        toast(`${person.name} · ${pay === 'share' ? 'on revenue share' : pay === 'salary' ? 'attendant on salary' : 'not counted as an attendant'}.`, 'info');
+    }, [toast]);
+
+    // Marks one person's week as handed over, and books it as a Staff expense dated today —
+    // the day the money left, which is the day end-of-day has to count it. The two are written
+    // in one batch: a payout without its expense would overstate net income, and an expense
+    // without its payout would show the week as still owed and invite paying it twice.
+    //
+    // One payout per person per week: paying a line that is already paid does nothing, so a
+    // double tap on a slow tablet cannot pay twice.
+    const markPaid = useCallback(async (record: Omit<Payout, 'id' | 'createdAt' | 'rate' | 'expenseId'>) => {
+        if (payouts.some(p => p.week === record.week && p.staffId === record.staffId)) return;
+        const expense = {
+            category: 'Staff',
+            note: `Revenue share · ${record.staffName} · week of ${weekSpan(dayFrom(record.week))}`,
+            payment: record.payment,
+            amount: record.amount
+        };
+        if (db) {
+            const expenseRef = doc(collection(db, COLLECTIONS.expenses));
+            const batch = writeBatch(db);
+            batch.set(expenseRef, {...expense, createdAt: serverTimestamp()});
+            batch.set(doc(collection(db, COLLECTIONS.payouts)), {
+                ...record, rate: SHARE_RATE, expenseId: expenseRef.id, createdAt: serverTimestamp()
+            });
+            await batch.commit();
+        } else {
+            const expenseId = crypto.randomUUID();
+            setExpenseRecords(list => [{id: expenseId, ...expense}, ...list]);
+            setPayouts(list => [{id: crypto.randomUUID(), ...record, rate: SHARE_RATE, expenseId}, ...list]);
+        }
+        toast(`${record.staffName} paid · ${money(record.amount)} · recorded as a Staff expense.`);
+    }, [payouts, toast]);
+
+    // Marks one attendant in or out for a day. Written as a union/remove on the day's sheet
+    // rather than as the whole list, so two tablets marking different people at once both land.
+    const setPresence = useCallback(async (day: string, person: Staff, present: boolean) => {
+        if (db) await setDoc(doc(db, COLLECTIONS.attendance, day), {
+            day,
+            present: present ? arrayUnion(person.id) : arrayRemove(person.id),
+            updatedAt: serverTimestamp()
+        }, {merge: true});
+        else setAttendance(list => {
+            const sheet = list.find(a => a.day === day) || {id: day, day, present: []};
+            const next = {...sheet, present: present ? Array.from(new Set([...sheet.present, person.id])) : sheet.present.filter(id => id !== person.id)};
+            return [next, ...list.filter(a => a.day !== day)];
+        });
+        toast(`${person.name} marked ${present ? 'present' : 'absent'} · ${dayLabel(dayFrom(day))}.`, present ? 'success' : 'info');
+    }, [toast]);
+
+    // Undoing a payout puts the line back to owed, worked out afresh from today's team, and
+    // takes its Staff expense off the books with it. A payout from before expenses were linked
+    // has no expenseId and only the payout goes.
+    const undoPayout = useCallback(async (payout: Payout) => {
+        if (db) {
+            const batch = writeBatch(db);
+            batch.delete(doc(db, COLLECTIONS.payouts, payout.id));
+            if (payout.expenseId) batch.delete(doc(db, COLLECTIONS.expenses, payout.expenseId));
+            await batch.commit();
+        } else {
+            setPayouts(list => list.filter(p => p.id !== payout.id));
+            if (payout.expenseId) setExpenseRecords(list => list.filter(x => x.id !== payout.expenseId));
+        }
+        toast(`Payment to ${payout.staffName} undone · ${money(payout.amount)} back to owed and off expenses.`, 'warning');
+    }, [toast]);
+
     return {
         // The merged views, so a section filtered to a wide period sees the history it pulled
         // in. Today's figures are derived from the live window above and are never affected.
-        sales: allSales, loyalty, expenseRecords: allExpenses, staff, roster,
+        sales: allSales, loyalty, expenseRecords: allExpenses, staff, roster, payouts, attendance,
         todaySales, todayExpenses, totals,
         ready, syncError,
         requestHistory, historyLoading,
@@ -399,7 +483,8 @@ export function useBook(day: number, toast: Notify) {
         adjustPoints,
         addExpense, updateExpense, removeExpense,
         addStaff, updateStaff, removeStaff,
-        assignDuty, updateDuty, removeDuty
+        assignDuty, updateDuty, removeDuty,
+        setAttendantPay, markPaid, undoPayout, setPresence
     };
 }
 

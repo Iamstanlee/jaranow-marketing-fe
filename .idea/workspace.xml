@@ -5,11 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add rug and business logo marks">
-      <change beforePath="$PROJECT_DIR$/brand/gen-ad.js" beforeDir="false" afterPath="$PROJECT_DIR$/brand/gen-ad.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/rugs/RugPrices.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/rugs/RugPrices.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/Business.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Business.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/Pricing.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Pricing.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/Rugs.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Rugs.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/firestore.rules" beforeDir="false" afterPath="$PROJECT_DIR$/firestore.rules" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/components/Confirm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/components/Confirm.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/constants.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/constants.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/format.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/format.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/hooks/useBook.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/hooks/useBook.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/sections/ExpenseBreakdown.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/ExpenseBreakdown.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/sections/Reports.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Reports.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/seed.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/seed.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/Bookkeeping.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Bookkeeping.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -193,7 +198,9 @@
       <workItem from="1789719534619" duration="6727000" />
       <workItem from="1790250791842" duration="727000" />
       <workItem from="1790260382060" duration="394000" />
-      <workItem from="1790358488160" duration="36234000" />
+      <workItem from="1790358488160" duration="54436000" />
+      <workItem from="1792376355426" duration="602000" />
+      <workItem from="1793620721372" duration="13275000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

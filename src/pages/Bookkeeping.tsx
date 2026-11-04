@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {
-    BarChart3,
+    BarChart3, CalendarClock,
     CalendarDays,
     ClipboardCheck,
     Gift,
     LayoutDashboard,
     LogOut,
-    Menu,
+    Menu, PiggyBank,
     Plus,
     WalletCards,
     X
@@ -22,10 +22,12 @@ import {ExpenseModal} from '../book/components/ExpenseModal';
 import {PinGate} from '../book/components/PinGate';
 import {SaleModal} from '../book/components/SaleModal';
 import {Toasts} from '../book/components/Toasts';
+import {Attendance} from '../book/sections/Attendance';
 import {Eod} from '../book/sections/Eod';
 import {Expenses} from '../book/sections/Expenses';
 import {LoyaltySection} from '../book/sections/Loyalty';
 import {Overview} from '../book/sections/Overview';
+import {Payments} from '../book/sections/Payments';
 import {Reports} from '../book/sections/Reports';
 import {Roster} from '../book/sections/Roster';
 import {Sales} from '../book/sections/Sales';
@@ -115,9 +117,18 @@ export default function Bookkeeping() {
         label: 'Rota',
         icon: CalendarDays
     }, {
+        id: 'attendance',
+        label: 'Attendance',
+        icon: CalendarClock
+    }, {
         id: 'eod',
         label: 'End of day',
         icon: ClipboardCheck
+    }, {
+        // Readable on the staff PIN; the section itself keeps the pool and the payouts admin-only.
+        id: 'payments',
+        label: 'Payments',
+        icon: PiggyBank
     }, ...(role === 'admin' ? [{id: 'reports' as const, label: 'Reports', icon: BarChart3}] : [])];
     const title = section === 'overview' ? greeting() : nav.find(x => x.id === section)?.label;
     return <div className="min-h-screen bg-[#f7f8fc] text-slate-900">
@@ -188,7 +199,14 @@ export default function Bookkeeping() {
                      loading={!ready.sales || !ready.expenses}/>} {section === 'reports' && role === 'admin' &&
                 <Reports sales={book.sales} loyalty={book.loyalty} expenses={book.expenseRecords}
                          loading={!ready.sales || !ready.loyalty || !ready.expenses}
-                         requestHistory={book.requestHistory} historyLoading={book.historyLoading}/>}</div>
+                         requestHistory={book.requestHistory} historyLoading={book.historyLoading}/>} {section === 'payments' &&
+                <Payments sales={book.sales} staff={book.staff} payouts={book.payouts} attendance={book.attendance}
+                          role={role}
+                          loading={!ready.sales || !ready.staff || !ready.payouts || !ready.attendance}
+                          requestHistory={book.requestHistory} historyLoading={book.historyLoading}
+                          onSetPay={book.setAttendantPay} onPay={book.markPaid} onUndo={book.undoPayout}/>} {section === 'attendance' &&
+                <Attendance staff={book.staff} attendance={book.attendance} role={role}
+                            loading={!ready.staff || !ready.attendance} onSet={book.setPresence}/>}</div>
         </main>
         {saleModal && <SaleModal members={book.loyalty} close={() => setSaleModal(false)} save={book.addSale}/>}
         {expenseModal && <ExpenseModal close={() => setExpenseModal(false)} save={book.addExpense}/>}

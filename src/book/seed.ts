@@ -1,6 +1,6 @@
 import {SERVICES} from './constants';
 import {addDays, isoDay, startOfWeek} from './format';
-import type {Expense, Loyalty, RosterEntry, Sale, Staff} from './types';
+import type {Attendance, Expense, Loyalty, Payout, RosterEntry, Sale, Staff} from './types';
 
 // Seed records are strictly for local demo mode. A Firebase-backed business starts empty and
 // is populated only by its Firestore collections.
@@ -53,11 +53,12 @@ export const seedExpenses: Expense[] = [{
 }];
 
 export const seedStaff: Staff[] = [
-    {id: 'p1', name: 'Musa Ibrahim', phone: '0803 111 2233', active: true, exempt: []},
-    {id: 'p2', name: 'Blessing Eze', phone: '0806 444 5566', active: true, exempt: []},
+    // Three attendants, two on revenue share — the worked example: each of the two takes 10%.
+    {id: 'p1', name: 'Musa Ibrahim', phone: '0803 111 2233', active: true, exempt: [], attendantPay: 'share'},
+    {id: 'p2', name: 'Blessing Eze', phone: '0806 444 5566', active: true, exempt: [], attendantPay: 'share'},
     // Carries an exemption so demo mode shows what one looks like on the team list and in the
     // turn order, rather than only the everybody-takes-every-turn case.
-    {id: 'p3', name: 'Segun Ola', phone: '', active: true, exempt: ['Cleaning']}
+    {id: 'p3', name: 'Segun Ola', phone: '', active: true, exempt: ['Cleaning'], attendantPay: 'salary'}
 ];
 
 // Anchored to the current week rather than to fixed dates, so demo mode always opens on a
@@ -78,3 +79,9 @@ export const seedRoster: RosterEntry[] = [
         note: 'Family event'
     }
 ];
+
+export const seedPayouts: Payout[] = [];
+
+// Everybody in today, so demo mode opens on the worked example: three present, two on revenue
+// share, 10% each.
+export const seedAttendance: Attendance[] = [{id: isoDay(new Date()), day: isoDay(new Date()), present: ['p1', 'p2', 'p3']}];

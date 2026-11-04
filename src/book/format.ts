@@ -79,3 +79,10 @@ export const dateText = (iso: string) => dayFrom(iso).toLocaleDateString('en-NG'
     month: 'short',
     year: 'numeric'
 });
+
+/** A share (0–1) as a percentage: one decimal under 10%, so small slices don't all read "0%". */
+export const percent = (share: number) => {
+    const value = share * 100;
+    if (value > 0 && value < 0.1) return '<0.1%';
+    return `${value.toFixed(value < 10 && value > 0 ? 1 : 0)}%`;
+};

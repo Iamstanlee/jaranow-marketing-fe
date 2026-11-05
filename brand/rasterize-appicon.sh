@@ -6,15 +6,13 @@
 #
 #   node brand/gen-appicon.js && brand/rasterize-appicon.sh
 #
-# Type is pulled from Google Fonts at render time, so this needs network access.
-# The stylesheet uses display=block, so Chrome will not paint fallback type while
-# it waits - but always eyeball the PNGs, because a failed font load silently
-# gives you a system-sans J instead of Rubik 900.
+# The j is drawn SVG geometry, not type, so unlike the other rasterizers this one
+# needs no network and has no font to fall back from. Still eyeball the PNGs.
 #
 # Each variant is rendered ONCE at RENDER px and then resampled to the sizes in
 # sizes.txt. Do not screenshot at the target size instead: headless Chrome will
 # not open a window below roughly 500px, and rather than failing it returns a
-# crop of a larger viewport - which looks like a J with most of it missing.
+# crop of a larger viewport - which looks like a j with most of it missing.
 set -e
 
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"

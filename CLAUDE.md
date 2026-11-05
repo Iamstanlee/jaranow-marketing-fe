@@ -626,7 +626,11 @@ because only the carwash is a place you drive to. See §3.1.
 **Book app icon.** The **one** asset using the "J" monogram instead of the drop,
 and only because the books app is an internal tool sharing a home screen with the
 Jaranow app — the launcher icon matches the tile in its own sidebar. Anything
-public keeps the symbol (§2.4). Do not reach for the monogram elsewhere, and do
+public keeps the symbol (§2.4). Treatment "Ink desk": Ink tile, the wordmark's
+drawn `j` (not typed) in Paper, tittle in blue — Ink so it can't be mistaken for
+the blue Jaranow drop on a home screen. The sidebar tile is
+`src/book/components/BookMark.tsx`, same geometry as `gen-appicon.js`; change
+both together. Do not reach for the monogram elsewhere, and do
 not point the site manifests at `public/book/`.
 
 Two builds, not interchangeable (§7.2): `any` carries the 22.37% radius,

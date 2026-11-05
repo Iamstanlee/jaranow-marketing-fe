@@ -8,7 +8,7 @@ import {
     Menu, PiggyBank,
     Plus,
     WalletCards,
-    X, SquareUserRound
+    X, SquareUserRound, Gauge
 } from 'lucide-react';
 import {greeting, longDate} from '../book/format';
 import {clearSession, readSession, type Session, writeSession} from '../book/session';
@@ -105,7 +105,7 @@ export default function Bookkeeping() {
     const nav: Array<{ id: Section; label: string; icon: typeof LayoutDashboard }> = [{
         id: 'overview',
         label: 'Overview',
-        icon: LayoutDashboard
+        icon: Gauge
     }, {id: 'sales', label: 'Sales records', icon: Plus}, {
         id: 'loyalty',
         label: 'Loyalty',
@@ -130,9 +130,6 @@ export default function Bookkeeping() {
         <aside
             className={`fixed inset-y-0 left-0 z-30 w-64 border-r border-slate-200 bg-white px-5 py-6 transition-transform md:translate-x-0 ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="mb-10 flex items-center gap-3">
-                <div
-                    className="grid h-10 w-10 place-items-center rounded-xl bg-blue-600 text-xl font-black text-white">J
-                </div>
                 <div><p className="text-lg font-bold">jaranow</p><p className="text-xs text-slate-400">Business desk</p>
                 </div>
                 <button onClick={() => setMenuOpen(false)} className="ml-auto md:hidden"><X size={20}/></button>

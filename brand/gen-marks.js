@@ -73,6 +73,22 @@ const G = {
   g:{w:54,top:46,bot:131, d:"M47 53 V110 A14 14 0 0 1 33 124 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"},
   /* `o`'s bowl with an arm rising off its left to the ascender and turning. */
   "6":{w:54,top:16,bot:100, d:"M7 67 A14 14 0 0 1 21 53 H33 A14 14 0 0 1 47 67 V79 A14 14 0 0 1 33 93 H21 A14 14 0 0 1 7 79 Z M7 72 V30 A14 14 0 0 1 21 16 H30"},
+  /* Capitals, added for the books app icon ("BOOK", gen-appicon.js) - the only
+     capitals in the face; the wordmark itself stays lowercase. Cap height is
+     the ascender line (centre 16, outer 9), so a capital stands exactly as tall
+     as `b` or `l`. The house quirk carries over: K's stem and leg are straight
+     strokes ending at 100 and overhanging to 107; O and B are closed and stop at
+     outer 100, like `o`.
+     O: `o`'s rounded rectangle, risen to cap height and widened to 68.
+     B: a closed contour - stem, a narrower upper bowl and a wider lower one
+     meeting on the x-height line (54), so nothing overhangs at the stem foot.
+     K: straight diagonals, as `v`/`w`/`y`; the leg leaves the arm and lands
+     under the arm's top end, so both terminals share one right edge.
+     The icon sets these at a heavier stroke than 14 (see gen-appicon.js); the
+     centre-line geometry here is unchanged by that. */
+  O:{w:68,top:16,bot:100, d:"M7 30 A14 14 0 0 1 21 16 H47 A14 14 0 0 1 61 30 V79 A14 14 0 0 1 47 93 H21 A14 14 0 0 1 7 79 Z"},
+  B:{w:61,top:16,bot:100, d:"M7 93 V16 H33 A14 14 0 0 1 47 30 V40 A14 14 0 0 1 33 54 H7 M7 54 H40 A14 14 0 0 1 54 68 V79 A14 14 0 0 1 40 93 H7"},
+  K:{w:57,top:16,bot:100, d:"M7 16 V100 M50 16 L7 64 M21 48.4 L50 100"},
   /* Separator, centred on the x-height. Square, like the tittles - a round dot
      would be the only circle in the face. */
   "·":{w:14,top:66,bot:80, f:"M0 66 H14 V80 H0 Z"},

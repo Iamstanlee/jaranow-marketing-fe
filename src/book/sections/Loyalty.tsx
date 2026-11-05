@@ -64,7 +64,7 @@ export function LoyaltySection({members, loading, onAdjust}: {
         </section>)}</div>
     </>;
     return <><p className="mb-7 text-sm text-slate-500">Loyalty codes are automatically created when a sale is recorded
-        for a new customer.{onAdjust && ' Correct a balance from the card menu only when the card and the book disagree — recording the wash is what earns the point.'}</p>
+        for a new customer.{onAdjust && ' recording the wash is what earns the point.'}</p>
         {!coded.length && <p className="rounded-2xl border border-slate-200 bg-white px-5 py-10 text-center text-sm text-slate-400">No
             loyalty customers yet.</p>}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{slice.map(m => <section key={m.id}

@@ -1,5 +1,5 @@
 import {useEffect, useMemo, useState} from 'react';
-import {CalendarClock, HandCoins, TriangleAlert, Users} from 'lucide-react';
+import {CalendarClock, DollarSign, TriangleAlert, Users} from 'lucide-react';
 import {addDays, isToday, money, percent, startOfDay, startOfWeek} from '../format';
 import {payday, type PayLine, SHARE_RATE, SHARE_START, weekPay, type WeekPay} from '../payments';
 import {weekSpan} from '../roster';
@@ -89,7 +89,7 @@ export function Payments({sales, staff, payouts, attendance, role, loading, requ
             <Stat title="This week so far" icon={CalendarClock} tint="bg-sky-50 text-sky-600" loading={loading}
                   value={money(current.lines.filter(l => l.pay === 'share').reduce((sum, l) => sum + l.amount, 0))}
                   note={`Due ${dayMonth(payday(thisMonday))} · from ${money(current.revenue)} sales`}/>
-            <Stat title="Owed from past weeks" icon={HandCoins} loading={loading || historyLoading}
+            <Stat title="Owed from past weeks" icon={DollarSign} loading={loading || historyLoading}
                   tint={owed ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'}
                   value={money(owed)} note={owed ? 'Not yet marked paid' : 'Everyone is paid up'}/>
         </div>
@@ -104,7 +104,7 @@ export function Payments({sales, staff, payouts, attendance, role, loading, requ
             {loading ? <ul aria-busy className="divide-y divide-slate-100">{[0, 1, 2].map(i => <li key={i} className="px-5 py-4">
                     <Skeleton className="h-4 w-40"/></li>)}</ul>
                 : !active.length ? <p className="px-5 py-10 text-center text-sm text-slate-400">Nobody on the team yet. Add
-                        people in the Rota section.</p>
+                        people in the Staff section.</p>
                     : <ul className="divide-y divide-slate-100">{active.map(p => <li key={p.id}
                                                                                     className="flex flex-col gap-2 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                         <p className="font-medium">{p.name}</p>

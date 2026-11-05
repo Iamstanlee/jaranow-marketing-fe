@@ -83,4 +83,4 @@ export type RosterEntry = {
 // other's mark.
 export type Attendance = { id: string; day: string; present: string[]; updatedAt?: Timestamp };
 export type Role = 'admin' | 'staff';
-export type Section = 'overview' | 'sales' | 'loyalty' | 'expenses' | 'roster' | 'eod' | 'reports' | 'payments' | 'attendance';
+export type Section = 'overview' | 'sales' | 'loyalty' | 'expenses' | 'roster' | 'eod' | 'reports' | 'payments';

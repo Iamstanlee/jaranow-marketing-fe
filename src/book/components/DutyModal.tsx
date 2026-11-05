@@ -8,7 +8,7 @@ import {Modal} from './Modal';
 // One person, one slot, one duty. Recording and correcting share this form for the same
 // reason the expense form is shared: unlike a sale, nothing about a duty can only be set at
 // the moment it is first written.
-export function DutyModal({entry, day, duty: initialDuty, staffId: initialStaffId, staff, close, save, remove, removeLabel = 'Remove from rota'}: {
+export function DutyModal({entry, day, duty: initialDuty, staffId: initialStaffId, staff, close, save, remove, removeLabel = 'Remove from duties'}: {
     entry?: RosterEntry;
     day: string;
     duty?: Duty;
@@ -67,7 +67,7 @@ export function DutyModal({entry, day, duty: initialDuty, staffId: initialStaffI
     return <Modal title={entry ? 'Edit duty' : 'Assign a duty'} close={close}>
         {!pickable.length
             ? <p className="text-sm leading-6 text-slate-500">There is nobody on the team yet. Add a team member first,
-                then come back to put them on the rota.</p>
+                then come back to give them a duty.</p>
             : <form onSubmit={submit} className="space-y-4">
                 <label className="block text-sm font-medium">Team member<select value={staffId}
                                                                                 onChange={e => setStaffId(e.target.value)}

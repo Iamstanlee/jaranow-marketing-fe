@@ -130,7 +130,10 @@ Laundry plans are defined once, as `LAUNDRY_PLANS` in
 Motion is deliberately limited. **Do not reintroduce scroll-reveal animation.**
 Keep motion only for hero entrances (`components/{home,carwash,wash}/Hero.tsx`),
 `whileHover`/`whileTap` on buttons and cards, and `AnimatePresence` + `exit` for
-the mobile menu, accordions and multi-step forms.
+the mobile menu, accordions and multi-step forms. One exception: the nudging arrow in the
+header's hiring strip (`HiringStrip`, `animate-nudge`, `motion-safe` only) - it is the
+only looping animation on the site; do not add a second. The strip sits above the bar on
+every page except `/careers`, so the fixed header is 100px tall; heroes start at `pt-32`.
 
 `whileInView`/`viewport` reveals were removed across all content sections.
 Content stuck at `initial` opacity is the failure mode to watch for.
@@ -204,12 +207,12 @@ Helper extension.
 `docs/` holds the documents staff read, as HTML rather than Markdown because they
 are published as Artifacts and printed:
 
-| Document | File |
-|---|---|
-| Employee Handbook — work rules, offences and sanctions, revenue sharing | `employee-handbook.html` |
-| Attendant Guide | `attendant-guide.html` |
-| Cashier Guide | `cashier-guide.html` |
-| Hiring Playbook — the always-hiring pipeline and why | `hiring-playbook.html` |
+| Document | File | Artifact |
+|---|---|---|
+| Employee Handbook — work rules, offences and sanctions, salary advance | `employee-handbook.html` | https://claude.ai/artifact/Xz438PSTzH5SwUC6ajL2xU |
+| Attendant Guide | `attendant-guide.html` | https://claude.ai/artifact/FSjZ9HY1P8fvyXhNrN7YNh |
+| Cashier Guide | `cashier-guide.html` | https://claude.ai/artifact/X6WjDZPxUcK5L5a7Aq1m4f |
+| Hiring Playbook — the always-hiring pipeline and why | `hiring-playbook.html` | not yet published |
 
 They share one token set with the print pieces (Ink / Paper / accent, Archivo
 Black over Rubik), so a document and a wall sheet read as the same brand.

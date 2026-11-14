@@ -21,13 +21,14 @@ import {
 } from 'firebase/firestore';
 import type {DocumentData, Query} from 'firebase/firestore';
 import {authReady, db, firebaseEnabled} from '../../lib/firebase';
-import {COLLECTIONS, DUTIES, LIVE_WINDOW} from '../constants';
+import {COLLECTIONS, DUTIES, earnsPoints, LIVE_WINDOW} from '../constants';
 import {codeFor, dateOf, dayFrom, dayLabel, money, startOfDay} from '../format';
 import {slotLabel, weekSpan} from '../roster';
-import {SHARE_RATE} from '../payments';
+import {type Mark, SHARE_RATE} from '../payments';
 import {seedAttendance, seedExpenses, seedLoyalty, seedPayouts, seedRoster, seedSales, seedStaff} from '../seed';
 import {totalSales} from '../totals';
-import type {AttendantPay, Attendance, Expense, Loyalty, Payout, RosterEntry, Sale, Staff, Timestamp} from '../types';
+import type {Advance, Attendance, Expense, Loyalty, Payout, RosterEntry, Sale, Staff, Timestamp} from '../types';
+import type {StaffRecord} from '../components/StaffModal';
 import type {Notify} from './useToasts';
 
 // What both ledgers have in common, and all the merge and window helpers below need of them.
@@ -198,8 +199,11 @@ export function useBook(day: number, toast: Notify) {
         customer: string;
         phone: string
     }) => {
-        let activeMember = member;
-        if (newMember) {
+        // Rugs are outside the loyalty card (see earnsPoints).
+        const loyal = earnsPoints(record.service);
+        if (!loyal) record = {...record, redeemed: false};
+        let activeMember = loyal ? member : undefined;
+        if (newMember && loyal) {
             const loyaltyRecord = {...newMember, points: 0, redeemed: 0};
             if (db) {
                 const ref = await addDoc(collection(db, COLLECTIONS.loyalty), loyaltyRecord);
@@ -339,21 +343,35 @@ export function useBook(day: number, toast: Notify) {
     // leave, so that their name stays on the days they actually worked. `exempt` is always
     // written as an array, never left undefined — Firestore rejects undefined, and an absent
     // field would then be the only way an older record can say "takes every turn".
-    const addStaff = useCallback(async (record: Pick<Staff, 'name' | 'phone' | 'exempt'>) => {
-        const person = {...record, exempt: record.exempt ?? [], active: true};
+    // A null `attendantPay` or `salary` is left off a new record and deleted from an edited one.
+    const addStaff = useCallback(async ({attendantPay, salary, ...record}: StaffRecord) => {
+        const person = {
+            ...record, exempt: record.exempt ?? [], active: true,
+            ...(attendantPay ? {attendantPay} : {}), ...(salary ? {salary} : {})
+        };
         if (db) await addDoc(collection(db, COLLECTIONS.staff), {...person, createdAt: serverTimestamp()});
         else setStaff(list => [...list, {id: crypto.randomUUID(), ...person}].sort((a, b) => a.name.localeCompare(b.name)));
         toast(`${record.name} added to the team${person.exempt.length ? ` · exempt from ${person.exempt.length === DUTIES.length ? 'every rotation' : `the ${person.exempt[0].toLowerCase()} rotation`}` : ''}.`);
     }, [toast]);
 
-    const updateStaff = useCallback(async (id: string, patch: Partial<Pick<Staff, 'name' | 'phone' | 'active' | 'exempt'>>) => {
-        if (db) await updateDoc(doc(db, COLLECTIONS.staff, id), patch);
-        else setStaff(list => list.map(p => p.id === id ? {...p, ...patch} : p).sort((a, b) => a.name.localeCompare(b.name)));
+    const updateStaff = useCallback(async (id: string, patch: Partial<StaffRecord & Pick<Staff, 'active'>>) => {
+        const {attendantPay, salary, ...rest} = patch;
+        const role = 'attendantPay' in patch, paid = 'salary' in patch;
+        if (db) await updateDoc(doc(db, COLLECTIONS.staff, id), {
+            ...rest,
+            ...(role ? {attendantPay: attendantPay ?? deleteField()} : {}),
+            ...(paid ? {salary: salary ?? deleteField()} : {})
+        }); else setStaff(list => list.map(p => p.id === id ? {
+            ...p, ...rest,
+            ...(role ? {attendantPay: attendantPay ?? undefined} : {}),
+            ...(paid ? {salary: salary ?? undefined} : {})
+        } : p).sort((a, b) => a.name.localeCompare(b.name)));
         const person = staff.find(p => p.id === id);
         // Archiving and un-archiving are the two edits worth naming; a name or phone change
         // speaks for itself in the list that is already on screen.
         if (patch.active === false) toast(`${person?.name ?? 'Team member'} archived — they stay on past rotas.`, 'info');
         else if (patch.active === true) toast(`${person?.name ?? 'Team member'} is back on the rota.`);
+        else if (role && person && (attendantPay ?? undefined) !== person.attendantPay) toast(`${rest.name ?? person.name} · ${attendantPay === 'share' ? 'on revenue share' : attendantPay === 'salary' ? 'car washer on salary' : 'cashier on salary'}.`, 'info');
         else toast('Team member updated.', 'info');
     }, [staff, toast]);
 
@@ -401,12 +419,19 @@ export function useBook(day: number, toast: Notify) {
     }, [toast]);
 
     // --- Revenue share ------------------------------------------------------------------
-    // Who is an attendant, and how they are paid. Undefined is written as a field delete
-    // rather than left out, so taking somebody out of the pool actually takes them out.
-    const setAttendantPay = useCallback(async (person: Staff, pay: AttendantPay | null) => {
-        if (db) await updateDoc(doc(db, COLLECTIONS.staff, person.id), {attendantPay: pay ?? deleteField()});
-        else setStaff(list => list.map(p => p.id === person.id ? {...p, attendantPay: pay ?? undefined} : p));
-        toast(`${person.name} · ${pay === 'share' ? 'on revenue share' : pay === 'salary' ? 'attendant on salary' : 'not counted as an attendant'}.`, 'info');
+    // Advances are added and removed one entry at a time, so two tablets cannot overwrite each
+    // other. arrayRemove matches on the whole entry, so it gets the stored one untouched.
+    const addAdvance = useCallback(async (person: Staff, entry: Omit<Advance, 'id'>) => {
+        const advance: Advance = {id: crypto.randomUUID(), ...entry};
+        if (db) await updateDoc(doc(db, COLLECTIONS.staff, person.id), {advances: arrayUnion(advance)});
+        else setStaff(list => list.map(p => p.id === person.id ? {...p, advances: [...(p.advances || []), advance]} : p));
+        toast(`${money(advance.amount)} advance recorded for ${person.name}.`);
+    }, [toast]);
+
+    const removeAdvance = useCallback(async (person: Staff, advance: Advance) => {
+        if (db) await updateDoc(doc(db, COLLECTIONS.staff, person.id), {advances: arrayRemove(advance)});
+        else setStaff(list => list.map(p => p.id === person.id ? {...p, advances: (p.advances || []).filter(a => a.id !== advance.id)} : p));
+        toast(`${money(advance.amount)} advance removed from ${person.name}.`, 'warning');
     }, [toast]);
 
     // Marks one person's week as handed over, and books it as a Staff expense dated today —
@@ -440,20 +465,23 @@ export function useBook(day: number, toast: Notify) {
         toast(`${record.staffName} paid · ${money(record.amount)} · recorded as a Staff expense.`);
     }, [payouts, toast]);
 
-    // Marks one attendant in or out for a day. Written as a union/remove on the day's sheet
-    // rather than as the whole list, so two tablets marking different people at once both land.
-    const setPresence = useCallback(async (day: string, person: Staff, present: boolean) => {
+    // Marks one attendant for a day. Each list is written as a union/remove rather than whole,
+    // so two tablets marking different people at once both land; the person is put on the one
+    // list and taken off the other two. A null mark takes them off all three — unmarked.
+    const setMark = useCallback(async (day: string, person: Staff, mark: Mark | null) => {
+        const field = {present: 'present', absent: 'absent', leave: 'paidOff'} as const;
+        const lists = ['present', 'absent', 'paidOff'] as const;
         if (db) await setDoc(doc(db, COLLECTIONS.attendance, day), {
             day,
-            present: present ? arrayUnion(person.id) : arrayRemove(person.id),
+            ...Object.fromEntries(lists.map(l => [l, mark && l === field[mark] ? arrayUnion(person.id) : arrayRemove(person.id)])),
             updatedAt: serverTimestamp()
         }, {merge: true});
         else setAttendance(list => {
-            const sheet = list.find(a => a.day === day) || {id: day, day, present: []};
-            const next = {...sheet, present: present ? Array.from(new Set([...sheet.present, person.id])) : sheet.present.filter(id => id !== person.id)};
-            return [next, ...list.filter(a => a.day !== day)];
+            const sheet = list.find(x => x.day === day) || {id: day, day, present: []};
+            const next = {...sheet, ...Object.fromEntries(lists.map(l => [l, [...(sheet[l] || []).filter(id => id !== person.id), ...(mark && l === field[mark] ? [person.id] : [])]]))} as Attendance;
+            return [next, ...list.filter(x => x.day !== day)];
         });
-        toast(`${person.name} marked ${present ? 'present' : 'absent'} · ${dayLabel(dayFrom(day))}.`, present ? 'success' : 'info');
+        toast(`${person.name} ${!mark ? 'unmarked' : `marked ${mark === 'leave' ? 'on paid leave' : mark}`} · ${dayLabel(dayFrom(day))}.`, mark === 'present' ? 'success' : 'info');
     }, [toast]);
 
     // Undoing a payout puts the line back to owed, worked out afresh from today's team, and
@@ -484,7 +512,7 @@ export function useBook(day: number, toast: Notify) {
         addExpense, updateExpense, removeExpense,
         addStaff, updateStaff, removeStaff,
         assignDuty, updateDuty, removeDuty,
-        setAttendantPay, markPaid, undoPayout, setPresence
+        addAdvance, removeAdvance, markPaid, undoPayout, setMark
     };
 }
 

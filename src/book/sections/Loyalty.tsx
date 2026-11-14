@@ -1,5 +1,5 @@
 import {useMemo, useState} from 'react';
-import {Minus, Plus} from 'lucide-react';
+import {Minus, Plus, Search, X} from 'lucide-react';
 import {codeFor} from '../format';
 import type {Loyalty} from '../types';
 import {usePage} from '../hooks/usePage';
@@ -20,6 +20,17 @@ const adjustDetail = (member: Carded, delta: number) => {
     const crossing = to >= 5 && member.points < 5 ? ` That earns a free wash — ${member.code} can redeem it on the next visit.`
         : member.points >= 5 && to < 5 ? ' The free wash they had is no longer available.' : '';
     return `${member.code} goes from ${member.points} to ${to}/5 points.${crossing} No sale is recorded either way, so the day's takings do not change.`;
+};
+
+// By code ("7", "007" and "LOY-7" are all LOY-007), name, or phone digits. A phone needs three
+// digits, or a search for card 7 would return every number with a 7 in it.
+const matches = (member: Carded, query: string) => {
+    const q = query.trim().toLowerCase(), digits = q.replace(/\D/g, '');
+    if (!q) return true;
+    return member.customer.toLowerCase().includes(q)
+        || member.code.toLowerCase().includes(q)
+        || (!!digits && Number(member.code.replace(/\D/g, '')) === Number(digits))
+        || (digits.length >= 3 && member.phone.replace(/\D/g, '').includes(digits));
 };
 
 export function LoyaltySection({members, loading, onAdjust}: {
@@ -46,7 +57,9 @@ export function LoyaltySection({members, loading, onAdjust}: {
         code: codeFor(m, i),
         points: Math.max(0, m.points)
     })).sort((a, b) => Number(a.code.replace(/\D/g, '')) - Number(b.code.replace(/\D/g, ''))), [members]);
-    const {slice, ...pager} = usePage(coded, undefined, 9);
+    const [query, setQuery] = useState('');
+    const found = useMemo(() => coded.filter(m => matches(m, query)), [coded, query]);
+    const {slice, ...pager} = usePage(found, query.trim(), 9);
     // The correction waiting to be confirmed. Everything that guards the write — the in-flight
     // state that stops a double tap, and the error if it fails — belongs to the dialog.
     const [adjusting, setAdjusting] = useState<{ member: Carded; delta: number } | null>(null);
@@ -65,8 +78,23 @@ export function LoyaltySection({members, loading, onAdjust}: {
     </>;
     return <><p className="mb-7 text-sm text-slate-500">Loyalty codes are automatically created when a sale is recorded
         for a new customer.{onAdjust && ' recording the wash is what earns the point.'}</p>
+        {coded.length > 0 && <div className="mb-5 flex flex-wrap items-center gap-3">
+            <label className="relative block w-full sm:max-w-sm">
+                <span className="sr-only">Search loyalty customers</span>
+                <Search size={16} aria-hidden className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/>
+                <input type="text" inputMode="search" enterKeyHint="search" value={query} onChange={e => setQuery(e.target.value)}
+                       placeholder="Search by code, name or phone"
+                       className="w-full rounded-xl border-slate-200 bg-white pl-9 pr-9 text-sm"/>
+                {query && <button type="button" aria-label="Clear search" onClick={() => setQuery('')}
+                                  className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+                    <X size={15}/></button>}
+            </label>
+            {query.trim() && <p role="status" className="text-xs text-slate-500">{found.length} of {coded.length}</p>}
+        </div>}
         {!coded.length && <p className="rounded-2xl border border-slate-200 bg-white px-5 py-10 text-center text-sm text-slate-400">No
             loyalty customers yet.</p>}
+        {coded.length > 0 && !found.length && <p className="rounded-2xl border border-slate-200 bg-white px-5 py-10 text-center text-sm text-slate-400">
+            No loyalty customer matches “{query.trim()}”.</p>}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{slice.map(m => <section key={m.id}
                                                                                            className="rounded-2xl border border-slate-200 bg-white p-5">
             <div className="flex items-start justify-between gap-3"><span

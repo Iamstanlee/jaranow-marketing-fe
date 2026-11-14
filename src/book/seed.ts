@@ -58,7 +58,7 @@ export const seedStaff: Staff[] = [
     {id: 'p2', name: 'Blessing Eze', phone: '0806 444 5566', active: true, exempt: [], attendantPay: 'share'},
     // Carries an exemption so demo mode shows what one looks like on the team list and in the
     // turn order, rather than only the everybody-takes-every-turn case.
-    {id: 'p3', name: 'Segun Ola', phone: '', active: true, exempt: ['Cleaning'], attendantPay: 'salary'}
+    {id: 'p3', name: 'Segun Ola', phone: '', active: true, exempt: ['Cleaning'], attendantPay: 'salary', salary: 60000}
 ];
 
 // Anchored to the current week rather than to fixed dates, so demo mode always opens on a

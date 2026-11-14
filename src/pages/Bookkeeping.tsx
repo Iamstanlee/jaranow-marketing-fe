@@ -120,7 +120,7 @@ export default function Bookkeeping() {
         label: 'Staff',
         icon: SquareUserRound
     },  {
-        // Readable on the staff PIN; the section itself keeps the pool and the payouts admin-only.
+        // Readable on the staff PIN; the section itself keeps payouts and advances admin-only.
         id: 'payments',
         label: 'Payments',
         icon: PiggyBank
@@ -184,7 +184,7 @@ export default function Bookkeeping() {
                           onDelete={role === 'admin' ? book.removeExpense : undefined}/>} {section === 'roster' &&
                 <Staff staff={book.staff} roster={book.roster} attendance={book.attendance} role={role}
                        loading={!ready.staff || !ready.roster} attendanceLoading={!ready.attendance}
-                       onSetPresence={book.setPresence}
+                       onSetMark={book.setMark}
                        onAddStaff={book.addStaff} onUpdateStaff={book.updateStaff} onRemoveStaff={book.removeStaff}
                        onAssign={book.assignDuty} onUpdateDuty={book.updateDuty}
                        onRemoveDuty={book.removeDuty}/>} {section === 'eod' &&
@@ -194,10 +194,12 @@ export default function Bookkeeping() {
                          loading={!ready.sales || !ready.loyalty || !ready.expenses}
                          requestHistory={book.requestHistory} historyLoading={book.historyLoading}/>} {section === 'payments' &&
                 <Payments sales={book.sales} staff={book.staff} payouts={book.payouts} attendance={book.attendance}
+                          roster={book.roster}
                           role={role}
-                          loading={!ready.sales || !ready.staff || !ready.payouts || !ready.attendance}
+                          loading={!ready.sales || !ready.staff || !ready.payouts || !ready.attendance || !ready.roster}
                           requestHistory={book.requestHistory} historyLoading={book.historyLoading}
-                          onSetPay={book.setAttendantPay} onPay={book.markPaid} onUndo={book.undoPayout}/>}</div>
+                          onAddAdvance={book.addAdvance} onRemoveAdvance={book.removeAdvance}
+                          onPay={book.markPaid} onUndo={book.undoPayout}/>}</div>
         </main>
         {saleModal && <SaleModal members={book.loyalty} close={() => setSaleModal(false)} save={book.addSale}/>}
         {expenseModal && <ExpenseModal close={() => setExpenseModal(false)} save={book.addExpense}/>}

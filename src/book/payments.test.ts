@@ -18,6 +18,20 @@ const sales = [sale('2026-11-02', 10000), sale('2026-11-03', 6000), sale('2026-1
 const amounts = (lines: { staffId: string; amount: number; days: number }[]) => lines.map(l => [l.staffId, l.amount, l.days]);
 
 describe('weekPay', () => {
+    it('keeps a paid revenue-share line when the person has since moved to salary', () => {
+        const payout: Payout = {
+            id: 'p', week: '2026-11-02', staffId: 'a', staffName: 'A', amount: 1900, revenue: 16000, washes: 2, days: 2,
+            rate: 0.3, payment: 'Cash'
+        };
+        const moved = [person('a', 'salary'), person('b', 'share'), person('c', 'salary'), person('cashier')];
+        const pay = weekPay(monday, sales, moved, [payout], [sheet('2026-11-02', 'a', 'b', 'c'), sheet('2026-11-03', 'a', 'c')], afterWeek);
+        const line = pay.lines.find(l => l.staffId === 'a')!;
+        // Still a share line, still the amount paid, and not flagged as overpaid.
+        expect([line.pay, line.amount, line.drift, line.payout?.id]).toEqual(['share', 1900, 0, 'p']);
+        // C was always on salary and was never paid a share.
+        expect(pay.lines.find(l => l.staffId === 'c')).toMatchObject({pay: 'salary', amount: 0});
+    });
+
     it('splits each day by the attendants present, paying only revenue share', () => {
         // Monday all three in: 10% each. Tuesday only A and C: 15% each.
         const pay = weekPay(monday, sales, team, [], [sheet('2026-11-02', 'a', 'b', 'c'), sheet('2026-11-03', 'a', 'c')], afterWeek);

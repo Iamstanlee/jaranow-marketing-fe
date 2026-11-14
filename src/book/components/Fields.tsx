@@ -5,11 +5,15 @@ import {SERVICES, type Service} from '../constants';
 // it could have been recorded in.
 export const SELECT = 'mt-1 w-full rounded-xl border-slate-200';
 
-export function ServiceField({value, onChange}: { value: Service; onChange: (v: Service) => void }) {
+export function ServiceField({value, onChange, disabled}: {
+    value: Service;
+    onChange: (v: Service) => void;
+    disabled?: (s: Service) => boolean
+}) {
     return <label className="block text-sm font-medium">Service<select value={value}
                                                                        onChange={e => onChange(e.target.value as Service)}
                                                                        className={SELECT}>
-        {(Object.keys(SERVICES) as Service[]).map(s => <option key={s}>{s}</option>)}
+        {(Object.keys(SERVICES) as Service[]).map(s => <option key={s} disabled={disabled?.(s)}>{s}</option>)}
     </select></label>;
 }
 

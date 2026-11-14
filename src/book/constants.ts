@@ -16,8 +16,15 @@ export const SERVICES = {
     'Deep wash': 10000,
     'Buffing & polish': 20000,
     'Premium detailing': 35000,
+    'Small rug': 10000,
+    'Medium rug': 15000,
+    'Large rug': 20000,
 } as const;
 export type Service = keyof typeof SERVICES;
+
+// Rugs earn no loyalty point and cannot be the free wash, so a rug sale carries no loyalty code.
+const NO_LOYALTY: readonly Service[] = ['Small rug', 'Medium rug', 'Large rug'];
+export const earnsPoints = (service: Service) => !NO_LOYALTY.includes(service);
 
 // Two services were renamed when the board grew, and every sale already in Firestore carries
 // the name it was sold under. Nothing rewrites those documents, so the old strings have to keep

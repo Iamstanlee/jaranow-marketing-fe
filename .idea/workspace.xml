@@ -4,14 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add attendance and payment to books">
-      <change beforePath="$PROJECT_DIR$/brand/gen-appicon.js" beforeDir="false" afterPath="$PROJECT_DIR$/brand/gen-appicon.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/brand/rasterize-appicon.sh" beforeDir="false" afterPath="$PROJECT_DIR$/brand/rasterize-appicon.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/book/apple-touch-icon.png" beforeDir="false" afterPath="$PROJECT_DIR$/public/book/apple-touch-icon.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/book/icon-192-maskable.png" beforeDir="false" afterPath="$PROJECT_DIR$/public/book/icon-192-maskable.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/book/icon-192.png" beforeDir="false" afterPath="$PROJECT_DIR$/public/book/icon-192.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/book/icon-512-maskable.png" beforeDir="false" afterPath="$PROJECT_DIR$/public/book/icon-512-maskable.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/book/icon-512.png" beforeDir="false" afterPath="$PROJECT_DIR$/public/book/icon-512.png" afterDir="false" />
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Change bookmark">
+      <change beforePath="$PROJECT_DIR$/src/book/components/Fields.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/components/Fields.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/components/SaleModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/components/SaleModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/components/StaffModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/components/StaffModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/components/Stat.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/components/Stat.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/constants.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/constants.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/hooks/useBook.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/hooks/useBook.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/payments.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/payments.test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/payments.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/payments.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/sections/Loyalty.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Loyalty.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/sections/Payments.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Payments.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/sections/Roster.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Roster.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/sections/Staff.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Staff.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/seed.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/seed.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/types.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/Bookkeeping.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Bookkeeping.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -200,7 +207,9 @@
       <workItem from="1792376355426" duration="602000" />
       <workItem from="1793620721372" duration="13382000" />
       <workItem from="1793794573979" duration="273000" />
-      <workItem from="1793841939686" duration="2395000" />
+      <workItem from="1793841939686" duration="4155000" />
+      <workItem from="1794090518923" duration="1279000" />
+      <workItem from="1794658324079" duration="7326000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -394,7 +403,31 @@
       <option name="project" value="LOCAL" />
       <updated>1793794761901</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Change bookmark">
+      <option name="closed" value="true" />
+      <created>1793845299358</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1793845299358</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Change bookmark">
+      <option name="closed" value="true" />
+      <created>1793845883054</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1793845883054</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Change bookmark">
+      <option name="closed" value="true" />
+      <created>1793846523505</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1793846523505</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -432,7 +465,9 @@
     <MESSAGE value="Add more ad alts" />
     <MESSAGE value="Add rug and business logo marks" />
     <MESSAGE value="Add attendance and payment to books" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add attendance and payment to books" />
+    <MESSAGE value="Change book logo" />
+    <MESSAGE value="Change bookmark" />
+    <option name="LAST_COMMIT_MESSAGE" value="Change bookmark" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

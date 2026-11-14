@@ -1,15 +1,15 @@
 import {type ReactNode, useMemo, useState} from 'react';
-import {Check, ChevronLeft, ChevronRight, Pencil, Plus, UserPlus, Users} from 'lucide-react';
+import {Check, ChevronLeft, ChevronRight, Pencil, Plus, UserPlus, Users, X} from 'lucide-react';
 import {DUTIES, type Duty} from '../constants';
 import {addDays, isoDay, startOfDay, startOfWeek} from '../format';
-import {isAttendant, presentOn, SHARE_START} from '../payments';
+import {ATTENDANCE_START, isAttendant, type Mark, markOn, presentOn} from '../payments';
 import {nameOf, rotation, slotLabel, weekRoster, weekSpan, type Assignment} from '../roster';
 import type {Attendance, Role, RosterEntry, Staff as Person} from '../types';
 import {ConfirmDelete} from '../components/Confirm';
 import {DutyModal} from '../components/DutyModal';
 import {RowActions} from '../components/RowActions';
 import {Skeleton} from '../components/Skeleton';
-import {StaffModal} from '../components/StaffModal';
+import {StaffModal, type StaffRecord} from '../components/StaffModal';
 import {DUTY_STYLE, exemptionOf} from './Roster';
 
 type Editing = { entry?: RosterEntry; day: string; duty?: Duty; staffId?: string };
@@ -19,16 +19,16 @@ type Editing = { entry?: RosterEntry; day: string; duty?: Duty; staffId?: string
 // day, by the week, and in general. Attendance leads because it is marked every morning;
 // the rota sits beside it on a wide screen and below it on a phone; the team list closes the
 // page, carrying in one row what the two cards above say about each person.
-export function Staff({staff, roster, attendance, role, loading, attendanceLoading, onSetPresence, onAddStaff, onUpdateStaff, onRemoveStaff, onAssign, onUpdateDuty, onRemoveDuty}: {
+export function Staff({staff, roster, attendance, role, loading, attendanceLoading, onSetMark, onAddStaff, onUpdateStaff, onRemoveStaff, onAssign, onUpdateDuty, onRemoveDuty}: {
     staff: Person[];
     roster: RosterEntry[];
     attendance: Attendance[];
     role: Role;
     loading: boolean;
     attendanceLoading: boolean;
-    onSetPresence: (day: string, person: Person, present: boolean) => Promise<void>;
-    onAddStaff: (record: Pick<Person, 'name' | 'phone'>) => Promise<void>;
-    onUpdateStaff: (id: string, patch: Partial<Pick<Person, 'name' | 'phone' | 'active'>>) => Promise<void>;
+    onSetMark: (day: string, person: Person, mark: Mark | null) => Promise<void>;
+    onAddStaff: (record: StaffRecord) => Promise<void>;
+    onUpdateStaff: (id: string, patch: Partial<StaffRecord & Pick<Person, 'active'>>) => Promise<void>;
     onRemoveStaff: (person: Person) => Promise<void>;
     onAssign: (record: Omit<RosterEntry, 'id' | 'createdAt'>) => Promise<void>;
     onUpdateDuty: (id: string, record: Omit<RosterEntry, 'id' | 'createdAt'>) => Promise<void>;
@@ -62,7 +62,7 @@ export function Staff({staff, roster, attendance, role, loading, attendanceLoadi
 
         <div className="grid gap-5 lg:grid-cols-2">
             <AttendanceCard staff={staff} attendance={attendance} role={role}
-                            loading={loading || attendanceLoading} onSet={onSetPresence}/>
+                            loading={loading || attendanceLoading} onSet={onSetMark}/>
             <DutiesCard staff={staff} roster={roster} admin={admin} loading={loading} onEdit={setEditing}/>
         </div>
 
@@ -123,28 +123,37 @@ function CardHead({title, sub, aside, back, onBack, onPrev, onNext, prevDisabled
 // the admin PIN for the morning somebody forgot, so a correction is a decision rather than a
 // habit. Nobody marks the future.
 //
-// Each row is one control: tap the person to flip them in or out. The state is said in words
-// as well as the filled check, so it reads from across the counter and in a photo.
+// One tap per person: a tick for present, a cross for absent; tapping the filled one again
+// unmarks them. The state is always said in
+// words under the name, so it reads from across the counter and in a photo.
+// The three things somebody can be marked as, and the blank before they are.
+const MARKS: Record<Mark, { label: string; tone: string }> = {
+    present: {label: 'Present', tone: 'text-emerald-700'},
+    absent: {label: 'Absent', tone: 'text-red-600'},
+    leave: {label: 'Paid leave', tone: 'text-blue-700'}
+};
+const UNMARKED = {label: 'Not marked', tone: 'text-slate-400'};
+
 function AttendanceCard({staff, attendance, role, loading, onSet}: {
     staff: Person[];
     attendance: Attendance[];
     role: Role;
     loading: boolean;
-    onSet: (day: string, person: Person, present: boolean) => Promise<void>
+    onSet: (day: string, person: Person, mark: Mark | null) => Promise<void>
 }) {
     const today = startOfDay(new Date());
     const [date, setDate] = useState(today);
     const [saving, setSaving] = useState<string | null>(null);
     const day = isoDay(date), isToday = day === isoDay(today);
-    const editable = isToday || (role === 'admin' && date >= SHARE_START && date < today);
+    const editable = isToday || (role === 'admin' && date >= ATTENDANCE_START && date < today);
 
     const attendants = staff.filter(isAttendant);
     const present = presentOn(day, staff, attendance).map(p => p.id);
 
-    const toggle = async (person: Person, on: boolean) => {
+    const set = async (person: Person, mark: Mark | null) => {
         setSaving(person.id);
         try {
-            await onSet(day, person, on);
+            await onSet(day, person, mark);
         } finally {
             setSaving(null);
         }
@@ -157,31 +166,54 @@ function AttendanceCard({staff, attendance, role, loading, onSet}: {
                   aside={counted && <span className="text-xs font-semibold tabular-nums text-slate-400">
                       {present.length}/{attendants.length}</span>}
                   back={isToday ? undefined : 'Today'} onBack={() => setDate(today)} unit="day"
-                  onPrev={() => setDate(addDays(date, -1))} prevDisabled={date <= SHARE_START}
+                  onPrev={() => setDate(addDays(date, -1))} prevDisabled={date <= ATTENDANCE_START}
                   onNext={() => setDate(addDays(date, 1))} nextDisabled={isToday}/>
         {/* How much of the team is in, at a glance — the bar fills as the morning does. */}
         {counted && <div className="mx-5 mb-1 h-1 overflow-hidden rounded-full bg-slate-100" aria-hidden>
             <div className="h-full rounded-full bg-emerald-500 transition-all"
                  style={{width: `${(present.length / attendants.length) * 100}%`}}/></div>}
         {!editable && !loading && <p className="px-5 pt-2 text-xs text-slate-400">
-            {role === 'admin' ? 'Before revenue sharing started — nothing to mark.' : 'View only — ask an admin to correct an earlier day.'}</p>}
+            {role === 'admin' ? 'Before attendance was kept — nothing to mark.' : 'View only — ask an admin to correct an earlier day.'}</p>}
         {loading ? <ul className="py-2">{[0, 1, 2].map(i => <li key={i} className="flex items-center gap-3 px-5 py-2.5">
                 <Skeleton className="h-8 w-8 rounded-full"/><Skeleton className="h-4 w-36"/></li>)}</ul>
             : !attendants.length ? <p className="px-5 pb-8 pt-4 text-center text-sm text-slate-400">
-                    No attendants set up yet. {role === 'admin' ? 'Set them up in the attendant pool on Payments.' : 'Ask an admin to set them up.'}</p>
+                    No car washers set up yet. {role === 'admin' ? 'Edit a team member below and set their role to Car Washer.' : 'Ask an admin to set them up.'}</p>
                 : <ul className="py-2">{attendants.map(p => {
-                    const on = present.includes(p.id), busy = saving === p.id;
-                    return <li key={p.id}>
-                        <button type="button" aria-pressed={on} disabled={!editable || busy}
-                                aria-label={`${p.name}: ${on ? 'present' : 'absent'}`}
-                                onClick={() => toggle(p, !on)}
-                                className={`flex w-full items-center gap-3 px-5 py-2.5 text-left transition-colors enabled:hover:bg-slate-50 disabled:cursor-default ${busy ? 'opacity-60' : ''}`}>
-                            <Initials name={p.name} on={on}/>
-                            <span className="min-w-0 flex-1 truncate font-medium">{p.name}</span>
-                            <span className={`text-xs font-medium ${on ? 'text-emerald-700' : 'text-slate-400'}`}>{on ? 'Present' : 'Absent'}</span>
-                            <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border transition-colors ${on ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300 text-transparent'}`}>
-                                <Check size={14} strokeWidth={3}/></span>
-                        </button>
+                    // Each person's mark stands alone: nothing here is inferred from anybody
+                    // else's, so changing one row never changes another.
+                    const state = markOn(day, p.id, attendance);
+                    const busy = saving === p.id;
+                    // Paid leave only means anything against a salary, and it moves pay, so it
+                    // is the admin's to give — and nobody else's to take away.
+                    const canLeave = role === 'admin' && p.attendantPay === 'salary';
+                    const locked = !editable || (state === 'leave' && !canLeave);
+                    const look = state ? MARKS[state] : UNMARKED;
+                    const round = 'grid h-9 w-9 place-items-center rounded-full border transition-colors disabled:cursor-default';
+                    return <li key={p.id} className={`flex items-center gap-3 px-5 py-2.5 ${busy ? 'opacity-60' : ''}`}>
+                        <Initials name={p.name} on={state === 'present'}/>
+                        <div className="min-w-0 flex-1">
+                            <p className="truncate font-medium">{p.name}</p>
+                            <p className={`text-xs font-medium ${look.tone}`}>{look.label}
+                                {/* Paid leave is an absence that is excused, so it is offered
+                                    on the absence rather than as a third thing to pick from. */}
+                                {canLeave && !locked && state !== 'present' && <>
+                                    <span className="text-slate-300"> · </span>
+                                    <button type="button" disabled={busy} onClick={() => set(p, state === 'leave' ? 'absent' : 'leave')}
+                                            className="font-semibold text-blue-700 underline-offset-2 hover:underline">
+                                        {state === 'leave' ? 'Remove leave' : 'Make it paid leave'}</button>
+                                </>}
+                            </p>
+                        </div>
+                        {!locked && <div className="flex shrink-0 gap-2">
+                            <button type="button" aria-label={state === 'present' ? `Unmark ${p.name}` : `Mark ${p.name} present`} aria-pressed={state === 'present'}
+                                    disabled={busy} onClick={() => set(p, state === 'present' ? null : 'present')}
+                                    className={`${round} ${state === 'present' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-200 text-slate-400 hover:border-emerald-300 hover:text-emerald-600'}`}>
+                                <Check size={16} strokeWidth={3}/></button>
+                            <button type="button" aria-label={state === 'absent' ? `Unmark ${p.name}` : `Mark ${p.name} absent`} aria-pressed={state === 'absent'}
+                                    disabled={busy} onClick={() => set(p, state === 'absent' ? null : 'absent')}
+                                    className={`${round} ${state === 'absent' ? 'border-red-600 bg-red-600 text-white' : 'border-slate-200 text-slate-400 hover:border-red-300 hover:text-red-600'}`}>
+                                <X size={16} strokeWidth={3}/></button>
+                        </div>}
                     </li>;
                 })}</ul>}
     </section>;
@@ -286,10 +318,9 @@ function TeamCard({staff, presentToday, admin, loading, onEdit, onRemove, onTogg
                         <div className="min-w-0">
                             <p className={`truncate font-medium ${p.active ? '' : 'text-slate-500'}`}>{p.name}</p>
                             <div className="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-slate-500">
-                                <span className="mr-1 truncate">{p.phone || '—'}</span>
                                 {!p.active && <span className={`${tag} bg-slate-200 text-slate-600`}>Archived</span>}
-                                {isAttendant(p) && <span className={`${tag} bg-blue-50 text-blue-700`}>
-                                    {p.attendantPay === 'share' ? 'Revenue share' : 'Salary'}</span>}
+                                {p.active && <span className={`${tag} bg-blue-50 text-blue-700`}>
+                                    {p.attendantPay ? 'Car Washer' : 'Cashier'}</span>}
                                 {presentToday.includes(p.id) && <span className={`${tag} bg-emerald-50 text-emerald-700`}>In today</span>}
                                 {/* Says why somebody's name never comes up. Without it an exemption
                                     is indistinguishable from a rota that has quietly stopped. */}

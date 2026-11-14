@@ -29,12 +29,19 @@ export type Staff = {
     active: boolean;
     exempt?: Duty[];
     // How somebody is paid as a car-wash attendant, which is what puts them in the revenue
-    // sharing pool (src/book/payments.ts). Absent means they are not an attendant — a cashier,
-    // a supervisor — and do not count towards the split at all. Both other values count: a
+    // sharing pool (src/book/payments.ts). Absent means a cashier: on a fixed salary, not on the
+    // attendance sheet, and not counted towards the split at all. Both other values count: a
     // salaried attendant still divides the pool, they just do not draw from it.
     attendantPay?: AttendantPay;
+    // Base monthly salary for a cashier or an attendant on salary, and advances against it
+    // (src/book/salary.ts).
+    salary?: number;
+    advances?: Advance[];
     createdAt?: Timestamp
 };
+// `at` is when the advance was requested, in epoch ms — a plain number because Firestore does
+// not allow a server timestamp inside an array.
+export type Advance = { id: string; amount: number; at: number };
 export type AttendantPay = 'salary' | 'share';
 // One person's revenue share for one week, written when it is handed over. `week` is the
 // Monday (local yyyy-mm-dd) — the same anchor the rota uses for a week. Everything the amount
@@ -81,6 +88,15 @@ export type RosterEntry = {
 // so two tablets marking the same day write to the same record instead of making two.
 // `present` holds staff ids, added and removed one at a time so neither tablet can undo the
 // other's mark.
-export type Attendance = { id: string; day: string; present: string[]; updatedAt?: Timestamp };
+// `absent` holds the ids marked absent by hand, `paidOff` the ids on paid leave — a sick day,
+// which costs a salaried attendant nothing. Somebody is on at most one of the three lists.
+export type Attendance = {
+    id: string;
+    day: string;
+    present: string[];
+    absent?: string[];
+    paidOff?: string[];
+    updatedAt?: Timestamp
+};
 export type Role = 'admin' | 'staff';
 export type Section = 'overview' | 'sales' | 'loyalty' | 'expenses' | 'roster' | 'eod' | 'reports' | 'payments';

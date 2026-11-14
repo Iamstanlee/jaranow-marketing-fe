@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {currentService, SERVICES, type Service} from '../constants';
+import {currentService, earnsPoints, SERVICES, type Service} from '../constants';
 import {codeFor, dateOf, dayLabel, timeLabel} from '../format';
 import type {Loyalty, Sale} from '../types';
 import {Modal} from './Modal';
@@ -19,7 +19,9 @@ export function SaleModal({members, close, save}: {
     const [submitting, setSubmitting] = useState(false), [error, setError] = useState('');
     // Codes are stored zero-padded to three digits (LOY-001) so a typed "1" and the
     // auto-generated "001" are the same member. Match, save and display the padded form.
-    const normalizedCode = code ? `LOY-${code.replace(/\D/g, '').padStart(3, '0')}` : '';
+    // Ignored, not cleared, for a rug — switching back to a wash brings the code back.
+    const loyal = earnsPoints(service);
+    const normalizedCode = loyal && code ? `LOY-${code.replace(/\D/g, '').padStart(3, '0')}` : '';
     const member = members.find((x, i) => codeFor(x, i) === normalizedCode);
     const newCode = Boolean(normalizedCode && !member);
     const canRedeem = Boolean(member && member.points >= 5);
@@ -55,14 +57,17 @@ export function SaleModal({members, close, save}: {
                 className="mt-1 flex items-stretch overflow-hidden rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
                 <span
                     className="grid place-items-center bg-slate-100 px-3 text-sm font-semibold text-slate-500">LOY-</span>
-                <input list="loyalty-codes" inputMode="numeric" pattern="[0-9]*" value={code.replace(/\D/g, '')}
+                <input list="loyalty-codes" inputMode="numeric" pattern="[0-9]*" disabled={!loyal}
+                       value={loyal ? code.replace(/\D/g, '') : ''}
                        onChange={e => {
                            const digits = e.target.value.replace(/\D/g, '');
                            setCode(digits ? `LOY-${digits}` : '');
                            setRedeem(false);
-                       }} onBlur={() => setCode(normalizedCode)} placeholder="Enter code number"
-                       className="w-full rounded-none border-0 py-2 focus:ring-0"/>
+                       }} onBlur={() => setCode(normalizedCode)}
+                       placeholder={loyal ? 'Enter code number' : 'Rugs do not earn or redeem points'}
+                       className="w-full rounded-none border-0 py-2 focus:ring-0 disabled:bg-slate-50"/>
             </div>
+
             <datalist id="loyalty-codes">{members.map((m, i) => <option key={m.id}
                                                                           value={codeFor(m, i).replace(/\D/g, '')}/>)}</datalist>
         </label>{newCode &&
@@ -81,6 +86,7 @@ export function SaleModal({members, close, save}: {
         </div>}<ServiceField value={service} onChange={next => {
             setService(next);
             setPrice(String(SERVICES[next]));
+            if (!earnsPoints(next)) setRedeem(false);
         }}/>{canRedeem && <label
             className="flex cursor-pointer items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-sm font-medium text-emerald-900"><input
             type="checkbox" checked={redeem} onChange={e => setRedeem(e.target.checked)}
@@ -104,6 +110,8 @@ export function EditSaleModal({sale, close, save}: {
     const [service, setService] = useState<Service>(currentService(sale.service)), [payment, setPayment] = useState(sale.payment);
     const [price, setPrice] = useState(String(sale.amount));
     const [submitting, setSubmitting] = useState(false), [error, setError] = useState('');
+    // A sale that moved a point balance cannot be corrected into a rug.
+    const onCard = sale.loyaltyCode !== '—' || Boolean(sale.redeemed);
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (submitting) return;
@@ -123,9 +131,9 @@ export function EditSaleModal({sale, close, save}: {
             <div className="rounded-xl bg-slate-100 p-3 text-sm"><span
                 className="font-semibold">{sale.loyaltyCode}</span><span
                 className="float-right text-slate-500">{dayLabel(dateOf(sale))} · {timeLabel(dateOf(sale))}</span><p
-                className="mt-1 text-xs text-slate-500">{sale.redeemed ? 'Redeemed wash — the 5 points are already spent.' : 'The loyalty code and points cannot be changed here. Delete the sale and record it again to move them.'}</p>
+                className="mt-1 text-xs text-slate-500">{sale.redeemed ? 'Redeemed wash — the 5 points are already spent.' : 'The loyalty code and points cannot be changed here. Delete the sale and record it again to move them.'}{onCard && ' Rugs are outside the loyalty card, so this sale cannot be changed to one.'}</p>
             </div>
-            <ServiceField value={service} onChange={next => {
+            <ServiceField value={service} disabled={onCard ? s => !earnsPoints(s) : undefined} onChange={next => {
                 setService(next);
                 setPrice(String(SERVICES[next]));
             }}/><PaymentField value={payment} onChange={setPayment}/><PriceField service={service} value={price}

@@ -22,7 +22,7 @@ export const exemptionOf = (person: Staff) => {
     const out = person.exempt || [];
     if (!out.length) return '';
     if (out.length >= DUTIES.length) return 'Not in either rotation';
-    return out[0] === 'Off' ? 'No Sunday-off turns' : 'No cleaning turns';
+    return out[0] === 'Off' ? '' : 'No cleaning turns';
 };
 
 // The Overview strip. This week only, and read-only whoever is looking — the week walking and

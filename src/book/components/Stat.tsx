@@ -6,7 +6,7 @@ export function Stat({title, value, icon: Icon, tint, note, loading = false}: {
     value: string;
     icon: typeof CircleDollarSign;
     tint: string;
-    note: string;
+    note?: string;
     loading?: boolean
 }) {
     // The title and the icon stay: they say what the card will hold, so the row reads as
@@ -16,6 +16,6 @@ export function Stat({title, value, icon: Icon, tint, note, loading = false}: {
             <div className={`grid h-9 w-9 place-items-center rounded-xl ${tint}`}><Icon size={19}/></div>
         </div>
         {loading ? <><Skeleton className="mt-5 h-8 w-28"/><Skeleton className="mt-2 h-3 w-20"/></> : <>
-            <p className="mt-5 text-2xl font-bold tracking-tight">{value}</p><p
-            className="mt-1 text-xs text-slate-400">{note}</p></>}</section>
+            <p className="mt-5 text-2xl font-bold tracking-tight">{value}</p>{note && <p
+            className="mt-1 text-xs text-slate-400">{note}</p>}</>}</section>
 }

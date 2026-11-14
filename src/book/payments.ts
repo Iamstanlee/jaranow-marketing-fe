@@ -19,6 +19,18 @@ export const SHARE_RATE = 0.3;
 // week is listed — otherwise every week of trading before the scheme would show as overdue.
 export const SHARE_START = dayFrom('2026-11-02');
 
+// The first day attendance counts for. Salaries run by the calendar month, so it is the 1st
+// rather than the Monday revenue sharing started on.
+export const ATTENDANCE_START = dayFrom('2026-11-01');
+
+// What somebody was marked as on a day, or null if nobody marked them. A blank is never read
+// as an absence — only a mark is.
+export type Mark = 'present' | 'absent' | 'leave';
+export const markOn = (iso: string, id: string, attendance: Attendance[]): Mark | null => {
+    const sheet = attendance.find(a => a.day === iso);
+    return sheet?.present.includes(id) ? 'present' : sheet?.paidOff?.includes(id) ? 'leave' : sheet?.absent?.includes(id) ? 'absent' : null;
+};
+
 export const isAttendant = (person: Staff) => person.active && !!person.attendantPay;
 export const onShare = (person: Staff) => isAttendant(person) && person.attendantPay === 'share';
 
@@ -85,9 +97,11 @@ export function weekPay(monday: Date, sales: Sale[], staff: Staff[], payouts: Pa
 
     const lines: PayLine[] = staff.filter(isAttendant).map(person => {
         const payout = paid.find(p => p.staffId === person.id);
-        const owed = person.attendantPay === 'share' ? earned(person.id) : 0;
+        // A payout keeps the line a share line even after the person moves to salary.
+        const share = person.attendantPay === 'share' || !!payout;
+        const owed = share ? earned(person.id) : 0;
         return {
-            staffId: person.id, name: person.name, pay: person.attendantPay!, days: worked(person.id),
+            staffId: person.id, name: person.name, pay: share ? 'share' : person.attendantPay!, days: worked(person.id),
             amount: payout ? payout.amount : owed, payout, drift: payout ? owed - payout.amount : 0
         };
     });

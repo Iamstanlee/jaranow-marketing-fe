@@ -1,28 +1,5 @@
-/* Jaranow — Meta ad creative for the new verticals (rug cleaning, fleet &
-   corporate car wash).
-   Emits one HTML page per ad x format; rasterize-ad.sh screenshots them.
-
-   THE IDEA: one visual, the before/after split. Each ad is built around a flat
-   illustration of the thing we clean - a rug, a company van - cut down the
-   middle: dingy on the left, fresh on the right, with a slider handle between.
-   It shows the result before anyone reads a word, and it is the same device on
-   both ads, so they run as one campaign.
-
-   The headline sells the end result, never the process (CLAUDE.md copy
-   rules). Then one sentence, then the action: a button-shaped pill and the
-   WhatsApp number. Nothing else - Meta delivers text-heavy images less, and a
-   phone gives an ad about a second. Detail goes in the primary text.
-
-   Brand rules held: Ink field, one accent, flat art (no gradients or shadows,
-   §4.2), Archivo Black once per surface (§6.2), the accent bar along the foot.
-   Grime is drawn in Ink at low opacity rather than in a brown - a second hue
-   would break the palette, and darkening reads as dirt on its own.
-
-   No prices, same rule as the flyer: the ad sells the result; figures live on
-   /rugs and /pricing.
-
-   WHAT TO EDIT: ADS (copy) and FORMATS (canvases).
-
+/* Jaranow — Meta ad creative (rugs, fleet & corporate). Concepts, layouts and
+   copy rules: CLAUDE.md "Meta ads". Edit ADS and FORMATS.
    Usage: node gen-ad.js <outdir>
 */
 const fs = require("fs");
@@ -37,53 +14,19 @@ const ACCENT = "#2563EB";
 const PAPER = "#F2F5FB";
 const NAVY = "#173475"; // 40% ACCENT into INK - a palette shade, not a new hue
 
-/* ---------------------------------------------------------------------------
-   FORMATS — Meta's two placements, in pixels.
-
-     padTop / padBottom  Stories: Meta's profile bar covers ~the top 13% and the
-                         reply box ~the bottom 18%. Content is kept out of both;
-                         the empty bands are deliberate.
-     art                 illustration panel height
-     head                headline ceiling in px (fit() only ever shrinks it)
---------------------------------------------------------------------------- */
+/* padTop/padBottom on story clear Meta's profile bar (~top 13%) and reply box
+   (~bottom 18%); the empty bands are deliberate. `head` is a ceiling - FIT only shrinks. */
 const FORMATS = [
     {name: "feed", label: "Meta feed 4:5", w: 1080, h: 1350, pad: 64, padTop: 60, padBottom: 64, art: 500, head: 100, sub: 34, lockup: 58},
     {name: "story", label: "Meta story / Reels 9:16", w: 1080, h: 1920, pad: 72, padTop: 250, padBottom: 330, art: 560, head: 108, sub: 36, lockup: 62},
 ];
 
-/* ---------------------------------------------------------------------------
-   ADS — the input to the design.
-
-     lockup    white knockout lockup. Sub-brand when the ad belongs to a line
-               (the fleet ad is Carwash by Jaranow); master when it has none.
-     kicker    who and where, for a cold viewer
-     art       "rug" | "van" - the split illustration
-     headline  Archivo Black. \n sets the breaks; lines never wrap on their own.
-     sub       one sentence
-     cta       { button, number, url }
-
-     ground    "ink" (default) | "paper" | "accent" | "navy" - the field colour.
-               Lockup must match: -white on dark fields, -duo on Paper (§8.8)
-     layout    "split" (default: picture, then headline) | "stage" (headline,
-               then picture) | "list" (headline, then a card of `points`)
-     points    list layout only: [[result, detail], ...] - three, each a result
-               or benefit the customer gets, never a step in the process
-
-   TWO CONCEPTS PER OFFER, for A/B testing in Ads Manager:
-     A  "result"  - Ink, split layout, before/after art. Shows the outcome.
-     B  "problem" - Paper, stage layout, a situation drawing. Names the pain
-                    the customer already has, then answers it.
-     C  "outcome" - navy field, split layout, the finished result in the
-                    customer's world (a fresh rug in a living room; a
-                    spotless fleet lined up) and the benefit it brings. A
-                    shows the change; C shows life after it.
-     D  "benefits" - Paper, list layout, no drawing: the headline, then an
-                    Ink card of three ticked results. For the skimmer who
-                    wants reasons, not a picture.
-   They differ in idea AND in look, so a winner tells you something.
+/* ADS. ground: "ink" | "paper" | "accent" | "navy"; lockup must match (-white on
+   dark, -duo on Paper, §8.8). layout: "split" | "stage" | "list" (needs `points`).
+   Headline breaks only at \n. Concepts A-D: CLAUDE.md "Meta ads".
 
    Also worth testing later: rugs "Harmattan dust lives in your rug." (Nov-Feb).
---------------------------------------------------------------------------- */
+*/
 const ADS = [
     {
         file: "ad-rugs-a",
@@ -153,22 +96,15 @@ const ADS = [
     },
 ];
 
-/* Field colours. `rgb` is the foreground as an rgba() triple, for the muted
-   text, rules and dot field; `wm` recolours the drop watermark. */
 const GROUNDS = {
     ink: {bg: INK, fg: PAPER, rgb: "242,245,251", wm: PAPER, wmOpacity: 0.035},
     paper: {bg: PAPER, fg: INK, rgb: "14,21,38", wm: INK, wmOpacity: 0.045},
-    /* On the accent field the accent cannot also mark the kicker, the full
-       stop, the button or the bar - it would vanish. Those roles move to Paper
-       and Ink: the button inverts to Paper, the bar and the stop go Ink. */
+    // accent can't mark kicker/stop/button/bar on an accent field - they move to Paper and Ink
     accent: {
         bg: ACCENT, fg: PAPER, rgb: "242,245,251", wm: PAPER, wmOpacity: 0.07,
         kicker: "rgba(242,245,251,.82)", dot: INK, btnBg: PAPER, btnFg: INK, bar: INK,
     },
-    /* Deep navy: 40% accent into Ink, so it is a shade of the palette rather
-       than a new hue. Dark enough that the accent reads again for the button,
-       the bar and the stop; the kicker goes Paper because accent-on-navy text
-       is too low-contrast at 24px. */
+    // kicker goes Paper: accent-on-navy text is too low-contrast at 24px
     navy: {bg: NAVY, fg: PAPER, rgb: "242,245,251", wm: PAPER, wmOpacity: 0.05, kicker: "rgba(242,245,251,.82)"},
 };
 
@@ -190,13 +126,10 @@ function watermark(g) {
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
-/* ---------------------------------------------------------------------------
-   THE ART. Both drawings live in a 1000x560 box. The clean drawing is painted
-   whole; the grime layer is clipped to the left half, so the split is exact and
-   the two halves are always the same object.
---------------------------------------------------------------------------- */
+/* Art lives in a 1000x560 box. Clean drawing painted whole; grime clipped to the
+   left half so both halves are always the same object. */
 
-/* Deterministic scatter, so a re-render does not move every stain. */
+// Deterministic scatter, so a re-render does not move every stain.
 function rng(seed) {
     let s = seed;
     return () => ((s = (s * 16807) % 2147483647) / 2147483647);
@@ -215,7 +148,6 @@ function grime(seed, box, {blotches, specks, mud}) {
         out.push(`<circle cx="${(x0 + r() * (x1 - x0)).toFixed(0)}" cy="${(y0 + r() * (y1 - y0)).toFixed(0)}" r="${(1.5 + r() * 4).toFixed(1)}" fill="${INK}" opacity="${(0.35 + r() * 0.35).toFixed(2)}"/>`);
     }
     if (mud) {
-        // splash along the bottom edge, heavier low down
         for (let i = 0; i < mud.n; i++) {
             const cx = x0 + r() * (x1 - x0);
             const cy = mud.y - Math.pow(r(), 2.2) * mud.rise;
@@ -225,13 +157,10 @@ function grime(seed, box, {blotches, specks, mud}) {
     return out.join("");
 }
 
-/* A sparkle: the "clean" cue on the right half. Four-point star, flat. */
 const sparkle = (x, y, s, fill) =>
     `<path d="M${x} ${y - s} Q${x + s * 0.18} ${y - s * 0.18} ${x + s} ${y} Q${x + s * 0.18} ${y + s * 0.18} ${x} ${y + s} Q${x - s * 0.18} ${y + s * 0.18} ${x - s} ${y} Q${x - s * 0.18} ${y - s * 0.18} ${x} ${y - s}Z" fill="${fill}"/>`;
 
-/* The slider between the halves: a line and a handle with two chevrons. The
-   handle's height is per drawing, so it never sits on something that has to be
-   read (the van's side panel). */
+// Handle height is per drawing so it never covers text (the van's side panel).
 const divider = (y) => `
   <line x1="500" y1="18" x2="500" y2="542" stroke="${PAPER}" stroke-width="5"/>
   <circle cx="500" cy="${y}" r="36" fill="${PAPER}"/>
@@ -241,8 +170,7 @@ const tag = (x, text, fill, color) => `
   <rect x="${x}" y="22" width="${text.length * 15 + 40}" height="44" rx="22" fill="${fill}"/>
   <text x="${x + 20}" y="51" font-family="Rubik" font-weight="500" font-size="20" letter-spacing="3" fill="${color}">${text}</text>`;
 
-/* `shape` is the object's silhouette. Grime is clipped to it AND to the left
-   half, so stains sit on the rug or the van, never on the panel behind. */
+// Grime clipped to the silhouette too, or stains float on the panel behind.
 function art(clean, dirt, sparkles, shape, handleY = 280) {
     return `<svg class="art-svg" viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -285,9 +213,6 @@ function rugArt() {
     return art(rug, dirt, [[640, 170, 22], [790, 420, 16], [700, 470, 12]], shape);
 }
 
-/* The cab's side window, as glass: a pale accent tint with the driver seen
-   through it - seat, head and shoulders, an arm to the wheel - and two streaks
-   of glare. Everything is clipped to the window shape. Flat fills only. */
 function cabWindow() {
     const win = "M740 146 L812 146 Q826 146 834 158 L880 250 L740 250Z";
     return `
@@ -332,13 +257,9 @@ function vanArt() {
     return art(van, dirt, [[620, 92, 22], [930, 200, 16], [880, 480, 14]], shape, 492);
 }
 
-/* ---------------------------------------------------------------------------
-   CONCEPT B ART - situation drawings, set straight on the Paper field.
---------------------------------------------------------------------------- */
+// Concept B art - situation drawings on the Paper field.
 const plain = (content) => `<svg class="art-svg" viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">${content}</svg>`;
 
-/* A rolled rug lying in front of a washing machine it is far too long for -
-   the reason rugs go uncleaned, drawn as a joke the viewer gets instantly. */
 function machineArt() {
     const stripes = Array.from({length: 14}, (_, i) =>
         `<rect x="${226 + i * 36}" y="364" width="8" height="132" fill="${PAPER}" opacity=".22"/>`).join("");
@@ -377,8 +298,6 @@ function machineArt() {
     <circle cx="156" cy="436" r="4" fill="${ACCENT}"/>`);
 }
 
-/* A car, a van and a school bus parked in marked bays, all gleaming, under a
-   "your car park" tag - the fleet washed where it already stands. */
 function carparkArt() {
     const wheel = (cx) => `<circle cx="${cx}" cy="462" r="26" fill="${INK}"/><circle cx="${cx}" cy="462" r="26" fill="none" stroke="${PAPER}" stroke-width="5"/><circle cx="${cx}" cy="462" r="9" fill="${PAPER}"/>`;
     const glass = `fill="${PAPER}" opacity=".92"`;
@@ -411,21 +330,15 @@ function carparkArt() {
     <text x="408" y="157" font-family="Rubik" font-weight="500" font-size="22" letter-spacing="3" fill="${PAPER}">YOUR CAR PARK</text>`);
 }
 
-/* ---------------------------------------------------------------------------
-   CONCEPT C ART - the outcome, drawn for the accent field. Objects are Paper
-   and Ink so they hold against the blue; the accent reappears only where it
-   sits on Paper (the rug pattern, the vans' stripe).
---------------------------------------------------------------------------- */
+/* Concept C art. Objects are Paper and Ink so they hold against a dark field;
+   accent appears only where it sits on Paper. */
 
-/* A small Ink pill with a Paper label, top centre of the panel. */
 const pill = (text) => {
     const w = text.length * 15 + 56;
     return `<rect x="${500 - w / 2}" y="34" width="${w}" height="54" rx="27" fill="${INK}"/>
     <text x="500" y="69" text-anchor="middle" font-family="Rubik" font-weight="500" font-size="21" letter-spacing="3" fill="${PAPER}">${text}</text>`;
 };
 
-/* A calm living room: sofa, lamp, plant, a framed picture - and the fresh rug
-   laid in front, the brightest thing in the scene. */
 function roomArt() {
     const weave = `<pattern id="weave-c" width="16" height="16" patternUnits="userSpaceOnUse">
       <path d="M2 4 H8 M10 12 H16 M12 2 V8 M4 10 V16" stroke="${ACCENT}" stroke-width="1.6" stroke-linecap="round" opacity=".18"/></pattern>`;
@@ -465,8 +378,6 @@ function roomArt() {
     ${sparkle(250, 436, 22, PAPER)}${sparkle(760, 428, 16, PAPER)}${sparkle(900, 512, 18, PAPER)}`);
 }
 
-/* Three matching company vans lined up, all spotless - the fleet as a
-   customer sees it. Paper bodies so they glow against the dark field. */
 function fleetArt() {
     const wheel = (cx) => `<circle cx="${cx}" cy="440" r="30" fill="${INK}"/><circle cx="${cx}" cy="440" r="11" fill="${PAPER}"/>`;
     const van = (x) => `
@@ -476,7 +387,7 @@ function fleetArt() {
     <rect x="${x + 26}" y="286" width="150" height="16" rx="8" fill="${INK}" opacity=".12"/>
     <rect x="${x + 26}" y="314" width="96" height="16" rx="8" fill="${INK}" opacity=".12"/>
     ${wheel(x + 62)}${wheel(x + 218)}`;
-    // Shifted up so the row sits centred in the panel now there is no tag above it.
+    // shifted up to centre the row: no tag above it
     return plain(`<g transform="translate(0,-60)">
     <line x1="30" y1="472" x2="970" y2="472" stroke="${PAPER}" stroke-opacity=".3" stroke-width="3"/>
     ${van(28)}${van(364)}${van(700)}
@@ -486,9 +397,6 @@ function fleetArt() {
 
 const ARTS = {rug: rugArt, van: vanArt, machine: machineArt, carpark: carparkArt, room: roomArt, fleet: fleetArt};
 
-/* ---------------------------------------------------------------------------
-   THE PAGE
---------------------------------------------------------------------------- */
 function css(f, g) {
     const BAR = 22;
     const fg = (a) => `rgba(${g.rgb},${a})`;
@@ -543,8 +451,7 @@ function css(f, g) {
 `;
 }
 
-/* Shrink the headline until its longest line fits. Runs after fonts load -
-   Archivo Black is much wider than the fallback. Only ever shrinks. */
+// Runs after fonts load: Archivo Black is much wider than the fallback.
 const FIT = `document.fonts.ready.then(() => {
   const h = document.querySelector('h1');
   let size = parseFloat(getComputedStyle(h).fontSize);

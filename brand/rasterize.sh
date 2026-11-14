@@ -1,5 +1,6 @@
 #!/bin/bash
-# Rasterize the generated SVGs to transparent PNGs via headless Chrome.
+# Rasterize gen-marks.js SVGs to transparent PNGs via headless Chrome.
+#   brand/rasterize.sh <marks dir containing svg/> <tmp dir>
 set -e
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 ROOT="$1"
@@ -26,7 +27,6 @@ EOF
 
 for f in "$SVGDIR"/*.svg; do
   base=$(basename "$f" .svg)
-  # intrinsic size from the svg attributes
   W=$(grep -o 'width="[0-9.]*"' "$f" | head -1 | grep -o '[0-9.]*')
   H=$(grep -o 'height="[0-9.]*"' "$f" | head -1 | grep -o '[0-9.]*')
 

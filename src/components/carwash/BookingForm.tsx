@@ -87,8 +87,7 @@ const BookingForm = forwardRef<BookingFormHandle>((_props, ref) => {
             return;
         }
 
-        // TODO(backend): send this booking to the Carwash bookings API once it exists.
-        // For now we validate client-side, log the payload, and hand off to WhatsApp.
+        // TODO(backend): send to the Carwash bookings API once it exists.
         console.log('[Carwash booking]', {
             name: form.name.trim(),
             phone: form.phone.trim(),

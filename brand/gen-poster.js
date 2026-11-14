@@ -1,21 +1,7 @@
-/* Jaranow — recruitment posters.
-   Emits one HTML page per role x format; rasterize-poster.sh screenshots them.
-   Type is Rubik (the site face, pulled from Google Fonts at render time); the
-   lockups are the real brand SVGs, inlined.
-
-   Same construction as gen-pricelist.js - Ink field, dot grid, drop watermark,
-   accent bar along the bottom - so a printed sheet and a Meta ad read as the
-   same thing.
-
-   TWO THINGS ARE VARIABLE HERE: the postings (JOBS) and the canvases (FORMATS).
-   Every format is authored in one design-mm space 216mm wide and rendered at
-   its own px/mm, so a single stylesheet drives print and social. A new size is
-   an entry in FORMATS; a new opening is an entry in JOBS. Nothing below those
-   two arrays needs touching to change what a poster says or what shape it is.
-
-   Do not state a wage, a shift pattern or a benefit that has not been
-   confirmed. `pay` is optional for exactly that reason - a sheet on a wall
-   outlives the conversation that set it.
+/* Jaranow — recruitment posters: one HTML per JOBS x FORMATS entry;
+   rasterize-poster.sh shoots them. All formats share a 216 design-mm width and
+   render at their own px/mm. Never print an unconfirmed wage, shift or benefit -
+   `pay` is optional for that reason. See CLAUDE.md "Recruitment posters".
 
    Usage: node gen-poster.js <outdir>
 */
@@ -30,39 +16,11 @@ const INK = "#0E1526";
 const ACCENT = "#2563EB";
 const PAPER = "#F2F5FB";
 
-/* ---------------------------------------------------------------------------
-   THE FORMATS — the canvases.
-
-   Widths are all 216 design-mm so one set of sizes works everywhere; only the
-   height and the pixel width change. px/mm falls out as px / 216.
-
-     w, h       canvas in design-mm (216 wide always; h sets the aspect)
-     px         rendered width in pixels -> height follows from the aspect
-     pxH        optional exact pixel height, overriding that. Print needs it:
-                rounding 216mm to a whole 2551px loses half a pixel, and the
-                sheet has to come out at exactly trim + bleed for the printer.
-     margin     quiet edge, from the page edge inwards
-     padTop     optional override for margin at the top
-     padBottom  optional extra clearance above the accent bar
-     bar        accent bar height. On the print sheet BLEED of it is trimmed
-                away, so it has to be taller than the bleed to leave anything
-                on the finished page.
-     cols       columns for the bullet sections, default 2. The 9:16 canvas is
-                narrow and tall, so it sets 1 - two columns there squeeze every
-                bullet to three or four words a line.
-     type       multiplier on every type size. 1 = the print proportions. The
-                social canvases get more because they are read on a phone at a
-                fraction of their pixel size, not held at arm's length.
-     bleed      print bleed in mm, for the console note. Social has none.
-
-   A note on Meta: text-heavy creative still gets throttled in delivery even
-   though the hard 20% rule is gone. These carry a full job spec by design -
-   they are the "read the details" creative, not the scroll-stopper. Pair them
-   with short primary text rather than adding more copy to the image.
---------------------------------------------------------------------------- */
+/* w/h in design-mm (w always 216); px = output width. pxH pins print height:
+   rounding 216mm to 2551px loses half a pixel. bar must exceed the bleed or the
+   cut removes it. `type` multiplies every type size (phones read small). */
 const FORMATS = [
     {
-        // 210x297mm + 3mm bleed all round, at 300dpi. Printer-ready.
         name: "a4",
         label: "A4 print, 210x297mm + 3mm bleed @ 300dpi",
         w: 216,
@@ -72,15 +30,11 @@ const FORMATS = [
         margin: 15, // 3mm bleed + 12mm quiet
         padBottom: 21,
         bar: 11, // 3 trimmed + 8 visible
-        /* 1 was the original print proportion, set when the postings carried two
-           sections of four bullets. A short posting looks lost on A4 at that
-           size, so this runs larger; drop it back toward 1 if a posting grows. */
+        // Drop back toward 1 if a posting grows.
         type: 1.18,
         bleed: 3,
     },
     {
-        // Meta feed, 4:5. The tallest thing the feed will show, so it is the
-        // one to run if you only run one.
         name: "feed",
         label: "Meta feed 4:5, 1080x1350",
         w: 216,
@@ -89,17 +43,11 @@ const FORMATS = [
         margin: 13,
         padBottom: 17,
         bar: 7,
-        /* 4:5 is 11% shorter than A4 in the shared design space, so this is the
-           canvas that runs out of room first. It holds a short posting at this
-           scale with air to spare; if you grow a posting back to two sections
-           of four bullets, this has to come back down to 1 or the walk-in line
-           ends up under the accent bar. Check the render either way. */
+        // Runs out of room first: grow a posting and this must come back toward 1.
         type: 1.12,
     },
     {
-        // Stories and Reels, 9:16. Meta's own UI sits over roughly the top 13%
-        // and bottom 18%, so the content is pulled well inside those bands -
-        // that is why this one has so much air, and it is not a bug.
+        // padTop/padBottom clear Meta's UI (~top 13%, bottom 18%) - the air is deliberate.
         name: "story",
         label: "Meta story / Reels 9:16, 1080x1920",
         w: 216,
@@ -110,39 +58,12 @@ const FORMATS = [
         padBottom: 74,
         bar: 7,
         cols: 1,
-        /* 9:16 has height to spare even after the safe zones, so this runs the
-           largest type of the three - it is read at a glance while a thumb is
-           moving, not studied. */
         type: 1.32,
     },
 ];
 
-/* ---------------------------------------------------------------------------
-   THE JOBS — this is the input to the design.
-
-   job:
-     file     output basename; the format name is appended (-a4, -feed, -story)
-     lockup   lockup SVG (white, knockout - the page is Ink). Use the sub-brand
-              lockup when the role belongs to one service, the master lockup
-              (jaranow-lockup-horizontal-white) when it spans both.
-     kicker   small line under the lockup                    default "We're hiring"
-     role     the headline. Kept short - one line at the print size is about
-              three words; a long title wraps and reads as a paragraph.
-     blurb    optional single line under the role
-     meta     [{label, value}] - the chip row. Location, type, hours. Three of
-              confirmed length fit across one row; a fourth wraps.
-     pay      optional string, printed verbatim as a chip in accent. Omit it
-              unless the figure is confirmed.
-     sections [{title, items}] - the bullet lists. Two sit side by side; one
-              runs full width; three or more stack in the same two columns.
-              About 4 bullets a section is what the 4:5 canvas holds.
-     apply    { line?, whatsapp?, email?, walkin? } - the band above the bar.
-              Every field is optional; only what is set is printed.
-     note     optional single line under the apply band
-
-   The hiring pitch is the same as the customer pitch: care, detail, integrity.
-   Do not sell the job on beating someone else's rate.
---------------------------------------------------------------------------- */
+/* role: ~3 words fits one line at print size. Optional: blurb, pay, note and
+   every apply field. Sell the job on care and integrity, never on out-paying. */
 const JOBS = [
     {
         file: "poster-carwash-attendant",
@@ -200,14 +121,12 @@ const JOBS = [
     },
 ];
 
-/* inline a brand SVG at a fixed height */
 function mark(name, height) {
     let s = fs.readFileSync(path.join(SVG, `${name}.svg`), "utf8").trim();
     s = s.replace(/\swidth="[^"]*"/, "").replace(/\sheight="[^"]*"/, "");
     return s.replace("<svg ", `<svg style="height:${height}px;width:auto;display:block" `);
 }
 
-/* the symbol, oversized and faint, bleeding off the right edge */
 function watermark() {
     let s = fs.readFileSync(path.join(SVG, "jaranow-symbol-white.svg"), "utf8").trim();
     s = s.replace(/\swidth="[^"]*"/, "").replace(/\sheight="[^"]*"/, "");
@@ -216,8 +135,7 @@ function watermark() {
 
 const pxH = (f) => f.pxH || Math.round((f.px * f.h) / f.w);
 
-/* One stylesheet, parameterised by format. `u` is geometry in design-mm; `t` is
-   type, which additionally carries the format's legibility multiplier. */
+// `u` = design-mm geometry; `t` = type, which also carries f.type.
 const CSS = (f) => {
     const u = (n) => Math.round((n * f.px) / f.w);
     const t = (n) => Math.round((n * f.type * f.px) / f.w);
@@ -427,8 +345,6 @@ for (const j of JOBS) {
     }
 }
 
-/* Formats differ in pixel size, so the rasterizer reads dimensions from here
-   rather than hardcoding one window size. */
 fs.writeFileSync(path.join(OUT, "html", "sizes.txt"), sizes.join("\n") + "\n");
 
 console.log(`\n${JOBS.length} postings x ${FORMATS.length} formats = ${sizes.length} posters -> ${path.join(OUT, "html")}`);

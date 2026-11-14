@@ -3,13 +3,10 @@ import {Link, NavLink} from 'react-router-dom';
 import {AnimatePresence, motion} from 'framer-motion';
 import {Menu, X} from 'lucide-react';
 
-/** Service lines that have their own sub-brand lockup. Adding another is one
- *  entry here plus the matching SVG in /public/brand - no layout changes. */
 export type BrandLine = 'master' | 'carwash' | 'laundry' | 'rugwash' | 'business';
 
-/* Sub-brand lockups share one 625.7 x 207 frame; the master lockup is
-   625.7 x 160. The heights below keep the "jaranow" wordmark the same optical
-   size in every variant, so adding a service name never shrinks the master. */
+// Heights differ on purpose (master 625.7x160, sub-brand 625.7x207) so the wordmark
+// stays one optical size. Do not normalise.
 const LOGOS: Record<BrandLine, { src: string; alt: string; height: string }> = {
     master: {
         src: '/brand/jaranow-logo-white.svg',
@@ -39,13 +36,10 @@ const LOGOS: Record<BrandLine, { src: string; alt: string; height: string }> = {
 };
 
 export interface HeaderProps {
-    /** Label for the primary call-to-action button. Defaults to "Book a wash". */
     ctaLabel?: string;
-    /** If provided, the CTA becomes a button that runs this handler (e.g. scroll to a section). */
+    /** Takes precedence over ctaTo. */
     onCtaClick?: () => void;
-    /** Route the CTA links to when onCtaClick is not provided. Defaults to "/carwash". */
     ctaTo?: string;
-    /** Which lockup to show. Service pages use their own; everything else the master. */
     logo?: BrandLine;
 }
 
@@ -109,7 +103,6 @@ const Header: React.FC<HeaderProps> = ({ctaLabel = 'Book a wash', onCtaClick, ct
                         <img src={brand.src} alt={brand.alt} className={`${brand.height} w-auto`}/>
                     </Link>
 
-                    {/* Desktop nav */}
                     <div className="hidden md:flex items-center space-x-1">
                         {navLinks.map((link) => (
                             <NavLink key={link.to} to={link.to} className={({isActive}) => linkClasses(isActive)}>
@@ -120,7 +113,6 @@ const Header: React.FC<HeaderProps> = ({ctaLabel = 'Book a wash', onCtaClick, ct
 
                     <div className="hidden md:block">{renderCta()}</div>
 
-                    {/* Mobile menu button */}
                     <button
                         className="md:hidden p-2 rounded-lg text-white transition-colors"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -132,7 +124,6 @@ const Header: React.FC<HeaderProps> = ({ctaLabel = 'Book a wash', onCtaClick, ct
                 </div>
             </div>
 
-            {/* Mobile menu */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <motion.div

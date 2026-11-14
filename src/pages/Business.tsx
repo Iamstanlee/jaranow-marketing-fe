@@ -36,9 +36,7 @@ import {scrollToElement} from '../utils/formatters';
 import {useLandingScroll} from '../utils/useLandingScroll';
 import SeoTags from '../seo/SeoTags';
 
-/* Carwash by Jaranow for organisations: fleets, corporates, businesses and
-   schools. Washed at 6th Avenue or on site at their premises - both confirmed.
-   Pricing is quoted per organisation, so no figures appear on this page. */
+// Quoted per organisation, so no prices on this page (CLAUDE.md "Copy rules").
 
 const facts = [
     {icon: <MapPin size={17}/>, label: 'Where', value: 'At 6th Avenue, Gwarinpa, or at your premises'},
@@ -204,7 +202,6 @@ const Business: React.FC = () => {
             <Header logo="business" ctaLabel="Get a quote" onCtaClick={goToQuote}/>
 
             <main>
-                {/* Hero */}
                 <section className="relative overflow-hidden bg-ink text-white">
                     <InkBackdrop/>
                     <Container className="relative pt-32 pb-20 sm:pt-40 lg:pb-28">
@@ -243,7 +240,6 @@ const Business: React.FC = () => {
                     </Container>
                 </section>
 
-                {/* Who it's for */}
                 <section className="bg-paper py-20 sm:py-28">
                     <Container>
                         <SectionHeader
@@ -266,7 +262,6 @@ const Business: React.FC = () => {
                     </Container>
                 </section>
 
-                {/* Two ways */}
                 <section className="bg-white py-20 sm:py-28">
                     <Container>
                         <SectionHeader
@@ -308,7 +303,6 @@ const Business: React.FC = () => {
                     </Container>
                 </section>
 
-                {/* Services */}
                 <section className="bg-ink py-20 text-white sm:py-28">
                     <Container className="grid gap-12 lg:grid-cols-12">
                         <SectionHeader
@@ -336,7 +330,6 @@ const Business: React.FC = () => {
                     </Container>
                 </section>
 
-                {/* How it works */}
                 <section id="how-it-works" className="bg-white py-20 sm:py-28">
                     <Container>
                         <SectionHeader
@@ -351,7 +344,6 @@ const Business: React.FC = () => {
                     </Container>
                 </section>
 
-                {/* Quote */}
                 <section id="quote" className="bg-paper py-20 sm:py-28">
                     <Container className="grid gap-12 lg:grid-cols-12">
                         <div className="lg:col-span-5">
@@ -388,7 +380,6 @@ const Business: React.FC = () => {
                     </Container>
                 </section>
 
-                {/* FAQ */}
                 <section className="bg-white py-20 sm:py-28">
                     <Container className="grid gap-12 lg:grid-cols-12">
                         <SectionHeader

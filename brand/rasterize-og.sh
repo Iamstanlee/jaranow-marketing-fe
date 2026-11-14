@@ -1,14 +1,7 @@
 #!/bin/bash
-# Rasterize the generated Open Graph templates to 1200x630 PNGs via headless Chrome.
-#
-# Run gen-og.js first - this only screenshots what is already in og/html.
-#
+# Screenshot og/html to 1200x630 PNGs via headless Chrome.
 #   node brand/gen-og.js && brand/rasterize-og.sh
-#
-# Type is pulled from Google Fonts at render time, so this needs network access.
-# The font stylesheet uses display=block, meaning Chrome will not paint fallback
-# type while it waits - a generous virtual-time budget keeps the cards from
-# rendering in system sans.
+# Needs network (Google Fonts); a failed load falls back silently - eyeball the PNGs.
 set -e
 
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"

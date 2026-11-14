@@ -11,8 +11,7 @@ export function PinGate({pin, setPin, error, login}: {
         <form onSubmit={login} className="w-full max-w-sm rounded-3xl bg-white p-8 shadow-2xl">
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-blue-600 text-white"><ShieldCheck/></div>
             <h1 className="mt-6 text-2xl font-bold">Unlock the book</h1><p
-            className="mt-2 text-sm leading-6 text-slate-500">Enter your Admin or Staff PIN to access Jaranow Business
-            Desk.</p><input autoFocus required inputMode="numeric" type="password" value={pin}
+            className="mt-2 text-sm leading-6 text-slate-500">Enter your admin or staff PIN.</p><input autoFocus required inputMode="numeric" type="password" value={pin}
                             onChange={e => setPin(e.target.value)} placeholder="Enter PIN"
                             className="mt-6 w-full rounded-xl border-slate-200 py-3 text-center tracking-[0.5em]"/><p
             className="mt-2 min-h-5 text-xs text-red-600">{error}</p>

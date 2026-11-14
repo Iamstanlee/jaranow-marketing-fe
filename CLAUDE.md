@@ -44,6 +44,41 @@ scripts/           # prerender-meta.js
 - Mobile-first; test at sm/md/lg/xl.
 - Semantic HTML and real ARIA labels.
 
+### Comments
+
+Comments say **why**, never what. Keep one only for a constraint, a gotcha, or a
+bug that would come back without it — one line, three at most.
+
+- Don't restate the code, a name or a type. Don't narrate history ("used to",
+  "first cut", "was removed") unless it stops a regression, and then in one line.
+- Don't copy rationale that lives here or in `BRAND-STANDARD.md`. Point to it:
+  `// deliberate — see CLAUDE.md "Roadside signage"`.
+- No essays above functions, no section-label comments (`{/* Hero */}`), no
+  commented-out code. The parked copy lists in `gen-bay.js`, `gen-noparking.js` and
+  `gen-ad.js` are the exceptions.
+- UI copy follows the same rule: say it once. A screen doesn't repeat its title in
+  its subtitle, and a form doesn't say "optional" in both the label and a note.
+
+### Book app (`/__/book`)
+
+`src/book/hooks/useBook.ts` owns every Firestore read and write; sections only
+render. Keep it fast on a tablet on mobile data:
+
+- Ledgers (`sales`, `expenses`) listen to a `LIVE_WINDOW`. Anything older comes
+  through `requestHistory` / `useHistory`, which fetches only the ledger that falls
+  short. Never make a listener unbounded, except `loyalty` (`codeFor` numbers members
+  by position) and `staff`.
+- A write that touches more than one document goes in one `writeBatch`: one round
+  trip, all or nothing. Move point balances with `increment()`, never with a computed
+  total.
+- Filter by date with `rangeTest(range)` (bounds resolved once), not per-row date
+  maths. Format with the module-level `Intl` formatters in `format.ts`; never call
+  `new Intl.*` or `toLocale*String` per row.
+- Derive per-day sales through `payments.ts`'s per-array day index rather than
+  scanning `sales` once per day.
+- Heavy sections (`Reports`, `Payments`, `Staff`) are lazy-loaded in
+  `Bookkeeping.tsx`. Overview, Sales, Expenses and End of day stay eager.
+
 ### Header and Footer
 
 One shared `Header`/`Footer` for every page (no per-service Navigation).

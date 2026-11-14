@@ -1,8 +1,4 @@
-/* Jaranow — Open Graph image generator.
-   Emits one HTML template per share card; rasterize.sh-style Chrome pass turns
-   them into 1200x630 PNGs. Type is Rubik (the site face, pulled from Google
-   Fonts at render time); the lockups are the real brand SVGs, inlined.
-
+/* Jaranow — 1200x630 Open Graph cards; rasterize-og.sh shoots them.
    Usage: node gen-og.js <outdir>
 */
 const fs = require("fs");
@@ -16,14 +12,12 @@ const INK = "#0E1526";
 const ACCENT = "#2563EB";
 const PAPER = "#F2F5FB";
 
-/* inline a brand SVG at a fixed height */
 function mark(name, height) {
   let s = fs.readFileSync(path.join(SVG, `${name}.svg`), "utf8").trim();
   s = s.replace(/\swidth="[^"]*"/, "").replace(/\sheight="[^"]*"/, "");
   return s.replace("<svg ", `<svg style="height:${height}px;width:auto;display:block" `);
 }
 
-/* the symbol, oversized and faint, bleeding off the right edge */
 function watermark() {
   let s = fs.readFileSync(path.join(SVG, "jaranow-symbol-white.svg"), "utf8").trim();
   s = s.replace(/\swidth="[^"]*"/, "").replace(/\sheight="[^"]*"/, "");

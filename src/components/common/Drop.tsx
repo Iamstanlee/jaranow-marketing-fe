@@ -1,7 +1,6 @@
 import React from 'react';
 
-/** The Jaranow symbol, flat, for use as a ghost watermark behind a section.
- *  Same geometry as /public/brand/jaranow-symbol.svg - counter kept open. */
+/** Same geometry as /public/brand/jaranow-symbol.svg; change both together. */
 const Drop: React.FC<{ className?: string }> = ({className = ''}) => (
     <svg viewBox="2 -6 96 112" className={className} aria-hidden="true" focusable="false">
         <path

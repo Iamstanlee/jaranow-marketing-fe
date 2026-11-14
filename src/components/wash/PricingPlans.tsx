@@ -5,8 +5,7 @@ import {formatCurrency} from '../../utils/formatters';
 import {btn, Container, Lift, SectionHeader, openWhatsApp} from '../common/ui';
 import {trackLead} from '../../utils/metaPixel';
 
-// Features are limited to what is confirmed. Lite pickup days were listed here as
-// Tuesday & Thursday; the confirmed days are Tuesday & Saturday (Thursday is Premium's third).
+// Confirmed features only. Lite pickups are Tue & Sat, not Tue & Thu.
 export const LAUNDRY_PLANS: SubscriptionPlan[] = [
   {
     id: 'lite',
@@ -60,7 +59,7 @@ Custom Plan Details:
 
 I'd like to get started. When is the next available pickup?`;
 
-/** A monthly plan. The featured plan is set on Ink rather than badged. */
+/** The featured plan is set on Ink rather than badged. */
 export const PlanCard: React.FC<{ plan: SubscriptionPlan; onSelect: () => void }> = ({ plan, onSelect }) => {
   const dark = plan.isPopular;
   return (
@@ -101,7 +100,6 @@ export const PlanCard: React.FC<{ plan: SubscriptionPlan; onSelect: () => void }
   );
 };
 
-/** Pay-per-item pricing, for anyone who does not need a monthly plan. */
 export const CustomPricingCard: React.FC<{ onSelect: () => void }> = ({ onSelect }) => (
   <article className="grid gap-8 rounded-3xl border border-ink/10 bg-white p-8 sm:p-10 lg:grid-cols-12 lg:items-center">
     <div className="lg:col-span-5">

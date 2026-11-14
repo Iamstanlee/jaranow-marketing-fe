@@ -92,9 +92,7 @@ const PlanRecommendation: React.FC<PlanRecommendationProps> = ({ showHeader = tr
     let recommendedPlan: 'lite' | 'premium' | 'custom' = 'lite';
     let estimatedMonthlyCost: number | undefined;
 
-    // Decision logic
     if (washesPerMonth <= 1 || totalClothesPerMonth <= 15) {
-      // Low volume - recommend custom pricing
       recommendedPlan = 'custom';
       reasons.push('Your volume is light enough that paying per item suits you better than a plan');
       reasons.push('No monthly plan - you pay for what you send');
@@ -104,7 +102,6 @@ const PlanRecommendation: React.FC<PlanRecommendationProps> = ({ showHeader = tr
       const costPerWash = (estimatedRegularItems * 700) + (estimatedSpecialItems * 2000);
       estimatedMonthlyCost = Math.round(costPerWash * washesPerMonth);
     } else if (washesPerMonth === 2 && clothesPerWash <= 12 && !hasSpecialItems) {
-      // Perfect fit for Lite
       recommendedPlan = 'lite';
       reasons.push('Your needs perfectly match the Lite Plan (2 washes, up to 12 clothes each)');
       reasons.push('A predictable rhythm - two scheduled pickups you never have to think about');
@@ -112,7 +109,6 @@ const PlanRecommendation: React.FC<PlanRecommendationProps> = ({ showHeader = tr
         reasons.push('Sits within what you expect to spend');
       }
     } else if ((washesPerMonth >= 3 || clothesPerWash > 12 || hasSpecialItems) && totalClothesPerMonth <= 45) {
-      // Good fit for Premium
       recommendedPlan = 'premium';
       if (washesPerMonth >= 3) {
         reasons.push('You need 3+ washes per month - Premium Plan includes 3 scheduled pickups');
@@ -125,14 +121,12 @@ const PlanRecommendation: React.FC<PlanRecommendationProps> = ({ showHeader = tr
       }
       reasons.push('Built for your volume, so nothing gets rushed or left behind');
     } else if (totalClothesPerMonth > 45) {
-      // Volume exceeds both plans
       recommendedPlan = 'premium';
       reasons.push('Premium Plan is built to handle high-volume needs without cutting corners');
       reasons.push('Consider splitting across multiple pickup days (Tuesday, Thursday, Saturday)');
       reasons.push('Additional items can be added with custom pricing as needed');
     }
 
-    // Budget considerations
     if (budget && budget < 15000) {
       recommendedPlan = 'custom';
       reasons.length = 0;
@@ -226,7 +220,6 @@ I'd like to get started with pay-as-you-go pricing. When is the next available p
 
   const card = (
     <div className="rounded-3xl border border-ink/10 bg-white p-7 sm:p-10">
-      {/* Progress */}
       <div className="mb-8">
         <div className="mb-3 flex items-center justify-between text-sm">
           <span className="font-medium text-ink/60">{step <= 4 ? `Question ${step} of 4` : 'Your recommendation'}</span>

@@ -1,9 +1,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {MoreVertical} from 'lucide-react';
 
-// One action in the menu. `hint` is what a disabled row says for itself — a row that is dead
-// with no explanation reads as a broken button, and the reason is usually short enough to sit
-// under the label.
+// `hint` explains why a row is disabled.
 export type Action = {
     label: string;
     icon: typeof MoreVertical;
@@ -13,16 +11,12 @@ export type Action = {
     tone?: 'default' | 'danger'
 };
 
-// A menu behind a single button, for actions that are worth doing but not worth a permanent
-// control on the face of a card. Everything it offers opens a dialog, so it is a way in
-// rather than a place anything is committed.
 export function ActionMenu({label, items}: { label: string; items: Action[] }) {
     const [open, setOpen] = useState(false);
     const wrap = useRef<HTMLDivElement>(null), trigger = useRef<HTMLButtonElement>(null);
     useEffect(() => {
         if (!open) return;
-        // pointerdown rather than click, so the menu is already gone when the finger lifts and
-        // a tap aimed past it is not spent closing it.
+        // pointerdown, so a tap past the menu is not spent closing it.
         const away = (e: PointerEvent) => {
             if (!wrap.current?.contains(e.target as Node)) setOpen(false);
         };
@@ -43,8 +37,6 @@ export function ActionMenu({label, items}: { label: string; items: Action[] }) {
                 aria-expanded={open} aria-label={label}
                 className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600">
             <MoreVertical size={15}/></button>
-        {/* Positioned, so it paints over the cards beside and below it — the grid gives every
-            card the same height and this hangs past the bottom of a short one. */}
         {open && <div role="menu" aria-label={label}
                       className="absolute right-0 top-full z-20 mt-1 w-56 rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
             {items.map(item => {

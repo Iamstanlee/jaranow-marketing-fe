@@ -1,8 +1,6 @@
 import { getCLS, getFID, getFCP, getLCP, getTTFB, Metric } from 'web-vitals';
 
-// Custom web vitals reporting function
 const sendToAnalytics = (metric: Metric) => {
-  // Send to Google Analytics
   if (typeof window !== 'undefined' && (window as any).gtag) {
     (window as any).gtag('event', metric.name, {
       custom_parameter_1: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
@@ -10,13 +8,11 @@ const sendToAnalytics = (metric: Metric) => {
     });
   }
 
-  // Log to console in development
   if (process.env.NODE_ENV === 'development') {
     console.log(`${metric.name}: ${metric.value}`, metric);
   }
 };
 
-// Initialize web vitals measurement
 export const initWebVitals = () => {
   getCLS(sendToAnalytics);
   getFID(sendToAnalytics);
@@ -25,9 +21,7 @@ export const initWebVitals = () => {
   getTTFB(sendToAnalytics);
 };
 
-// Optimize Largest Contentful Paint (LCP)
 export const optimizeLCP = () => {
-  // Preload critical resources
   const criticalImages = ['/brand/jaranow-logo-white.svg'];
 
   criticalImages.forEach(src => {
@@ -39,9 +33,7 @@ export const optimizeLCP = () => {
   });
 };
 
-// Optimize First Input Delay (FID)
 export const optimizeFID = () => {
-  // Use requestIdleCallback for non-critical tasks
   const scheduleTask = (task: () => void) => {
     if ('requestIdleCallback' in window) {
       (window as any).requestIdleCallback(task);
@@ -53,9 +45,7 @@ export const optimizeFID = () => {
   return scheduleTask;
 };
 
-// Optimize Cumulative Layout Shift (CLS)
 export const preventLayoutShift = () => {
-  // Add CSS to prevent layout shifts
   const style = document.createElement('style');
   style.textContent = `
     img, video, iframe {
@@ -93,17 +83,14 @@ export const preventLayoutShift = () => {
   document.head.appendChild(style);
 };
 
-// Initialize all Core Web Vitals optimizations
 export const initCoreWebVitals = () => {
   if (typeof window !== 'undefined') {
     initWebVitals();
     optimizeLCP();
     preventLayoutShift();
 
-    // Schedule non-critical optimizations
     const scheduleTask = optimizeFID();
     scheduleTask(() => {
-      // Additional non-critical optimizations can go here
     });
   }
 };

@@ -1,26 +1,7 @@
 #!/bin/bash
-# Rasterize the generated "No parking" notices via headless Chrome.
-#
-# Run gen-noparking.js first - this only screenshots what is already in
-# noparking/html.
-#
+# Screenshot noparking/html via headless Chrome, sized from sizes.txt.
 #   node brand/gen-noparking.js && brand/rasterize-noparking.sh
-#
-# Type is pulled from Google Fonts at render time, so this needs network access.
-# The stylesheet uses display=block, so Chrome waits rather than painting
-# fallback type - a generous virtual-time budget keeps the plates out of system
-# sans. Archivo Black is where a failed load shows up first, on NO PARKING.
-#
-# 300dpi with 3mm bleed, same as the other print pieces - these are plates, not
-# large format. Hand the PNGs to the printer as-is; they trim at the crop line.
-#
-#   -a3     3579x5031   297x420mm  wall plate beside the bay
-#   -a2     5031x7087   420x594mm  frontage plate
-#   -gate  10701x3614   900x300mm  strip for a gate, rail or bay head
-#   -formats 5031x3579  A3 landscape, all three at 1:5 - for choosing, not printing
-#
-# Formats differ in pixel size, so dimensions come from the sizes.txt manifest
-# gen-noparking.js writes. Do not hardcode one window size here.
+# Needs network (Google Fonts); a failed load falls back silently - eyeball the PNGs.
 set -e
 
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"

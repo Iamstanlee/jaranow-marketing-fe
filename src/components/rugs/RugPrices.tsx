@@ -4,19 +4,16 @@ import {CARWASH_PRICE_LIST} from '../../data/carwashPrices';
 import {formatCurrency} from '../../utils/formatters';
 import {trackLead} from '../../utils/metaPixel';
 
-/* The rug size cards, shared by /rugs and the Rug wash tab on /pricing so the
-   two can never quote different figures or book differently. Prices come from
-   the Rug section of the printed price list data. */
+// Shared by /rugs and /pricing so the two cannot quote or book differently.
 
 export const RUGS = CARWASH_PRICE_LIST.find((s) => s.title === 'Rug')?.items ?? [];
 
-/** Opens WhatsApp with the chosen size - a Lead, like every price-card button. */
 export const bookRug = (name: string, price: number) => {
     trackLead(`Price card - ${name}`);
     openWhatsApp(`Hi Jaranow! I'd like to book a rug pickup.\n\nRug: ${name} (${formatCurrency(price)})`);
 };
 
-/** Three cards, small to large; the largest is set on Ink rather than badged. */
+/** The largest is set on Ink rather than badged. */
 const RugPrices: React.FC = () => (
     <div className="grid gap-6 lg:grid-cols-3">
         {RUGS.map((r, i) => {

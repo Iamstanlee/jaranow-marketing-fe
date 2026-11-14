@@ -1,9 +1,7 @@
 import React from 'react';
 import {Container, FaqItem, FaqList, SectionHeader, btn, whatsappUrl} from '../common/ui';
 
-// Answers are limited to what is confirmed. Removed: the 100% satisfaction /
-// refund guarantee, "fully insured", item tagging and photos, the 2-hour and
-// 30-minute follow-up promises, phone hours, and 24/7 support.
+// Confirmed answers only; do not add guarantees, insurance or response-time promises.
 const faqs: FaqItem[] = [
   {
     question: 'Which days do you collect laundry?',

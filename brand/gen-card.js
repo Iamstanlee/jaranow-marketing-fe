@@ -1,17 +1,5 @@
-/* Jaranow — pocket card generator.
-   Emits print-ready HTML templates; rasterize-card.sh turns them into 300dpi
-   PNGs. Type is Rubik (the site face, pulled from Google Fonts at render time);
-   the lockups are the real brand SVGs, inlined.
-
-   Two cards live here, both 85x55mm so they share one press setup and one
-   rasterizer:
-     card-carwash-account-*   complimentary card carrying the bank details
-     card-carwash-loyalty-*   stamp card, 5 washes then one on us
-
-   Geometry is 85x55mm trim + 3mm bleed on all four sides, at 300dpi:
-     trim  1004 x 650 px
-     bleed 1075 x 721 px  <- the emitted page size
-   Content sits 4mm inside the trim, so nothing important lands near a blade.
+/* Jaranow — pocket cards (account + loyalty), 85x55mm trim + 3mm bleed at
+   300dpi; content sits 4mm inside trim. rasterize-card.sh shoots them.
 
    Usage: node gen-card.js [outdir] [--batch[=SPEC]]
           outdir defaults to brand/card, which is where rasterize-card.sh looks.
@@ -20,11 +8,7 @@
 const fs = require("fs");
 const path = require("path");
 
-/* Output directory: optional, positional, and defaults to brand/card - which is
-   what rasterize-card.sh reads, so there is rarely a reason to pass it.
-   Flags are skipped when looking for it. Taking argv[2] blindly meant
-   `gen-card.js --batch=100` read the flag as the path and quietly wrote a
-   directory literally named "--batch=100" into the cwd. */
+// Skip flags: argv[2] alone would take `--batch=100` as the output path.
 const OUT =
   process.argv.slice(2).find((a) => !a.startsWith("-")) || path.join(__dirname, "card");
 const SVG = path.join(__dirname, "jaranow-blue", "svg");
@@ -39,31 +23,24 @@ const mm = (n) => Math.round((n * DPI) / 25.4);
 
 const BLEED = 3;
 const PAGE_W = mm(85 + BLEED * 2); // 1075
-const PAGE_H = mm(55 + BLEED * 2); // 721
+const PAGE_H = mm(55 + BLEED * 2); // 720
 const SAFE = mm(BLEED + 4); // bleed + 4mm quiet margin from trim
 
-/* ---------------------------------------------------------------------------
-   PLACEHOLDERS — replace these three values with the real account, then
-   regenerate. They are deliberately obvious so a proof never reads as real.
---------------------------------------------------------------------------- */
 const ACCOUNT = {
   bank: "MONIEPOINT",
   name: "BEANSLABS TECHNOLOGIES",
   number: "5298331307",
 };
 
-/* group a 10-digit NUBAN as 3-3-4 for reading aloud over a forecourt */
 const groupNuban = (n) =>
   /^\d{10}$/.test(n) ? `${n.slice(0, 3)} ${n.slice(3, 6)} ${n.slice(6)}` : n;
 
-/* inline a brand SVG at a fixed height */
 function mark(name, height) {
   let s = fs.readFileSync(path.join(SVG, `${name}.svg`), "utf8").trim();
   s = s.replace(/\swidth="[^"]*"/, "").replace(/\sheight="[^"]*"/, "");
   return s.replace("<svg ", `<svg style="height:${height}px;width:auto;display:block" `);
 }
 
-/* the symbol, oversized and faint, bleeding off an edge */
 function watermark(colourway, opacity) {
   let s = fs.readFileSync(path.join(SVG, `jaranow-symbol-${colourway}.svg`), "utf8").trim();
   s = s.replace(/\swidth="[^"]*"/, "").replace(/\sheight="[^"]*"/, "");
@@ -177,11 +154,7 @@ ${body}
 <div class="bar"></div>
 </body></html>`;
 
-/* ---------------------------------------------------------------------------
-   Loyalty card numbering. Each card carries a printed serial so a stamped card
-   can be tied back to a customer in the ledger - the card itself enforces
-   nothing, the number is just the handle.
---------------------------------------------------------------------------- */
+// Keep in step with the cashier guide (docs/cashier-guide.html).
 const SERIAL = { prefix: "LOY", pad: 3 };
 const cardNo = (n) => `${SERIAL.prefix}-${String(n).padStart(SERIAL.pad, "0")}`;
 
@@ -256,29 +229,12 @@ for (const c of CARDS) {
 console.log(`\n${CARDS.length} templates written to ${path.join(OUT, "html")}`);
 console.log(`page ${PAGE_W}x${PAGE_H}px = 85x55mm trim + ${BLEED}mm bleed @ ${DPI}dpi`);
 
-/* ---- numbered batch ------------------------------------------------------
-   `node gen-card.js <outdir> --batch[=SPEC]` writes serialised loyalty backs to
-   <outdir>/batch/html. Only the BACK varies - every front is identical, so the
-   press runs one static front and N variable backs.
-
-   SPEC is either a count, which starts at 1, or an explicit inclusive range:
-
-     --batch           LOY-001..LOY-100   (the default run)
+/* Numbered batch -> <outdir>/batch/html (backs only; fronts are identical).
+     --batch           LOY-001..LOY-100
      --batch=250       LOY-001..LOY-250
-     --batch=101-200   LOY-101..LOY-200   <- the second run of 100
-     --batch=101..200  same, if you prefer the other separator
-
-   The range form is the one to reach for on a reprint. A serial is the handle
-   the ledger keys a customer's balance off, so regenerating from 1 reissues
-   numbers that are already in customers' hands and silently puts two people on
-   one balance. Start where the last run ended: after 1-100, print 101-200.
-
-   Nothing here knows what has already been printed - that is the ledger's job,
-   not the generator's. It will happily reissue a range if you ask it to.
--------------------------------------------------------------------------- */
-
-/* A count ("250") or an inclusive range ("101-200" / "101..200"). Returns null
-   for anything else so the caller can print usage rather than guess. */
+     --batch=101-200   LOY-101..LOY-200   (or 101..200)
+   Use the range form on a reprint: restarting at 1 reissues serials already in
+   customers' hands. Nothing here tracks what was printed - the ledger does. */
 function parseBatch(spec) {
   if (!spec) return { from: 1, to: 100 };
   const range = spec.match(/^(\d+)(?:-|\.\.)(\d+)$/);
@@ -298,7 +254,6 @@ if (batchArg) {
     process.exit(1);
   }
   const { from, to } = batch;
-  /* Serial 0 is the specimen back written above, so a run starts at 1. */
   if (from < 1) {
     console.error(`--batch starts at 1 (LOY-000 is the specimen), got: ${from}`);
     process.exit(1);
@@ -310,9 +265,7 @@ if (batchArg) {
   const count = to - from + 1;
 
   const dir = path.join(OUT, "batch", "html");
-  /* Wiped first, so a re-run never leaves last run's serials behind to be
-     printed twice. One directory is one press run: to keep an earlier run,
-     copy it out before generating the next range. */
+  // Wiped so stale serials are never printed twice; copy an earlier run out first.
   fs.rmSync(path.join(OUT, "batch"), { recursive: true, force: true });
   fs.mkdirSync(dir, { recursive: true });
 
@@ -327,9 +280,6 @@ if (batchArg) {
     `\nbatch: ${count} numbered backs (${cardNo(from)}..${cardNo(to)}) -> ${dir}`
   );
   console.log(`fronts are identical - print card-carwash-loyalty-front once, x${count}`);
-  /* Past the pad width the serials get wider (LOY-999 -> LOY-1000), so a run
-     that straddles the boundary prints two different-looking cards. Not fatal,
-     but it is the kind of thing you want to hear before the press does. */
   if (to >= 10 ** SERIAL.pad) {
     console.warn(
       `\nnote: ${cardNo(to)} is wider than ${SERIAL.pad} digits - this run mixes serial widths.`

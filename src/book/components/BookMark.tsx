@@ -1,12 +1,4 @@
-// The books app's mark, "Ink desk": an Ink tile with "BOOK" in Paper, drawn on the wordmark's
-// construction, as large as the tile allows. The same
-// geometry as brand/gen-appicon.js, so the sidebar tile and the home-screen icon are one
-// object — change one, change both. Internal only: everything a customer sees uses the drop
-// (BRAND-STANDARD §2.4).
-//
-// The capitals are glyphs from brand/gen-marks.js, drawn rather than typed (§2.1), set at the
-// icon's heavier 20-unit stroke with spacing widened to keep 12 units clear between letters:
-// this is the path and ink box gen-appicon.js emits.
+// Same geometry as brand/gen-appicon.js — change both together (see CLAUDE.md "Book app icon").
 const SW = 20;
 const WORD = 'M7 93V16 H33A14 14 0 0 1 47 30V40 A14 14 0 0 1 33 54H7M7 54H40A14 14 0 0 1 54 68V79 A14 14 0 0 1 40 93H7 '
     + 'M86 30A14 14 0 0 1 100 16H126A14 14 0 0 1 140 30V79 A14 14 0 0 1 126 93H100A14 14 0 0 1 86 79Z '

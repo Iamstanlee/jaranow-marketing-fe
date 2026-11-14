@@ -1,25 +1,7 @@
-/* Jaranow — carwash tee mockup generator.
-   Emits one HTML sheet per garment colourway (front + back view); rasterize-tee.sh
-   screenshots them to PNG. Type is Rubik (the site face, pulled from Google Fonts
-   at render time); the lockups are the real brand SVGs, inlined.
-
-   THIS IS A MOCKUP, NOT PRINT ARTWORK. It exists to approve placement and
-   colourway. The garment is drawn geometry with soft shading - the shading is on
-   the *cloth*, never on the mark, which stays flat per BRAND-STANDARD 4.2. Send a
-   printer the SVGs plus the placement figures in the captions, not these PNGs:
-
-     front  jaranow-carwash-by-jaranow-<way>.svg
-     back   jaranow-carwash-address-<way>.svg
-
-   Both prints are whole SVGs, inlined here as-is. The back carries its address
-   INSIDE the artwork (drawn, not typed), so what the printer sets up is exactly
-   what this sheet shows. Do not re-add the address as text beside the mark - a
-   caption in a mockup is not something a printer can reproduce, and the two
-   drift the moment the address changes.
-
-   Scale is honest: the tee is drawn at a size L (530mm pit to pit), so the print
-   widths below are real millimetres and the mark's size on the body is what you
-   would actually get.
+/* Jaranow — carwash tee mockups (front + back per cloth colour); rasterize-tee.sh
+   shoots them. MOCKUP, NOT PRINT ARTWORK - printers get the SVGs and the mm in the
+   captions. The back address lives inside its SVG; don't re-add it as text.
+   See CLAUDE.md "Tee mockups".
 
    Usage: node gen-tee.js <outdir>
 */
@@ -34,13 +16,9 @@ const INK = "#0E1526";
 const ACCENT = "#2563EB";
 const PAPER = "#F2F5FB";
 
-/* ---- garment geometry ---------------------------------------------------- */
-/* The tee is drawn in a 640 x 660 viewBox at real size-L proportions:
-     pit to pit      396 units = 530mm   (the scale reference)
-     sleeve to sleeve 548 units = 733mm
-     HPS to hem       542 units = 725mm
-   Everything in mm flows from CHEST_UNITS, so the print sizes below are honest.
-   Get the length wrong and the whole thing reads as a nightshirt. */
+/* Real size-L proportions: pit to pit 396u = 530mm (the scale reference),
+   sleeve to sleeve 548u = 733mm, HPS to hem 542u = 725mm. All mm derive from
+   CHEST_UNITS, so print sizes are true. */
 const VB_W = 640;
 const VB_H = 660;
 const CHEST_UNITS = 396;
@@ -50,15 +28,13 @@ const pxPerUnit = TEE_W / VB_W;
 const pxPerMm = (pxPerUnit * CHEST_UNITS) / CHEST_MM;
 const mm = (n) => +(n * pxPerMm).toFixed(1);
 
-/* print sizes, in real millimetres across */
 const CHEST_PRINT_MM = 90; // left chest
 const BACK_PRINT_MM = 280; // across the shoulder blades
 
 const PAGE_W = 1800;
 const PAGE_H = 1100;
 
-/* garment colourways. `mark` picks the lockup per BRAND-STANDARD 5:
-   knockout on dark cloth, duo on light. */
+// `mark` colourway per BRAND-STANDARD §5.
 const GARMENTS = {
   ink: {
     base: INK,
@@ -70,25 +46,20 @@ const GARMENTS = {
   paper: {
     base: PAPER,
     edge: "#D7DEEC",
-    /* Not #FFF - the garment is Paper, and blowing the highlight out to white
-       makes the sheet lie about the cloth colour it exists to approve. */
+    // Not #FFF - a white highlight misrepresents the Paper cloth being approved.
     lift: "#FBFCFE",
     rib: "#E4E9F4",
     mark: "black",
   },
 };
 
-/* inline a brand SVG at a fixed px width */
 function mark(name, width) {
   let s = fs.readFileSync(path.join(SVG, `${name}.svg`), "utf8").trim();
   s = s.replace(/\swidth="[^"]*"/, "").replace(/\sheight="[^"]*"/, "");
   return s.replace("<svg ", `<svg style="width:${width}px;height:auto;display:block" `);
 }
 
-/* The garment. Body outline, collar rib, sleeve hems and a few fold shadows -
-   enough to read as cloth without pretending to be a photograph. */
 function tee(g, id, neckDepth) {
-  /* Neckline: shallower on the back view, as a real crew neck is. */
   const NECK = `M 250 58 C 258 ${58 + neckDepth} 382 ${58 + neckDepth} 390 58`;
 
   const BODY = `M 250 58

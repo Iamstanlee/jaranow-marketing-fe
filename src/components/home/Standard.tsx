@@ -1,7 +1,6 @@
 import React from 'react';
 import {Container, NumberedGrid, SectionHeader} from '../common/ui';
 
-// The four brand values, each tied to something a customer can actually see.
 const values = [
     {
         title: 'Attention to detail',

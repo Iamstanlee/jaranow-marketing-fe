@@ -2,8 +2,7 @@ import {SERVICES} from './constants';
 import {addDays, isoDay, startOfWeek} from './format';
 import type {Attendance, Expense, Loyalty, Payout, RosterEntry, Sale, Staff} from './types';
 
-// Seed records are strictly for local demo mode. A Firebase-backed business starts empty and
-// is populated only by its Firestore collections.
+// Demo mode only (no Firebase config).
 
 export const seedSales: Sale[] = [{
     id: 's1',
@@ -53,17 +52,14 @@ export const seedExpenses: Expense[] = [{
 }];
 
 export const seedStaff: Staff[] = [
-    // Three attendants, two on revenue share — the worked example: each of the two takes 10%.
+    // Three present, two on revenue share: each takes 10%.
     {id: 'p1', name: 'Musa Ibrahim', phone: '0803 111 2233', active: true, exempt: [], attendantPay: 'share'},
     {id: 'p2', name: 'Blessing Eze', phone: '0806 444 5566', active: true, exempt: [], attendantPay: 'share'},
-    // Carries an exemption so demo mode shows what one looks like on the team list and in the
-    // turn order, rather than only the everybody-takes-every-turn case.
+    // Exempt, so demo mode shows an exemption.
     {id: 'p3', name: 'Segun Ola', phone: '', active: true, exempt: ['Cleaning'], attendantPay: 'salary', salary: 60000}
 ];
 
-// Anchored to the current week rather than to fixed dates, so demo mode always opens on a
-// rota with something in it instead of on an empty week that looks broken. Cleaning entries
-// carry the Monday, off entries the Sunday — see src/book/roster.ts.
+// Relative to this week so demo mode always opens on a populated rota.
 const monday = startOfWeek(new Date());
 const sunday = addDays(monday, 6);
 export const seedRoster: RosterEntry[] = [
@@ -82,6 +78,4 @@ export const seedRoster: RosterEntry[] = [
 
 export const seedPayouts: Payout[] = [];
 
-// Everybody in today, so demo mode opens on the worked example: three present, two on revenue
-// share, 10% each.
 export const seedAttendance: Attendance[] = [{id: isoDay(new Date()), day: isoDay(new Date()), present: ['p1', 'p2', 'p3']}];

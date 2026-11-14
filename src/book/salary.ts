@@ -3,27 +3,16 @@ import {ATTENDANCE_START, markOn, payday} from './payments';
 import {weekRoster} from './roster';
 import type {Advance, Attendance, Payout, RosterEntry, Staff} from './types';
 
-// Monthly pay for a salaried attendant, from the same attendance sheet as revenue share.
-//
-// The salary is paid in full, less one day's rate (base ÷ days in the month) for every day
-// missed: a day marked absent, and a past day with no mark at all. The two are told apart on
-// the calendar — a blank can still be filled in — but both are deducted, so pay rests on the
-// sheet being kept rather than on what anyone remembers. Not deducted: a rota Sunday off;
-// a paid day off (a sick day); today and later; anything before ATTENDANCE_START.
-//
-// A cashier (no `attendantPay`) is not on the attendance sheet, so their salary is fixed: no
-// days, no absences.
-//
-// Advances, and revenue share already paid before a move to salary, do not change what was
-// earned — they come off the balance. Both count in the month they fall in: an advance by its
-// request time, a share payout by its week's payday.
+// Monthly salary: the base less one day's rate (base ÷ days in month) per day absent or past
+// and unmarked. Not deducted: a rota Sunday off, paid leave, today onward, anything before
+// ATTENDANCE_START. A cashier has no attendance, so their salary is fixed. Advances and share
+// payouts (by their week's payday) come off the balance in the month they fall in.
 export const SALARY_DUE_DAY = 28;
 export const salaryDue = (month: Date) => new Date(month.getFullYear(), month.getMonth(), SALARY_DUE_DAY);
 
 export type DayStatus = 'worked' | 'off' | 'paidOff' | 'absent' | 'unmarked' | 'upcoming' | 'before';
 export type MonthDay = { day: string; date: Date; status: DayStatus };
 export type MonthPay = {
-    // yyyy-mm.
     month: string;
     days: MonthDay[];
     worked: number;
@@ -31,17 +20,14 @@ export type MonthPay = {
     paidOff: number;
     absent: number;
     unmarked: number;
-    // Days deducted: absent plus unmarked.
     missed: number;
-    // Everything below is 0 until a base salary is set.
+    // 0 until a base salary is set.
     base: number;
     rate: number;
     deduction: number;
     earned: number;
-    // Oldest first.
     advances: Advance[];
     advance: number;
-    // Revenue share paid for weeks whose payday is in this month.
     sharePaid: number;
     balance: number;
 };
@@ -66,7 +52,6 @@ export function monthPay(person: Staff, month: Date, staff: Staff[], attendance:
     const count = (status: DayStatus) => days.filter(d => d.status === status).length;
     const absent = count('absent'), unmarked = count('unmarked'), missed = absent + unmarked;
     const base = person.salary || 0, rate = base / length;
-    // Rounded once for the month, not per day.
     const deduction = Math.round(rate * missed);
     const next = new Date(first.getFullYear(), first.getMonth() + 1, 1).getTime();
     const advances = (Array.isArray(person.advances) ? person.advances : [])

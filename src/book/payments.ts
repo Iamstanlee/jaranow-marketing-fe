@@ -1,30 +1,18 @@
 import {addDays, dateOf, dayFrom, isoDay, startOfDay} from './format';
 import type {AttendantPay, Attendance, Payout, Sale, Staff} from './types';
 
-// Revenue sharing for car-wash attendants.
-//
-// The pool is 30% of every wash, worked out DAY BY DAY against who was there. Each day's 30%
-// is divided by the attendants marked present that day — salaried and revenue share alike —
-// and each revenue-share attendant who was present draws one part. Salaried attendants still
-// count towards the divisor; their part simply stays with the business. So on a day three
-// attendants turn up and two of them are on revenue share, each of the two takes 10% of
-// every wash that day.
-//
-// Nobody is paid for a day they were not marked present. A day with no attendance marked at
-// all therefore pays nobody, which is why the section flags those days rather than letting
-// them pass as a quiet day.
+// Revenue share: 30% of each day's washes, divided by the attendants marked present that day
+// (salaried ones included), with one part to each present revenue-share attendant. A salaried
+// attendant's part stays with the business. No mark, no pay.
 export const SHARE_RATE = 0.3;
 
-// The first week revenue sharing applied (a Monday). Nothing before it is owed, so no earlier
-// week is listed — otherwise every week of trading before the scheme would show as overdue.
+// The first Monday revenue sharing applied; nothing earlier is owed.
 export const SHARE_START = dayFrom('2026-11-02');
 
-// The first day attendance counts for. Salaries run by the calendar month, so it is the 1st
-// rather than the Monday revenue sharing started on.
+// The first day attendance counts. Salaries run by calendar month, hence the 1st.
 export const ATTENDANCE_START = dayFrom('2026-11-01');
 
-// What somebody was marked as on a day, or null if nobody marked them. A blank is never read
-// as an absence — only a mark is.
+// A blank is never read as an absence — only a mark is.
 export type Mark = 'present' | 'absent' | 'leave';
 export const markOn = (iso: string, id: string, attendance: Attendance[]): Mark | null => {
     const sheet = attendance.find(a => a.day === iso);
@@ -34,17 +22,34 @@ export const markOn = (iso: string, id: string, attendance: Attendance[]): Mark 
 export const isAttendant = (person: Staff) => person.active && !!person.attendantPay;
 export const onShare = (person: Staff) => isAttendant(person) && person.attendantPay === 'share';
 
-// The fraction of each wash one revenue-share attendant receives on a day `present` worked.
 export const sharePerHead = (present: number) => present ? SHARE_RATE / present : 0;
 
-// Weeks run Monday to Sunday and are paid on the Sunday, so the Sunday's own washes are in
-// the week being paid.
+// Weeks run Monday to Sunday and are paid on the Sunday.
 export const payday = (monday: Date) => addDays(monday, 6);
 
-// Who was at work on a day: the attendants on the team today whose id is on that day's sheet.
 export const presentOn = (iso: string, staff: Staff[], attendance: Attendance[]) => {
     const sheet = attendance.find(a => a.day === iso)?.present || [];
     return staff.filter(p => isAttendant(p) && sheet.includes(p.id));
+};
+
+// Revenue and wash count per local day, built once per sales array rather than once per day
+// asked for — Payments asks for dozens of days across the weeks and months it shows.
+type DayTotal = { revenue: number; washes: number };
+const dayIndex = new WeakMap<Sale[], Map<string, DayTotal>>();
+const totalsByDay = (sales: Sale[]) => {
+    let index = dayIndex.get(sales);
+    if (!index) {
+        index = new Map();
+        for (const s of sales) {
+            const key = isoDay(dateOf(s)), entry = index.get(key);
+            if (entry) {
+                entry.revenue += s.amount;
+                entry.washes += 1;
+            } else index.set(key, {revenue: s.amount, washes: 1});
+        }
+        dayIndex.set(sales, index);
+    }
+    return index;
 };
 
 export type DayPay = { day: string; date: Date; revenue: number; washes: number; present: string[] };
@@ -52,14 +57,11 @@ export type PayLine = {
     staffId: string;
     name: string;
     pay: AttendantPay;
-    // Days this week they were marked present.
     days: number;
-    // Revenue share owed for the week, or what was paid if `payout` is set. Always 0 for a
-    // salaried attendant, whose line is there for the days worked.
+    // Owed, or what was paid if `payout` is set. Always 0 for a salaried attendant.
     amount: number;
     payout?: Payout;
-    // Paid, but the week has moved since — a sale or an attendance mark changed after the
-    // payout. Positive is still owed to them; negative was overpaid.
+    // Paid, but the week has changed since: positive is still owed, negative was overpaid.
     drift: number;
 };
 export type WeekPay = {
@@ -68,25 +70,21 @@ export type WeekPay = {
     revenue: number;
     washes: number;
     days: DayPay[];
-    // Days already over with nobody marked present.
+    // Past days with nobody marked present.
     unmarked: Date[];
     lines: PayLine[];
 };
 
-// One week, Monday to Sunday. Naira are whole, so each person's amount is rounded once, for
-// the week — rounding per wash or per day would lose up to a naira each time.
-//
-// An UNPAID week follows today's attendant settings: changing how somebody is paid re-works
-// every unpaid week. A PAID line is the payout as written and is never re-cut.
+// Each amount is rounded once for the week. An unpaid week follows today's pay settings; a
+// paid line is the payout as written.
 export function weekPay(monday: Date, sales: Sale[], staff: Staff[], payouts: Payout[], attendance: Attendance[], today = new Date()): WeekPay {
-    const start = startOfDay(monday), week = isoDay(start);
+    const start = startOfDay(monday), week = isoDay(start), byDay = totalsByDay(sales);
     const days: DayPay[] = Array.from({length: 7}, (_, i) => {
-        const date = addDays(start, i), day = isoDay(date);
-        const daySales = sales.filter(s => isoDay(dateOf(s)) === day);
+        const date = addDays(start, i), day = isoDay(date), total = byDay.get(day);
         return {
             day, date,
-            revenue: daySales.reduce((sum, s) => sum + s.amount, 0),
-            washes: daySales.length,
+            revenue: total?.revenue ?? 0,
+            washes: total?.washes ?? 0,
             present: presentOn(day, staff, attendance).map(p => p.id)
         };
     });
@@ -97,7 +95,7 @@ export function weekPay(monday: Date, sales: Sale[], staff: Staff[], payouts: Pa
 
     const lines: PayLine[] = staff.filter(isAttendant).map(person => {
         const payout = paid.find(p => p.staffId === person.id);
-        // A payout keeps the line a share line even after the person moves to salary.
+        // A payout keeps the line a share line after a move to salary.
         const share = person.attendantPay === 'share' || !!payout;
         const owed = share ? earned(person.id) : 0;
         return {
@@ -105,13 +103,11 @@ export function weekPay(monday: Date, sales: Sale[], staff: Staff[], payouts: Pa
             amount: payout ? payout.amount : owed, payout, drift: payout ? owed - payout.amount : 0
         };
     });
-    // Somebody paid for the week who has since left the pool or the team still appears: a
-    // week's record of who was paid does not depend on who is on the team today.
+    // Paid people who have since left the pool or the team still appear.
     paid.filter(p => !lines.some(l => l.staffId === p.staffId)).forEach(p => lines.push({
         staffId: p.staffId, name: staff.find(s => s.id === p.staffId)?.name || p.staffName, pay: 'share',
         days: p.days, amount: p.amount, payout: p, drift: 0
     }));
-    // Revenue share first — they are the lines with money on them — then by name.
     lines.sort((a, b) => (a.pay === b.pay ? 0 : a.pay === 'share' ? -1 : 1) || a.name.localeCompare(b.name));
 
     const todayStart = startOfDay(today).getTime();

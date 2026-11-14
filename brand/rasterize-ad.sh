@@ -1,19 +1,7 @@
 #!/bin/bash
-# Rasterize the generated Meta ads via headless Chrome.
-#
-# Run gen-ad.js first - this only screenshots what is already in ad/html.
-#
+# Screenshot ad/html via headless Chrome, sized from sizes.txt.
 #   node brand/gen-ad.js && brand/rasterize-ad.sh
-#
-# Type is pulled from Google Fonts at render time, so this needs network access.
-# display=block means Chrome paints nothing while it waits, and a generous
-# virtual-time budget keeps it from falling back to system sans. Eyeball the
-# PNGs afterwards - a failed font load falls back silently.
-#
-# Sizes come from the sizes.txt manifest gen-ad.js writes:
-#
-#   -feed   1080x1350  Meta feed, 4:5
-#   -story  1080x1920  Meta stories / Reels, 9:16
+# Needs network (Google Fonts); a failed load falls back silently - eyeball the PNGs.
 set -e
 
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"

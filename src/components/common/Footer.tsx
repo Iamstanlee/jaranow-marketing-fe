@@ -19,8 +19,7 @@ const BrandMark: React.FC<{ mark: keyof typeof MARKS; className?: string }> = ({
     </svg>
 );
 
-// The link is labelled rather than the mark: the mark is decoration once the anchor says where
-// it goes. Twitter's mark went with the name, so the handle is unchanged and the logo is not.
+// The anchor carries the label; the icon is decoration.
 const socialLinks = [
     {name: 'Instagram', mark: 'instagram' as const, href: 'https://instagram.com/jara_now'},
     {name: 'X (formerly Twitter)', mark: 'x' as const, href: 'https://x.com/jara_now'},
@@ -41,7 +40,6 @@ const Footer: React.FC = () => {
         <footer className="bg-ink text-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-                    {/* Brand */}
                     <div>
                         <img src="/brand/jaranow-logo-white.svg" alt="Jaranow - Convenience as a Service" className="h-12 w-auto mb-5"/>
                         <p className="text-paper/60 leading-relaxed mb-6">
@@ -64,7 +62,6 @@ const Footer: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Services */}
                     <div>
                         <h3 className="text-xs font-medium uppercase tracking-[0.2em] text-paper/50 mb-5">Services</h3>
                         <ul className="space-y-2">
@@ -83,7 +80,6 @@ const Footer: React.FC = () => {
                         </ul>
                     </div>
 
-                    {/* Support */}
                     <div>
                         <h3 className="text-xs font-medium uppercase tracking-[0.2em] text-paper/50 mb-5">Get in touch</h3>
                         <ul className="space-y-3 text-paper/60">
@@ -109,7 +105,6 @@ const Footer: React.FC = () => {
                         </ul>
                     </div>
 
-                    {/* Visit us */}
                     <div>
                         <h3 className="text-xs font-medium uppercase tracking-[0.2em] text-paper/50 mb-5">Visit us</h3>
                         <ul className="space-y-3 text-paper/60">

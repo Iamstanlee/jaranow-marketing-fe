@@ -6,18 +6,12 @@ import {nameOf, sundayOf, weekRoster, weekSpan} from '../roster';
 import type {RosterEntry, Staff} from '../types';
 import {Skeleton} from '../components/Skeleton';
 
-// The rota's shared pieces: how a duty looks, and the Overview strip. The rota card itself
-// (Duties) lives on the Staff page (./Staff.tsx).
-
-// How each duty reads. Never colour alone: the icon and the word carry the difference, so a
-// panel photographed and sent on WhatsApp still says which is which.
+// Shared rota pieces; the full rota card is in Staff.tsx. Never colour alone — icon and word too.
 export const DUTY_STYLE: Record<Duty, { tint: string; icon: typeof BroomSparkles }> = {
     Cleaning: {tint: 'bg-blue-50 text-blue-600', icon: BroomSparkles},
     Off: {tint: 'bg-amber-50 text-amber-600', icon: Parasol}
 };
 
-// How a person's exemptions read in the team list. Empty for somebody who takes every turn,
-// which is most people — a line saying "in both rotations" against every name is noise.
 export const exemptionOf = (person: Staff) => {
     const out = person.exempt || [];
     if (!out.length) return '';
@@ -25,9 +19,7 @@ export const exemptionOf = (person: Staff) => {
     return out[0] === 'Off' ? '' : 'No cleaning turns';
 };
 
-// The Overview strip. This week only, and read-only whoever is looking — the week walking and
-// the editing live on the Staff page. It answers "who has cleaning" on the screen
-// everybody opens first, which is where the question is actually asked.
+// Overview strip: this week, read-only.
 export function RosterSummary({staff, roster, loading, onOpen}: {
     staff: Staff[];
     roster: RosterEntry[];

@@ -2,9 +2,6 @@ import {isoDay} from '../format';
 import {CUSTOM, periodEnd, periodsFor, periodStart, type Range, rangeOf} from '../period';
 import type {Role} from '../types';
 
-// One control behind every date filter on the desk. The presets answer "how are we doing",
-// the custom pair answers "what happened on the 14th" — which is the question someone has
-// when a customer disputes a wash, and no fixed preset ever lands on it.
 export function PeriodFilter({range, setRange, role = 'admin', label = 'Date range'}: {
     range: Range;
     setRange: (r: Range) => void;
@@ -13,9 +10,7 @@ export function PeriodFilter({range, setRange, role = 'admin', label = 'Date ran
 }) {
     const today = isoDay(new Date());
     const periods = periodsFor(role);
-    // Switching to Custom seeds the pair from the preset you were on, so leaving "Last 7 days"
-    // starts you on those seven days with an end to nudge, rather than on a blank pair that
-    // shows everything until both halves are filled in.
+    // Switching to Custom seeds the dates from the preset you were on.
     const pick = (preset: string) => setRange(preset !== CUSTOM || range.preset === 'All time' ? rangeOf(preset) : {
         preset,
         from: isoDay(periodStart(range.preset)),

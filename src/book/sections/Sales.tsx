@@ -1,7 +1,7 @@
 import {useMemo, useState} from 'react';
 import {Plus} from 'lucide-react';
 import {dateOf, dayLabel, money, timeLabel} from '../format';
-import {inRange, rangeKey, rangeLabel} from '../period';
+import {rangeKey, rangeLabel, rangeTest} from '../period';
 import type {Role, Sale} from '../types';
 import {useHistory} from '../hooks/useHistory';
 import {usePage} from '../hooks/usePage';
@@ -23,24 +23,20 @@ export function Sales({sales, role, loading, requestHistory, historyLoading, onS
     onUpdate: (id: string, patch: Pick<Sale, 'service' | 'payment' | 'amount'>) => Promise<void>;
     onDelete?: (s: Sale) => Promise<void>
 }) {
-    // All time by default: this is the ledger, and a section that silently hid last week's
-    // sales behind a default filter would read as records having gone missing. Staff, who
-    // cannot filter past yesterday at all, open on today instead.
+    // All time, so nothing looks missing; staff fall back to Today. Opening this pulls history.
     const [range, setRange] = useRange(role, 'All time');
-    // 'All time' is the default here, so opening this section is what pulls the older records
-    // in — the desk itself boots on Overview and never pays for them.
     useHistory(range, requestHistory);
-    // The count and the total are wrong until the history for this range has landed, so the
-    // section keeps its skeletons up rather than showing a figure it is about to change.
     const pending = loading || historyLoading;
     const [editing, setEditing] = useState<Sale | null>(null), [deleting, setDeleting] = useState<Sale | null>(null);
-    const filtered = useMemo(() => sales.filter(s => inRange(dateOf(s), range)), [sales, range]);
-    const total = filtered.reduce((sum, s) => sum + s.amount, 0);
+    const filtered = useMemo(() => {
+        const within = rangeTest(range);
+        return sales.filter(s => within(dateOf(s)));
+    }, [sales, range]);
+    const total = useMemo(() => filtered.reduce((sum, s) => sum + s.amount, 0), [filtered]);
     const {slice, ...pager} = usePage(filtered, rangeKey(range));
     return <>
         <div className="mb-7 flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><p
-            className="text-sm text-slate-500">Every service and
-            payment in one place.</p>
+            className="text-sm text-slate-500">Every sale, newest first.</p>
             <button onClick={onSale}
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white">
                 <Plus size={18}/> Record sale

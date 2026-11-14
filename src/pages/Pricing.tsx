@@ -82,7 +82,7 @@ const Pricing: React.FC = () => {
     if (service === 'wash' || service === 'rugs') {
       setActiveTab(service);
     } else if (service === 'carwash' || service === 'delivery') {
-      // `delivery` is a legacy value kept working as a redirect to carwash.
+      // Legacy ?service=delivery links.
       setActiveTab('carwash');
     }
   }, [searchParams]);

@@ -1,18 +1,8 @@
 #!/bin/bash
-# Rasterize the generated tee mockup sheets to PNG via headless Chrome.
-#
-# Run gen-tee.js first - this only screenshots what is already in tee/html.
-#
+# Screenshot tee/html to 1800x1100 mockup sheets via headless Chrome.
 #   node brand/gen-tee.js && brand/rasterize-tee.sh
-#
-# Type is pulled from Google Fonts at render time, so this needs network access.
-# The font stylesheet uses display=block, meaning Chrome will not paint fallback
-# type while it waits - a generous virtual-time budget keeps the sheets from
-# rendering in system sans.
-#
-# Output is 1800x1100 presentation sheets. These are for approving placement and
-# colourway - they are NOT print artwork. Send a printer the lockup SVGs from
-# jaranow-blue/svg plus the millimetre figures in the captions.
+# Needs network (Google Fonts); a failed load falls back silently - eyeball the PNGs.
+# Mockups, NOT print artwork.
 set -e
 
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"

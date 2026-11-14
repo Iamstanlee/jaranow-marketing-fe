@@ -1,5 +1,3 @@
-// Service Worker registration and management
-
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
   window.location.hostname === '[::1]' ||

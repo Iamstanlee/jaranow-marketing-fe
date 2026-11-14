@@ -1,7 +1,7 @@
 import {useMemo, useState} from 'react';
 import {Plus} from 'lucide-react';
 import {dateOf, dayLabel, money, timeLabel} from '../format';
-import {inRange, rangeKey, rangeLabel} from '../period';
+import {rangeKey, rangeLabel, rangeTest} from '../period';
 import type {Expense, Role} from '../types';
 import {usePage} from '../hooks/usePage';
 import {useRange} from '../hooks/useRange';
@@ -20,19 +20,18 @@ export function Expenses({records, role, loading, onAdd, onUpdate, onDelete}: {
     onUpdate: (id: string, record: Omit<Expense, 'id' | 'createdAt'>) => Promise<void>;
     onDelete?: (record: Expense) => Promise<void>
 }) {
-    // All time by default, for the same reason the sales ledger is — see Sales. Staff open on
-    // today, again for the same reason.
     const [range, setRange] = useRange(role, 'All time');
     const [editing, setEditing] = useState<Expense | null>(null),
         [deleting, setDeleting] = useState<Expense | null>(null);
-    const filtered = useMemo(() => records.filter(x => inRange(dateOf(x), range)), [records, range]);
-    // The header total covers everything in the range, not just the page being shown.
-    const total = filtered.reduce((sum, x) => sum + x.amount, 0);
+    const filtered = useMemo(() => {
+        const within = rangeTest(range);
+        return records.filter(x => within(dateOf(x)));
+    }, [records, range]);
+    const total = useMemo(() => filtered.reduce((sum, x) => sum + x.amount, 0), [filtered]);
     const {slice, ...pager} = usePage(filtered, rangeKey(range));
     return <>
         <div className="mb-7 flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><p
-            className="text-sm text-slate-500">Track every
-            business cost and the payment source used.</p>
+            className="text-sm text-slate-500">Every cost and how it was paid.</p>
             <button onClick={onAdd}
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white">
                 <Plus size={18}/> Record expense

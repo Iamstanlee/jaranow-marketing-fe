@@ -1,8 +1,6 @@
 #!/bin/bash
-# Copy the rasterized Open Graph cards into the paths the site serves them from.
-#
-# The generated filenames and the served filenames differ, so this mapping is
-# the authority - keep it in step with ogImage in src/seo/routes.json.
+# Copy rasterized OG cards to their served paths. Names differ, so this mapping
+# is the authority - keep it in step with ogImage in src/seo/routes.json.
 set -e
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"

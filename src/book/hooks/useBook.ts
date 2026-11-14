@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
-    addDoc,
+    arrayRemove,
+    arrayUnion,
     collection,
     deleteDoc,
     deleteField,
@@ -13,8 +14,6 @@ import {
     query,
     serverTimestamp,
     setDoc,
-    arrayRemove,
-    arrayUnion,
     updateDoc,
     where,
     writeBatch
@@ -22,7 +21,7 @@ import {
 import type {DocumentData, Query} from 'firebase/firestore';
 import {authReady, db, firebaseEnabled} from '../../lib/firebase';
 import {COLLECTIONS, DUTIES, earnsPoints, LIVE_WINDOW} from '../constants';
-import {codeFor, dateOf, dayFrom, dayLabel, money, startOfDay} from '../format';
+import {addDays, codeFor, dateOf, dayFrom, dayLabel, money} from '../format';
 import {slotLabel, weekSpan} from '../roster';
 import {type Mark, SHARE_RATE} from '../payments';
 import {seedAttendance, seedExpenses, seedLoyalty, seedPayouts, seedRoster, seedSales, seedStaff} from '../seed';
@@ -31,18 +30,21 @@ import type {Advance, Attendance, Expense, Loyalty, Payout, RosterEntry, Sale, S
 import type {StaffRecord} from '../components/StaffModal';
 import type {Notify} from './useToasts';
 
-// What both ledgers have in common, and all the merge and window helpers below need of them.
-type Dated = { createdAt?: Timestamp };
+type Dated = { id: string; createdAt?: Timestamp };
 
 type Feed = 'sales' | 'loyalty' | 'expenses' | 'staff' | 'roster' | 'payouts' | 'attendance';
 const FEEDS: Feed[] = ['sales', 'loyalty', 'expenses', 'staff', 'roster', 'payouts', 'attendance'];
 type Ready = Record<Feed, boolean>;
 
-// Every collection the desk reads and every write it makes, in one place. The page below is
-// then only layout: which section is showing, which modal is open, and who is looking.
-//
-// `day` is the current calendar day as a timestamp (see useDayTick) so the today-scoped
-// figures roll over at midnight on a tablet that is never reloaded.
+// Ledgers with a capped live window and an on-demand history behind it.
+type Ledger = 'sales' | 'expenses';
+const LEDGERS: Ledger[] = ['sales', 'expenses'];
+type Archive = { sales: Sale[]; expenses: Expense[] };
+
+type NewMember = { code: string; customer: string; phone: string };
+type Fields<T> = Omit<T, 'id' | 'createdAt'>;
+
+/** Every Firestore read and write the desk makes. `day` is today's midnight (useDayTick). */
 export function useBook(day: number, toast: Notify) {
     const [sales, setSales] = useState<Sale[]>(firebaseEnabled ? [] : seedSales);
     const [loyalty, setLoyalty] = useState<Loyalty[]>(firebaseEnabled ? [] : seedLoyalty);
@@ -52,20 +54,12 @@ export function useBook(day: number, toast: Notify) {
     const [payouts, setPayouts] = useState<Payout[]>(firebaseEnabled ? [] : seedPayouts);
     const [attendance, setAttendance] = useState<Attendance[]>(firebaseEnabled ? [] : seedAttendance);
     const [syncError, setSyncError] = useState('');
-    // Until the first snapshot lands every collection is an empty array, which renders as a
-    // business that took nothing today rather than as one still loading — and on a forecourt
-    // tablet on mobile data that window is seconds long, exactly when someone is checking a
-    // figure. Tracked per collection because each has its own listener; a section waits only
-    // on what it actually reads. Demo mode has its seed data up front and never waits.
+    // Per feed, so an empty array before the first snapshot shows skeletons rather than ₦0.
     const [ready, setReady] = useState<Ready>(() => Object.fromEntries(FEEDS.map(f => [f, !firebaseEnabled])) as Ready);
 
     useEffect(() => {
         if (!db) return;
-        // Surface sync failures instead of silently wiping the tables — a transient network
-        // drop should not look like an empty business. A successful sales snapshot clears it.
-        // A collection stops loading when its first snapshot lands *or* when its listener
-        // fails: a permission error that left the skeletons up forever would read as a desk
-        // that had hung, and hide the banner explaining what actually went wrong.
+        // A failed listener also counts as loaded, so the error banner shows instead of skeletons forever.
         const done = (key: Feed) => setReady(r => r[key] ? r : {...r, [key]: true});
         const onError = (label: Feed) => (e: unknown) => {
             console.error(`Firestore ${label} sync failed`, e);
@@ -74,9 +68,6 @@ export function useBook(day: number, toast: Notify) {
         };
         let active = true;
         let offs: Array<() => void> = [];
-        // Attach listeners only once the anonymous session exists — the security rules
-        // require request.auth, and a listener that fires before auth would be torn down
-        // by a permission-denied error and never retry.
         authReady.then(() => {
             if (!active || !db) return;
             const watch = <T, >(feed: Feed, ref: Query<DocumentData>, apply: (rows: T[]) => void) => onSnapshot(ref, s => {
@@ -84,26 +75,17 @@ export function useBook(day: number, toast: Notify) {
                 apply(s.docs.map(d => ({id: d.id, ...d.data()})) as T[]);
                 done(feed);
             }, onError(feed));
-            // Each feed that grows without bound is capped at its LIVE_WINDOW — the desk has to
-            // paint before it can be useful, and re-reading every wash ever recorded to show
-            // today's takings is most of why it did not. Older records are fetched once, on
-            // demand, by loadHistory below.
+            const recent = (name: string, field: string, cap: number) =>
+                query(collection(db!, name), orderBy(field, 'desc'), limit(cap));
             offs = [
-                watch<Sale>('sales', query(collection(db, COLLECTIONS.sales), orderBy('createdAt', 'desc'), limit(LIVE_WINDOW.sales)), setSales),
-                // Unbounded on purpose: codeFor numbers members by their position in this
-                // list, so a truncated one issues codes that belong to somebody else.
+                watch<Sale>('sales', recent(COLLECTIONS.sales, 'createdAt', LIVE_WINDOW.sales), setSales),
+                // Unbounded: codeFor numbers members by position in this list.
                 watch<Loyalty>('loyalty', collection(db, COLLECTIONS.loyalty), setLoyalty),
-                watch<Expense>('expenses', query(collection(db, COLLECTIONS.expenses), orderBy('createdAt', 'desc'), limit(LIVE_WINDOW.expenses)), setExpenseRecords),
-                // Ordered by name, which is the order the rota picker and the team list both
-                // want; a rota read by eye is looked up by person, not by when they joined.
+                watch<Expense>('expenses', recent(COLLECTIONS.expenses, 'createdAt', LIVE_WINDOW.expenses), setExpenseRecords),
                 watch<Staff>('staff', query(collection(db, COLLECTIONS.staff), orderBy('name')), setStaff),
-                // The rota is one entry per person per slot, so its window is years deep. It
-                // has no history path because nothing in the app navigates that far back.
-                watch<RosterEntry>('roster', query(collection(db, COLLECTIONS.roster), orderBy('day', 'desc'), limit(LIVE_WINDOW.roster)), setRoster),
-                // One row per person per paid week — a handful a week, so the window is years.
-                watch<Payout>('payouts', query(collection(db, COLLECTIONS.payouts), orderBy('week', 'desc'), limit(LIVE_WINDOW.payouts)), setPayouts),
-                // One row per trading day; four months is far more than any payout looks back.
-                watch<Attendance>('attendance', query(collection(db, COLLECTIONS.attendance), orderBy('day', 'desc'), limit(LIVE_WINDOW.attendance)), setAttendance)
+                watch<RosterEntry>('roster', recent(COLLECTIONS.roster, 'day', LIVE_WINDOW.roster), setRoster),
+                watch<Payout>('payouts', recent(COLLECTIONS.payouts, 'week', LIVE_WINDOW.payouts), setPayouts),
+                watch<Attendance>('attendance', recent(COLLECTIONS.attendance, 'day', LIVE_WINDOW.attendance), setAttendance)
             ];
         }).catch(e => {
             console.error('Firebase authentication failed', e);
@@ -116,61 +98,47 @@ export function useBook(day: number, toast: Notify) {
         };
     }, []);
 
-    // --- History -----------------------------------------------------------------------
-    // Records older than the live window, fetched when a section is actually filtered to a
-    // period that reaches back past it.
-    //
-    // `wanted` is how far back the section on screen needs to see (0 = the beginning of the
-    // book); `archivedFrom` is how far back the archive in hand already goes, null until
-    // anything has been fetched. Keeping the two apart is what makes this driven by the data
-    // rather than by the moment a section happened to ask: the first ask arrives before any
-    // snapshot has landed, when every feed still looks complete because it is still empty, and
-    // a one-shot request made then would decide no history was needed and never revisit it.
-    // The effect below re-checks on every snapshot instead.
-    const [archive, setArchive] = useState<{ sales: Sale[]; expenses: Expense[] }>({sales: [], expenses: []});
-    const [archivedFrom, setArchivedFrom] = useState<number | null>(null);
+    // --- History ---------------------------------------------------------------------
+    // `wanted` is how far back the visible section needs (0 = the whole book). The effect
+    // re-checks on every snapshot, because the first request arrives before any data has
+    // landed, when every window still looks complete. Each ledger is fetched only if its own
+    // window falls short, and only back to `wanted`.
+    const [archive, setArchive] = useState<Archive>({sales: [], expenses: []});
+    const [archivedFrom, setArchivedFrom] = useState<Record<Ledger, number | null>>({sales: null, expenses: null});
     const [wanted, setWanted] = useState<number | null>(null);
     const [historyLoading, setHistoryLoading] = useState(false);
-    // One fetch at a time. If the filter widens while one is in flight this skips, and the
-    // effect re-runs when it settles — so the wider ask is picked up rather than raced.
     const fetching = useRef(false);
 
-    // Sections call this from an effect, so it has to keep a stable identity. It only records
-    // what is needed; deciding whether that means a fetch is the effect's job.
     const requestHistory = useCallback((from: number) => setWanted(from), []);
 
     useEffect(() => {
         if (!db || wanted === null || fetching.current) return;
-        // How far back a feed's live window reaches. A window that came back short of its
-        // limit is the entire collection, so it reaches the beginning of time — -Infinity
-        // rather than 0, because 0 is a real instant (the epoch) that a comparison against a
-        // requested `from` would get wrong. On a young book both feeds are in this state and
-        // none of this ever runs.
-        const reachOf = (rows: Dated[], cap: number) =>
-            rows.length < cap ? -Infinity : dateOf(rows[rows.length - 1]).getTime();
-        // The shallower of the two windows decides: history is needed if EITHER ledger fails
-        // to reach back as far as the range does. Taking the deeper one would let a short
-        // expense window mask a capped sales window and quietly under-report the period.
-        const reach = Math.max(reachOf(sales, LIVE_WINDOW.sales), reachOf(expenseRecords, LIVE_WINDOW.expenses));
-        if (wanted >= reach) return;
-        if (archivedFrom !== null && wanted >= archivedFrom) return;
+        const live: Record<Ledger, Dated[]> = {sales, expenses: expenseRecords};
+        const due = LEDGERS.filter(ledger => {
+            const rows = live[ledger];
+            // A window shorter than its cap is the whole collection.
+            if (rows.length < LIVE_WINDOW[ledger]) return false;
+            if (wanted >= dateOf(rows[rows.length - 1]).getTime()) return false;
+            const had = archivedFrom[ledger];
+            return had === null || wanted < had;
+        });
+        if (!due.length) return;
 
         fetching.current = true;
         setHistoryLoading(true);
         const from = wanted;
-        // Bounded by the range where there is one, so widening the filter a step does not cost
-        // the whole ledger. Ordered and filtered on the same field, so no composite index.
-        const older = <T, >(name: string) => {
-            const base = collection(db!, name);
+        // Filtered and ordered on one field, so no composite index is needed.
+        const older = (ledger: Ledger) => {
+            const base = collection(db!, COLLECTIONS[ledger]);
             return getDocs(from
                 ? query(base, orderBy('createdAt', 'desc'), where('createdAt', '>=', new Date(from)))
                 : query(base, orderBy('createdAt', 'desc')))
-                .then(snap => snap.docs.map(d => ({id: d.id, ...d.data()})) as T[]);
+                .then(snap => [ledger, snap.docs.map(d => ({id: d.id, ...d.data()}))] as const);
         };
-        Promise.all([older<Sale>(COLLECTIONS.sales), older<Expense>(COLLECTIONS.expenses)])
-            .then(([olderSales, olderExpenses]) => {
-                setArchive({sales: olderSales, expenses: olderExpenses});
-                setArchivedFrom(from);
+        Promise.all(due.map(older))
+            .then(results => {
+                setArchive(a => ({...a, ...Object.fromEntries(results)}));
+                setArchivedFrom(f => ({...f, ...Object.fromEntries(due.map(l => [l, from]))}));
             })
             .catch(e => {
                 console.error('Firestore history fetch failed', e);
@@ -182,151 +150,102 @@ export function useBook(day: number, toast: Notify) {
             });
     }, [wanted, archivedFrom, sales, expenseRecords]);
 
-    // The live window plus whatever history has been pulled in, deduplicated by id — the two
-    // overlap, because a range-bounded history fetch returns recent records as well. Sorted
-    // newest first, the order every list and every report below expects.
     const allSales = useMemo(() => mergeById(sales, archive.sales), [sales, archive.sales]);
     const allExpenses = useMemo(() => mergeById(expenseRecords, archive.expenses), [expenseRecords, archive.expenses]);
 
-    // Overview and end-of-day are both "today" views — the stat cards say so — so they read
-    // today's records only. Reports is the section for looking across days.
-    const todaySales = useMemo(() => sales.filter(s => startOfDay(dateOf(s)).getTime() === day), [sales, day]);
-    const todayExpenses = useMemo(() => expenseRecords.filter(x => startOfDay(dateOf(x)).getTime() === day), [expenseRecords, day]);
+    const tomorrow = useMemo(() => addDays(new Date(day), 1).getTime(), [day]);
+    const isToday = useCallback((record: Dated) => {
+        const at = dateOf(record).getTime();
+        return at >= day && at < tomorrow;
+    }, [day, tomorrow]);
+    const todaySales = useMemo(() => sales.filter(isToday), [sales, isToday]);
+    const todayExpenses = useMemo(() => expenseRecords.filter(isToday), [expenseRecords, isToday]);
     const totals = useMemo(() => totalSales(todaySales), [todaySales]);
 
-    const addSale = useCallback(async (record: Omit<Sale, 'id' | 'createdAt'>, member?: Loyalty, newMember?: {
-        code: string;
-        customer: string;
-        phone: string
-    }) => {
-        // Rugs are outside the loyalty card (see earnsPoints).
+    // --- Sales -------------------------------------------------------------------------
+    // The sale, the new card and the point move commit as one batch: one round trip, and no
+    // sale without its point. Points move as increments so two tablets cannot lose one.
+    const addSale = useCallback(async (record: Fields<Sale>, member?: Loyalty, newMember?: NewMember) => {
         const loyal = earnsPoints(record.service);
         if (!loyal) record = {...record, redeemed: false};
-        let activeMember = loyal ? member : undefined;
-        if (newMember && loyal) {
-            const loyaltyRecord = {...newMember, points: 0, redeemed: 0};
-            if (db) {
-                const ref = await addDoc(collection(db, COLLECTIONS.loyalty), loyaltyRecord);
-                activeMember = {id: ref.id, ...loyaltyRecord};
-            } else {
-                activeMember = {id: crypto.randomUUID(), ...loyaltyRecord};
-                setLoyalty(list => [...list, activeMember as Loyalty]);
-            }
-            // Separate from the sale toast: a code created by mistyping an existing one is the
-            // error worth catching early, and it is only visible at the moment it happens.
-            toast(`Loyalty code ${newMember.code} created.`, 'info');
-        }
-        if (db) await addDoc(collection(db, COLLECTIONS.sales), {
-            ...record,
-            customer: activeMember?.customer || 'Walk-in',
-            loyaltyCode: activeMember?.code || '—',
-            createdAt: serverTimestamp()
-        }); else setSales(list => [{
-            id: crypto.randomUUID(), ...record,
-            customer: activeMember?.customer || 'Walk-in',
-            loyaltyCode: activeMember?.code || '—'
-        }, ...list]);
-        if (activeMember) {
-            // Written as a delta, not as a computed total: two attendants recording washes for
-            // the same customer at once would each write back the count they last saw, and one
-            // of the two points would silently disappear.
-            const delta = record.redeemed ? {points: -5, redeemed: 1} : {points: 1, redeemed: 0};
-            if (db) await updateDoc(doc(db, COLLECTIONS.loyalty, activeMember.id), {
+        const delta = record.redeemed ? {points: -5, redeemed: 1} : {points: 1, redeemed: 0};
+        const joining = loyal && newMember ? {...newMember, points: delta.points, redeemed: delta.redeemed} : null;
+        const existing = loyal && !joining ? member : undefined;
+        const holder = joining ?? existing;
+        const sale = {...record, customer: holder?.customer || 'Walk-in', loyaltyCode: holder ? record.loyaltyCode : '—'};
+        if (db) {
+            const batch = writeBatch(db);
+            if (joining) batch.set(doc(collection(db, COLLECTIONS.loyalty)), joining);
+            else if (existing) batch.update(doc(db, COLLECTIONS.loyalty, existing.id), {
                 points: increment(delta.points),
                 redeemed: increment(delta.redeemed)
-            }); else setLoyalty(list => list.map(x => x.id === activeMember?.id ? {
-                ...x,
-                points: x.points + delta.points,
-                redeemed: x.redeemed + delta.redeemed
+            });
+            batch.set(doc(collection(db, COLLECTIONS.sales)), {...sale, createdAt: serverTimestamp()});
+            await batch.commit();
+        } else {
+            setSales(list => [{id: crypto.randomUUID(), ...sale}, ...list]);
+            if (joining) setLoyalty(list => [...list, {id: crypto.randomUUID(), ...joining}]);
+            else if (existing) setLoyalty(list => list.map(x => x.id === existing.id ? {
+                ...x, points: x.points + delta.points, redeemed: x.redeemed + delta.redeemed
             } : x));
         }
-        // The points line is the half a customer is standing there waiting to hear, so it goes
-        // in the confirmation rather than only into the loyalty card they cannot see.
-        // From the record, not the member: a member whose stored code is blank still has the
-        // positional LOY-00n the modal matched on, and that is the one on their card.
-        const code = activeMember && record.loyaltyCode !== '—' ? record.loyaltyCode : '';
-        toast(record.redeemed ? `Free wash redeemed${code ? ` for ${code}` : ''} — 5 points spent.` : `${record.service} recorded · ${money(record.amount)}${code ? ` · ${code} earned 1 point` : ''}`);
+        const code = holder ? sale.loyaltyCode : '';
+        toast(record.redeemed ? `Free wash redeemed for ${code} — 5 points spent.`
+            : `${record.service} recorded · ${money(record.amount)}${joining ? ` · new card ${code} · 1 point` : code ? ` · ${code} +1 point` : ''}`);
     }, [toast]);
 
-    // Corrections change what was sold and for how much; they deliberately cannot move the
-    // loyalty code or the redemption, because those already moved a point balance that other
-    // sales have since been recorded against. Fixing one of those means deleting the sale and
-    // recording it again, which reverses the balance cleanly on the way out.
+    // Code and redemption are fixed once written; correcting those means delete and re-record.
     const updateSale = useCallback(async (id: string, patch: Pick<Sale, 'service' | 'payment' | 'amount'>) => {
         if (db) await updateDoc(doc(db, COLLECTIONS.sales, id), patch);
         else setSales(list => list.map(s => s.id === id ? {...s, ...patch} : s));
         toast(`Sale updated · ${patch.service} · ${money(patch.amount)}`, 'info');
     }, [toast]);
 
+    // Gives back exactly what the sale moved. increment() cannot clamp, so a balance can go
+    // negative; the Loyalty cards floor it at 0 for display.
     const removeSale = useCallback(async (sale: Sale) => {
-        // A deleted sale gives back exactly what it took — the point it earned, or the five it
-        // spent — as a delta, for the same reason the sale wrote one: two attendants recording
-        // for the same customer at once would otherwise lose one of the two corrections.
         const member = loyalty.find((x, i) => codeFor(x, i) === sale.loyaltyCode);
         const delta = sale.redeemed ? {points: 5, redeemed: -1} : {points: -1, redeemed: 0};
         if (db) {
-            await deleteDoc(doc(db, COLLECTIONS.sales, sale.id));
-            // Deleting a sale whose point has already been spent leaves the balance short, and
-            // increment() cannot clamp server-side. The cards read the balance through
-            // Math.max, so it shows as 0 rather than as a negative; the paper ledger is still
-            // the authority when the two disagree.
-            if (member) await updateDoc(doc(db, COLLECTIONS.loyalty, member.id), {
+            const batch = writeBatch(db);
+            batch.delete(doc(db, COLLECTIONS.sales, sale.id));
+            if (member) batch.update(doc(db, COLLECTIONS.loyalty, member.id), {
                 points: increment(delta.points),
                 redeemed: increment(delta.redeemed)
             });
+            await batch.commit();
         } else {
             setSales(list => list.filter(s => s.id !== sale.id));
             if (member) setLoyalty(list => list.map(x => x.id === member.id ? {
-                ...x,
-                points: x.points + delta.points,
-                redeemed: x.redeemed + delta.redeemed
+                ...x, points: x.points + delta.points, redeemed: x.redeemed + delta.redeemed
             } : x));
         }
-        toast(`Sale deleted · ${money(sale.amount)}${member ? ` · ${sale.loyaltyCode} ${sale.redeemed ? 'refunded 5 points' : 'lost 1 point'}` : ''}`, 'warning');
+        toast(`Sale deleted · ${money(sale.amount)}${member ? ` · ${sale.loyaltyCode} ${sale.redeemed ? '+5 points back' : '−1 point'}` : ''}`, 'warning');
     }, [loyalty, toast]);
 
-    // Moving a balance by hand. Points ordinarily move as a side effect of a sale, and that
-    // path is the one to trust — this is the correction for when the card and the book have
-    // already parted company: a wash stamped at the pump while the tablet was flat, or a card
-    // stamped twice for one wash. It writes no sale, so a point added here is deliberately not
-    // backed by any takings, which is why the desk keeps it behind the admin PIN and behind a
-    // dialog that says what the balance is about to become.
-    //
-    // Takes an id rather than a member, because the Loyalty cards render a floored copy of the
-    // balance (see the section) and correcting against that copy would lose the shortfall the
-    // floor is hiding.
+    // Manual correction, backed by no sale (admin only). Applied against the balance on screen,
+    // which is floored at 0, so +1 from a stored −1 lands on 1 rather than looking like a no-op.
     const adjustPoints = useCallback(async (id: string, delta: number) => {
         const index = loyalty.findIndex(x => x.id === id);
         const member = loyalty[index];
         if (!member) return;
-        const code = codeFor(member, index);
-        // Expressed against the balance on SCREEN, not the stored one. The two part company
-        // when a deleted sale takes a balance negative (see removeSale): from a stored -1,
-        // +1 lands on 0 and looks to the person pressing it like nothing happened. Adding a
-        // point from there pays off the shortfall as well, which is the right answer — a
-        // negative balance is an accounting artefact, and the card in the customer's hand is
-        // the thing being reconciled to.
         const shown = Math.max(0, member.points);
         const next = Math.max(0, shown + delta);
-        if (next === shown) return; // Already at zero and being taken down: nothing to write.
+        if (next === shown) return;
         const moved = next - shown;
-        // Still written as a delta, for the same reason every other point write is one: two
-        // desks correcting the same card at once would otherwise each store the total they
-        // last read, and one of the two corrections would vanish.
         if (db) await updateDoc(doc(db, COLLECTIONS.loyalty, member.id), {points: increment(next - member.points)});
         else setLoyalty(list => list.map(x => x.id === member.id ? {...x, points: next} : x));
-        toast(`${code} · ${Math.abs(moved)} point${Math.abs(moved) === 1 ? '' : 's'} ${moved > 0 ? 'added' : 'removed'} · now ${next} / 5.`, 'info');
+        toast(`${codeFor(member, index)} · ${moved > 0 ? '+' : '−'}${Math.abs(moved)} point · now ${next}/5.`, 'info');
     }, [loyalty, toast]);
 
-    const addExpense = useCallback(async (record: Omit<Expense, 'id' | 'createdAt'>) => {
-        if (db) await addDoc(collection(db, COLLECTIONS.expenses), {
-            ...record,
-            createdAt: serverTimestamp()
-        }); else setExpenseRecords(list => [{id: crypto.randomUUID(), ...record}, ...list]);
+    // --- Expenses ----------------------------------------------------------------------
+    const addExpense = useCallback(async (record: Fields<Expense>) => {
+        if (db) await setDoc(doc(collection(db, COLLECTIONS.expenses)), {...record, createdAt: serverTimestamp()});
+        else setExpenseRecords(list => [{id: crypto.randomUUID(), ...record}, ...list]);
         toast(`${record.category} expense recorded · ${money(record.amount)}`);
     }, [toast]);
 
-    const updateExpense = useCallback(async (id: string, record: Omit<Expense, 'id' | 'createdAt'>) => {
+    const updateExpense = useCallback(async (id: string, record: Fields<Expense>) => {
         if (db) await updateDoc(doc(db, COLLECTIONS.expenses, id), record);
         else setExpenseRecords(list => list.map(x => x.id === id ? {...x, ...record} : x));
         toast(`Expense updated · ${money(record.amount)}`, 'info');
@@ -338,20 +257,18 @@ export function useBook(day: number, toast: Notify) {
         toast(`Expense deleted · ${money(record.amount)}`, 'warning');
     }, [toast]);
 
-    // --- Roster ------------------------------------------------------------------------
-    // Someone new on the rota. New people start active; archiving is what happens when they
-    // leave, so that their name stays on the days they actually worked. `exempt` is always
-    // written as an array, never left undefined — Firestore rejects undefined, and an absent
-    // field would then be the only way an older record can say "takes every turn".
-    // A null `attendantPay` or `salary` is left off a new record and deleted from an edited one.
+    // --- Team and rota -----------------------------------------------------------------
+    // `exempt` is always written (Firestore rejects undefined); a null pay field is omitted on
+    // create and deleted on update.
     const addStaff = useCallback(async ({attendantPay, salary, ...record}: StaffRecord) => {
         const person = {
             ...record, exempt: record.exempt ?? [], active: true,
             ...(attendantPay ? {attendantPay} : {}), ...(salary ? {salary} : {})
         };
-        if (db) await addDoc(collection(db, COLLECTIONS.staff), {...person, createdAt: serverTimestamp()});
+        if (db) await setDoc(doc(collection(db, COLLECTIONS.staff)), {...person, createdAt: serverTimestamp()});
         else setStaff(list => [...list, {id: crypto.randomUUID(), ...person}].sort((a, b) => a.name.localeCompare(b.name)));
-        toast(`${record.name} added to the team${person.exempt.length ? ` · exempt from ${person.exempt.length === DUTIES.length ? 'every rotation' : `the ${person.exempt[0].toLowerCase()} rotation`}` : ''}.`);
+        const out = person.exempt.length === DUTIES.length ? 'every rotation' : person.exempt[0] && `the ${person.exempt[0].toLowerCase()} rotation`;
+        toast(`${record.name} added to the team${out ? ` · exempt from ${out}` : ''}.`);
     }, [toast]);
 
     const updateStaff = useCallback(async (id: string, patch: Partial<StaffRecord & Pick<Staff, 'active'>>) => {
@@ -367,60 +284,51 @@ export function useBook(day: number, toast: Notify) {
             ...(paid ? {salary: salary ?? undefined} : {})
         } : p).sort((a, b) => a.name.localeCompare(b.name)));
         const person = staff.find(p => p.id === id);
-        // Archiving and un-archiving are the two edits worth naming; a name or phone change
-        // speaks for itself in the list that is already on screen.
-        if (patch.active === false) toast(`${person?.name ?? 'Team member'} archived — they stay on past rotas.`, 'info');
-        else if (patch.active === true) toast(`${person?.name ?? 'Team member'} is back on the rota.`);
-        else if (role && person && (attendantPay ?? undefined) !== person.attendantPay) toast(`${rest.name ?? person.name} · ${attendantPay === 'share' ? 'on revenue share' : attendantPay === 'salary' ? 'car washer on salary' : 'cashier on salary'}.`, 'info');
-        else toast('Team member updated.', 'info');
+        const name = rest.name ?? person?.name ?? 'Team member';
+        if (patch.active === false) toast(`${name} archived — kept on past rotas.`, 'info');
+        else if (patch.active === true) toast(`${name} restored to the rota.`);
+        else if (role && person && (attendantPay ?? undefined) !== person.attendantPay) toast(`${name} · ${attendantPay === 'share' ? 'revenue share' : attendantPay === 'salary' ? 'car washer on salary' : 'cashier'}.`, 'info');
+        else toast(`${name} updated.`, 'info');
     }, [staff, toast]);
 
-    // Deleting a person takes their duties with them: a rota that still lists someone who is
-    // not on the team reads as an assignment nobody will turn up for. Archiving is the usual
-    // move — it keeps their name on the days they actually worked — and this is for a row
-    // typed in by mistake.
+    // Takes their rota swaps with them, in one batch.
     const removeStaff = useCallback(async (person: Staff) => {
         const assigned = roster.filter(r => r.staffId === person.id);
         if (db) {
-            await deleteDoc(doc(db, COLLECTIONS.staff, person.id));
-            await Promise.all(assigned.map(r => deleteDoc(doc(db!, COLLECTIONS.roster, r.id))));
+            const batch = writeBatch(db);
+            batch.delete(doc(db, COLLECTIONS.staff, person.id));
+            assigned.forEach(r => batch.delete(doc(db!, COLLECTIONS.roster, r.id)));
+            await batch.commit();
         } else {
             setStaff(list => list.filter(p => p.id !== person.id));
             setRoster(list => list.filter(r => r.staffId !== person.id));
         }
-        toast(`${person.name} removed from the team${assigned.length ? ` · ${assigned.length} rota entr${assigned.length === 1 ? 'y' : 'ies'} cleared` : ''}.`, 'warning');
+        toast(`${person.name} removed${assigned.length ? ` · ${assigned.length} swap${assigned.length === 1 ? '' : 's'} cleared` : ''}.`, 'warning');
     }, [roster, toast]);
 
-    const updateDuty = useCallback(async (id: string, record: Omit<RosterEntry, 'id' | 'createdAt'>) => {
+    const updateDuty = useCallback(async (id: string, record: Fields<RosterEntry>) => {
         if (db) await updateDoc(doc(db, COLLECTIONS.roster, id), record);
         else setRoster(list => list.map(r => r.id === id ? {...r, ...record} : r));
         toast(dutyLine(record), 'info');
     }, [toast]);
 
-    // One entry per person per slot: assigning somebody who already holds that slot overwrites
-    // it rather than stacking a second row, so a week cannot list the same person on cleaning
-    // twice. Cleaning and Off never collide here even for the same person in the same week —
-    // they anchor to different dates (Monday against Sunday), and being on cleaning for a week
-    // and off on its Sunday is a normal thing for a rota to say.
-    const assignDuty = useCallback(async (record: Omit<RosterEntry, 'id' | 'createdAt'>) => {
+    // One entry per person per slot: a repeat overwrites rather than stacking.
+    const assignDuty = useCallback(async (record: Fields<RosterEntry>) => {
         const clash = roster.find(r => r.day === record.day && r.duty === record.duty && r.staffId === record.staffId);
         if (clash) return updateDuty(clash.id, record);
-        if (db) await addDoc(collection(db, COLLECTIONS.roster), {...record, createdAt: serverTimestamp()});
+        if (db) await setDoc(doc(collection(db, COLLECTIONS.roster)), {...record, createdAt: serverTimestamp()});
         else setRoster(list => [{id: crypto.randomUUID(), ...record}, ...list]);
         toast(dutyLine(record));
     }, [roster, updateDuty, toast]);
 
-    // Deleting the override, not the duty: the slot goes back to whoever's turn it is, so the
-    // toast says that rather than reporting an empty week nobody is on.
     const removeDuty = useCallback(async (entry: RosterEntry) => {
         if (db) await deleteDoc(doc(db, COLLECTIONS.roster, entry.id));
         else setRoster(list => list.filter(r => r.id !== entry.id));
         toast(`Swap undone · ${slotLabel(entry.duty, entry.day)} is back to taking turns.`, 'warning');
     }, [toast]);
 
-    // --- Revenue share ------------------------------------------------------------------
-    // Advances are added and removed one entry at a time, so two tablets cannot overwrite each
-    // other. arrayRemove matches on the whole entry, so it gets the stored one untouched.
+    // --- Pay ---------------------------------------------------------------------------
+    // arrayUnion/arrayRemove so two tablets cannot overwrite each other's advances.
     const addAdvance = useCallback(async (person: Staff, entry: Omit<Advance, 'id'>) => {
         const advance: Advance = {id: crypto.randomUUID(), ...entry};
         if (db) await updateDoc(doc(db, COLLECTIONS.staff, person.id), {advances: arrayUnion(advance)});
@@ -434,13 +342,8 @@ export function useBook(day: number, toast: Notify) {
         toast(`${money(advance.amount)} advance removed from ${person.name}.`, 'warning');
     }, [toast]);
 
-    // Marks one person's week as handed over, and books it as a Staff expense dated today —
-    // the day the money left, which is the day end-of-day has to count it. The two are written
-    // in one batch: a payout without its expense would overstate net income, and an expense
-    // without its payout would show the week as still owed and invite paying it twice.
-    //
-    // One payout per person per week: paying a line that is already paid does nothing, so a
-    // double tap on a slow tablet cannot pay twice.
+    // The payout and its Staff expense (dated today, so end-of-day counts it) commit together.
+    // A week already paid is ignored, so a double tap cannot pay twice.
     const markPaid = useCallback(async (record: Omit<Payout, 'id' | 'createdAt' | 'rate' | 'expenseId'>) => {
         if (payouts.some(p => p.week === record.week && p.staffId === record.staffId)) return;
         const expense = {
@@ -462,31 +365,9 @@ export function useBook(day: number, toast: Notify) {
             setExpenseRecords(list => [{id: expenseId, ...expense}, ...list]);
             setPayouts(list => [{id: crypto.randomUUID(), ...record, rate: SHARE_RATE, expenseId}, ...list]);
         }
-        toast(`${record.staffName} paid · ${money(record.amount)} · recorded as a Staff expense.`);
+        toast(`${record.staffName} paid · ${money(record.amount)} · added to Staff expenses.`);
     }, [payouts, toast]);
 
-    // Marks one attendant for a day. Each list is written as a union/remove rather than whole,
-    // so two tablets marking different people at once both land; the person is put on the one
-    // list and taken off the other two. A null mark takes them off all three — unmarked.
-    const setMark = useCallback(async (day: string, person: Staff, mark: Mark | null) => {
-        const field = {present: 'present', absent: 'absent', leave: 'paidOff'} as const;
-        const lists = ['present', 'absent', 'paidOff'] as const;
-        if (db) await setDoc(doc(db, COLLECTIONS.attendance, day), {
-            day,
-            ...Object.fromEntries(lists.map(l => [l, mark && l === field[mark] ? arrayUnion(person.id) : arrayRemove(person.id)])),
-            updatedAt: serverTimestamp()
-        }, {merge: true});
-        else setAttendance(list => {
-            const sheet = list.find(x => x.day === day) || {id: day, day, present: []};
-            const next = {...sheet, ...Object.fromEntries(lists.map(l => [l, [...(sheet[l] || []).filter(id => id !== person.id), ...(mark && l === field[mark] ? [person.id] : [])]]))} as Attendance;
-            return [next, ...list.filter(x => x.day !== day)];
-        });
-        toast(`${person.name} ${!mark ? 'unmarked' : `marked ${mark === 'leave' ? 'on paid leave' : mark}`} · ${dayLabel(dayFrom(day))}.`, mark === 'present' ? 'success' : 'info');
-    }, [toast]);
-
-    // Undoing a payout puts the line back to owed, worked out afresh from today's team, and
-    // takes its Staff expense off the books with it. A payout from before expenses were linked
-    // has no expenseId and only the payout goes.
     const undoPayout = useCallback(async (payout: Payout) => {
         if (db) {
             const batch = writeBatch(db);
@@ -497,12 +378,28 @@ export function useBook(day: number, toast: Notify) {
             setPayouts(list => list.filter(p => p.id !== payout.id));
             if (payout.expenseId) setExpenseRecords(list => list.filter(x => x.id !== payout.expenseId));
         }
-        toast(`Payment to ${payout.staffName} undone · ${money(payout.amount)} back to owed and off expenses.`, 'warning');
+        toast(`Payment to ${payout.staffName} undone · ${money(payout.amount)} owed again.`, 'warning');
+    }, [toast]);
+
+    // Puts the person on one list and off the other two; null takes them off all three.
+    const setMark = useCallback(async (iso: string, person: Staff, mark: Mark | null) => {
+        const field = {present: 'present', absent: 'absent', leave: 'paidOff'} as const;
+        const lists = ['present', 'absent', 'paidOff'] as const;
+        if (db) await setDoc(doc(db, COLLECTIONS.attendance, iso), {
+            day: iso,
+            ...Object.fromEntries(lists.map(l => [l, mark && l === field[mark] ? arrayUnion(person.id) : arrayRemove(person.id)])),
+            updatedAt: serverTimestamp()
+        }, {merge: true});
+        else setAttendance(list => {
+            const sheet = list.find(x => x.day === iso) || {id: iso, day: iso, present: []};
+            const next = {...sheet, ...Object.fromEntries(lists.map(l => [l, [...(sheet[l] || []).filter(id => id !== person.id), ...(mark && l === field[mark] ? [person.id] : [])]]))} as Attendance;
+            return [next, ...list.filter(x => x.day !== iso)];
+        });
+        toast(`${person.name} ${!mark ? 'unmarked' : mark === 'leave' ? 'on paid leave' : mark} · ${dayLabel(dayFrom(iso))}.`, mark === 'present' ? 'success' : 'info');
     }, [toast]);
 
     return {
-        // The merged views, so a section filtered to a wide period sees the history it pulled
-        // in. Today's figures are derived from the live window above and are never affected.
+        // Live window merged with any fetched history. Today's figures come from the live window only.
         sales: allSales, loyalty, expenseRecords: allExpenses, staff, roster, payouts, attendance,
         todaySales, todayExpenses, totals,
         ready, syncError,
@@ -516,15 +413,11 @@ export function useBook(day: number, toast: Notify) {
     };
 }
 
-// Toast wording. The two duties get different sentences because they name different things —
-// "on cleaning · week of 4 – 10 Aug" against "off · Sunday 10 Aug" — and one shared phrasing
-// would have to be vague enough to be right for both.
-const dutyLine = (record: Omit<RosterEntry, 'id' | 'createdAt'>) =>
+const dutyLine = (record: Fields<RosterEntry>) =>
     `${record.staffName} · ${record.duty === 'Off' ? 'off' : 'on cleaning'} · ${slotLabel(record.duty, record.day)}.`;
 
-// Newest first, one row per id. The live window and a history fetch overlap by design, so the
-// live copy is the one kept — it is the one a pending serverTimestamp settles into.
-function mergeById<T extends Dated & { id: string }>(live: T[], older: T[]): T[] {
+// Newest first, one row per id; the live copy wins where a history fetch overlaps it.
+function mergeById<T extends Dated>(live: T[], older: T[]): T[] {
     if (!older.length) return live;
     const seen = new Set(live.map(row => row.id));
     const merged = [...live, ...older.filter(row => !seen.has(row.id))];

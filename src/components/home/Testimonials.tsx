@@ -1,8 +1,7 @@
 import React from 'react';
 import {Container, SectionHeader, Testimonial, TestimonialGrid} from '../common/ui';
 
-// Kept to the three that describe something specific we did. The customer-count,
-// rating and "24/7" stats that used to sit under these were unverified and are gone.
+// No customer-count or rating stats: none were verified.
 const testimonials: Testimonial[] = [
     {
         name: 'Chioma Adebayo',

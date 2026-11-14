@@ -1,99 +1,10 @@
-/* Jaranow — carwash BAY banners: the three walls of a four-car wash bay.
+/* Jaranow — carwash bay banners: back 40x7ft (3 zones), left/right 17x7ft.
+   Hanging line, zones, grounds and the deliberate §8.12 departure: CLAUDE.md
+   "Wash-bay banners". Back-wall rendering (dsf + tiles): "Generated assets".
 
-   Real measured sizes, in feet because that is how the banner is ordered:
-
-     back        40 x 7 ft   12192 x 2134mm   one piece, three zones
-     left/right  17 x 7 ft    5182 x 2134mm   one zone each
-
-   THE BAY IS WIDE, NOT DEEP. Four cars park side by side facing the back wall,
-   so the back is the long side and the two returns are short. All three are the
-   SAME HEIGHT, which is what lets the whole room use one construction: a dot
-   field, a ghost drop per zone, a band of copy, an accent bar. Five zones in
-   total - three on the back, one on each return - built identically and
-   differing only in what they say.
-
-   ---- how they hang ----
-   All three are 7ft and hang with their TOPS ON ONE LINE at 2700mm AFL, so the
-   bottom edge is 566 on every wall. That single line all the way round the room
-   is what makes three surfaces read as one space rather than three signs.
-
-   Copy is CENTRED in the panel, between the safe top and the accent bar, so the
-   block's optical centre lands at ~1660mm AFL - about standing eye height in
-   the bay. Worth knowing when a site differs: a 1500mm saloon parked in front
-   masks the wall up to roughly 1380mm from a viewer a few metres outside the
-   opening, so on a tall block the last line (a sub line, the contact chip) can
-   fall behind a car when the bay is full. That is the cost of a centred
-   composition and it is accepted here; the fix on a site where it bites is to
-   raise the whole banner, not to shuffle the copy upward inside it.
-
-   ---- what each wall says ----
-     BACK   the promise · who we are · the reassurance   (three zones)
-     LEFT   the offer, and the number                    (driver's side)
-     RIGHT  the care                                     (passenger side)
-
-   Nigeria drives on the right, so the driver sits on the LEFT of the car and
-   their window faces the LEFT wall. That is why the number they might
-   photograph is on the left. The two returns are the same size and the same
-   construction, so swapping them is a data edit.
-
-   The four values are spread one per zone and never repeated: "WE TAKE OUR
-   TIME" already says "we don't rush your car", so only one of them is on a
-   wall. Two lines saying the same thing in one room is the failure mode.
-
-   ---- three zones, not four ----
-   The back wall's zones are THIRDS OF THE WALL, not one per bay. With four bays
-   at a 3048mm pitch and three zones at 4064mm the boundaries fall mid-bay, and
-   the centre zone serves the two middle cars - which is the right trade,
-   because it puts the lockup dead centre on the wall and that is the shot every
-   finished car gets photographed in front of.
-
-   RENDERING THE BACK IN ONE PIECE TAKES TWO TRICKS, and they solve two
-   different ceilings. 12,232mm at 2px/mm is 24,464px.
-
-   First, headless Chrome will not OPEN a window past ~16,384px. The page is
-   authored at half the unit and shot with `--force-device-scale-factor=2`, so
-   the window is legal at 12,232 and the screenshot still comes out full size.
-   `dsf` in the manifest carries that per file, picked automatically above
-   WINDOW_MAX.
-
-   Second - and this is the one the scale factor does NOT solve - Chrome will
-   not PAINT a surface that wide either, and it fails silently: the screenshot
-   is the right size, a band at the top left has artwork in it and the rest is
-   flat background. The surface is sized in DEVICE pixels, which is exactly what
-   the scale factor multiplies, so 2x moves the problem rather than fixing it.
-   Above PAINT_MAX the page is therefore emitted as several TILES - the same
-   page, each clipped to a different whole-pixel window - and rasterize-bay.sh
-   shoots each and joins them with stitch-png.js. The seam is invisible by
-   construction: identical layout at an integer offset, so glyphs land on the
-   same subpixel positions in every tile.
-
-   Both ceilings are picked automatically, so a bigger bay keeps working.
-
-   ---- rules carried over from the rest of the system ----
-   EVERY HEADING IS ARCHIVO BLACK, and that is a DELIBERATE DEPARTURE from
-   BRAND-STANDARD §8.12, which lists "more than once on a surface" as misuse.
-   The back wall is one 40ft banner and carries two of them - the promise in
-   zone 1 and the reassurance in zone 3. The reasoning: §8.12 exists so one line
-   is the loudest thing a viewer takes in, and a 12m wall read from four
-   different bays is three surfaces in every sense except how it is printed. A
-   driver in bay 1 never sees zone 3 as competition.
-
-   Hierarchy is therefore carried by SIZE, not by face: zone 1 at 430mm leads,
-   the two statements sit at 310-360, and Rubik 700 is left to the sub lines and
-   the phone number. If a future zone is added, keep it below 430 or the wall
-   stops having a lead line. On a smaller surface the §8.12 rule still applies
-   as written - do not cite this file as a precedent for a flyer or a card.
-
-   THE LOCKUP APPEARS ONCE IN THE ROOM, in the back wall's centre zone. The
-   other zones carry the ghost drop only.
-
-   NO PRICES. A banner is up for years; the laminated A4 at the desk is not.
-
-   NO BLUE FIELD. gen-sign.js offers an accent ground; a whole room of it does
-   not work - "a surface that is mostly accent has no accent" (§9). Ink or
-   Paper: Ink for an open or sunlit bay, and it is what makes a wet car read as
-   clean in front of it; Paper for a covered or dim one. One ground for the
-   whole room - a mixed set reads as three separate signs.
+   Nigeria drives on the right, so the driver's window faces the LEFT wall - that
+   is why the phone number is there. The returns are identical in construction,
+   so swapping them is a data edit.
 
    Usage: node gen-bay.js <outdir>
 */
@@ -108,34 +19,25 @@ const INK = "#0E1526";
 const ACCENT = "#2563EB";
 const PAPER = "#F2F5FB";
 
-/* Sizes are ordered in feet and designed in millimetres. */
 const ft = (n) => Math.round(n * 304.8);
 
-/* Same 2px/mm as the roadside panels (~51dpi at full size). Correct for large
-   format and NOT a bug: the closest anyone reads these from is ~1.5m, where
-   half a millimetre of edge quantisation is at the limit of acuity. */
+// ~51dpi is deliberate for large format - see CLAUDE.md "Generated assets".
 const PX_PER_MM = 2;
 const BLEED = 20; // fabrication allowance; a hemmed banner takes its hem from it
 const WINDOW_MAX = 16000; // headless Chrome stops opening windows around 16,384px
-/* Widest surface Chrome paints in full, in DEVICE pixels. Conservative: the
-   17ft returns come out whole at 10,444 and the 40ft back wall came out as a
-   ~7,200px band at 24,464, so the true ceiling is somewhere between. Anything
-   wider is tiled. Lower it if a panel ever renders part-painted. */
+/* Widest surface Chrome paints, in DEVICE px. Measured: 10,444 paints whole, 24,464
+   came out as a ~7,200px band. Lower it if a panel ever renders part-painted. */
 const PAINT_MAX = 12000;
 const mm = (n) => Math.round(n * PX_PER_MM);
 
 const HEADLINE = { family: "Archivo Black", weight: 400, capRatio: 0.72 };
 const BODY = { family: "Rubik", capRatio: 0.72 };
 
-/* ~120x cap height is a comfortable read; glance-legible is roughly double. */
+// ~120x cap height is a comfortable read; glance-legible is roughly double.
 const capOf = (fontMm, face) => fontMm * face.capRatio;
 const readAt = (fontMm, face) => (capOf(fontMm, face) * 120) / 1000;
 
-/* ---- the bay ----
-   Depth is the return wall's own length, so the side banners span it exactly.
-   Four bays across 40ft is a 10ft pitch. `car` is the parked-car envelope the
-   sightline is worked out from; `eye` the standing eye height the mockup is
-   rendered from. Re-measure if a second site differs - every size follows. */
+// Measured site geometry. Re-measure for a second site - every size follows.
 const BAY = {
   bays: 4,
   w: ft(40),
@@ -147,75 +49,40 @@ const BAY = {
 };
 BAY.pitch = Math.round(BAY.w / BAY.bays);
 
-/* Every banner is 7ft and hangs with its TOP on one line at 2700mm AFL, which
-   puts the bottom at 566 - clear of the splash zone, and low enough that the
-   panel is not floating near the ceiling. Tops on one line all the way round is
-   what makes three surfaces read as one room. */
 const TOP_LINE = 2700;
 const PANEL_H = ft(7);
 const MOUNT = TOP_LINE - PANEL_H;
-/* Where a parked car cuts the wall off, for the note in the mockup: a 1500mm
-   saloon seen from a few metres outside the opening masks up to about this. */
+// A 1500mm saloon seen from outside the opening masks the wall up to about this.
 const CAR_LINE = 1380;
 
-/* ---- the panels ----
-   Copy is data. `type` sizes are FONT sizes in millimetres, not cap heights -
-   the table the script prints converts them, so read it after any change
-   instead of guessing. `at` is the distance an element is designed for:
-
-     back wall   4m   the driver, stopped, nose to the wall
-                20m   from the street, through the opening
-     returns     5m   across a bay; nobody gets further from a side wall
-*/
+/* `type` sizes are FONT sizes in mm, not cap heights - read the printed table
+   after any change. `at` = design distance in m. */
 const PANELS = [
   {
     id: "back",
     label: "Back wall — the promise, who we are, the reassurance",
     ftSize: "40 × 7 ft",
     w: BAY.w,
-    /* The one lockup in the whole room, and the shot every finished car is
-       photographed in front of, so it is sized to carry the centre zone on its
-       own rather than to match the headlines either side. Width-bound by the
-       zone content box (4064 less 120 padding a side = 3824mm): 3000 fills 78%
-       of it and stands 992mm on the §3 sub-brand frame (207/625.7), which
-       still leaves ~400mm of air above and below inside the 1794mm copy band. */
+    /* Sized to carry the centre zone alone, not to match the headlines. Width-bound
+       by the 3824mm zone content box (4064 less 120 padding a side). */
     lockup: 3200,
-    /* SOLVED FROM MEASURED WIDTHS, not chosen by eye. Per font size the
-       binding lines run: "GET A FREE WASH." 8.72x and "CONFIDENCE" 6.28x in
-       Archivo Black, "Ask for your loyalty card." 10.36x in Rubik 400. A zone
-       is a 4064mm third less 120mm of padding a side, so a line has 3824mm to
-       live in. Lengthen a line and re-solve from whichever is then widest.
-
-       Both flanking zones are set BELOW what fits, because what has to lead
-       this wall is the lockup in the middle. At 430mm the headline ran 3750mm
-       - 98% of its box - so it crowded its own zone and argued with the mark;
-       340 brings it to 2965mm and leaves ~430mm of air either side. */
+    /* Solved from measured widths per font size: "GET A FREE WASH." 8.72x,
+       "CONFIDENCE" 6.28x (Archivo Black), "Ask for your loyalty card." 10.36x
+       (Rubik 400), against 3824mm. Set below what fits so the lockup leads. */
     type: {
       headline: { mm: 340, face: HEADLINE, at: 20 },
       sub: { mm: 108, face: BODY, at: 8 },
       hours: { mm: 110, face: BODY, at: 8 },
-      /* Archivo Black, so a long single word is a much wider line than zone
-         1's at the same size. 250 puts "CONFIDENCE" at 1571mm, 41% of the
-         zone, and keeps zone 1 leading on cap height (245mm against 180mm) -
-         cap height is what carries hierarchy at distance, line length just
-         reflects word count. */
+      // Smaller than the headline so zone 1 leads on cap height, which is what carries at distance.
       value: { mm: 250, face: HEADLINE, at: 12 },
     },
     zones: [
-      /* "WE TAKE OUR TIME" is the promise and it is doing a second job: it
-         tells a waiting customer that the wait IS the service - the care value
-         stated exactly where impatience happens. The sub line is what stops it
-         reading as "we are slow", so do not drop it. Stacked because one line
-         of Archivo Black in a 4064mm zone would cap at ~340mm. */
       {
         kind: "promise", copy: ["WASH FIVE TIMES", "GET A FREE WASH."],
         sub: "Ask for your loyalty card.",
       },
       { kind: "brand", copy: "" },
-      /* The reassurance. An invitation rather than a claim, and it states the
-         actual policy: nobody pays for a wash they have not looked at.
-         ALTERNATIVES, all true and all price-free - swap `copy` for one of
-         these and re-check the width against the 3824mm zone:
+      /* ALTERNATIVES - swap `copy` and re-check width against the 3824mm zone:
            ["SEE IT FIRST", "THEN PAY"]        shortest, sets biggest
            ["LOOK IT OVER", "BEFORE YOU PAY"]  softer, same idea
            ["NOT DONE", "TILL YOU SAY SO"]     boldest - reads as an open-ended
@@ -241,8 +108,7 @@ const PANELS = [
     label: "Left wall (driver's side) — the offer",
     ftSize: "17 × 7 ft",
     w: BAY.d,
-    /* The offer is five stamps and the SIXTH wash free - never a free fifth.
-       The loyalty card's sixth slot is the reward, not a stamp (CLAUDE.md). */
+    // Five stamps, the SIXTH wash free - never a free fifth (CLAUDE.md "Pocket cards").
     type: {
       headline: { mm: 300, face: HEADLINE, at: 5 },
       sub: { mm: 100, face: BODY, at: 5 },
@@ -274,33 +140,18 @@ const PANELS = [
     label: "Right wall (passenger side) — the care",
     ftSize: "17 × 7 ft",
     w: BAY.d,
-    /* Rubik 700, not the display face. Archivo Black is spent on the back
-       wall's promise and the left wall's offer (§8.12, one shout per surface),
-       and the room needs the quiet statement to be quiet - two shouting returns
-       facing each other across four metres is a shouting match.
-
-       This wall used to carry the three wash names and a pointer to the price
-       board. That was a price list with the figures taken out: it made a
-       waiting passenger read a menu they had already ordered from, and said
-       nothing about why to come back. The wash names live on the laminated A4
-       at the desk (gen-pricelist.js) and on /pricing. */
+    // No wash names here - deliberate, see CLAUDE.md "Wash-bay banners".
     type: {
       statement: { mm: 360, face: HEADLINE, at: 5 },
       sub: { mm: 110, face: BODY, at: 4 },
     },
     zones: [
-      /* The detail value: thoroughness, where the back wall's promise is about
-         time. The shout is the detail, the sub is the plain approved sentence
-         from the flyer - so someone handed that sheet last month meets the same
-         words on the wall.
-         ALTERNATIVES - swap `copy`/`sub` and re-check the width against the
-         4662mm content width:
+      /* ALTERNATIVES - swap `copy`/`sub` and re-check width against 4662mm:
            ["INSIDE", "AND OUTSIDE"]      + "Body, wheels and glass on every wash."
            ["DONE", "PROPERLY"]           + "Inside and outside, wheels and glass included."
            ["EVERY PANEL", "EVERY WHEEL"] + "Body, wheels and glass on every wash."
            ["WE CLEAN", "INSIDE AND OUT"] + "The parts people miss are the parts we check."
-         Do not reach for a line that names or counts the wash types - that is
-         the laminated A4's job, and a banner outlives a service list. */
+         Never name or count the wash types - a banner outlives a service list. */
       {
         kind: "statement",
         copy: ["BRING BACK YOUR", "CAR'S SHINE"],
@@ -319,17 +170,14 @@ const PANELS = [
   },
 ];
 
-/* Geometry is uniform across the room, so it is applied rather than repeated. */
 for (const p of PANELS) {
   Object.assign(p, { h: PANEL_H, mount: MOUNT, safe: 140, bar: 200 });
   p.zoneW = Math.round(p.w / p.zones.length);
 }
 const byId = Object.fromEntries(PANELS.map((p) => [p.id, p]));
 
-/* Ground colourways. §8.8: dark grounds take the -white lockup, light grounds
-   -duo, and the accent colourway never goes on a dark field. `wall`/`ceil`/
-   `floor` are the bay's own surfaces in the mockup - painted block, not brand
-   colour, so a banner reads as a banner rather than as the room. */
+/* Lockup per §8.8. `wall`/`ceil`/`floor` are mockup room surfaces - deliberately
+   not brand colours, so a banner reads as a banner rather than as the room. */
 const GROUNDS = {
   ink: {
     bg: INK, fg: PAPER, band: ACCENT, bandFg: PAPER,
@@ -349,13 +197,8 @@ const GROUNDS = {
   },
 };
 
-/* ---- the millimetre unit ----
-   Every dimension is written as `calc(N * var(--u))`, where --u is one
-   millimetre in pixels. That is what lets the same markup render at 2px/mm as a
-   print file, at 1px/mm behind a 2x device scale, and at 0.26px/mm inside the
-   mockup, all without a second stylesheet. Custom properties inherit and do not
-   compound, which `em` would. --bleed is BLEED on a print file and 0 everywhere
-   else, because a hung banner is trimmed. */
+/* --u = 1mm in px, so one stylesheet serves print, the 2x dsf shot and the mockup
+   (custom properties don't compound; `em` would). --bleed is 0 outside print files. */
 const U = (n) => `calc(${n} * var(--u))`;
 const UB = (n) => `calc((${n} + var(--bleed, 0)) * var(--u))`;
 
@@ -365,10 +208,7 @@ function inlineSvg(name, cls, style) {
   return s.replace("<svg ", `<svg class="${cls}" style="${style}" `);
 }
 
-/* ---- one stylesheet for all three walls ----
-   Scoped to `.p-<id>` so all three can live in one document (the mockup and the
-   spec sheet both need that). The only per-wall differences are the width, the
-   number of zones and which zone kinds are present. */
+// Scoped to `.p-<id>` so all three walls can share one document (mockup, spec sheet).
 const CSS = (p, g) => {
   const s = `.p-${p.id}`;
   const T = p.type;
@@ -485,10 +325,8 @@ const FONTS = `<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Archivo+Black&display=block" rel="stylesheet">`;
 
-/* `slice` renders a vertical strip of the same page: the viewport shrinks to
-   the tile width and the whole composition is shifted left inside it. Nothing
-   in the layout changes - the wrapper is the full page size and the panel is
-   sized in absolute units - so the tiles join seamlessly. */
+/* `slice`: same full-size layout shifted left inside a tile-wide viewport, so
+   tiles join seamlessly. */
 const page = (title, w, h, css, body, slice) => `<!doctype html><html><head><meta charset="utf-8">
 <title>${title}${slice ? ` [tile @${slice.x}]` : ""}</title>
 ${FONTS}
@@ -504,20 +342,9 @@ ${
 }
 </body></html>`;
 
-/* ---- emit ----
-   Applies both ceilings described at the top. `dsf` is the device-scale trick:
-   anything whose final pixel size would exceed the window ceiling is authored
-   at half the unit and shot at 2x. `tiles` is the paint ceiling: a file wider
-   than PAINT_MAX in device pixels is written as N strips, `<base>.t<i>.html`,
-   and joined after rasterizing.
-
-   The manifest is one line per OUTPUT PNG, six columns:
-
-     base  winW  winH  dsf  tiles  tileW
-
-   all four numbers in CSS pixels of the window to open (multiply by dsf for the
-   file). Tiles are tileW wide except the last, which is the remainder - the
-   rasterizer works that out rather than the manifest listing every strip. */
+/* Applies both Chrome ceilings (dsf above WINDOW_MAX, tiles above PAINT_MAX).
+   sizes.txt, one line per output PNG:  base winW winH dsf tiles tileW
+   (window CSS px; the last tile is the remainder). */
 const sizes = [];
 const emit = (base, wPx, hPx, mkPage) => {
   const dsf = Math.max(wPx, hPx) > WINDOW_MAX ? 2 : 1;
@@ -544,7 +371,6 @@ const emit = (base, wPx, hPx, mkPage) => {
   );
 };
 
-/* ---- 1. the print files ---------------------------------------------- */
 console.log("print files");
 for (const p of PANELS) {
   for (const [gname, g] of Object.entries(GROUNDS)) {
@@ -561,17 +387,8 @@ for (const p of PANELS) {
   }
 }
 
-/* ---- 2. the mockup ----------------------------------------------------
-   A real box interior in CSS 3D rather than three skewed rectangles: the room
-   is built at 1mm = MK px, the camera sits BAY.camera in front of the opening
-   at BAY.eye off the floor, and the walls are planes rotated into place. The
-   perspective is therefore the bay's actual perspective, so what this says
-   about how much of each wall a car hides is true rather than drawn.
-
-   The four cars are the point of the drawing. Delete them and the 1500mm band
-   looks arbitrary; with them it is obvious why nothing sits lower.
-
-   THIS IS A MOCKUP, NOT ARTWORK. It exists to approve placement and colourway. */
+/* Mockup (not artwork): a true CSS 3D room, so how much wall a car hides is real
+   perspective rather than drawn. The cars are the point - they explain the band. */
 const MK = 0.26;
 const mk = (n) => +(n * MK).toFixed(2);
 const CANVAS = { w: Math.round(mk(BAY.w)) + 180, h: Math.round(mk(BAY.h)) + 60 + 250 };
@@ -663,10 +480,7 @@ ${PANELS.map((p) => CSS(p, g)).join("\n")}`;
   );
 }
 
-/* ---- 3. the spec sheet ------------------------------------------------
-   A3 landscape at 300dpi. The PNGs on their own do not say how big they are,
-   what they print on, how high they hang or what each element is sized to be
-   read from - this is the sheet that goes to the printer and the fitter. */
+// Spec sheet: A3 landscape, 300dpi - for the printer and fitter.
 const SPEC_DPI = 300;
 const sp = (n) => Math.round((n * SPEC_DPI) / 25.4);
 const SPEC_U = 0.115; // px per banner-mm in the previews; one scale for all three
@@ -760,10 +574,7 @@ ${PANELS.map((p) => CSS(p, g)).join("\n")}`;
 
 fs.writeFileSync(path.join(OUT, "html", "sizes.txt"), sizes.join("\n") + "\n");
 
-/* ---- the legibility table ----
-   Read this after changing any size. `at` is what an element was designed for;
-   `reads at` is what it resolves to. Under-shooting the design distance is the
-   bug - over-shooting is only a bug if it broke the layout. */
+// Legibility table: falling short of `at` is the bug; overshooting is fine.
 console.log(`\n${sizes.length} files @ ${PX_PER_MM}px/mm (~${(PX_PER_MM * 25.4).toFixed(0)}dpi at full size)`);
 console.log(
   `bay ${BAY.w}x${BAY.d}x${BAY.h}mm — ${BAY.bays} bays at ${BAY.pitch}mm pitch`

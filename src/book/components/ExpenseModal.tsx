@@ -1,18 +1,14 @@
 import React, {useState} from 'react';
-import {EXPENSE_CATEGORIES} from '../constants';
+import {EXPENSE_CATEGORIES, PAYMENT_METHODS} from '../constants';
 import type {Expense} from '../types';
 import {Modal} from './Modal';
 
-// One form for recording and correcting: an expense has no loyalty side, so unlike a sale
-// there is nothing about it that can only be set at the moment it happens.
 export function ExpenseModal({record, close, save}: {
     record?: Expense;
     close: () => void;
     save: (record: Omit<Expense, 'id' | 'createdAt'>) => Promise<void>
 }) {
-    // An expense filed under a category that has since been renamed or dropped still has to
-    // edit as itself — without its own option the select would fall to the first entry and
-    // silently refile it the moment anything else on the form was corrected.
+    // Keep a retired category selectable, or editing would silently refile the expense.
     const options: string[] = record?.category && !EXPENSE_CATEGORIES.includes(record.category as typeof EXPENSE_CATEGORIES[number])
         ? [record.category, ...EXPENSE_CATEGORIES] : [...EXPENSE_CATEGORIES];
     const [category, setCategory] = useState(record?.category || options[0]),
@@ -41,9 +37,7 @@ export function ExpenseModal({record, close, save}: {
         </select></label><label className="block text-sm font-medium">Payment source<select value={payment}
                                                                                             onChange={e => setPayment(e.target.value)}
                                                                                             className="mt-1 w-full rounded-xl border-slate-200">
-            <option>Cash</option>
-            <option>Transfer</option>
-            <option>POS</option>
+            {PAYMENT_METHODS.map(m => <option key={m}>{m}</option>)}
         </select></label><label className="block text-sm font-medium">Amount (₦)<input required min="1" type="number"
                                                                                        value={amount}
                                                                                        onChange={e => setAmount(e.target.value)}

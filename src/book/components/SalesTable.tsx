@@ -9,9 +9,7 @@ function Reward({sale}: { sale: Sale }) {
     return <span className="text-xs text-slate-300">—</span>;
 }
 
-// Phones get one card per record. Five columns cannot be read on a 390px screen, and the
-// sideways scroll the table used to need hides the amount — the one figure that matters.
-// The table returns at lg, where the 64-wide sidebar still leaves it room.
+// Cards below lg, table from lg (five columns do not fit a phone).
 export function SalesTable({sales, empty = 'No sales recorded yet.', loading = false, rows = 3, onEdit, onDelete}: {
     sales: Sale[];
     empty?: string;
@@ -20,8 +18,6 @@ export function SalesTable({sales, empty = 'No sales recorded yet.', loading = f
     onEdit?: (s: Sale) => void;
     onDelete?: (s: Sale) => void
 }) {
-    // Loading is checked before emptiness, because an unloaded ledger and an empty one look
-    // identical from here and only one of them should say "no sales recorded".
     if (loading) return <SalesTableSkeleton rows={rows} actions={Boolean(onEdit)}/>;
     if (!sales.length) return <p className="px-5 py-10 text-center text-sm text-slate-400">{empty}</p>;
     return <>
@@ -38,8 +34,6 @@ export function SalesTable({sales, empty = 'No sales recorded yet.', loading = f
         </li>)}</ul>
         <table className="hidden w-full text-left text-sm lg:table">
             <SalesHead actions={Boolean(onEdit)}/>
-            {/* Time under the day rather than in its own column: it is what tells two otherwise
-                identical washes apart, and it is only ever read alongside the date. */}
             <tbody>{sales.map(s => <tr key={s.id} className="border-b border-slate-100 last:border-0">
                 <td className="whitespace-nowrap px-5 py-4 text-slate-500">{dayLabel(dateOf(s))}<span
                     className="block text-xs text-slate-400">{timeLabel(dateOf(s))}</span></td>
@@ -57,7 +51,6 @@ export function SalesTable({sales, empty = 'No sales recorded yet.', loading = f
     </>
 }
 
-// Shared so the loading table and the loaded one cannot drift apart a column.
 function SalesHead({actions}: { actions: boolean }) {
     return <thead className="border-y border-slate-100 bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
     <tr>
@@ -72,8 +65,6 @@ function SalesHead({actions}: { actions: boolean }) {
     </thead>;
 }
 
-// Mirrors both halves of SalesTable — the cards below lg, the table at and above it — so the
-// layout that appears while loading is the one the records will land in.
 function SalesTableSkeleton({rows, actions}: { rows: number; actions: boolean }) {
     const keys = Array.from({length: rows}, (_, i) => i);
     return <div role="status" aria-busy aria-label="Loading sales">

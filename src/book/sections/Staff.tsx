@@ -14,11 +14,6 @@ import {DUTY_STYLE, exemptionOf} from './Roster';
 
 type Editing = { entry?: RosterEntry; day: string; duty?: Duty; staffId?: string };
 
-// Everything about the people: who came in today, whose turn it is this week, and who is on
-// the team at all. One page because they are one question — "who is at work" — asked by the
-// day, by the week, and in general. Attendance leads because it is marked every morning;
-// the rota sits beside it on a wide screen and below it on a phone; the team list closes the
-// page, carrying in one row what the two cards above say about each person.
 export function Staff({staff, roster, attendance, role, loading, attendanceLoading, onSetMark, onAddStaff, onUpdateStaff, onRemoveStaff, onAssign, onUpdateDuty, onRemoveDuty}: {
     staff: Person[];
     roster: RosterEntry[];
@@ -38,16 +33,14 @@ export function Staff({staff, roster, attendance, role, loading, attendanceLoadi
     const [editing, setEditing] = useState<Editing | null>(null);
     const [person, setPerson] = useState<Person | 'new' | null>(null);
     const [removing, setRemoving] = useState<Person | null>(null);
-    // Nothing to rotate through means removing a swap empties the slot rather than handing it
-    // back to a rotation — the modal's button says which.
     const cycling = DUTIES.some(d => rotation(staff, d).length > 0);
     const presentToday = presentOn(isoDay(new Date()), staff, attendance).map(p => p.id);
 
     return <>
         <div className="mb-7 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
             <p className="max-w-xl text-sm text-slate-500">{admin
-                ? 'Manage team'
-                : 'Mark who comes to work today, check duty roster.'}</p>
+                ? 'Attendance, duties and the team.'
+                : 'Mark who is in today and check the duty rota.'}</p>
             {admin && <div className="flex flex-wrap gap-3">
                 <button onClick={() => setPerson('new')}
                         className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600">
@@ -83,9 +76,7 @@ export function Staff({staff, roster, attendance, role, loading, attendanceLoadi
     </>;
 }
 
-// The two cards above the team list share one header: a title, where you are in time, and a
-// single compact pager. The middle of the pager is the way back to now, and only appears once
-// you have moved — without it, finding today again after paging back a fortnight is a count.
+// `back` appears once you have paged away from now.
 function CardHead({title, sub, aside, back, onBack, onPrev, onNext, prevDisabled, nextDisabled, unit}: {
     title: string;
     sub: string;
@@ -115,18 +106,7 @@ function CardHead({title, sub, aside, back, onBack, onPrev, onNext, prevDisabled
     </div>;
 }
 
-// Who came to work, one day at a time. The cashier marks it on the staff PIN as people arrive;
-// each day's revenue share is split among the attendants on it, so a name not marked here is
-// not paid for the day.
-//
-// Staff can mark today only — the day they can see for themselves. Earlier days stay open to
-// the admin PIN for the morning somebody forgot, so a correction is a decision rather than a
-// habit. Nobody marks the future.
-//
-// One tap per person: a tick for present, a cross for absent; tapping the filled one again
-// unmarks them. The state is always said in
-// words under the name, so it reads from across the counter and in a photo.
-// The three things somebody can be marked as, and the blank before they are.
+// Staff mark today only; admin can correct past days. Nobody marks the future.
 const MARKS: Record<Mark, { label: string; tone: string }> = {
     present: {label: 'Present', tone: 'text-emerald-700'},
     absent: {label: 'Absent', tone: 'text-red-600'},
@@ -168,7 +148,6 @@ function AttendanceCard({staff, attendance, role, loading, onSet}: {
                   back={isToday ? undefined : 'Today'} onBack={() => setDate(today)} unit="day"
                   onPrev={() => setDate(addDays(date, -1))} prevDisabled={date <= ATTENDANCE_START}
                   onNext={() => setDate(addDays(date, 1))} nextDisabled={isToday}/>
-        {/* How much of the team is in, at a glance — the bar fills as the morning does. */}
         {counted && <div className="mx-5 mb-1 h-1 overflow-hidden rounded-full bg-slate-100" aria-hidden>
             <div className="h-full rounded-full bg-emerald-500 transition-all"
                  style={{width: `${(present.length / attendants.length) * 100}%`}}/></div>}
@@ -179,12 +158,9 @@ function AttendanceCard({staff, attendance, role, loading, onSet}: {
             : !attendants.length ? <p className="px-5 pb-8 pt-4 text-center text-sm text-slate-400">
                     No car washers set up yet. {role === 'admin' ? 'Edit a team member below and set their role to Car Washer.' : 'Ask an admin to set them up.'}</p>
                 : <ul className="py-2">{attendants.map(p => {
-                    // Each person's mark stands alone: nothing here is inferred from anybody
-                    // else's, so changing one row never changes another.
                     const state = markOn(day, p.id, attendance);
                     const busy = saving === p.id;
-                    // Paid leave only means anything against a salary, and it moves pay, so it
-                    // is the admin's to give — and nobody else's to take away.
+                    // Paid leave moves salary, so only admin gives or removes it.
                     const canLeave = role === 'admin' && p.attendantPay === 'salary';
                     const locked = !editable || (state === 'leave' && !canLeave);
                     const look = state ? MARKS[state] : UNMARKED;
@@ -194,8 +170,6 @@ function AttendanceCard({staff, attendance, role, loading, onSet}: {
                         <div className="min-w-0 flex-1">
                             <p className="truncate font-medium">{p.name}</p>
                             <p className={`text-xs font-medium ${look.tone}`}>{look.label}
-                                {/* Paid leave is an absence that is excused, so it is offered
-                                    on the absence rather than as a third thing to pick from. */}
                                 {canLeave && !locked && state !== 'present' && <>
                                     <span className="text-slate-300"> · </span>
                                     <button type="button" disabled={busy} onClick={() => set(p, state === 'leave' ? 'absent' : 'leave')}
@@ -219,14 +193,6 @@ function AttendanceCard({staff, attendance, role, loading, onSet}: {
     </section>;
 }
 
-// The rota, a week at a time — the unit it is planned and read in: cleaning IS a week, and
-// the day off is that week's Sunday. Both roles can walk it in either direction; knowing
-// which Sunday you are off is the point of a rota.
-//
-// Two lines, not seven day cards. A day grid was the first cut and it misread the rota:
-// cleaning is not a duty on a day, it is the whole week. Every week already has an answer,
-// including weeks nobody has opened yet, so the lines are never blank while there is a team —
-// walking forward is how you find out when your turn is.
 function DutiesCard({staff, roster, admin, loading, onEdit}: {
     staff: Person[];
     roster: RosterEntry[];
@@ -239,10 +205,7 @@ function DutiesCard({staff, roster, admin, loading, onEdit}: {
     const thisWeek = week === isoDay(startOfWeek(new Date()));
     const anyone = staff.some(p => p.active);
 
-    // Tapping a name is the edit, for admin. A turn has no stored row, so it opens the form on
-    // whose turn it is and saving writes the swap; a swap opens itself. An empty slot offers
-    // the swap directly, already on the right duty — arriving on Sunday off and being handed a
-    // cleaning form is how a week gets assigned to the wrong slot.
+    // Admin taps a name to swap it; a derived turn opens the form pre-filled, a swap opens itself.
     const line = (kind: Duty, entries: Assignment[], anchor: string) => {
         const {tint, icon: Icon} = DUTY_STYLE[kind];
         return <li className="flex flex-1 gap-4 px-5 py-4">
@@ -272,8 +235,6 @@ function DutiesCard({staff, roster, admin, loading, onEdit}: {
         </li>;
     };
 
-    // Stretched to the attendance card's height beside it, the two lines share that height
-    // evenly rather than leaving a blank foot under Sunday off.
     return <section aria-busy={loading} className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
         <CardHead title="Duties" sub={`${thisWeek ? 'This week · ' : ''}${weekSpan(weekStart)}`}
                   back={thisWeek ? undefined : 'This week'} onBack={() => setWeekStart(startOfWeek(new Date()))}
@@ -286,9 +247,6 @@ function DutiesCard({staff, roster, admin, loading, onEdit}: {
     </section>;
 }
 
-// The whole team, active first. Each row carries what the rest of the page says about the
-// person — on the attendant pool and how they are paid, in today, exempt from a rotation — so
-// a name that never comes up on the rota or never gets paid explains itself here.
 function TeamCard({staff, presentToday, admin, loading, onEdit, onRemove, onToggleActive}: {
     staff: Person[];
     presentToday: string[];
@@ -310,7 +268,7 @@ function TeamCard({staff, presentToday, admin, loading, onEdit, onRemove, onTogg
         {loading ? <ul className="divide-y divide-slate-100">{[0, 1, 2].map(i => <li key={i} className="flex items-center gap-3 px-5 py-4">
                 <Skeleton className="h-8 w-8 rounded-full"/><div><Skeleton className="h-4 w-32"/><Skeleton className="mt-2 h-3 w-24"/></div></li>)}</ul>
             : !staff.length ? <p className="px-5 py-10 text-center text-sm text-slate-400">
-                    {admin ? 'Nobody on the team yet. Add someone to start assigning duties.' : 'Nobody on the team yet.'}</p>
+                    Nobody on the team yet.</p>
                 : <ul className="divide-y divide-slate-100">{[...active, ...archived].map(p => <li key={p.id}
                         className={`flex items-center justify-between gap-3 px-5 py-4 ${p.active ? '' : 'bg-slate-50/60'}`}>
                     <div className="flex min-w-0 items-center gap-3">
@@ -322,15 +280,10 @@ function TeamCard({staff, presentToday, admin, loading, onEdit, onRemove, onTogg
                                 {p.active && <span className={`${tag} bg-blue-50 text-blue-700`}>
                                     {p.attendantPay ? 'Car Washer' : 'Cashier'}</span>}
                                 {presentToday.includes(p.id) && <span className={`${tag} bg-emerald-50 text-emerald-700`}>In today</span>}
-                                {/* Says why somebody's name never comes up. Without it an exemption
-                                    is indistinguishable from a rota that has quietly stopped. */}
                                 {p.active && exemptionOf(p) && <span className={`${tag} bg-amber-50 text-amber-700`}>{exemptionOf(p)}</span>}
                             </div>
                         </div>
                     </div>
-                    {/* Archiving is the ordinary way somebody leaves: it takes them out of the
-                        rotation without taking their name off the weeks they worked. Deleting is
-                        for a row typed in by mistake, and says so by being the one that asks. */}
                     {admin && <div className="flex shrink-0 items-center gap-3">
                         <button type="button" onClick={() => onToggleActive(p)}
                                 className="text-xs font-semibold text-slate-500 hover:text-slate-700">{p.active ? 'Archive' : 'Restore'}</button>
@@ -340,8 +293,6 @@ function TeamCard({staff, presentToday, admin, loading, onEdit, onRemove, onTogg
     </section>;
 }
 
-// A face for each row, so the attendance list and the team list line up as the same people.
-// Green when they are in — never colour alone, the Present button and "In today" tag say it too.
 function Initials({name, on, muted}: { name: string; on?: boolean; muted?: boolean }) {
     const letters = name.trim().split(/\s+/).slice(0, 2).map(w => w[0]?.toUpperCase()).join('');
     const tone = muted ? 'bg-slate-100 text-slate-400' : on ? 'bg-emerald-50 text-emerald-700 ring-2 ring-emerald-200' : 'bg-slate-100 text-slate-600';

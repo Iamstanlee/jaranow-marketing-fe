@@ -4,10 +4,6 @@ import {validatePhoneNumber} from '../../utils/formatters';
 import {btn, openWhatsApp} from './ui';
 import {trackLead} from '../../utils/metaPixel';
 
-/* A validated enquiry form that hands off to WhatsApp. Fields are data, so a
-   new enquiry type is a config array, not another copy of the carwash
-   BookingForm. Nothing is sent anywhere else - WhatsApp is the whole backend. */
-
 export interface FormField {
     name: string;
     label: string;
@@ -15,7 +11,6 @@ export interface FormField {
     placeholder?: string;
     options?: string[];
     required?: boolean;
-    /** Span both columns on sm+ screens. */
     full?: boolean;
 }
 

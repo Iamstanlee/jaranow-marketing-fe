@@ -1,19 +1,13 @@
 #!/bin/bash
-# Render the staff documents in docs/ to print-ready A4 PDFs via headless Chrome.
+# Render docs/*.html to print-ready A4 PDFs in docs/pdf/ via headless Chrome.
 #
 #   docs/rasterize-docs.sh                      # every docs/*.html -> docs/pdf/
 #   docs/rasterize-docs.sh employee-handbook    # just that one
 #   docs/rasterize-docs.sh docs/cashier-guide.html
 #
-# These HTML files are Artifact sources, so they carry no <!doctype>, <head> or
-# <body> - the Artifact host supplies those at publish time. This script wraps
-# each one in that skeleton plus an @page rule before printing, which is the only
-# reason a plain `chrome --print-to-pdf` on them comes out unpaginated.
-#
-# Type is pulled from Google Fonts at render time, so this needs network access.
-# A failed font load silently falls back to system sans, so the run checks each
-# finished PDF for embedded Rubik/Archivo Black and warns rather than handing
-# back a document that quietly lost its typography.
+# The sources are skeleton-less Artifact files, so each is wrapped with an @page
+# rule first - a bare --print-to-pdf comes out unpaginated. Needs network; a PDF
+# with no embedded Rubik/Archivo Black fails the run.
 set -euo pipefail
 
 CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
@@ -22,14 +16,12 @@ OUT="$ROOT/pdf"
 
 PAGE_SIZE="${PAGE_SIZE:-A4}"
 PAGE_MARGIN="${PAGE_MARGIN:-14mm 16mm}"
-# Google Fonts uses display=swap here, but the faces still need time to land;
-# printing early is how a document ends up in system sans.
+# display=swap: print too early and the document is set in system sans.
 BUDGET="${BUDGET:-15000}"
 
 [ -x "$CHROME" ] || { echo "Chrome not found at: $CHROME" >&2
                       echo "Set CHROME=/path/to/chrome to override." >&2; exit 1; }
 
-# Collect targets: explicit args (bare name or path) or every html in docs/.
 targets=()
 if [ "$#" -gt 0 ]; then
   for a in "$@"; do
@@ -52,8 +44,7 @@ for html in "${targets[@]}"; do
   base="$(basename "$html" .html)"
   src="$work/$base.html"
 
-  # A file that already carries its own document skeleton is printed as-is; its
-  # own @page (if any) wins. Otherwise wrap it the way the Artifact host does.
+  # A file with its own skeleton is printed as-is (its @page wins).
   if head -c 400 "$html" | grep -qiE '<!doctype|<html'; then
     cp "$html" "$src"
   else

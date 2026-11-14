@@ -1,22 +1,14 @@
 import React, {useState} from 'react';
 import {Modal} from './Modal';
 
-// Asks before a write that the person on the other side of the counter will feel: one that is
-// not undoable, or that moves a loyalty balance a customer is carrying a card for. It says
-// what it is about to do, because the row or card that was tapped is behind the dialog by the
-// time it opens.
-//
-// The confirm button holds its own in-flight state, so a forecourt tablet that does not answer
-// instantly cannot be tapped into writing twice.
+// Holds its own in-flight state so a slow tablet cannot be tapped into writing twice.
 export function Confirm({title, detail, action, busyLabel = 'Saving…', tone = 'primary', error = 'Could not save this change. Please check your connection and try again.', close, confirm, children}: {
     title: string;
     detail: string;
-    // Anything the confirmation needs to ask as well, such as how a payout was handed over.
     children?: React.ReactNode;
     action: string;
     busyLabel?: string;
-    // Red is for taking something away — a deleted record, a point off a card. Everything else
-    // confirms in the ordinary accent, so the colour still means something when it is used.
+    // danger = taking something away.
     tone?: 'primary' | 'danger';
     error?: string;
     close: () => void;
@@ -50,8 +42,6 @@ export function Confirm({title, detail, action, busyLabel = 'Saving…', tone = 
     </Modal>
 }
 
-// The delete preset, which is most of what asks. Kept as its own name because a deletion is
-// the one thing in the book that cannot be pressed again to undo.
 export function ConfirmDelete({title, detail, close, confirm}: {
     title: string;
     detail: string;

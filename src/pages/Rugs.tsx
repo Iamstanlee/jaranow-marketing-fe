@@ -26,10 +26,7 @@ import {formatCurrency, scrollToElement} from '../utils/formatters';
 import {useLandingScroll} from '../utils/useLandingScroll';
 import SeoTags from '../seo/SeoTags';
 
-/* Rug cleaning with pickup and delivery. Prices come from the same data as the
-   forecourt price list (src/data/carwashPrices.ts), so the two cannot disagree.
-   No turnaround is promised - the return date is confirmed at collection. */
-
+// No turnaround is promised: the return date is confirmed at collection.
 
 const facts = [
     {icon: <HomeIcon size={17}/>, label: 'Pickup & delivery', value: 'Free - from your door and back again'},
@@ -144,7 +141,6 @@ const Rugs: React.FC = () => {
             <Header logo="rugwash" ctaLabel="Book free pickup" onCtaClick={goToPickup}/>
 
             <main>
-                {/* Hero */}
                 <section className="relative overflow-hidden bg-ink text-white">
                     <InkBackdrop/>
                     <Container className="relative pt-32 pb-20 sm:pt-40 lg:pb-28">
@@ -183,7 +179,6 @@ const Rugs: React.FC = () => {
                     </Container>
                 </section>
 
-                {/* Prices */}
                 <section id="prices" className="bg-paper py-20 sm:py-28">
                     <Container>
                         <SectionHeader
@@ -198,7 +193,6 @@ const Rugs: React.FC = () => {
                     </Container>
                 </section>
 
-                {/* How it works */}
                 <section className="bg-white py-20 sm:py-28">
                     <Container>
                         <SectionHeader
@@ -213,7 +207,6 @@ const Rugs: React.FC = () => {
                     </Container>
                 </section>
 
-                {/* What you get */}
                 <section className="bg-ink py-20 text-white sm:py-28">
                     <Container className="grid gap-12 lg:grid-cols-12">
                         <SectionHeader
@@ -227,7 +220,6 @@ const Rugs: React.FC = () => {
                     </Container>
                 </section>
 
-                {/* Pickup form */}
                 <section id="pickup" className="bg-paper py-20 sm:py-28">
                     <Container className="grid gap-12 lg:grid-cols-12">
                         <div className="lg:col-span-5">
@@ -264,7 +256,6 @@ const Rugs: React.FC = () => {
                     </Container>
                 </section>
 
-                {/* FAQ */}
                 <section className="bg-white py-20 sm:py-28">
                     <Container className="grid gap-12 lg:grid-cols-12">
                         <SectionHeader

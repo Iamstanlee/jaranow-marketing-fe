@@ -1,42 +1,12 @@
 #!/bin/bash
-# Rasterize the generated wash-bay banner set via headless Chrome.
-#
-# Run gen-bay.js first - this only screenshots what is already in bay/html.
-#
+# Screenshot bay/html via headless Chrome; tiled panels are joined by stitch-png.js.
 #   node brand/gen-bay.js && brand/rasterize-bay.sh
+# Needs network (Google Fonts); a failed load falls back silently - eyeball the PNGs.
 #
-# Type is pulled from Google Fonts at render time, so this needs network access.
-# The stylesheet uses display=block, so Chrome waits rather than painting
-# fallback type - a generous virtual-time budget keeps the panels out of system
-# sans. Archivo Black is where a failed load shows up first, on the two
-# headlines.
-#
-# Panels are 2px/mm (~51dpi at full size, correct for large format).
-#
-# THE MANIFEST HAS SIX COLUMNS - base, window width, window height, device scale
-# factor, tile count and tile width - because the back wall is 24,464px wide and
-# headless Chrome clears neither of its two ceilings at that size. It will not
-# OPEN a window past ~16,384px, so gen-bay.js authors that page at half the unit
-# and flags dsf=2; Chrome renders the smaller window at 2x and the screenshot
-# comes out at full size. Read all the columns and pass the scale through -
-# dropping it silently halves the back wall's resolution.
-#
-# The scale factor does NOT fix the second ceiling. Chrome also will not PAINT a
-# surface that wide, and it fails silently rather than erroring: the PNG is the
-# right size, a band at the top left has artwork in it and everything else is
-# flat background - no headline, no lockup, no accent bar. The surface is sized
-# in device pixels, which is precisely what the scale factor multiplies. So such
-# a page is emitted as TILES (<base>.t0.html, .t1.html, ...), each shot inside
-# both ceilings, and joined here by stitch-png.js into the one file the printer
-# gets. A tiled panel is still ONE banner - the tiles are a rendering detail and
-# never reach the print shop.
-#
-# Tiles are tileW wide except the last, which takes the remainder. If a panel
-# ever comes back part-painted, lower PAINT_MAX in gen-bay.js and re-run both.
-#
-# The PNGs are production files for a banner printer; the mockup and spec sheet
-# are not - hand those over as reference, and send the lockup SVGs from
-# jaranow-blue/svg/ alongside if the shop would rather set the marks in vector.
+# sizes.txt has SIX columns: base winW winH dsf tiles tileW. Pass dsf through -
+# dropping it silently halves the back wall. Tiles exist because Chrome silently
+# won't paint a surface that wide (CLAUDE.md "Generated assets"); if a panel comes
+# back part-painted, lower PAINT_MAX in gen-bay.js and re-run both.
 set -e
 
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -74,7 +44,6 @@ while read -r base w h dsf tiles tileW; do
     parts=()
     i=0
     while [ "$i" -lt "$tiles" ]; do
-      # Every tile is tileW wide but the last, which takes what is left over.
       x=$((i * tileW))
       tw=$tileW
       if [ $((x + tw)) -gt "$w" ]; then tw=$((w - x)); fi

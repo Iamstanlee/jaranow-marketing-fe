@@ -1,29 +1,6 @@
-/* Jaranow — printed price list.
-   Emits one HTML page per list; rasterize-pricelist.sh turns them into 300dpi
-   PNGs. Body type is Rubik (the site face); prices are set in Archivo 900,
-   which matches the Archivo Black of the signs and the flyer but, unlike it,
-   actually has a naira sign - see FACES below. Both are pulled from Google
-   Fonts at render time. The lockups are the real brand SVGs, inlined.
-
-   A4 portrait, 210x297mm trim + 3mm bleed, at 300dpi:
-     trim  2480 x 3508 px
-     bleed 2551 x 3579 px  <- the emitted page size
-   Content sits 12mm inside the trim. Intended to be printed and laminated for
-   the forecourt wall or the counter - a sheet you walk up to and stand in front
-   of, not a poster. On a short list the names resolve at about 0.75m and the
-   figures at about 0.9m; the generator prints the actual figures per sheet, and
-   they fall as rows are added. See gen-sign.js if you need something
-   road-legible.
-
-   WHAT TO EDIT: the LISTS array. Services and prices are data, not markup - a
-   new service is a row in `items`, a new section is an entry in `sections`, a
-   new list is an entry in LISTS. Nothing below LISTS should need touching to
-   change what a list says.
-
-   Prices are stated as plain fact here. Do not add persuasion around them
-   ("best value", "no hidden fees", comparisons) - see the brand positioning
-   note in CLAUDE.md. A `badge` is a category marker, not a sales line: it says
-   which tier a row belongs to, it does not argue for it.
+/* Jaranow — laminated A4 price lists, 210x297mm trim + 3mm bleed at 300dpi;
+   rasterize-pricelist.sh shoots them. Edit LISTS. Prices as plain fact only -
+   keep in step with /pricing and src/data/carwashPrices.ts (CLAUDE.md "Price lists").
 
    Usage: node gen-pricelist.js <outdir>
 */
@@ -49,84 +26,24 @@ const FOOT_MM = BLEED + 8 + 10; // bottom padding: clears the accent bar too
 const HEAD_GAP = 12; // fixed air between the header block and the first row
 const SAFE = mm(SAFE_MM);
 
-/* ---------------------------------------------------------------------------
-   FACES
-
-   Body copy is Rubik. Figures are Archivo at weight 900 - so the number is the
-   loudest thing in a row, which is what a price list is for.
-
-   WHY NOT ARCHIVO BLACK, which is what the roadside panels and the A5 flyer
-   set their headlines in: Archivo Black has NO naira glyph. Google serves it
-   with the standard latin-ext unicode-range (which claims U+20A0-20AB), but the
-   font file only carries U+20A3 U+20A4 U+20A7 - no U+20A6. Set "₦2,000" in
-   Archivo Black and the browser silently falls back for that one character, so
-   the symbol arrives from whatever is next in the stack. On a sheet whose whole
-   job is naira figures, that is the wrong face.
-
-   Archivo 900 is the same superfamily from the same foundry, it carries ₦, and
-   it is a metric match rather than merely a near one - measured off the font
-   files:
-
-     digit advance   0.667em both          <- identical, so figures set the same
-     stem width (I)  0.221em both          <- identical, so the colour matches
-     cap height      0.688 vs 0.686        <- 0.3% apart
-     x-height        0.528 vs 0.526
-
-   So this is the same figure the signs draw, with a naira sign. Because the
-   face now covers the whole string there is no split span and no size trick:
-   the ₦ is simply part of the price.
-
-   Archivo is a VARIABLE font - ask for wght 900 explicitly. (Archivo Black, by
-   contrast, ships one weight, 400; that is why the two are numbered so
-   differently for the same colour.)
---------------------------------------------------------------------------- */
+/* Figures are Archivo 900, NOT Archivo Black: Archivo Black's font file has no
+   U+20A6 (₦) despite its latin-ext unicode-range, so ₦ silently falls back.
+   Archivo 900 is a measured metric match (digit 0.667em, stem 0.221em, cap
+   0.688 vs 0.686). It is variable - request wght 900 explicitly. */
 const BODY = {family: "Rubik", stack: "'Rubik',system-ui,sans-serif"};
 const FIGURE = {
     family: "Archivo",
     weight: 900,
-    /* Rubik is the fallback rather than system-ui so that anything Archivo is
-       missing lands on the other brand face, not on Helvetica. */
+    // Rubik before system-ui so a missing glyph lands on a brand face.
     stack: "'Archivo','Rubik',system-ui,sans-serif",
 };
 const FONT_HREF =
     "https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Archivo:wght@900&display=block";
 
-/* ---------------------------------------------------------------------------
-   THE LISTS — this is the input to the design.
-
-   Each list emits the price page (`<file>.html`). If it also carries a `cover`,
-   it emits a matching front (`<file>-front.html`) - a cover sheet to sit ahead
-   of the prices, same construction as the pocket cards' front/back. A list with
-   no `cover` is prices-only.
-
-   list:
-     file     output basename (price page; the front adds `-front`)
-     lockup   sub-brand lockup SVG (white, knockout - the page is Ink)
-     kicker   small line under the lockup
-     sections [{ title?, items }]  - title is optional; one untitled section
-                                     reads as a plain list. A section with no
-                                     items is skipped (and warned about), so a
-                                     section can be stubbed before its prices
-                                     are confirmed without emitting a heading
-                                     with nothing under it.
-     footer   { left, right }      - the band above the accent bar
-     note     optional single line under the footer band
-     cover    optional { headline?, sub } - if present, a front sheet is emitted.
-              headline is itself optional (the sub carries the cover without it);
-              when set it sells on care/detail, NEVER on price (positioning rule).
-
-   item:
-     name     the service
-     note     optional second line, e.g. what is included
-     price    a number in naira (formatted and grouped) OR a string, which is
-              printed verbatim for anything that is not a flat figure
-     unit     optional suffix set smaller beside the price, e.g. "/month"
-     badge    optional short marker set in a pill beside the name, e.g.
-              "Premium". Names the tier; it is not a sales line.
-
-   Every figure below is from CLAUDE.md. Do not invent a price, a turnaround or
-   a capability that is not confirmed there.
---------------------------------------------------------------------------- */
+/* `cover` ({headline?, sub}) also emits <file>-front.html; it sells on care,
+   never price. An empty section is skipped with a warning, so one can be stubbed
+   before its prices are confirmed. `price`: number (grouped) or string (verbatim).
+   `badge` names a tier; it is not a sales line. */
 const LISTS = [
     {
         file: "pricelist-carwash",
@@ -215,10 +132,7 @@ const LISTS = [
             {
                 title: "Per item",
                 items: [
-                    /* "Gown" is what a dress is called here; the rest already
-                       read the same in Nigerian English. The item lists are
-                       unchanged in scope - only the words differ, so nothing
-                       moves between the regular and special bands. */
+                    // "Gown" = dress in Nigerian English; same items as the site's lists.
                     {
                         name: "Regular items",
                         note: "Shirts, trousers, gowns, skirts, tops",
@@ -241,129 +155,64 @@ const LISTS = [
     },
 ];
 
-/* ---------------------------------------------------------------------------
-   Type metrics, measured from the actual font files rather than guessed. Used
-   only by the fit solver below - nothing here changes what the page looks like,
-   it changes what the generator can tell you about it.
---------------------------------------------------------------------------- */
+// Measured from the font files; used only by the fit solver and legibility table.
 const METRIC = {
-    /* Rubik 400, average advance per character over the confirmed note and
-       footnote strings. Good enough to predict a wrap, not a kerning table. */
+    // Rubik 400 average advance over the real note strings - enough to predict a wrap.
     bodyAdvance: 0.47,
-    /* Archivo 900 figures are tabular: every digit is 0.667em, comma 0.333em.
-       The naira sign is wide - 0.873em, appreciably more than a digit - so it
-       has to be measured rather than approximated, or the price column comes
-       out narrower than it prints. */
+    // ₦ is much wider than a digit; approximating it underestimates the price column.
     digit: 0.667,
     comma: 0.333,
     naira: 0.873,
-    /* Cap height as a fraction of font size, read off the font files. The two
-       faces are within 2% of each other, which is why a price can sit beside a
-       name at different sizes and still look aligned. Used for the legibility
-       table - swap a face without swapping its ratio and the table lies. */
+    // Swap a face without its cap ratio and the legibility table lies.
     capBody: 0.7,
     capFigure: 0.686, /* Archivo 900 */
 };
 
-/* Base sizes in mm, at density 1. The solver scales this block - and only this
-   block - so the header, footer and lockup stay identical across sheets and the
-   family still reads as one thing.
-
-   Split into `type` and `space` on purpose: they do NOT shrink at the same
-   rate. See metrics() below. */
+// mm at density 1. Only this block scales, so headers/footers match across sheets.
 const BASE = {
     type: {name: 9, note: 4.4, price: 11, unit: 4.6, badge: 3.4, title: 4.4},
     space: {rowPad: 6, gap: 16},
 };
 
-/* Two thresholds, not one, because "too small" and "unprintable" are different
-   problems and only one of them is a disaster.
-
-   COMFORT is the density below which the sheet stops being as legible as it
-   should be: at .70 the name is ~6.3mm (cap 4.4mm, comfortable at about half a
-   metre). Going under it is a real cost and gets a loud warning.
-
-   MIN is the hard stop. Between the two the solver keeps shrinking rather than
-   letting content overflow, because clipping is strictly worse than small type:
-   the page is overflow:hidden and the list is followed by the footer band, so
-   an overlong list does not lose its own last row first - it silently throws
-   away the address, the opening hours and the closing note, which are the whole
-   reason someone photographs the sheet. Small type is a compromise; a sheet
-   with no address on it is wastepaper. */
+/* Below COMFORT warns; the solver keeps shrinking to MIN rather than overflow,
+   because overflow:hidden clips the footer and note first, not the last row. */
 const DENSITY_COMFORT = 0.7;
 const DENSITY_MIN = 0.45;
 
-/* The repo's sizing rule, from gen-sign.js: about 25mm of cap height per 3m of
-   comfortable reading. Held here so the price list reports its read distance in
-   the same units the signs do. */
+// 25mm cap per 3m - the repo's sizing rule, same units as gen-sign.js.
 const readDistance = (sizeMm, capRatio) => (sizeMm * capRatio * 3) / 25;
 
-/* Type shrinks with k; air shrinks with k squared.
-
-   This is the whole trick. When a list is too long the first thing to give up
-   is whitespace, not legibility - halving the gap between rows costs a reader
-   nothing, and dropping the name from 9mm to 6mm costs them the sheet. Scaling
-   both together (the obvious thing) spends most of the squeeze on padding the
-   reader cannot see anyway, and still lands the type smaller than it needed to
-   be. Squaring the spacing term buys back roughly a millimetre of name on a
-   full sheet.
-
-   It also makes the height non-linear in k, which is why the solver bisects
-   rather than dividing. */
+/* Type scales with k, space with k² - whitespace gives way before legibility.
+   That makes height non-linear in k, hence bisection rather than division. */
 const metrics = (k) => ({
     ...Object.fromEntries(Object.entries(BASE.type).map(([n, v]) => [n, v * k])),
     ...Object.fromEntries(Object.entries(BASE.space).map(([n, v]) => [n, v * k * k])),
 });
 
-/* ₦ lives at U+20A6, which Google Fonts serves in the latin-ext subset of both
-   Rubik and Archivo. If a render comes back with a box or a mismatched glyph,
-   the subset did not load - check the network, do not swap the symbol for "N".
-   A ₦ that arrives noticeably lighter than the digits beside it means Archivo
-   failed and Rubik caught the fallback. */
+/* ₦ (U+20A6) is in the latin-ext subset. A box means it didn't load - check the
+   network, don't swap in "N". A ₦ lighter than its digits means Archivo failed. */
 const naira = (n) =>
     typeof n === "number" ? `${n.toLocaleString("en-NG")}` : n;
 
-/* inline a brand SVG at a fixed height */
 function mark(name, height) {
     let s = fs.readFileSync(path.join(SVG, `${name}.svg`), "utf8").trim();
     s = s.replace(/\swidth="[^"]*"/, "").replace(/\sheight="[^"]*"/, "");
     return s.replace("<svg ", `<svg style="height:${height}px;width:auto;display:block" `);
 }
 
-/* the symbol, oversized and faint, bleeding off the right edge */
 function watermark() {
     let s = fs.readFileSync(path.join(SVG, "jaranow-symbol-white.svg"), "utf8").trim();
     s = s.replace(/\swidth="[^"]*"/, "").replace(/\sheight="[^"]*"/, "");
     return s.replace("<svg ", '<svg class="wm" ');
 }
 
-/* ---------------------------------------------------------------------------
-   THE FIT SOLVER
+/* Fit solver: estimates list height so overflow (silent under overflow:hidden)
+   is caught here. Estimates only - always eyeball the PNG. */
 
-   The page is fixed-height with overflow:hidden, so a list that outgrows its
-   box does not make the sheet taller - it silently slides under the accent bar,
-   and nothing in the output says so. That failure mode has bitten every print
-   piece in this repo, so here it is solved rather than eyeballed: estimate the
-   natural height of the list in mm, compare it to the space between the header
-   and the footer, and scale the row block to fit.
-
-   Everything in BASE scales linearly, so the natural height scales linearly too
-   and the density is just a ratio. Adding a row therefore re-tightens the sheet
-   on its own - no hand-tuning when the rug prices land.
-
-   These are estimates. They exist to catch an overflow, not to replace looking
-   at the PNG - always eyeball the output.
---------------------------------------------------------------------------- */
-
-/* Width of the price column in mm at the given metrics - needed to know how
-   much room the name and note actually have, and therefore whether a note
-   wraps. */
 function priceWidth(it, m) {
     const s = naira(it.price);
     const digits = (s.match(/\d/g) || []).length;
     const commas = (s.match(/,/g) || []).length;
-    /* Anything that is not a digit, comma or ₦ is set in Archivo too, and is
-       body-ish copy, so measure it at the body advance. */
     const other = s.replace(/[\d,₦]/g, "").length;
     const figure =
         m.price *
@@ -388,8 +237,7 @@ function listHeight(l, m) {
         for (const it of s.items) {
             let row = m.rowPad * 2 + m.name * 1.15;
             if (it.note) {
-                /* A badge steals width from the name, not from the note, so it
-                   does not enter the wrap estimate. */
+                // Badge narrows the name line, not the note, so it's not in the wrap estimate.
                 const w = it.note.length * METRIC.bodyAdvance * m.note;
                 const lines = Math.max(1, Math.ceil(w / nameW));
                 row += 2 + m.note * 1.4 * lines;
@@ -400,9 +248,6 @@ function listHeight(l, m) {
     return h;
 }
 
-/* The space the list gets: the page, less its padding, less the header block
-   and the footer band. Header and footer do not scale, so this is a constant
-   per list (it only varies on whether the list carries a `note`). */
 function listSpace(l) {
     const content = 297 + BLEED * 2 - SAFE_MM - FOOT_MM;
     const header = 26 + 9 + 4.6 * 1.25 + HEAD_GAP; // lockup + kicker + the gap below it
@@ -411,8 +256,7 @@ function listSpace(l) {
     return content - header - foot;
 }
 
-/* Largest k in [FLOOR, 1] whose list still fits. Height is monotonic in k, so
-   30 rounds of bisection lands well inside a tenth of a millimetre. */
+// Largest k in [DENSITY_MIN, 1] that fits.
 function density(l) {
     const space = listSpace(l);
     const natural = listHeight(l, metrics(1));
@@ -442,8 +286,6 @@ function density(l) {
     };
 }
 
-/* The scaled block, emitted as custom properties so one stylesheet drives every
-   sheet at whatever density it needs. */
 const vars = (m) =>
     Object.entries(m)
         .map(([key, v]) => `--${key}:${mm(v)}px`)
@@ -609,7 +451,6 @@ const row = (it) => `<div class="row">
     <div class="price">${naira(it.price)}${it.unit ? `<span class="unit">${it.unit}</span>` : ""}</div>
   </div>`;
 
-/* An empty section emits nothing - see the `sections` note in LISTS. */
 const section = (s) =>
     !s.items.length
         ? ""
@@ -618,9 +459,6 @@ const section = (s) =>
   ${s.items.map(row).join("\n  ")}
 </div>`;
 
-/* Shared page shell - the font links and the wrapping html are identical for
-   the price page and the front, so only the body class, the density and the
-   content differ. */
 const page = (cls, body, m = metrics(1)) => `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -661,8 +499,7 @@ for (const l of LISTS) {
         `  density ${d.k.toFixed(2)}  ${Math.round(d.height)}mm into ${Math.round(d.space)}mm`
     );
 
-    /* What the reader actually gets, in the same units gen-sign.js reports.
-       Read this after changing a list - it is the whole point of the solver. */
+    // Read this after changing a list.
     for (const [label, key, cap] of [
         ["price", "price", METRIC.capFigure],
         ["name ", "name", METRIC.capBody],

@@ -1,18 +1,9 @@
 #!/bin/bash
-# Rasterize the Business Desk app icons via headless Chrome.
-#
-# Run gen-appicon.js first - this only screenshots what is already in
-# appicon/html.
-#
+# Screenshot appicon/html via headless Chrome, then resample per sizes.txt.
 #   node brand/gen-appicon.js && brand/rasterize-appicon.sh
-#
-# The j is drawn SVG geometry, not type, so unlike the other rasterizers this one
-# needs no network and has no font to fall back from. Still eyeball the PNGs.
-#
-# Each variant is rendered ONCE at RENDER px and then resampled to the sizes in
-# sizes.txt. Do not screenshot at the target size instead: headless Chrome will
-# not open a window below roughly 500px, and rather than failing it returns a
-# crop of a larger viewport - which looks like a j with most of it missing.
+# Drawn geometry, no fonts, so no network needed.
+# Rendered once at RENDER and resampled: Chrome won't open a window below ~500px
+# and silently returns a crop instead.
 set -e
 
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -29,12 +20,10 @@ mkdir -p "$PNGDIR"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-# One render per variant, at a size Chrome will actually honour.
 for variant in $(awk '{print $2}' "$SIZES" | sort -u); do
   html="$HTMLDIR/icon-$variant.html"
   [ -f "$html" ] || { echo "missing $html" >&2; exit 1; }
-  # Transparent default background so the rounded build keeps its corners; the
-  # maskable build paints the full square itself.
+  # Transparent background so the rounded build keeps its corners.
   "$CHROME" --headless=new --disable-gpu --hide-scrollbars \
     --allow-file-access-from-files \
     --default-background-color=00000000 \
@@ -48,7 +37,6 @@ done
 while read -r out variant px; do
   [ -n "$out" ] || continue
   cp "$TMP/$variant.png" "$PNGDIR/$out.png"
-  # sips ships with macOS, as does the Chrome path above; -z keeps the alpha.
   sips -z "$px" "$px" "$PNGDIR/$out.png" >/dev/null
   echo "$out.png  ${px}x${px}"
 done < "$SIZES"

@@ -8,8 +8,7 @@ import {Confirm} from '../components/Confirm';
 import {Modal} from '../components/Modal';
 import {Skeleton} from '../components/Skeleton';
 
-// Months the calendar walks back, this one included. Attendance has no history fetch behind
-// its live window (LIVE_WINDOW.attendance), so this must stay inside it.
+// Must stay inside LIVE_WINDOW.attendance: attendance has no history fetch.
 export const MONTHS = 3;
 
 export const monthsFrom = (date: Date, n: number) => new Date(date.getFullYear(), date.getMonth() + n, 1);
@@ -39,16 +38,13 @@ type ShareWeek = {
     status: 'paid' | 'owed' | 'running' | 'none'
 };
 
-// One person's month: the days they worked and what they come to. A cashier is on a fixed
-// salary with no attendance, so they get the salary panel without the calendar. The admin-only
-// handlers are absent on the staff PIN, which makes the view read-only.
+// Read-only when the admin handlers are absent (staff PIN).
 export function AttendantMonth({staff, attendance, roster, payouts, loading, weeksLoading, weekOf, onAddAdvance, onRemoveAdvance, onPayWeek, onUndoWeek}: {
     staff: Staff[];
     attendance: Attendance[];
     roster: RosterEntry[];
     payouts: Payout[];
     loading: boolean;
-    // Older weeks wait on the sales history fetch; the calendar does not.
     weeksLoading: boolean;
     weekOf: (monday: Date) => WeekPay;
     onAddAdvance?: (person: Staff, entry: Omit<Advance, 'id'>) => Promise<void>;
@@ -69,8 +65,7 @@ export function AttendantMonth({staff, attendance, roster, payouts, loading, wee
     const current = month.getTime() === thisMonth.getTime();
     const salaried = person?.attendantPay !== 'share', cashier = !person?.attendantPay;
 
-    // A week belongs to the month its payday (Sunday) falls in. Somebody now on salary keeps
-    // only the weeks they were paid for before the move.
+    // A week belongs to the month of its payday. Someone now on salary keeps only paid weeks.
     const weeks = useMemo(() => {
         if (!person) return [];
         const next = monthsFrom(month, 1).getTime(), today = startOfDay(new Date()).getTime();
@@ -219,8 +214,7 @@ const Row = ({label, value, strong}: { label: string; value: string; strong?: bo
 
 const TAG = 'w-[4.5rem] rounded-lg py-1.5 text-center text-xs font-semibold';
 
-// For an admin the status doubles as the action: an owed week is the Mark paid button, a paid
-// one is the undo.
+// For admin the status is the action: Mark paid, or Paid to undo.
 function WeekRows({weeks, onPay, onUndo}: {
     weeks: ShareWeek[];
     onPay?: (pay: WeekPay, line: PayLine) => void;
@@ -229,7 +223,6 @@ function WeekRows({weeks, onPay, onUndo}: {
     return <ul className="mt-3 space-y-2.5">{weeks.map(({pay, line, sunday, status}) => <li key={pay.week} className="flex items-center justify-between gap-3">
         <div className="min-w-0"><p className="font-medium text-slate-700">{shortDay(pay.monday)} – {shortDay(sunday)}</p>
             <p className="text-xs text-slate-400">{plural(line?.days || 0, 'day')} worked</p>
-            {/* A sale or attendance mark changed after the payout; the payout stays as paid. */}
             {line?.payout && line.drift !== 0 && <p className="text-xs text-amber-600">
                 Changed since paid — {money(Math.abs(line.drift))} {line.drift > 0 ? 'more owed' : 'overpaid'}</p>}
         </div>
@@ -247,7 +240,7 @@ function WeekRows({weeks, onPay, onUndo}: {
     </li>)}</ul>;
 }
 
-// Local time, which is what a datetime-local input reads — toISOString would hand it UTC.
+// datetime-local wants local time; toISOString would give UTC.
 const localInput = (date: Date) => {
     const two = (n: number) => String(n).padStart(2, '0');
     return `${date.getFullYear()}-${two(date.getMonth() + 1)}-${two(date.getDate())}T${two(date.getHours())}:${two(date.getMinutes())}`;

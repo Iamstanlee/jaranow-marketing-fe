@@ -79,7 +79,6 @@ const Hero: React.FC = () => {
                         </motion.div>
                     </div>
 
-                    {/* Service chooser - the two ways in */}
                     <motion.div variants={fadeInUp} className="lg:col-span-5">
                         <ul className="divide-y divide-paper/10 overflow-hidden rounded-2xl border border-paper/10 bg-white/[0.03]">
                             {entries.map((entry) => (

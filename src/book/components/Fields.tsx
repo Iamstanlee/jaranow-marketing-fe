@@ -1,8 +1,6 @@
 import {money} from '../format';
-import {SERVICES, type Service} from '../constants';
+import {PAYMENT_METHODS, SERVICES, type Service} from '../constants';
 
-// Shared by the record and correct forms, so a sale can only ever be corrected into a shape
-// it could have been recorded in.
 export const SELECT = 'mt-1 w-full rounded-xl border-slate-200';
 
 export function ServiceField({value, onChange, disabled}: {
@@ -21,16 +19,11 @@ export function PaymentField({value, onChange}: { value: string; onChange: (v: s
     return <label className="block text-sm font-medium">Payment method<select value={value}
                                                                               onChange={e => onChange(e.target.value)}
                                                                               className={SELECT}>
-        <option>Transfer</option>
-        <option>Cash</option>
-        <option>POS</option>
+        {PAYMENT_METHODS.map(m => <option key={m}>{m}</option>)}
     </select></label>;
 }
 
-// The list price is the default, not the rule: a saloon and an SUV are the same "Full wash"
-// on the board and are not always the same money at the pump, and a returning customer gets
-// something taken off. The field starts at the list price so the common case is still one
-// tap, and says plainly when what is about to be saved is not it.
+// Starts at the list price; a custom amount is allowed and flagged.
 export function PriceField({service, value, onChange, free = false}: {
     service: Service;
     value: string;

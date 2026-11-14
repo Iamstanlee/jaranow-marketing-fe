@@ -1,11 +1,7 @@
 #!/bin/bash
-# Copy the rasterized Business Desk icons into the paths the site serves them from.
-#
-# Keep this mapping in step with the icons array in public/bookkeeping-manifest.json
-# and the appleTouchIcon field for /__/book in src/seo/routes.json.
-#
-# These live under public/book/ and never overwrite public/jaranow/ - that set is
-# the Jaranow app's own icons and is a different install.
+# Copy rasterized books-app icons into public/book/.
+# Keep in step with `icons` in public/bookkeeping-manifest.json and
+# appleTouchIcon for /__/book in src/seo/routes.json. Never write public/jaranow/.
 set -e
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"

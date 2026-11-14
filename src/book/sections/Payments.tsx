@@ -1,5 +1,6 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {CalendarClock, DollarSign, PiggyBank} from 'lucide-react';
+import {PAYMENT_METHODS} from '../constants';
 import {addDays, money, percent, startOfMonth, startOfWeek} from '../format';
 import {type PayLine, SHARE_RATE, SHARE_START, weekPay, type WeekPay} from '../payments';
 import {weekSpan} from '../roster';
@@ -16,8 +17,7 @@ const dayMonth = (date: Date) => date.toLocaleDateString('en-NG', {day: 'numeric
 const weekday = (date: Date) => date.toLocaleDateString('en-NG', {weekday: 'short'});
 const daysText = (n: number) => `${n} day${n === 1 ? '' : 's'} worked`;
 
-// Both roles can read it — the cashier is the one telling attendants what they are owed —
-// but only the admin PIN marks money as handed over or records an advance.
+// Readable on both PINs; paying and advances are admin-only.
 export function Payments({sales, staff, payouts, attendance, roster, role, loading, requestHistory, historyLoading, onAddAdvance, onRemoveAdvance, onPay, onUndo}: {
     sales: Sale[];
     staff: Staff[];
@@ -37,8 +37,7 @@ export function Payments({sales, staff, payouts, attendance, roster, role, loadi
     // Never before revenue sharing began.
     const count = Math.max(1, Math.min(WEEKS, Math.round((thisMonday.getTime() - SHARE_START.getTime()) / 604_800_000) + 1));
     const firstMonday = addDays(thisMonday, -7 * (count - 1));
-    // Sales behind the live window: whichever reaches further back, the owed weeks or the
-    // months the attendant view walks.
+    // History back to the earlier of the owed weeks and the months the pay view walks.
     const reach = Math.max(SHARE_START.getTime(), Math.min(firstMonday.getTime(),
         startOfWeek(monthsFrom(thisMonth, 1 - MONTHS)).getTime()));
     useEffect(() => requestHistory(reach), [reach, requestHistory]);
@@ -49,13 +48,12 @@ export function Payments({sales, staff, payouts, attendance, roster, role, loadi
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [weekOf, thisMonday.getTime(), count]);
     const [paying, setPaying] = useState<{ pay: WeekPay; line: PayLine } | null>(null);
-    // Asked every time: it decides whether end-of-day takes the payout out of the cash count.
+    // Decides whether end-of-day deducts the payout from cash.
     const [method, setMethod] = useState('Cash');
     const [undoing, setUndoing] = useState<Payout | null>(null);
 
     const unpaid = (list: WeekPay[]) => list.flatMap(w => w.lines).filter(l => !l.payout).reduce((sum, l) => sum + l.amount, 0);
     const thisWeek = unpaid(weeks.slice(0, 1)), owed = unpaid(weeks.slice(1));
-    // This month's salary balances, cashiers included. A balance already overdrawn by advances owes nothing.
     const salaries = useMemo(() => staff.filter(p => p.active && p.attendantPay !== 'share')
             .reduce((sum, p) => sum + Math.max(0, monthPay(p, thisMonth, staff, attendance, roster, payouts).balance), 0),
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,7 +87,7 @@ export function Payments({sales, staff, payouts, attendance, roster, role, loadi
                         onUndoWeek={admin ? setUndoing : undefined}/>
 
         {paying && <Confirm title={`Pay ${paying.line.name}?`} action={`Mark ${money(paying.line.amount)} paid`}
-                            detail={`${money(paying.line.amount)} for ${daysText(paying.line.days)} in the week of ${weekSpan(paying.pay.monday)}. It is recorded as a Staff expense today, and will not change if the team does.${paying.pay.unmarked.length ? ` No attendance was marked for ${paying.pay.unmarked.map(weekday).join(', ')}, so nothing is paid for ${paying.pay.unmarked.length === 1 ? 'that day' : 'those days'}.` : ''}`}
+                            detail={`${money(paying.line.amount)} for ${daysText(paying.line.days)} in the week of ${weekSpan(paying.pay.monday)}. Recorded as a Staff expense today.${paying.pay.unmarked.length ? ` No attendance was marked for ${paying.pay.unmarked.map(weekday).join(', ')}, so nothing is paid for ${paying.pay.unmarked.length === 1 ? 'that day' : 'those days'}.` : ''}`}
                             close={() => setPaying(null)}
                             confirm={() => onPay({
                                 week: paying.pay.week,
@@ -104,13 +102,11 @@ export function Payments({sales, staff, payouts, attendance, roster, role, loadi
             <label className="mt-4 block text-sm font-medium">Paid by<select value={method}
                                                                           onChange={e => setMethod(e.target.value)}
                                                                           className="mt-1 w-full rounded-xl border-slate-200">
-                <option>Cash</option>
-                <option>Transfer</option>
-                <option>POS</option>
+                {PAYMENT_METHODS.map(m => <option key={m}>{m}</option>)}
             </select></label>
         </Confirm>}
         {undoing && <Confirm title="Undo this payment?" tone="danger" action="Undo payment" busyLabel="Undoing…"
-                             detail={`${undoing.staffName}'s ${money(undoing.amount)} goes back to owed, worked out again from the week's attendance, and its Staff expense is deleted. Only do this if the money was not handed over.`}
+                             detail={`${undoing.staffName}'s ${money(undoing.amount)} goes back to owed and its Staff expense is deleted. Only undo if the money was not handed over.`}
                              close={() => setUndoing(null)} confirm={() => onUndo(undoing)}/>}
     </>;
 }

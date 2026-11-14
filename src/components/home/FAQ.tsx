@@ -2,7 +2,7 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 import {Container, FaqItem, FaqList, SectionHeader, whatsappUrl} from '../common/ui';
 
-// Questions are phrased the way people search for them.
+// Phrased the way people search; these are SEO surface.
 const faqs: FaqItem[] = [
     {
         question: 'Where is the Jaranow car wash?',

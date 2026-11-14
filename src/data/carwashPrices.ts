@@ -1,11 +1,5 @@
-/* The full carwash price list, as printed on the laminated forecourt sheet.
-   Mirrors the `pricelist-carwash` entry in brand/gen-pricelist.js (LISTS) - the
-   generator lives outside src/ so the site cannot import it. Change one, change
-   the other, so the wall and the website never quote different figures.
-
-   `onCards` marks the three washes that also have their own card (and their own
-   figures in the five places listed in CLAUDE.md). Everything else only appears
-   in the "More prices" list and the JSON-LD built from it. */
+/* Hand-mirrors `pricelist-carwash` in brand/gen-pricelist.js (not importable); change both.
+   `onCards` rows also live in the five places listed in CLAUDE.md. */
 
 export interface PriceRow {
     name: string;

@@ -11,15 +11,8 @@ interface SeoTagsProps {
 }
 
 /**
- * Emits the title, description, canonical and social tags for a route.
- *
- * These same values are baked into static HTML at build time by
- * scripts/prerender-meta.js, because social crawlers do not run JavaScript and
- * would otherwise only ever see the tags in public/index.html. Both readers
- * share routes.json so the two can never drift.
- *
- * Page-specific extras (JSON-LD, per-service favicons, manifests) stay in the
- * page's own Helmet.
+ * Runtime half only: crawlers see the copy scripts/prerender-meta.js bakes from the
+ * same routes.json. Page-specific JSON-LD stays in the page's own Helmet.
  */
 const SeoTags: React.FC<SeoTagsProps> = ({route}) => {
     const meta = routes.routes[route];

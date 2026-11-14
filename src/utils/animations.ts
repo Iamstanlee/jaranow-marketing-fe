@@ -1,11 +1,8 @@
-// Utility functions for performance-optimized animations
-
 export const getReducedMotionPreference = (): boolean => {
   if (typeof window === 'undefined') return false;
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 };
 
-// Optimized animation variants that respect reduced motion preferences
 export const fadeInVariants = {
   hidden: { opacity: 0, y: getReducedMotionPreference() ? 0 : 20 },
   visible: {
@@ -66,7 +63,6 @@ export const fadeInUp = {
   }
 };
 
-// Debounced scroll handler for performance
 export const throttle = (func: Function, delay: number) => {
   let timeoutId: NodeJS.Timeout;
   let lastExecTime = 0;

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {lazy, Suspense, useEffect, useState} from 'react';
 import {
     BarChart3,
     ClipboardCheck,
@@ -25,10 +25,12 @@ import {Eod} from '../book/sections/Eod';
 import {Expenses} from '../book/sections/Expenses';
 import {LoyaltySection} from '../book/sections/Loyalty';
 import {Overview} from '../book/sections/Overview';
-import {Payments} from '../book/sections/Payments';
-import {Reports} from '../book/sections/Reports';
 import {Sales} from '../book/sections/Sales';
-import {Staff} from '../book/sections/Staff';
+
+// Heavier sections load on first visit, so the desk paints Overview sooner.
+const Payments = lazy(() => import('../book/sections/Payments').then(m => ({default: m.Payments})));
+const Reports = lazy(() => import('../book/sections/Reports').then(m => ({default: m.Reports})));
+const Staff = lazy(() => import('../book/sections/Staff').then(m => ({default: m.Staff})));
 
 export default function Bookkeeping() {
     const [session, setSession] = useState<Session | null>(readSession), [pin, setPin] = useState(''), [pinError, setPinError] = useState('');
@@ -48,10 +50,7 @@ export default function Bookkeeping() {
     const book = useBook(day, toast);
     const {ready} = book;
 
-    // Only covers arriving here by client-side navigation. What makes the app installable
-    // is the manifest baked into build/__/book/index.html by scripts/prerender-meta.js —
-    // by the time this effect runs the browser has already read whatever manifest the
-    // document shipped with, and an install captured then carries the wrong start_url.
+    // Client-side navigation only; installs rely on the prerendered manifest (see CLAUDE.md "SEO").
     useEffect(() => {
         const manifest = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
         const previousManifest = manifest?.getAttribute('href');
@@ -64,18 +63,13 @@ export default function Bookkeeping() {
         };
     }, []);
 
-    // The desk is rarely reloaded, so waiting for one to notice the session has aged out would
-    // leave it unlocked for days. The timer locks it the moment 24h is up; the visibility check
-    // covers a tablet that was asleep across the expiry, where the timer fires late or not at
-    // all. Both re-read storage, so locking in one tab is picked up by the others on focus.
+    // Lock on expiry without a reload; the visibility check covers a tablet asleep past it.
     useEffect(() => {
         if (!session) return;
         const check = () => {
             if (!readSession()) {
                 setSession(null);
                 setPin('');
-                // Says why the PIN screen is back — otherwise an expiry looks like the desk
-                // logged itself out for no reason, or like someone else locked it.
                 toast('Session expired — the book was locked.', 'warning');
             }
         };
@@ -89,8 +83,6 @@ export default function Bookkeeping() {
 
     const login = (e: React.FormEvent) => {
         e.preventDefault();
-        // Which role you were let in as decides what you can see (reports are admin-only), so
-        // the unlock says it rather than leaving it to be inferred from the sidebar.
         const unlock = (as: Role) => {
             setSession(writeSession(as));
             toast(`Book unlocked — ${as} access.`);
@@ -100,8 +92,7 @@ export default function Bookkeeping() {
 
     if (!role) return <><PinGate pin={pin} setPin={setPin} error={pinError} login={login}/><Toasts toasts={toasts}
                                                                                                    dismiss={dismiss}/></>;
-    // The rota is on the menu for both roles: staff read it, admin sets it. Reports stay
-    // admin-only — the difference is that a rota is about the people, and the books are not.
+    // Reports are admin-only; sections enforce their own write permissions.
     const nav: Array<{ id: Section; label: string; icon: typeof LayoutDashboard }> = [{
         id: 'overview',
         label: 'Overview',
@@ -120,7 +111,6 @@ export default function Bookkeeping() {
         label: 'Staff',
         icon: SquareUserRound
     },  {
-        // Readable on the staff PIN; the section itself keeps payouts and advances admin-only.
         id: 'payments',
         label: 'Payments',
         icon: PiggyBank
@@ -130,7 +120,7 @@ export default function Bookkeeping() {
         <aside
             className={`fixed inset-y-0 left-0 z-30 w-64 border-r border-slate-200 bg-white px-5 py-6 transition-transform md:translate-x-0 ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="mb-10 flex items-center gap-3">
-                <div><p className="text-lg font-bold">jaranow</p><p className="text-xs text-slate-400">Business desk</p>
+                <div><p className="text-lg font-bold">jaranow</p><p className="text-xs text-slate-400">Book</p>
                 </div>
                 <button onClick={() => setMenuOpen(false)} className="ml-auto md:hidden"><X size={20}/></button>
             </div>
@@ -144,7 +134,7 @@ export default function Bookkeeping() {
                     <Icon size={19}/>{item.label}</button>;
             })}</nav>
             <div className="absolute bottom-6 left-5 right-5 rounded-2xl bg-slate-900 p-4 text-white"><p
-                className="text-sm font-semibold">Jaranow Car wash</p><p
+                className="text-sm font-semibold">Jaranow car wash</p><p
                 className="mt-1 text-xs capitalize text-slate-400">{role} access</p>
                 <button onClick={lock}
                         className="mt-4 flex items-center gap-2 text-xs text-slate-300"><LogOut size={14}/> Lock book
@@ -164,7 +154,7 @@ export default function Bookkeeping() {
             </header>
             {book.syncError && <div role="alert"
                                     className="border-b border-amber-200 bg-amber-50 px-5 py-3 text-sm text-amber-800 md:px-9">{book.syncError}</div>}
-            <div className="mx-auto max-w-7xl p-5 md:p-9">{section === 'overview' &&
+            <div className="mx-auto max-w-7xl p-5 md:p-9"><Suspense fallback={<div role="status" aria-busy aria-label="Loading" className="h-40 animate-pulse rounded-2xl bg-slate-100"/>}>{section === 'overview' &&
                 <Overview totals={book.totals} sales={book.todaySales} expenses={book.todayExpenses}
                           staff={book.staff} roster={book.roster}
                           loading={!ready.sales || !ready.expenses}
@@ -188,7 +178,7 @@ export default function Bookkeeping() {
                        onAddStaff={book.addStaff} onUpdateStaff={book.updateStaff} onRemoveStaff={book.removeStaff}
                        onAssign={book.assignDuty} onUpdateDuty={book.updateDuty}
                        onRemoveDuty={book.removeDuty}/>} {section === 'eod' &&
-                <Eod totals={book.totals} expenses={book.expenseRecords}
+                <Eod totals={book.totals} expenses={book.todayExpenses}
                      loading={!ready.sales || !ready.expenses}/>} {section === 'reports' && role === 'admin' &&
                 <Reports sales={book.sales} loyalty={book.loyalty} expenses={book.expenseRecords}
                          loading={!ready.sales || !ready.loyalty || !ready.expenses}
@@ -199,7 +189,7 @@ export default function Bookkeeping() {
                           loading={!ready.sales || !ready.staff || !ready.payouts || !ready.attendance || !ready.roster}
                           requestHistory={book.requestHistory} historyLoading={book.historyLoading}
                           onAddAdvance={book.addAdvance} onRemoveAdvance={book.removeAdvance}
-                          onPay={book.markPaid} onUndo={book.undoPayout}/>}</div>
+                          onPay={book.markPaid} onUndo={book.undoPayout}/>}</Suspense></div>
         </main>
         {saleModal && <SaleModal members={book.loyalty} close={() => setSaleModal(false)} save={book.addSale}/>}
         {expenseModal && <ExpenseModal close={() => setExpenseModal(false)} save={book.addExpense}/>}

@@ -4,15 +4,11 @@ import {money, percent} from '../format';
 import type {Expense} from '../types';
 import {Skeleton} from '../components/Skeleton';
 
-// --- Where the money goes ----------------------------------------------------------
 const RAMP = ['#0d366b', '#1c5cab', '#2a78d6', '#5598e7', '#86b6ef'];
-// "Other" is the residual bucket, not a rank, so it sits outside the ramp in neutral
-// slate however big it grows.
+// "Other" is a residual, not a rank, so it stays neutral.
 const OTHER = '#64748b';
 
 const R = 38, STROKE = 16, CIRCUMFERENCE = 2 * Math.PI * R;
-// Cut out of every arc so neighbouring slices never touch — the ring reads as parts
-// rather than as one band that happens to change colour.
 const GAP = 0.8;
 
 type Slice = { category: string; amount: number; share: number; color: string; detail?: string };
@@ -26,19 +22,14 @@ function breakdown(expenses: Expense[]) {
     }
     const named = Array.from(totals).filter(([category]) => category !== 'Other').sort((a, b) => b[1] - a[1]);
     const head = named.slice(0, RAMP.length);
-    // Anything past the ramp joins whatever was already filed as "Other" — a tail of
-    // slivers is noise on a ring, and it is one number to the person reading it. There are
-    // nine categories against five ramp steps, so this fires often: the folded names are
-    // carried through and printed, because "Other ₦48,000" that will not say what it is
-    // sends someone to the expense ledger to find out.
+    // Categories past the ramp fold into "Other", which lists their names.
     const rest = named.slice(RAMP.length);
     const tail = rest.reduce((sum, [, amount]) => sum + amount, 0) + (totals.get('Other') ?? 0);
     const slices: Slice[] = head.map(([category, amount], i) => ({
         category,
         amount,
         share: amount / (total || 1),
-        // Spread across the whole ramp rather than taking it from the dark end, so two
-        // categories come out darkest-and-lightest instead of two near-identical navies.
+        // Spread across the ramp so two slices are not near-identical navies.
         color: RAMP[Math.round((i * (RAMP.length - 1)) / Math.max(1, head.length - 1))]
     }));
     if (tail > 0) slices.push({
@@ -60,14 +51,11 @@ export function ExpenseBreakdown({expenses, revenue, period, loading}: {
     const [active, setActive] = useState<number | null>(null);
     const {slices, total} = useMemo(() => breakdown(expenses), [expenses]);
     const shown = active !== null && slices[active] ? slices[active] : null;
-    // The ring is drawn from true shares; only the drawn length loses the gap, so the
-    // slices stay in the right places however many there are.
     let offset = 0;
     const arcs = slices.map(slice => {
         const length = slice.share * CIRCUMFERENCE, at = offset;
         offset += length;
-        // A sliver thinner than the gap would otherwise draw as nothing at all, and a
-        // category with no mark against its legend row reads as a bug.
+        // A minimum length so a sliver still draws.
         return {slice, at, length: length ? Math.max(0.8, length - GAP) : 0};
     });
 
@@ -85,8 +73,6 @@ export function ExpenseBreakdown({expenses, revenue, period, loading}: {
                 recorded in this period.</p>
                 : <div className="mt-6 flex flex-col items-center gap-8 sm:flex-row sm:items-center sm:gap-10">
                     <div className="relative h-52 w-52 shrink-0">
-                        {/* The ring carries no text of its own — every figure is in the list
-                            beside it, which is also what a screen reader gets. */}
                         <svg aria-hidden viewBox="0 0 100 100" className="h-full w-full -rotate-90">
                             {arcs.map(({slice, at, length}, i) => <circle key={slice.category} cx="50" cy="50" r={R}
                                                                           fill="none" stroke={slice.color}

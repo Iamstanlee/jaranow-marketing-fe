@@ -13,7 +13,7 @@ export interface WashOption {
     featured?: boolean;
 }
 
-/** One wash, stated plainly. The featured card is set on Ink rather than badged. */
+/** The featured card is set on Ink rather than badged. */
 export const WashOptionCard: React.FC<{ option: WashOption; onBook: () => void }> = ({option, onBook}) => {
     const dark = option.featured;
     return (
@@ -50,8 +50,6 @@ export const WashOptionCard: React.FC<{ option: WashOption; onBook: () => void }
     );
 };
 
-/** "More prices" - the whole forecourt price list, folded away under the cards
- *  so the three everyday washes stay the first thing people see. */
 export const MoreCarwashPrices: React.FC = () => {
     const [open, setOpen] = useState(false);
 

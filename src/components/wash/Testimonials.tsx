@@ -1,8 +1,7 @@
 import React from 'react';
 import {Container, SectionHeader, Testimonial, TestimonialGrid} from '../common/ui';
 
-// The trust badges (insured, 4.9/5, 500+ orders, money-back) and the stats block
-// that used to sit around these were unverified and have been removed.
+// No trust badges or stats: none were verified.
 const testimonials: Testimonial[] = [
   {
     name: 'Adebayo Johnson',

@@ -4,8 +4,6 @@ import {Plus} from 'lucide-react';
 import Drop from './Drop';
 import {fadeInUp} from '../../utils/animations';
 
-/* Shared building blocks for the marketing pages, so every page reads as one
-   system: Ink and Paper grounds, Jaranow Blue as the only accent (BRAND-STANDARD §4). */
 
 export type Tone = 'light' | 'dark';
 
@@ -18,7 +16,7 @@ export const openWhatsApp = (message: string) => {
     window.open(whatsappUrl(message), '_blank');
 };
 
-// Buttons. Pills throughout; the accent is reserved for the main action on a surface.
+// The accent is reserved for the main action on a surface.
 const btnBase =
     'inline-flex items-center justify-center gap-2 rounded-full px-7 py-4 font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2';
 export const btn = {
@@ -30,7 +28,7 @@ export const btn = {
     ghostOnAccent: `${btnBase} border border-white/40 text-white hover:border-white hover:bg-white/10`,
 };
 
-/** Hover lift for buttons and cards - the only motion allowed outside hero entrances. */
+/** The only motion allowed outside hero entrances (see CLAUDE.md "Animation"). */
 export const Lift: React.FC<{ children: React.ReactNode; className?: string }> = ({children, className}) => (
     <motion.div whileHover={{y: -2}} whileTap={{scale: 0.98}} className={className}>
         {children}
@@ -41,7 +39,7 @@ export const Container: React.FC<{ children: React.ReactNode; className?: string
     <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>{children}</div>
 );
 
-/** Small all-caps label: Rubik 500, wide tracking (§6.1 - never all-caps at 400). */
+/** §6.1: never all-caps at weight 400. */
 export const Eyebrow: React.FC<{ children: React.ReactNode; tone?: Tone; className?: string }> = ({
     children,
     tone = 'light',
@@ -64,7 +62,7 @@ interface SectionHeaderProps {
     className?: string;
 }
 
-/** Eyebrow + Archivo Black heading + optional intro. One display line per screen (§6.2). */
+/** One display line per screen (§6.2). */
 export const SectionHeader: React.FC<SectionHeaderProps> = ({eyebrow, title, intro, tone = 'light', className = ''}) => (
     <div className={className}>
         <Eyebrow tone={tone}>{eyebrow}</Eyebrow>
@@ -83,7 +81,6 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({eyebrow, title, int
     </div>
 );
 
-/** The dot field and cropped ghost drop that sit behind every Ink hero. */
 export const InkBackdrop: React.FC = () => (
     <>
         <div
@@ -98,8 +95,7 @@ export const InkBackdrop: React.FC = () => (
     </>
 );
 
-/** Hero h1 for the landing pages. The kicker carries the plain search phrase
- *  ("Car wash in Gwarinpa, Abuja"); the display line carries the voice. */
+/** Kicker carries the plain search phrase, display line the voice (CLAUDE.md "SEO copy pattern"). */
 export const HeroTitle: React.FC<{ kicker: string; children: React.ReactNode; className?: string }> = ({
     kicker,
     children,
@@ -118,13 +114,11 @@ interface PageHeroProps {
     children?: React.ReactNode;
 }
 
-/** Compact Ink band for utility pages (pricing, plan finder). Clears the fixed header. */
 export const PageHero: React.FC<PageHeroProps> = ({eyebrow, title, intro, children}) => (
     <section className="relative overflow-hidden bg-ink text-white">
         <InkBackdrop/>
         <Container className="relative pt-32 pb-14 sm:pt-40 sm:pb-16">
-            {/* The eyebrow is part of the h1: it carries the plain search phrase,
-                the display line carries the voice. */}
+            {/* Eyebrow is inside the h1 on purpose: it carries the search phrase. */}
             <h1>
                 <span className="block text-xs font-medium uppercase tracking-[0.25em] text-primary-400">{eyebrow}</span>
                 <span className="heading-display mt-5 block max-w-3xl text-[2.5rem] leading-[1.04] sm:text-6xl">{title}</span>
@@ -135,7 +129,6 @@ export const PageHero: React.FC<PageHeroProps> = ({eyebrow, title, intro, childr
     </section>
 );
 
-/** A fact row for hero side panels: small label over a plain value. */
 export interface Fact {
     icon: React.ReactNode;
     label: string;
@@ -158,8 +151,7 @@ export const FactPanel: React.FC<{ facts: Fact[] }> = ({facts}) => (
     </dl>
 );
 
-/** The closing blue band: one heading, one line, the actions as children.
- *  The only full accent surface on a page (§9 - accent is punctuation). */
+/** The only full-accent surface on a page (§9). */
 export const CtaBand: React.FC<{ title: string; body: string; children: React.ReactNode }> = ({title, body, children}) => (
     <section className="bg-paper px-4 pb-20 sm:px-6 sm:pb-28 lg:px-8">
         <div className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl bg-primary-600 px-7 py-14 text-white sm:px-14 sm:py-20">
@@ -173,7 +165,6 @@ export const CtaBand: React.FC<{ title: string; body: string; children: React.Re
     </section>
 );
 
-/** 2x2 numbered grid, used for the four values and anything shaped like them. */
 export const NumberedGrid: React.FC<{ items: Array<{ title: string; body: string }>; tone?: Tone; className?: string }> = ({
     items,
     tone = 'light',
@@ -199,7 +190,6 @@ export const NumberedGrid: React.FC<{ items: Array<{ title: string; body: string
     );
 };
 
-/** Numbered steps laid out across the page, joined by a rule on desktop. */
 export const StepRow: React.FC<{ steps: Array<{ title: string; body: string }> }> = ({steps}) => (
     <ol className={`grid gap-10 md:gap-8 ${steps.length === 4 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
         {steps.map((step, index) => (
@@ -227,7 +217,7 @@ export interface Testimonial {
 const initials = (name: string) =>
     name.split(' ').map((part) => part[0]).join('').slice(0, 2);
 
-/** Three quotes on Ink. No star ratings - they were never verified. */
+/** No star ratings: they were never verified. */
 export const TestimonialGrid: React.FC<{ testimonials: Testimonial[] }> = ({testimonials}) => (
     <ul className="grid gap-6 md:grid-cols-3">
         {testimonials.map((t) => (
@@ -260,7 +250,6 @@ export interface FaqItem {
     answer: React.ReactNode;
 }
 
-/** Accordion on a light ground. First item open by default. */
 export const FaqList: React.FC<{ items: FaqItem[]; idPrefix: string; className?: string }> = ({items, idPrefix, className = ''}) => {
     const [openIndex, setOpenIndex] = useState<number | null>(0);
 

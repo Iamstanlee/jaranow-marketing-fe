@@ -1,32 +1,10 @@
 #!/usr/bin/env node
 /**
- * Bakes per-route social metadata into static HTML after the CRA build.
+ * Writes one static HTML file per route in src/seo/routes.json with its meta tags
+ * baked in, because share crawlers do not run JS (see CLAUDE.md "SEO").
  *
- * Why this exists: this is a client-rendered SPA, so react-helmet-async only
- * sets the document head once JavaScript has run. Facebook, WhatsApp, Twitter,
- * LinkedIn and friends do not run JavaScript - they read the raw HTML response.
- * Because every route is served the same public/index.html, every share preview
- * fell back to the homepage's tags.
- *
- * This script writes one real HTML file per route, each carrying that route's
- * own title/description/og:image, so a crawler gets the right answer without
- * executing anything. The app itself is untouched - the bundle still boots and
- * takes over as normal.
- *
- * Metadata comes from src/seo/routes.json, which is the same file the runtime
- * <SeoTags> component reads, so the static and client tags cannot drift.
- *
- * Two per-route fields here are about load time rather than crawlers, and apply
- * only to the route that declares them:
- *
- *   preloadChunk  Emit <link rel="preload"> for a lazy route's own chunk and the
- *                 siblings webpack loads alongside it. Without it the browser
- *                 cannot know a route needs those files until main.js has parsed
- *                 and React has matched the route - three serial round trips to
- *                 first paint instead of one.
- *   lean          Drop the marketing head this document inherits from
- *                 public/index.html: analytics, third-party preconnects, the hero
- *                 logo preload, and the display face. For internal tools.
+ *   preloadChunk  preload a lazy route's chunk group, saving serial round trips.
+ *   lean          strip the marketing head (analytics, pixel, display face).
  */
 
 const fs = require('fs');
@@ -37,7 +15,6 @@ const BUILD_DIR = path.join(ROOT, 'build');
 const SOURCE_HTML = path.join(BUILD_DIR, 'index.html');
 const ROUTES_FILE = path.join(ROOT, 'src', 'seo', 'routes.json');
 
-/** Escape a value for use inside a double-quoted HTML attribute. */
 function escapeAttr(value) {
   return String(value)
     .replace(/&/g, '&amp;')
@@ -46,7 +23,6 @@ function escapeAttr(value) {
     .replace(/"/g, '&quot;');
 }
 
-/** Escape a value for use as HTML text content. */
 function escapeText(value) {
   return String(value)
     .replace(/&/g, '&amp;')
@@ -54,11 +30,6 @@ function escapeText(value) {
     .replace(/>/g, '&gt;');
 }
 
-/**
- * Remove the tags we are about to replace, so a route never ends up with both
- * the homepage's version and its own. Anything not listed here (fonts, icons,
- * manifest, analytics) is deliberately left alone.
- */
 function stripManagedTags(html) {
   return html
     .replace(/<title>[\s\S]*?<\/title>/gi, '')
@@ -68,10 +39,7 @@ function stripManagedTags(html) {
     .replace(/<meta\s+name="twitter:[^"]*"[^>]*>/gi, '');
 }
 
-/**
- * Only for routes that declare their own: dropping these unconditionally would
- * leave every other route without a manifest or theme colour.
- */
+// Conditional: stripping unconditionally would leave other routes with no manifest.
 function stripAppTags(html, meta) {
   let out = html;
   if (meta.manifest) out = out.replace(/<link\s+rel="manifest"[^>]*>/gi, '');
@@ -81,17 +49,9 @@ function stripAppTags(html, meta) {
 }
 
 /**
- * Webpack does not write a route -> chunk map we can read, so we recover one from
- * the built main.js, which contains both halves of it:
- *
- *   - the runtime's id -> contenthash table, e.g. {40:"fe2ea15a",533:"857b4646"}
- *   - each lazy import compiled to Promise.all([n.e(920),n.e(703),n.e(533)])
- *
- * A named chunk (webpackChunkName) lands as `<name>.<hash>.chunk.js` on disk, so we
- * find the file, take its id from the runtime table, and preload the whole group
- * that mentions it. Everything here degrades to "no preload tags" rather than
- * failing the build: a webpack upgrade that changes this output should cost the
- * optimisation, not the deploy.
+ * Webpack writes no route -> chunk map, so recover one from main.js: the runtime's
+ * {id:"hash"} table plus each lazy import's Promise.all([n.e(id),...]) group.
+ * Every failure returns null (no preload) so a webpack change never breaks the build.
  */
 function findChunkGroup(chunkName) {
   const jsDir = path.join(BUILD_DIR, 'static', 'js');
@@ -108,7 +68,6 @@ function findChunkGroup(chunkName) {
   if (!mainFile) return null;
   const main = fs.readFileSync(path.join(jsDir, mainFile), 'utf8');
 
-  // id -> contenthash, from the runtime's chunk filename helper.
   const table = main.match(/\{(?:\d+:"[a-f0-9]+",){2,}\d+:"[a-f0-9]+"\}/);
   if (!table) return null;
   const byId = new Map();
@@ -118,9 +77,7 @@ function findChunkGroup(chunkName) {
   const entryId = [...byId].find(([, hash]) => hash === entryHash)?.[0];
   if (!entryId) return null;
 
-  // The lazy import group that pulls this chunk in. Its siblings are the vendor
-  // chunks (firebase, and whatever else webpack split out) that the route cannot
-  // start rendering without, so they are exactly what is worth preloading.
+  // Siblings in the group are the vendor chunks the route cannot render without.
   for (const [, group] of main.matchAll(/Promise\.all\(\[([^\]]*)\]\)/g)) {
     const ids = [...group.matchAll(/\.e\((\d+)\)/g)].map((m) => m[1]);
     if (!ids.includes(entryId)) continue;
@@ -129,7 +86,6 @@ function findChunkGroup(chunkName) {
       .filter(Boolean)
       .map((file) => `/static/js/${file}`);
   }
-  // A chunk not inside a Promise.all group is loaded on its own.
   return [`/static/js/${entry}`];
 }
 
@@ -140,12 +96,6 @@ function preloadTags(chunkName) {
   return chunks.map((href) => `<link rel="preload" as="script" href="${escapeAttr(href)}"/>`);
 }
 
-/**
- * The marketing head, removed for routes that are not marketing pages. Each of these
- * costs a connection or a render-blocking request on a page that has no use for it:
- * a PIN-gated internal tool does not need product analytics, the Meta Pixel, a customer chat widget,
- * the homepage hero logo, or the display face it never sets.
- */
 function stripMarketingHead(html) {
   return html
     .replace(/<script[^>]*googletagmanager\.com[^>]*><\/script>/gi, '')
@@ -156,8 +106,7 @@ function stripMarketingHead(html) {
     .replace(/<noscript><img[^>]*facebook\.com\/tr[^>]*\/><\/noscript>/gi, '')
     .replace(/<link\s+rel="(?:preconnect|dns-prefetch)"[^>]*(?:googletagmanager|google-analytics|ahrefs|chatway)[^>]*>/gi, '')
     .replace(/<link\s+rel="preload"\s+as="image"[^>]*>/gi, '')
-    // Keep Rubik, which is the desk's body face; drop Archivo Black, which is a
-    // signage face used only by the marketing pages (see BRAND-STANDARD 6.2).
+    // Keep Rubik (body face); Archivo Black is marketing-only (BRAND-STANDARD 6.2).
     .replace(/(<link[^>]+fonts\.googleapis\.com[^>]*)&(?:amp;)?family=Archivo\+Black/gi, '$1');
 }
 
@@ -169,16 +118,12 @@ function buildTags(routePath, meta, config) {
     `<title>${escapeText(meta.title)}</title>`,
     `<meta name="description" content="${escapeAttr(meta.description)}"/>`,
     `<link rel="canonical" href="${escapeAttr(url)}"/>`,
-    // An installable route needs its manifest in the first byte of the response.
-    // Swapping the <link> from JavaScript once the page has booted is too late: the
-    // browser has already read a manifest by then, and an install captured at that
-    // moment carries the wrong start_url.
+    // Must be in the served HTML: a JS swap is too late, installs get the wrong start_url.
     ...(meta.manifest ? [`<link rel="manifest" href="${escapeAttr(meta.manifest)}"/>`] : []),
     ...(meta.themeColor ? [`<meta name="theme-color" content="${escapeAttr(meta.themeColor)}"/>`] : []),
     // iOS ignores the manifest's icons when adding to the home screen.
     ...(meta.appleTouchIcon ? [`<link rel="apple-touch-icon" href="${escapeAttr(meta.appleTouchIcon)}"/>`] : []),
     ...(meta.noindex ? [`<meta name="robots" content="noindex, nofollow"/>`] : []),
-    // Load-time plumbing, not metadata - see the preloadChunk note at the top.
     ...(meta.preloadChunk ? preloadTags(meta.preloadChunk) : []),
     `<meta property="og:type" content="website"/>`,
     `<meta property="og:site_name" content="${escapeAttr(meta.siteName)}"/>`,

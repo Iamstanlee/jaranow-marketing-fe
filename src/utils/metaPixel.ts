@@ -1,7 +1,4 @@
-/* Meta Pixel events. The pixel itself (and its PageView) is loaded in
-   public/index.html; the books app at /__/book has it stripped at build time
-   (scripts/prerender-meta.js), so window.fbq can be missing - every call is
-   guarded and silently does nothing then, or when an ad blocker removes it. */
+// fbq is absent on /__/book (stripped at build) and under ad blockers, so every call is guarded.
 
 declare global {
     interface Window {
@@ -9,8 +6,7 @@ declare global {
     }
 }
 
-/** A booking form was submitted - the visitor is about to message us on
- *  WhatsApp. `formName` tells the forms apart in Events Manager. */
+/** Fire after validation, just before WhatsApp opens. `name` is the content_name in Events Manager. */
 export const trackLead = (name: string) => {
     window.fbq?.('track', 'Lead', {content_name: name});
 };

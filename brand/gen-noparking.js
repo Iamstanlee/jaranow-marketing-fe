@@ -1,57 +1,8 @@
-/* Jaranow — "No parking" notice.
-
-   The one piece in the system that has to be OBEYED rather than admired, and
-   that changes how it is built.
-
-   ---- what this is not ----
-   It is a PRIVATE-PROPERTY NOTICE, not a statutory traffic sign. It carries no
-   legal force on its own, and it deliberately does not imitate one: no red, no
-   circle-and-bar roundel, no reflective spec. Two reasons, and both matter.
-
-     - BRAND-STANDARD §4.2, one accent at a time. Red is a second accent hue and
-       there is no version of this that gets an exemption.
-     - A blue roundel is a counterfeit road sign. It reads as one at a glance,
-       carries none of the authority, and looks worse the closer you get.
-
-   If a site actually needs enforceable signage - a tow-away notice, a statutory
-   restriction, anything that has to stand up when a car is clamped - that is a
-   regulated artefact with prescribed colours and wording. It is a different job
-   and it does not belong in this file.
-
-   ---- the design ----
-   Prohibition first, brand second, and NOTHING ELSE. The lockup, the headline,
-   the accent bar. An earlier version carried a reason line and a number to call
-   if somebody was blocked in; that was removed deliberately, and the copy is
-   parked in COPY below rather than deleted.
-
-   What the sheet gives up in warmth it gets back in obedience: a notice read
-   from a moving car has one job, and every additional line is something the
-   driver is not reading. It is also the only piece in the system with no
-   sentence on it at all, which is itself a signal - anything on this wall with
-   a paragraph is marketing, and this is not.
-
-   The headline is knocked out of a FULL-BLEED ACCENT BLOCK rather than set on
-   the field like every other piece. That is deliberate: a colour block spanning
-   the full width has the visual grammar of a sign, and this notice has to be
-   distinguishable at a glance from the marketing on the same wall. Somebody who
-   reads it as an advert ignores it.
-
-   ---- three formats, one design ----
-   Same composition at three scales. The differences are which line the headline
-   breaks on and how far it reads:
-
-     a3    297x420   plate on a wall beside the bay        ~4.5m
-     a2    420x594   plate on the frontage                 ~6.4m
-     gate  900x300   strip for a gate, rail or bay head    ~8.3m
-
-   The strip reads furthest despite being the shortest sheet, for the same
-   reason the landscape roadside panel beats the portrait one: "NO PARKING" fits
-   on ONE line there, and one line is not width-bound by the longer word. Prefer
-   it wherever there is somewhere to fix it.
-
-   TYPE IS SIZED FROM VIEWING DISTANCE, NOT BY EYE - the script prints what each
-   element resolves at. 300dpi with 3mm bleed, same as the other print pieces;
-   these are plates, not large format.
+/* Jaranow — "No parking" notice: a3 / a2 plates and a 900x300 gate strip, plus
+   an A3 comparison sheet. 300dpi + 3mm bleed (plates, not large format).
+   No red, no roundel, nothing but lockup + headline + bar - all deliberate, see
+   CLAUDE.md "No-parking notices". Not a statutory sign; enforceable signage is
+   a different, regulated job.
 
    Usage: node gen-noparking.js <outdir>
 */
@@ -70,56 +21,34 @@ const DPI = 300;
 const BLEED = 3;
 const px = (n) => Math.round((n * DPI) / 25.4);
 
-/* The sub-brand lockup's frame is 625.7 x 207 (BRAND-STANDARD §3), so its
-   height is a fixed fraction of whatever width it is set at. Needed below to
-   balance the plate: the lockup sits ABOVE the block and its mass has to be
-   answered by equal space below, or the block rides high on the sheet. */
+// §3 sub-brand frame; used to balance space under the block against the lockup above.
 const LOCKUP_RATIO = 207 / 625.7;
 
 const HEADLINE = { family: "Archivo Black", weight: 400, capRatio: 0.72 };
 const BODY = { family: "Rubik", capRatio: 0.72 };
 
-/* ~120x cap height is a comfortable read; glance-legible is roughly double. */
+// ~120x cap height is a comfortable read; glance-legible is roughly double.
 const capOf = (fontMm, face) => fontMm * face.capRatio;
 const readAt = (fontMm, face) => (capOf(fontMm, face) * 120) / 1000;
 
-/* ---- the copy ----
-   One message, printed at three sizes. `headline` is an array of lines, so the
-   break is chosen rather than left to wrapping - Archivo Black measures roughly
-   0.67 x its font size per capital, and "PARKING" alone is 4.7x, which is what
-   caps the portrait plates.
-
-   The reason is given as lines for the same reason: a notice that wraps
-   differently on each plate stops looking like one notice. */
+// Headline lines are explicit so every plate breaks the same way.
 const COPY = {
   headline: ["NO", "PARKING"],
   headlineOneLine: ["NO PARKING"],
-  /* The notice is DELIBERATELY the lockup and the headline, nothing else.
-     It carried a reason line and a contact block and they were removed on
-     purpose - so re-adding them is a decision, not a fix. Kept here because
-     they are the copy to bring back if the sheet ever needs to explain itself:
+  /* Parked copy - removed deliberately; re-adding is a decision, not a fix:
 
        reason:    ["We move cars in and out all day.",
                    "Please keep this space clear."]
        footLabel: "Blocked in, or need a car moved?"
        tel:       "0903 862 2012"
 
-     Anything restored has to be re-solved against the height table below, not
-     just dropped in: the gate strip's headline is 110mm precisely BECAUSE
-     nothing sits under the block, and it was 90mm when something did. */
+     Anything restored must be re-solved against the height table: the strip's
+     110mm headline depends on nothing sitting under the block. */
 };
 
-/* ---- formats ----
-   `stack` is the portrait plate; `strip` is the same composition laid out
-   horizontally. Headline sizes are solved from the block's inner width against
-   a MEASURED metric: Archivo Black runs ~0.706 x its font size per capital at
-   this tracking, so "PARKING" is 4.94x and "NO PARKING" 7.06x. Every figure
-   below leaves ~10% of slack either side; do not spend it, because a headline
-   that reaches the block edge reads as a mistake even though the block bleeds.
-
-   The block carries less side padding than the field does (0.6 x safe): type
-   knocked out of a full-bleed colour block can sit closer to the trim than type
-   on the field, and that margin is what pays for the headline size. */
+/* Headline sizes solved from block inner width against a MEASURED metric: Archivo
+   Black ~0.706x font size per capital here ("PARKING" 4.94x, "NO PARKING" 7.06x).
+   Each leaves ~10% slack either side - don't spend it. */
 const FORMATS = [
   {
     name: "a3",
@@ -131,10 +60,7 @@ const FORMATS = [
     lockup: 150,
     blockPad: 34,
     style: "stack",
-    /* Width-bound, not height-bound: the block's 275mm inner width caps a
-       stacked "PARKING" at ~50mm however much vertical room is going spare.
-       Removing the reason line bought this format almost nothing in size - what
-       it bought was air, which is why the block padding runs generous. */
+    // Width-bound: 275mm inner width caps "PARKING" at ~50mm; spare height goes to padding.
     type: { headline: { mm: 50, face: HEADLINE, at: 4 } },
   },
   {
@@ -147,16 +73,10 @@ const FORMATS = [
     lockup: 240,
     blockPad: 60,
     style: "stack",
-    /* Width-bound like the A3, and set to the same proportions: block ~42% of
-       the sheet, content ~71% of the usable height. The two plates have to look
-       like one another at a glance or they read as two different notices. */
+    // Same proportions as A3 (block ~42% of sheet) so the plates read as one notice.
     type: { headline: { mm: 71, face: HEADLINE, at: 6 } },
   },
   {
-    /* The one to fix wherever there is a gate or a rail. "NO PARKING" on one
-       line stops the headline being width-bound by "PARKING", which is what
-       buys the extra ~2m over the A2 plate on a sheet less than half its area.
-       Same trade as landscape vs portrait on the roadside panels. */
     name: "gate",
     label: "Gate strip — gate, rail or bay head",
     w: 900,
@@ -166,20 +86,12 @@ const FORMATS = [
     lockup: 120,
     blockPad: 24,
     style: "strip",
-    /* This is the format that gained from stripping the sheet back. With a
-       contact row under the block it was height-bound at 98mm; with nothing
-       under it, 110mm fits in the 240mm of usable height AND still leaves 47mm
-       either side of the type inside the block. That is ~9.5m against 8.5m, on
-       a sheet less than a third of the A2's area. Still the one to fix wherever
-       there is somewhere to fix it. */
+    // Height-bound: 110mm fits 240mm usable height only with nothing under the block.
     type: { headline: { mm: 110, face: HEADLINE, at: 9 } },
   },
 ];
 
-/* §8.8: dark grounds take the -white lockup, light grounds -duo, and the accent
-   colourway never goes on a dark field. Both grounds are high contrast; pick
-   Ink where the notice sits among other signs and needs to be the dark one,
-   Paper where the wall behind it is already dark. */
+// Lockup per §8.8. Paper where the wall behind is already dark.
 const GROUNDS = {
   ink: {
     bg: INK, fg: PAPER, block: ACCENT, blockFg: PAPER,
@@ -195,11 +107,7 @@ const GROUNDS = {
   },
 };
 
-/* ---- the millimetre unit ----
-   Sizes are written as calc(N * var(--u)) so the same markup renders at 300dpi
-   as a print file and at 1:5 on the comparison sheet without a second
-   stylesheet. --bleed is BLEED on a print file and 0 on the comparison sheet,
-   where a plate is shown trimmed. */
+// --u = 1mm in px (print and 1:5 sheet share one stylesheet); --bleed is 0 on the sheet.
 const U = (n) => `calc(${n} * var(--u))`;
 const UB = (n) => `calc((${n} + var(--bleed, 0)) * var(--u))`;
 
@@ -213,12 +121,8 @@ const CSS = (f, g) => {
   const s = `.n-${f.name}`;
   const T = f.type;
   const strip = f.style === "strip";
-  /* The block is the sign; it wants to sit on the plate's centre line. The
-     stack centres the whole group, so the space UNDER the block has to equal
-     the lockup plus its gap or the block rides high - which is exactly how it
-     looked before this was worked out. The strip has no room for that: at
-     240mm of usable height the block already takes 158, so it keeps a symmetric
-     gap and lets the lockup sit snug above. */
+  /* Centre the block on the plate: space below = lockup + its gap, or it rides
+     high. The strip has no room (block takes 158 of 240mm), so it stays symmetric. */
   const gapAbove = strip ? 14 : 26;
   const gapBelow = strip ? 14 : gapAbove + f.lockup * LOCKUP_RATIO;
   return `
@@ -297,7 +201,6 @@ const emit = (base, w, h, html) => {
   console.log(`  ${base}.html`.padEnd(38) + `${w}x${h}`);
 };
 
-/* ---- 1. the print files ---------------------------------------------- */
 console.log("print files");
 for (const f of FORMATS) {
   for (const [gname, g] of Object.entries(GROUNDS)) {
@@ -316,12 +219,7 @@ for (const f of FORMATS) {
   }
 }
 
-/* ---- 2. the comparison sheet ------------------------------------------
-   All three trimmed, at one scale, on A3 landscape. The point is to choose a
-   format: the three PNGs on their own do not show how much bigger the strip's
-   headline actually is, which is the whole reason to prefer it. */
-/* --u is one millimetre in PIXELS, and this sheet is a 300dpi page - so 1:5 is
-   a fifth of 300dpi's px-per-mm, not a fifth of a pixel. */
+// Comparison sheet, 1:5 on a 300dpi page: --u is a fifth of 300dpi's px-per-mm.
 const SHEET_SCALE = 5;
 const SHEET_U = DPI / 25.4 / SHEET_SCALE;
 {
@@ -388,9 +286,7 @@ ${FORMATS.map((f) => CSS(f, g)).join("\n")}`;
 
 fs.writeFileSync(path.join(OUT, "html", "sizes.txt"), sizes.join("\n") + "\n");
 
-/* ---- the legibility table ----
-   `at` is what an element is designed for; `reads at` is what it resolves to.
-   Under-shooting the design distance is the bug. */
+// Legibility table: falling short of `at` is the bug.
 console.log(`\n${sizes.length} files @ ${DPI}dpi, ${BLEED}mm bleed\n`);
 for (const f of FORMATS) {
   console.log(`${f.label}`);

@@ -1,39 +1,7 @@
-/* Jaranow — A5 hand-out flyer.
-   Emits one HTML page per flyer; rasterize-flyer.sh turns them into 300dpi
-   PNGs. Type is Rubik (the site face, pulled from Google Fonts at render time);
-   the lockups are the real brand SVGs, inlined.
-
-   A5 portrait, 148x210mm trim + 3mm bleed, at 300dpi:
-     trim  1748 x 2480 px
-     bleed 1819 x 2551 px  <- the emitted page size
-   Same construction as gen-pricelist.js and gen-poster.js - Ink field, dot
-   grid, drop bleeding off the right edge, accent bar - so what someone is
-   handed reads as the same thing as the sheet on the wall behind the desk.
-
-   THIS SELLS JARANOW, NOT ONE ERRAND. It is the general carwash hand-out, so
-   the same sheet works for every offline use: handed over at the desk, given
-   out at the market, dropped through a door, left on a counter. That generality
-   is the design constraint - nothing on it may be true only of one place, one
-   campaign or one day, because a flyer outlives all three. It carries no
-   market-specific pitch for that reason.
-
-   The sub-brand lockup leads and the wordmark leads within it (BRAND-STANDARD
-   §3), so this sells Jaranow while being unambiguously about the carwash.
-
-   NO PRICES. Not a positioning nicety here but a practical one: this sheet is
-   printed in quantity and handed out for months, and a figure on it goes stale
-   in a way the wall list does not. /pricing and gen-pricelist.js are where
-   figures live. The pitch is care, detail, convenience and integrity - see the
-   brand positioning note in CLAUDE.md, and do not reintroduce "cheap", "best
-   value", "no hidden charges" or a competitor comparison.
-
-   WHAT TO EDIT: the FLYERS array. Copy is data, not markup.
-
-   The page is fixed-height with overflow:hidden, so copy that outgrows it does
-   NOT make the page taller - it silently slides the closing note under the
-   accent bar. A5 has about a third of A4's area, so a fourth point, a headline
-   long enough to run to three lines, or a second line of `sub` will do it.
-   Always eyeball the PNG after changing the copy.
+/* Jaranow — A5 hand-out flyer, 148x210mm trim + 3mm bleed at 300dpi;
+   rasterize-flyer.sh shoots it. General, no prices, no service list - deliberate,
+   see CLAUDE.md "A5 flyer". Fixed height: copy that outgrows A5 slides the note
+   under the bar, so eyeball the PNG after any copy change.
 
    Usage: node gen-flyer.js <outdir>
 */
@@ -51,61 +19,18 @@ const PAPER = "#F2F5FB";
 const DPI = 300;
 const mm = (n) => Math.round((n * DPI) / 25.4);
 
-/* ---- headline face ----
-   The prominent type - headline and phone number - is Archivo Black, the same
-   face the roadside panels use for CAR WASH, so a sheet in someone's hand and
-   the sign they drove past read as one thing. Everything else stays Rubik.
-
-   Archivo Black ships ONE weight (400): asking for 700 gets a synthetic bold
-   that smears the outline. Leave the weight alone.
-
-   Not a wordmark substitution (BRAND-STANDARD §8.1) - the lockup at the top of
-   the sheet is still the drawn SVG, and this is body copy set loud. */
+// Archivo Black ships ONE weight; 700 gets a synthetic bold that smears the outline.
 const HEADLINE = {family: "Archivo Black", weight: 400};
 
 const BLEED = 3;
 const PAGE_W = mm(148 + BLEED * 2); // 1819
 const PAGE_H = mm(210 + BLEED * 2); // 2551
-/* A5 is 70% of A4 linearly, so the A4 sheets' 12mm quiet margin would eat the
-   page. 10mm from the trim keeps the same optical breathing room. */
+// 10mm, not the A4 sheets' 12: same optical margin at A5.
 const SAFE = mm(BLEED + 10);
 
-/* ---------------------------------------------------------------------------
-   THE FLYERS — this is the input to the design.
-
-   flyer:
-     file      output basename
-     lockup    lockup SVG (white, knockout - the page is Ink)
-     kicker    small accent line under the lockup
-     headline  the promise. ~40 characters, set in Archivo Black - it is read
-               from a hand, in a few seconds, by someone who did not ask for it.
-     sub       one sentence under it
-     points    three short lines about HOW THE WORK IS DONE. Three or four
-               words each, no second line, no explanation.
-     offer     optional accent line - the one thing worth asking about at the desk
-     contact   { whatsapp, web?, social? }
-     note      closing line above the bar
-
-   IT SELLS THE QUALITY OF THE WORK, NOT A MENU. This sheet used to carry the
-   wash types with their inclusions under each. That is a price list with the
-   figures taken out - it made someone in a car park read three rows to work out
-   what to choose, and it said nothing about why they should choose us. The
-   washes are on the wall list at the forecourt (gen-pricelist.js) and on
-   /pricing, which is where a person who has already decided goes looking. Here
-   the job is to make them want to come at all: care, attention, integrity. Do
-   not re-add the service rows.
-
-   LANGUAGE: plain, spoken, local. Short words, short sentences, the way it
-   would be said across the desk at Gwarinpa - "we wash your car well", not
-   "meticulous attention to detail". Someone reads this in a few seconds with
-   one hand on a steering wheel. Anything that needs a second pass is too
-   clever for this sheet.
-
-   Every fact is from CLAUDE.md. Do not state a price, a turnaround or a
-   capability that is not confirmed there. In particular: the carwash is
-   DRIVE-IN and only laundry is collected and delivered; and there is no app,
-   no voice ordering, no same-day service and no waitlist to refer to.
---------------------------------------------------------------------------- */
+/* headline ~40 chars; points: three lines of 3-4 words, no second line.
+   Language: plain and spoken ("we wash your car well", not "meticulous attention
+   to detail") - read in seconds, one hand on a steering wheel. */
 const FLYERS = [
     {
         file: "flyer-carwash",
@@ -124,14 +49,12 @@ const FLYERS = [
     },
 ];
 
-/* inline a brand SVG at a fixed height */
 function mark(name, height) {
     let s = fs.readFileSync(path.join(SVG, `${name}.svg`), "utf8").trim();
     s = s.replace(/\swidth="[^"]*"/, "").replace(/\sheight="[^"]*"/, "");
     return s.replace("<svg ", `<svg style="height:${height}px;width:auto;display:block" `);
 }
 
-/* the symbol, oversized and faint, bleeding off the right edge */
 function watermark() {
     let s = fs.readFileSync(path.join(SVG, "jaranow-symbol-white.svg"), "utf8").trim();
     s = s.replace(/\swidth="[^"]*"/, "").replace(/\sheight="[^"]*"/, "");

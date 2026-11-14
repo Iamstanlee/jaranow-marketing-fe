@@ -23,7 +23,6 @@ const Home: React.FC = () => {
           content="Jaranow, car wash Gwarinpa, car wash Abuja, laundry pickup Abuja, laundry delivery Abuja, laundry service Abuja, wash and fold Abuja"
         />
 
-        {/* Structured Data */}
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',

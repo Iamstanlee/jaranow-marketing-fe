@@ -1,25 +1,7 @@
 #!/bin/bash
-# Rasterize the generated recruitment posters via headless Chrome.
-#
-# Run gen-poster.js first - this only screenshots what is already in
-# poster/html.
-#
+# Screenshot poster/html via headless Chrome, sized from sizes.txt.
 #   node brand/gen-poster.js && brand/rasterize-poster.sh
-#
-# Type is pulled from Google Fonts at render time, so this needs network access.
-# The font stylesheet uses display=block, meaning Chrome will not paint fallback
-# type while it waits - a generous virtual-time budget keeps the pages from
-# rendering in system sans. Eyeball the PNGs afterwards: a failed font load
-# falls back to system sans silently.
-#
-# Each posting is emitted in several formats at different pixel sizes, so
-# dimensions come from the sizes.txt manifest gen-poster.js writes - do not
-# hardcode one window size here.
-#
-#   -a4     2551x3579  A4 210x297mm trim + 3mm bleed @ 300dpi. Hand this to the
-#                      printer as-is; they trim at the crop line.
-#   -feed   1080x1350  Meta feed, 4:5
-#   -story  1080x1920  Meta stories / Reels, 9:16
+# Needs network (Google Fonts); a failed load falls back silently - eyeball the PNGs.
 set -e
 
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"

@@ -1,8 +1,7 @@
 import React from 'react';
 import {Container, NumberedGrid, SectionHeader} from '../common/ui';
 
-// What a subscriber actually gets. The "3-5 hours saved", "99.9% satisfaction",
-// money-back and 24/7 claims that used to sit here were never confirmed.
+// Confirmed benefits only; no unverified stats or guarantees.
 const benefits = [
   {
     title: 'Collected and returned',

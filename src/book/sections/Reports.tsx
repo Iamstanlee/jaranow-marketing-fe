@@ -1,8 +1,8 @@
 import {useMemo, useState} from 'react';
-import {BarChart3, Car, CircleDollarSign, Gift, PiggyBank, Sparkles} from 'lucide-react';
-import {currentService, SERVICES, type Service} from '../constants';
+import {BarChart3, Car, Gift, PiggyBank, Receipt, Sparkles} from 'lucide-react';
+import {currentService, PAYMENT_METHODS, SERVICES, type Service} from '../constants';
 import {dateOf, isoDay, money, percent} from '../format';
-import {inRange, type Range, rangeKey, rangeLabel, rangeOf} from '../period';
+import {type Range, rangeKey, rangeLabel, rangeOf, rangeTest} from '../period';
 import {useHistory} from '../hooks/useHistory';
 import {totalSales} from '../totals';
 import type {Expense, Loyalty, Sale} from '../types';
@@ -24,28 +24,32 @@ export function Reports({sales, loyalty, expenses, loading, requestHistory, hist
     historyLoading: boolean
 }) {
     const [range, setRange] = useState<Range>(() => rangeOf('This month'));
-    // compare: the trend panel below draws this period against the one before it, so the
-    // report needs a window more history than it displays.
     useHistory(range, requestHistory, true);
     const period = rangeLabel(range);
-    const filtered = useMemo(() => sales.filter(s => inRange(dateOf(s), range)), [sales, range]);
-    const filteredExpenses = useMemo(() => expenses.filter(x => inRange(dateOf(x), range)), [expenses, range]);
-    const totals = totalSales(filtered), points = loyalty.reduce((sum, x) => sum + Math.max(0, x.points), 0);
-    const totalExpenses = filteredExpenses.reduce((sum, x) => sum + x.amount, 0), netIncome = totals.revenue - totalExpenses;
-    // Cars per *trading* day, not per calendar day: the divisor counts days that actually
-    // carry a sale. A calendar divisor would read low for the whole of a part-finished month,
-    // and lower still on "All time", where most of the range predates the books. A free wash
-    // is a car through the bay, so redemptions count here even though they add no revenue.
-    const tradingDays = useMemo(() => new Set(filtered.map(s => isoDay(dateOf(s)))).size, [filtered]);
+    const within = useMemo(() => rangeTest(range), [range]);
+    const filtered = useMemo(() => sales.filter(s => within(dateOf(s))), [sales, within]);
+    const filteredExpenses = useMemo(() => expenses.filter(x => within(dateOf(x))), [expenses, within]);
+    const totals = useMemo(() => totalSales(filtered), [filtered]);
+    const points = useMemo(() => loyalty.reduce((sum, x) => sum + Math.max(0, x.points), 0), [loyalty]);
+    const totalExpenses = useMemo(() => filteredExpenses.reduce((sum, x) => sum + x.amount, 0), [filteredExpenses]);
+    const netIncome = totals.revenue - totalExpenses;
+    // One pass for trading days and the per-service split. Cars per *trading* day (days with a
+    // sale); free washes count as cars.
+    const {tradingDays, byService} = useMemo(() => {
+        const days = new Set<string>(), split = new Map<Service, number>();
+        for (const s of filtered) {
+            days.add(isoDay(dateOf(s)));
+            const service = currentService(s.service);
+            split.set(service, (split.get(service) ?? 0) + s.amount);
+        }
+        return {tradingDays: days.size, byService: split};
+    }, [filtered]);
     const carsPerDay = tradingDays ? totals.count / tradingDays : 0;
     const {slice, ...pager} = usePage(filtered, rangeKey(range));
-    // Every figure here is a sum over the period, so all of them are wrong until the history
-    // for it has landed. One flag drives the lot — a page that filled half its cards in and
-    // then revised them is worse than one that says it is still working.
     const pending = loading || historyLoading;
     return <>
         <div className="mb-7 flex flex-wrap items-center justify-between gap-3"><p
-            className="text-sm text-slate-500">Full operational and loyalty performance.</p><PeriodFilter range={range}
+            className="text-sm text-slate-500">Sales, costs and loyalty for the period.</p><PeriodFilter range={range}
                                                                                                           setRange={setRange}
                                                                                                           label="Filter report by date"/>
         </div>
@@ -56,9 +60,7 @@ export function Reports({sales, loyalty, expenses, loading, requestHistory, hist
                 <div><h2 className="font-bold">Net income</h2><p className="text-xs text-slate-400">Revenue after
                     expenses · {period}</p></div>
             </div>
-            {/* The net card is coloured by its own sign, so while loading it stays neutral —
-                a green "profit" panel that flips red once the expenses land is worse than
-                one that says nothing yet. */}
+            {/* Neutral while loading, so it never flashes green then red. */}
             <div aria-busy={pending} className="mt-6 grid gap-4 sm:grid-cols-3">
                 <div className="rounded-xl bg-slate-50 p-4"><p className="text-sm text-slate-500">Revenue</p>{pending ?
                     <Skeleton className="mt-2 h-6 w-24"/> :
@@ -74,8 +76,8 @@ export function Reports({sales, loyalty, expenses, loading, requestHistory, hist
             </div>
         </section>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            <Stat title="Revenue" value={money(totals.revenue)} icon={CircleDollarSign} tint="bg-blue-50 text-blue-600"
-                  note={`${totals.count} sales`} loading={pending}/>
+            <Stat title="Sales" value={String(totals.count)} icon={Receipt} tint="bg-blue-50 text-blue-600"
+                  note="Transactions in period" loading={pending}/>
             <Stat title="Loyalty points" value={String(points)} icon={Gift} tint="bg-violet-50 text-violet-600"
                   note="Currently held by customers" loading={pending}/>
             <Stat title="Free washes" value={String(totals.redemptions)} icon={Sparkles}
@@ -91,10 +93,8 @@ export function Reports({sales, loyalty, expenses, loading, requestHistory, hist
         <div className="mt-7 grid gap-6 lg:grid-cols-2">
             <section className="rounded-2xl border border-slate-200 bg-white p-5"><h2 className="font-bold">Sales by
                 service</h2>
-                {/* The service names are known before the data is, so they stay put and only
-                    the figure and its bar wait — the panel reads as itself while it fills in. */}
                 <div aria-busy={pending} className="mt-6 space-y-5">{(Object.keys(SERVICES) as Service[]).map(service => {
-                    const value = filtered.filter(s => currentService(s.service) === service).reduce((sum, s) => sum + s.amount, 0);
+                    const value = byService.get(service) ?? 0;
                     const share = totals.revenue > 0 ? value / totals.revenue : 0;
                     const width = `${Math.min(100, share * 100)}%`;
                     return <div key={service}>
@@ -111,8 +111,8 @@ export function Reports({sales, loyalty, expenses, loading, requestHistory, hist
             </section>
             <section className="rounded-2xl border border-slate-200 bg-white p-5"><h2 className="font-bold">Payment
                 analysis</h2>
-                <div aria-busy={pending} className="mt-6 space-y-4">{['Cash', 'Transfer', 'POS'].map(method => {
-                    const value = filtered.filter(s => s.payment === method).reduce((sum, s) => sum + s.amount, 0);
+                <div aria-busy={pending} className="mt-6 space-y-4">{PAYMENT_METHODS.map(method => {
+                    const value = method === 'Cash' ? totals.cash : method === 'Transfer' ? totals.transfer : totals.pos;
                     return <div key={method} className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
                         <span>{method}</span>{pending ? <Skeleton className="h-4 w-20"/> : <b>{money(value)}</b>}</div>;
                 })}</div>

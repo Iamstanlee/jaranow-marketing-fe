@@ -8,22 +8,16 @@ import {Confirm} from '../components/Confirm';
 import {Pagination} from '../components/Pagination';
 import {Skeleton} from '../components/Skeleton';
 
-// A member with its code resolved — what the cards below actually render.
 type Carded = Loyalty & { code: string };
 
-// What the correction is about to do, in the terms the person holding the card cares about:
-// how many stamps, and whether this is the move that earns or takes back a free wash. Points
-// only ever mean anything at that boundary, so a dialog that did not name it would be asking
-// about a number rather than about the thing the number buys.
 const adjustDetail = (member: Carded, delta: number) => {
     const to = Math.max(0, member.points + delta);
     const crossing = to >= 5 && member.points < 5 ? ` That earns a free wash — ${member.code} can redeem it on the next visit.`
         : member.points >= 5 && to < 5 ? ' The free wash they had is no longer available.' : '';
-    return `${member.code} goes from ${member.points} to ${to}/5 points.${crossing} No sale is recorded either way, so the day's takings do not change.`;
+    return `${member.code} goes from ${member.points} to ${to}/5 points.${crossing} No sale is recorded.`;
 };
 
-// By code ("7", "007" and "LOY-7" are all LOY-007), name, or phone digits. A phone needs three
-// digits, or a search for card 7 would return every number with a 7 in it.
+// By code ("7" = LOY-007), name, or 3+ phone digits.
 const matches = (member: Carded, query: string) => {
     const q = query.trim().toLowerCase(), digits = q.replace(/\D/g, '');
     if (!q) return true;
@@ -36,22 +30,11 @@ const matches = (member: Carded, query: string) => {
 export function LoyaltySection({members, loading, onAdjust}: {
     members: Loyalty[];
     loading: boolean;
-    // Absent for staff, so the balance is read-only unless the admin PIN is in. A point added
-    // here is backed by no sale and no money, which is a different kind of write from
-    // recording a wash — see adjustPoints.
+    // Admin only.
     onAdjust?: (id: string, delta: number) => Promise<void>
 }) {
-    // Resolve fallback codes against the whole list before paging: codeFor() numbers by
-    // position, so a page-2 slice would start counting at LOY-001 again.
-    // Points are floored at 0 for display: deleting a sale whose point was already spent
-    // leaves the stored balance short, and a card reading "−1 / 5 points" is not something a
-    // customer holding a stamp card can be shown. See removeSale. The floor is why the menu
-    // below sends an id rather than this member — adjustPoints has to correct against the
-    // stored balance, not the one on screen.
-    // Sorting happens after the map, never before: codeFor() reads the position in `members`,
-    // and that same list order is what SaleModal and removeSale resolve a typed code against.
-    // Reordering the input would hand a member somebody else's number.
-    // Sort on the number, not the string, so LOY-9 comes before LOY-10.
+    // Resolve codes before sorting or paging: codeFor numbers by position in `members`.
+    // Points are floored for display, so corrections pass an id, not this copy.
     const coded = useMemo<Carded[]>(() => members.map((m, i) => ({
         ...m,
         code: codeFor(m, i),
@@ -60,13 +43,10 @@ export function LoyaltySection({members, loading, onAdjust}: {
     const [query, setQuery] = useState('');
     const found = useMemo(() => coded.filter(m => matches(m, query)), [coded, query]);
     const {slice, ...pager} = usePage(found, query.trim(), 9);
-    // The correction waiting to be confirmed. Everything that guards the write — the in-flight
-    // state that stops a double tap, and the error if it fails — belongs to the dialog.
     const [adjusting, setAdjusting] = useState<{ member: Carded; delta: number } | null>(null);
-    // Cards, not a spinner, and the same grid they will land in — the stamp row is the shape
-    // this section is recognised by, so the skeleton keeps it.
-    if (loading) return <><p className="mb-7 text-sm text-slate-500">Loyalty codes are automatically created when a sale
-        is recorded for a new customer.</p>
+    const intro = <p className="mb-7 text-sm text-slate-500">A code is created when a sale is recorded for a new
+        customer, and each wash earns a point.{onAdjust && ' Use a card’s menu only to correct a balance.'}</p>;
+    if (loading) return <>{intro}
         <div role="status" aria-busy aria-label="Loading loyalty customers"
              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{[0, 1, 2].map(i => <section key={i}
                                                                                                className="rounded-2xl border border-slate-200 bg-white p-5">
@@ -76,8 +56,7 @@ export function LoyaltySection({members, loading, onAdjust}: {
             <Skeleton className="mt-4 h-4 w-28"/>
         </section>)}</div>
     </>;
-    return <><p className="mb-7 text-sm text-slate-500">Loyalty codes are automatically created when a sale is recorded
-        for a new customer.{onAdjust && ' recording the wash is what earns the point.'}</p>
+    return <>{intro}
         {coded.length > 0 && <div className="mb-5 flex flex-wrap items-center gap-3">
             <label className="relative block w-full sm:max-w-sm">
                 <span className="sr-only">Search loyalty customers</span>
@@ -99,9 +78,6 @@ export function LoyaltySection({members, loading, onAdjust}: {
                                                                                            className="rounded-2xl border border-slate-200 bg-white p-5">
             <div className="flex items-start justify-between gap-3"><span
                 className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">{m.code}</span>
-                {/* Admin only, and a menu rather than buttons on the face of the card: a point
-                    is a free wash on its way, so it should take a deliberate look for the
-                    action rather than sit under a thumb resting on a tablet. */}
                 {onAdjust && <ActionMenu label={`Adjust points for ${m.code}`} items={[{
                     label: 'Add a point',
                     icon: Plus,
@@ -111,7 +87,7 @@ export function LoyaltySection({members, loading, onAdjust}: {
                     icon: Minus,
                     tone: 'danger',
                     disabled: !m.points,
-                    hint: m.points ? undefined : 'Nothing to take off — the card is empty',
+                    hint: m.points ? undefined : 'The card is empty',
                     onSelect: () => setAdjusting({member: m, delta: -1})
                 }]}/>}</div>
             <div className="mt-5 flex gap-1">{[1, 2, 3, 4, 5].map(dot => <span key={dot}

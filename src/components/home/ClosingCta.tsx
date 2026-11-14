@@ -7,7 +7,7 @@ const ClosingCta: React.FC = () => {
     return (
         <CtaBand
             title="Ready when you are."
-            body="Drive in to 6th Avenue, Gwarinpa today, or message us on WhatsApp and we will set up your first laundry pickup."
+            body="Bring your car to 6th Avenue, Gwarinpa today, or send us a WhatsApp message and we will arrange your first laundry pickup."
         >
             <Lift>
                 <a href={whatsappUrl()} target="_blank" rel="noopener noreferrer" className={`${btn.paper} group w-full`}>

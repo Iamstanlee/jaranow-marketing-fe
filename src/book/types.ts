@@ -1,4 +1,4 @@
-import type {Duty, Service} from './constants';
+import type {Duty, LeftReason, Service} from './constants';
 
 export type Timestamp = { toDate: () => Date };
 export type Sale = {
@@ -25,6 +25,10 @@ export type Staff = {
     attendantPay?: AttendantPay;
     salary?: number;
     advances?: Advance[];
+    // Set on archive, cleared on restore: what tenure and retention are measured from.
+    leftAt?: string;
+    leftReason?: LeftReason;
+    applicantId?: string;
     createdAt?: Timestamp
 };
 // `at` is epoch ms: Firestore allows no serverTimestamp inside an array.
@@ -68,5 +72,25 @@ export type Attendance = {
     paidOff?: string[];
     updatedAt?: Timestamp
 };
+export type ApplicantStage = 'new' | 'training' | 'bench' | 'hired' | 'declined';
+// Written by the /careers form; the option strings come from src/data/hiring.ts.
+export type Applicant = {
+    id: string;
+    name: string;
+    phone: string;
+    area: string;
+    start: string;
+    experience: string;
+    fullDay: string;
+    source: string;
+    // The link they applied from (?src=), if it carried one.
+    src?: string;
+    stage: ApplicantStage;
+    // First of the two training days, local yyyy-mm-dd.
+    trainingFrom?: string;
+    notes?: string;
+    staffId?: string;
+    createdAt?: Timestamp
+};
 export type Role = 'admin' | 'staff';
-export type Section = 'overview' | 'sales' | 'loyalty' | 'expenses' | 'roster' | 'eod' | 'reports' | 'payments';
+export type Section = 'overview' | 'sales' | 'loyalty' | 'expenses' | 'roster' | 'eod' | 'reports' | 'payments' | 'hiring';

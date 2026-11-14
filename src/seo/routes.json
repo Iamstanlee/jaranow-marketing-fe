@@ -73,6 +73,16 @@
       "ogImageAlt": "Jaranow - rug cleaning with pickup and delivery in Abuja",
       "siteName": "Jaranow"
     },
+    "/careers": {
+      "file": "careers/index.html",
+      "title": "Car Wash Jobs in Gwarinpa, Abuja | Carwash by Jaranow",
+      "description": "Carwash by Jaranow is hiring car wash attendants at 6th Avenue, Gwarinpa, Abuja. Monthly salary, two days of training, no CV needed. Apply on your phone.",
+      "ogTitle": "We're hiring car wash attendants - Carwash by Jaranow",
+      "ogDescription": "Full-time at 6th Avenue, Gwarinpa. Monthly salary, no CV needed. Apply from your phone in two minutes.",
+      "ogImage": "/carwash/opengraph.png",
+      "ogImageAlt": "Carwash by Jaranow - car wash jobs in Gwarinpa, Abuja",
+      "siteName": "Carwash by Jaranow"
+    },
     "/__/book": {
       "$comment": "Internal bookkeeping tool, not a marketing page. It is here purely so the build writes a real document at /__/book carrying its own manifest: a PWA installed from a page whose <link rel=manifest> is swapped in later by JavaScript can capture the site manifest instead, and then launches on the homepage. noindex keeps it out of search.",
       "file": "__/book/index.html",

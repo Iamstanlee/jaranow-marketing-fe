@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import {Link, NavLink} from 'react-router-dom';
+import {Link, NavLink, useLocation} from 'react-router-dom';
 import {AnimatePresence, motion} from 'framer-motion';
-import {Menu, X} from 'lucide-react';
+import {ArrowRight, Menu, X} from 'lucide-react';
 
 export type BrandLine = 'master' | 'carwash' | 'laundry' | 'rugwash' | 'business';
 
@@ -43,6 +43,24 @@ export interface HeaderProps {
     logo?: BrandLine;
 }
 
+// Above the bar on every screen, so phones see it without opening the menu. The arrow's nudge is
+// the site's one looping animation (CLAUDE.md "Animation").
+const HiringStrip: React.FC = () => (
+    <Link
+        to="/careers?src=site-strip"
+        className="group flex h-9 items-center justify-center gap-2 border-b border-paper/10 bg-[#0A0F1D] px-4 text-[13px] text-paper/80 transition-colors hover:text-white"
+    >
+        <span className="font-semibold text-white">
+            <span className="sm:hidden">We're hiring in Gwarinpa.</span>
+            <span className="hidden sm:inline">We're hiring car wash attendants in Gwarinpa.</span>
+        </span>
+        <span className="inline-flex items-center gap-1 font-semibold text-primary-400 group-hover:text-primary-300">
+            Apply<span className="hidden sm:inline"> in 2 minutes</span>
+            <ArrowRight size={14} aria-hidden="true" className="motion-safe:animate-nudge"/>
+        </span>
+    </Link>
+);
+
 const navLinks = [
     {to: '/carwash', label: 'Car wash'},
     {to: '/rugs', label: 'Rugs'},
@@ -52,7 +70,7 @@ const navLinks = [
 ];
 
 const linkClasses = (isActive: boolean) =>
-    `px-3 py-2 rounded-full text-sm font-medium transition-colors duration-300 hover:text-white ${
+    `whitespace-nowrap px-2 lg:px-3 py-2 rounded-full text-[13px] lg:text-sm font-medium transition-colors duration-300 hover:text-white ${
         isActive ? 'text-white bg-white/10' : 'text-paper/75'
     }`;
 
@@ -60,6 +78,7 @@ const Header: React.FC<HeaderProps> = ({ctaLabel = 'Book a wash', onCtaClick, ct
     const brand = LOGOS[logo];
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const onCareers = useLocation().pathname.startsWith('/careers');
 
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -68,7 +87,7 @@ const Header: React.FC<HeaderProps> = ({ctaLabel = 'Book a wash', onCtaClick, ct
     }, []);
 
     const renderCta = (fullWidth = false) => {
-        const classes = `${fullWidth ? 'block w-full text-center py-3' : 'py-2.5'} px-5 rounded-full font-medium text-sm bg-primary-600 hover:bg-primary-500 text-white transition-colors duration-300`;
+        const classes = `${fullWidth ? 'block w-full text-center py-3 px-5' : 'py-2.5 px-4 lg:px-5'} whitespace-nowrap rounded-full font-medium text-sm bg-primary-600 hover:bg-primary-500 text-white transition-colors duration-300`;
 
         if (onCtaClick) {
             return (
@@ -97,13 +116,14 @@ const Header: React.FC<HeaderProps> = ({ctaLabel = 'Book a wash', onCtaClick, ct
                 isScrolled || isMobileMenuOpen ? 'bg-ink/95 backdrop-blur border-b border-paper/10' : 'bg-transparent'
             }`}
         >
+            {!onCareers && <HiringStrip/>}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     <Link to="/" className="flex-shrink-0 flex items-center">
                         <img src={brand.src} alt={brand.alt} className={`${brand.height} w-auto`}/>
                     </Link>
 
-                    <div className="hidden md:flex items-center space-x-1">
+                    <div className="hidden md:flex items-center lg:space-x-1">
                         {navLinks.map((link) => (
                             <NavLink key={link.to} to={link.to} className={({isActive}) => linkClasses(isActive)}>
                                 {link.label}

@@ -69,6 +69,29 @@ service cloud.firestore {
       allow read, create, update, delete: if signedIn();
     }
 
+    // Job applications from /careers. The form is public, so a create must look exactly like one:
+    // the form's fields (APPLICATION_FIELDS in src/data/hiring.ts), short strings, stage `new`.
+    // Reading, moving through the pipeline and deleting are the desk's, like everything else here.
+    function shortText(data, key, max) {
+      return data[key] is string && data[key].size() > 0 && data[key].size() <= max;
+    }
+    match /car_wash_applicants/{applicantId} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['name', 'phone', 'area', 'start', 'experience', 'fullDay', 'source', 'src', 'stage', 'createdAt'])
+        && request.resource.data.keys().hasAll(['name', 'phone', 'area', 'start', 'experience', 'fullDay', 'source', 'stage', 'createdAt'])
+        && request.resource.data.stage == 'new'
+        && request.resource.data.createdAt == request.time
+        && shortText(request.resource.data, 'name', 80)
+        && shortText(request.resource.data, 'phone', 20)
+        && shortText(request.resource.data, 'area', 40)
+        && shortText(request.resource.data, 'start', 40)
+        && shortText(request.resource.data, 'experience', 40)
+        && shortText(request.resource.data, 'fullDay', 20)
+        && shortText(request.resource.data, 'source', 40)
+        && (!('src' in request.resource.data) || shortText(request.resource.data, 'src', 40));
+      allow read, update, delete: if signedIn();
+    }
+
     // Deny everything else outright.
     match /{document=**} {
       allow read, write: if false;

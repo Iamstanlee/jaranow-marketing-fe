@@ -20,20 +20,20 @@ import {
 } from 'firebase/firestore';
 import type {DocumentData, Query} from 'firebase/firestore';
 import {authReady, db, firebaseEnabled} from '../../lib/firebase';
-import {COLLECTIONS, DUTIES, earnsPoints, LIVE_WINDOW} from '../constants';
+import {COLLECTIONS, DUTIES, earnsPoints, type LeftReason, LIVE_WINDOW} from '../constants';
 import {addDays, codeFor, dateOf, dayFrom, dayLabel, money} from '../format';
 import {slotLabel, weekSpan} from '../roster';
 import {type Mark, SHARE_RATE} from '../payments';
-import {seedAttendance, seedExpenses, seedLoyalty, seedPayouts, seedRoster, seedSales, seedStaff} from '../seed';
+import {seedApplicants, seedAttendance, seedExpenses, seedLoyalty, seedPayouts, seedRoster, seedSales, seedStaff} from '../seed';
 import {totalSales} from '../totals';
-import type {Advance, Attendance, Expense, Loyalty, Payout, RosterEntry, Sale, Staff, Timestamp} from '../types';
+import type {Advance, Applicant, Attendance, Expense, Loyalty, Payout, RosterEntry, Sale, Staff, Timestamp} from '../types';
 import type {StaffRecord} from '../components/StaffModal';
 import type {Notify} from './useToasts';
 
 type Dated = { id: string; createdAt?: Timestamp };
 
-type Feed = 'sales' | 'loyalty' | 'expenses' | 'staff' | 'roster' | 'payouts' | 'attendance';
-const FEEDS: Feed[] = ['sales', 'loyalty', 'expenses', 'staff', 'roster', 'payouts', 'attendance'];
+type Feed = 'sales' | 'loyalty' | 'expenses' | 'staff' | 'roster' | 'payouts' | 'attendance' | 'applicants';
+const FEEDS: Feed[] = ['sales', 'loyalty', 'expenses', 'staff', 'roster', 'payouts', 'attendance', 'applicants'];
 type Ready = Record<Feed, boolean>;
 
 // Ledgers with a capped live window and an on-demand history behind it.
@@ -44,8 +44,8 @@ type Archive = { sales: Sale[]; expenses: Expense[] };
 type NewMember = { code: string; customer: string; phone: string };
 type Fields<T> = Omit<T, 'id' | 'createdAt'>;
 
-/** Every Firestore read and write the desk makes. `day` is today's midnight (useDayTick). */
-export function useBook(day: number, toast: Notify) {
+/** Every Firestore read and write the desk makes. `day` is today's midnight (useDayTick); applicants are read on admin only. */
+export function useBook(day: number, toast: Notify, admin: boolean) {
     const [sales, setSales] = useState<Sale[]>(firebaseEnabled ? [] : seedSales);
     const [loyalty, setLoyalty] = useState<Loyalty[]>(firebaseEnabled ? [] : seedLoyalty);
     const [expenseRecords, setExpenseRecords] = useState<Expense[]>(firebaseEnabled ? [] : seedExpenses);
@@ -53,19 +53,21 @@ export function useBook(day: number, toast: Notify) {
     const [roster, setRoster] = useState<RosterEntry[]>(firebaseEnabled ? [] : seedRoster);
     const [payouts, setPayouts] = useState<Payout[]>(firebaseEnabled ? [] : seedPayouts);
     const [attendance, setAttendance] = useState<Attendance[]>(firebaseEnabled ? [] : seedAttendance);
+    const [applicants, setApplicants] = useState<Applicant[]>(firebaseEnabled ? [] : seedApplicants);
     const [syncError, setSyncError] = useState('');
     // Per feed, so an empty array before the first snapshot shows skeletons rather than ₦0.
     const [ready, setReady] = useState<Ready>(() => Object.fromEntries(FEEDS.map(f => [f, !firebaseEnabled])) as Ready);
 
+    // A failed listener also counts as loaded, so the error banner shows instead of skeletons forever.
+    const done = useCallback((key: Feed) => setReady(r => r[key] ? r : {...r, [key]: true}), []);
+    const onError = useCallback((label: Feed) => (e: unknown) => {
+        console.error(`Firestore ${label} sync failed`, e);
+        setSyncError('Live sync was interrupted — you may be seeing older data. Check your connection.');
+        done(label);
+    }, [done]);
+
     useEffect(() => {
         if (!db) return;
-        // A failed listener also counts as loaded, so the error banner shows instead of skeletons forever.
-        const done = (key: Feed) => setReady(r => r[key] ? r : {...r, [key]: true});
-        const onError = (label: Feed) => (e: unknown) => {
-            console.error(`Firestore ${label} sync failed`, e);
-            setSyncError('Live sync was interrupted — you may be seeing older data. Check your connection.');
-            done(label);
-        };
         let active = true;
         let offs: Array<() => void> = [];
         authReady.then(() => {
@@ -96,7 +98,24 @@ export function useBook(day: number, toast: Notify) {
             active = false;
             offs.forEach(off => off());
         };
-    }, []);
+    }, [done, onError]);
+
+    useEffect(() => {
+        if (!db || !admin) return;
+        let active = true;
+        let off = () => {};
+        authReady.then(() => {
+            if (!active || !db) return;
+            off = onSnapshot(query(collection(db, COLLECTIONS.applicants), orderBy('createdAt', 'desc'), limit(LIVE_WINDOW.applicants)), s => {
+                setApplicants(s.docs.map(d => ({id: d.id, ...d.data()})) as Applicant[]);
+                done('applicants');
+            }, onError('applicants'));
+        }).catch(() => done('applicants'));
+        return () => {
+            active = false;
+            off();
+        };
+    }, [admin, done, onError]);
 
     // --- History ---------------------------------------------------------------------
     // `wanted` is how far back the visible section needs (0 = the whole book). The effect
@@ -271,7 +290,7 @@ export function useBook(day: number, toast: Notify) {
         toast(`${record.name} added to the team${out ? ` · exempt from ${out}` : ''}.`);
     }, [toast]);
 
-    const updateStaff = useCallback(async (id: string, patch: Partial<StaffRecord & Pick<Staff, 'active'>>) => {
+    const updateStaff = useCallback(async (id: string, patch: Partial<StaffRecord>) => {
         const {attendantPay, salary, ...rest} = patch;
         const role = 'attendantPay' in patch, paid = 'salary' in patch;
         if (db) await updateDoc(doc(db, COLLECTIONS.staff, id), {
@@ -285,11 +304,22 @@ export function useBook(day: number, toast: Notify) {
         } : p).sort((a, b) => a.name.localeCompare(b.name)));
         const person = staff.find(p => p.id === id);
         const name = rest.name ?? person?.name ?? 'Team member';
-        if (patch.active === false) toast(`${name} archived — kept on past rotas.`, 'info');
-        else if (patch.active === true) toast(`${name} restored to the rota.`);
-        else if (role && person && (attendantPay ?? undefined) !== person.attendantPay) toast(`${name} · ${attendantPay === 'share' ? 'revenue share' : attendantPay === 'salary' ? 'car washer on salary' : 'cashier'}.`, 'info');
+        if (role && person && (attendantPay ?? undefined) !== person.attendantPay) toast(`${name} · ${attendantPay === 'share' ? 'revenue share' : attendantPay === 'salary' ? 'car washer on salary' : 'cashier'}.`, 'info');
         else toast(`${name} updated.`, 'info');
     }, [staff, toast]);
+
+    const archiveStaff = useCallback(async (person: Staff, leftAt: string, leftReason: LeftReason) => {
+        const patch = {active: false, leftAt, leftReason};
+        if (db) await updateDoc(doc(db, COLLECTIONS.staff, person.id), patch);
+        else setStaff(list => list.map(p => p.id === person.id ? {...p, ...patch} : p));
+        toast(`${person.name} archived — kept on past rotas.`, 'info');
+    }, [toast]);
+
+    const restoreStaff = useCallback(async (person: Staff) => {
+        if (db) await updateDoc(doc(db, COLLECTIONS.staff, person.id), {active: true, leftAt: deleteField(), leftReason: deleteField()});
+        else setStaff(list => list.map(p => p.id === person.id ? {...p, active: true, leftAt: undefined, leftReason: undefined} : p));
+        toast(`${person.name} restored to the rota.`);
+    }, [toast]);
 
     // Takes their rota swaps with them, in one batch.
     const removeStaff = useCallback(async (person: Staff) => {
@@ -381,6 +411,44 @@ export function useBook(day: number, toast: Notify) {
         toast(`Payment to ${payout.staffName} undone · ${money(payout.amount)} owed again.`, 'warning');
     }, [toast]);
 
+    // --- Hiring ------------------------------------------------------------------------
+    const updateApplicant = useCallback(async (applicant: Applicant, patch: Partial<Pick<Applicant, 'stage' | 'trainingFrom' | 'notes'>>) => {
+        if (db) await updateDoc(doc(db, COLLECTIONS.applicants, applicant.id), patch);
+        else setApplicants(list => list.map(a => a.id === applicant.id ? {...a, ...patch} : a));
+        const name = applicant.name;
+        toast(patch.trainingFrom ? `${name} booked for training · ${dayLabel(dayFrom(patch.trainingFrom))} and the day after.`
+            : patch.stage === 'bench' ? `${name} moved to the bench.`
+                : patch.stage === 'declined' ? `${name} declined.`
+                    : patch.stage === 'new' ? `${name} moved back to new.`
+                        : `Notes saved for ${name}.`, 'info');
+    }, [toast]);
+
+    // The team member and the hired applicant commit together, so a hire cannot be half-recorded.
+    const hireApplicant = useCallback(async (applicant: Applicant, salary: number | null) => {
+        const person = {
+            name: applicant.name, phone: applicant.phone, exempt: [], active: true, attendantPay: 'salary' as const,
+            ...(salary ? {salary} : {}), applicantId: applicant.id
+        };
+        if (db) {
+            const staffRef = doc(collection(db, COLLECTIONS.staff));
+            const batch = writeBatch(db);
+            batch.set(staffRef, {...person, createdAt: serverTimestamp()});
+            batch.update(doc(db, COLLECTIONS.applicants, applicant.id), {stage: 'hired', staffId: staffRef.id});
+            await batch.commit();
+        } else {
+            const staffId = crypto.randomUUID();
+            setStaff(list => [...list, {id: staffId, ...person}].sort((a, b) => a.name.localeCompare(b.name)));
+            setApplicants(list => list.map(a => a.id === applicant.id ? {...a, stage: 'hired', staffId} : a));
+        }
+        toast(`${applicant.name} hired and added to the team${salary ? ` · ${money(salary)}/month` : ''}.`);
+    }, [toast]);
+
+    const removeApplicant = useCallback(async (applicant: Applicant) => {
+        if (db) await deleteDoc(doc(db, COLLECTIONS.applicants, applicant.id));
+        else setApplicants(list => list.filter(a => a.id !== applicant.id));
+        toast(`${applicant.name}'s application deleted.`, 'warning');
+    }, [toast]);
+
     // Puts the person on one list and off the other two; null takes them off all three.
     const setMark = useCallback(async (iso: string, person: Staff, mark: Mark | null) => {
         const field = {present: 'present', absent: 'absent', leave: 'paidOff'} as const;
@@ -400,14 +468,15 @@ export function useBook(day: number, toast: Notify) {
 
     return {
         // Live window merged with any fetched history. Today's figures come from the live window only.
-        sales: allSales, loyalty, expenseRecords: allExpenses, staff, roster, payouts, attendance,
+        sales: allSales, loyalty, expenseRecords: allExpenses, staff, roster, payouts, attendance, applicants,
         todaySales, todayExpenses, totals,
         ready, syncError,
         requestHistory, historyLoading,
         addSale, updateSale, removeSale,
         adjustPoints,
         addExpense, updateExpense, removeExpense,
-        addStaff, updateStaff, removeStaff,
+        addStaff, updateStaff, archiveStaff, restoreStaff, removeStaff,
+        updateApplicant, hireApplicant, removeApplicant,
         assignDuty, updateDuty, removeDuty,
         addAdvance, removeAdvance, markPaid, undoPayout, setMark
     };

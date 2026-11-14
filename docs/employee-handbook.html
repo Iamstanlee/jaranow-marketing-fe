@@ -1,4 +1,4 @@
-<title>Jaranow Car wash Handbook</title>
+<title>Jaranow Car Wash Handbook</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Rubik:wght@400;500;600;700&display=swap">
@@ -220,18 +220,14 @@
   .process p{margin:.45rem 0 0;max-width:var(--measure);font-size:.9375rem}
   .process p:first-of-type{margin-top:.35rem}
 
-  /* ---- revenue split ---------------------------------------------------- */
-  .split{
-    display:flex;
-    gap:1.75rem;
-    margin-top:.85rem;
-    padding-top:.6rem;
-    border-top:1px solid var(--rule-soft);
-    font-size:.875rem;
-    font-variant-numeric:tabular-nums;
+  /* ---- callout: company account ---------------------------------------- */
+  .callout{
+    margin-top:1.6rem;
+    padding:1.15rem 1.35rem;
+    background:var(--surface);
+    border-left:3px solid var(--accent);
   }
-  .split div{display:flex;flex-direction:column}
-  .split b{font-family:"Archivo Black",Rubik,Arial,sans-serif;font-weight:400;font-size:1.05rem}
+  .callout p{margin:.35rem 0 0;max-width:var(--measure);font-size:.9375rem}
 
   /* ---- acknowledgement -------------------------------------------------- */
   .ack{margin-top:1.4rem;max-width:var(--measure)}
@@ -266,7 +262,7 @@
     section{margin-top:2rem}
     /* Keep a clause and a heading intact, but let sections flow across pages -
        break-inside:avoid on the whole section stranded a third of page 1. */
-    .clauses li,.process,.split,.siglines>div{break-inside:avoid}
+    .clauses li,.process,.callout,.siglines>div{break-inside:avoid}
     .sec-head,.sec-note{break-after:avoid}
     .masthead,.facts{break-inside:avoid}
     .sanction{-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -291,7 +287,7 @@
     <div><span class="label">Site</span><b>6th Avenue, Gwarinpa, Abuja</b></div>
     <div><span class="label">Work hours</span><b>8:00am &ndash; 7:00pm daily</b></div>
     <div><span class="label">Effective</span><b>1 September 2026</b></div>
-    <div><span class="label">Version</span><b>1.0</b></div>
+    <div><span class="label">Version</span><b>1.3</b></div>
   </ul>
 
   <section>
@@ -302,6 +298,7 @@
       <li><span class="cid">1.3</span><div class="ctext"><p>Tell your supervisor and get their permission before leaving the premises during work hours.</p></div></li>
       <li><span class="cid">1.4</span><div class="ctext"><p>Stay calm and speak politely at all times when dealing with a customer, including when the customer does not.</p></div></li>
       <li><span class="cid">1.5</span><div class="ctext"><p>Never negotiate a price with a customer. Prices are fixed and published on the price list.</p><p class="sub">A customer who asks for a discount is referred to the supervisor or the cashier. It is not your decision to make, and taking it out of your hands is what protects you.</p></div></li>
+      <li><span class="cid">1.6</span><div class="ctext"><p>All work at the wash is company work. Every car, rug, motorbike, or anything else washed at the bay is paid for into the company account.</p><p class="sub">No payment for work done at the bay is collected through a personal account or kept by any employee.</p></div></li>
     </ol>
   </section>
 
@@ -321,12 +318,12 @@
       <li>
         <span class="cid">3.1</span>
         <div class="ctext"><p>Stealing; failing to remit a payment into the company account; or collecting a customer&rsquo;s payment through a personal account.</p></div>
-        <span class="sanction severe">Immediate termination</span>
+        <span class="sanction severe">Termination without pay</span>
       </li>
       <li>
         <span class="cid">3.2</span>
         <div class="ctext"><p>Quarrelling, fighting, or harassment of any kind, whether with a colleague or a customer.</p></div>
-        <span class="sanction staged">Warning, then termination</span>
+        <span class="sanction staged">Warning, then termination without pay</span>
       </li>
       <li>
         <span class="cid">3.3</span>
@@ -358,31 +355,12 @@
   </section>
 
   <section>
-    <div class="sec-head"><span class="sec-num">4</span><h2>Revenue sharing</h2></div>
-    <p class="sec-note">These are jobs worked by employees, and the money from them is shared among employees.</p>
+    <div class="sec-head"><span class="sec-num">4</span><h2>Salary advance</h2></div>
+    <p class="sec-note">An employee may request an advance on their salary, subject to the conditions below. Every request is made to the supervisor and approved in writing before any money is paid.</p>
     <ol class="clauses">
-      <li>
-        <span class="cid">4.1</span>
-        <div class="ctext">
-          <p><b>Rug washing.</b> The revenue from every rug washed goes to the employees.</p>
-          <p class="sub">The detergent and fuel used on the rugs are paid for out of that revenue, not by the company. The split below applies to what is left after those costs.</p>
-          <div class="split">
-            <div><b>80%</b><span class="label">Attendants</span></div>
-            <div><b>20%</b><span class="label">Cashier</span></div>
-          </div>
-        </div>
-      </li>
-      <li>
-        <span class="cid">4.2</span>
-        <div class="ctext"><p><b>Motorbike washing.</b> Employees keep 100% of the revenue from every motorbike washed. Turns are taken on the daily rotation.</p></div>
-      </li>
-      <li>
-        <span class="cid">4.3</span>
-        <div class="ctext">
-          <p><b>Polish.</b> Employees may offer polish to a customer as a paid add&#8209;on, on the daily rotation, and keep the revenue from it.</p>
-          <p class="sub">Polish is not sold as an add&#8209;on on the premium wash service &mdash; the company already includes it there.</p>
-        </div>
-      </li>
+      <li><span class="cid">4.1</span><div class="ctext"><p>The employee must have completed probation &mdash; that is, worked for at least two months &mdash; before requesting an advance.</p></div></li>
+      <li><span class="cid">4.2</span><div class="ctext"><p>An advance may be requested no more than three times in a year.</p></div></li>
+      <li><span class="cid">4.3</span><div class="ctext"><p>An advance is for a maximum of 50% of the employee&rsquo;s net monthly salary.</p></div></li>
     </ol>
   </section>
 
@@ -401,7 +379,7 @@
 
   <footer>
     <span>Carwash by Jaranow &middot; 6th Avenue, Gwarinpa, Abuja</span>
-    <span>Employee Handbook v1.0 &middot; Effective 1 September 2026</span>
+    <span>Employee Handbook v1.3 &middot; Effective 1 September 2026</span>
   </footer>
 
 </div>

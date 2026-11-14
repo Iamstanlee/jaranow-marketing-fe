@@ -9,6 +9,7 @@ const WashRecommendation = React.lazy(() => import('./pages/WashRecommendation')
 const Pricing = React.lazy(() => import('./pages/Pricing'));
 const Business = React.lazy(() => import('./pages/Business'));
 const Rugs = React.lazy(() => import('./pages/Rugs'));
+const Careers = React.lazy(() => import('./pages/Careers'));
 // Chunk name is read by scripts/prerender-meta.js to preload it; keep in step with
 // `preloadChunk` in src/seo/routes.json.
 const Bookkeeping = React.lazy(() => import(/* webpackChunkName: "book" */ './pages/Bookkeeping'));
@@ -35,6 +36,7 @@ function App() {
                     <Route path="/pricing" element={<Pricing/>}/>
                     <Route path="/business" element={<Business/>}/>
                     <Route path="/rugs" element={<Rugs/>}/>
+                    <Route path="/careers" element={<Careers/>}/>
                     <Route path="__/book" element={<Bookkeeping/>}/>
                 </Routes>
               </Suspense>

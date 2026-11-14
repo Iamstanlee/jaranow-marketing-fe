@@ -23,15 +23,15 @@ const tracks: Track[] = [
         steps: [
             {
                 title: 'Drive in',
-                body: 'Come to 6th Avenue, Gwarinpa any day between 8am and 7pm, or book a time ahead on WhatsApp.',
+                body: 'Come to 6th Avenue, Gwarinpa any day from 8am to 7pm, or book a time ahead on WhatsApp.',
             },
             {
                 title: 'We wash it properly',
-                body: 'Exterior, full or vacuum wash - you choose, and we get to work while you wait.',
+                body: 'Exterior, full or vacuum wash - you choose. Relax while we get to work.',
             },
             {
                 title: 'Drive off clean',
-                body: 'You leave in a car that is clean, fresh and ready to be seen in.',
+                body: 'You leave in a car that is clean, fresh and ready for wherever you are going next.',
             },
         ],
         detailsTo: '/carwash',
@@ -41,20 +41,20 @@ const tracks: Track[] = [
     {
         id: 'laundry',
         line: 'Laundry by Jaranow',
-        headline: 'Laundry that leaves the house, and comes back done.',
+        headline: 'Your weekend back. Your clothes done.',
         summary: 'Monthly plans or pay per item, collected and delivered across Abuja.',
         steps: [
             {
                 title: 'Pick a plan',
-                body: 'Lite or Premium, depending on how much your household gets through - or pay per item if you only need us now and then.',
+                body: 'Lite or Premium, depending on how much your household washes - or pay per item when you only need us now and then.',
             },
             {
-                title: 'We collect',
+                title: 'We pick up',
                 body: 'From your door on your pickup days: Tuesday and Saturday, with Thursday added on Premium.',
             },
             {
                 title: 'Back in 48 hours',
-                body: 'Washed, dried, ironed and folded - back fresh, crisp and ready to wear.',
+                body: 'Washed, dried, ironed and folded - back at your door fresh, crisp and ready to wear.',
             },
         ],
         detailsTo: '/laundry',

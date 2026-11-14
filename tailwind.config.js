@@ -5,6 +5,15 @@ module.exports = {
   ],
   theme: {
     extend: {
+      animation: {
+        nudge: 'nudge 2.4s ease-in-out infinite',
+      },
+      keyframes: {
+        nudge: {
+          '0%, 60%, 100%': {transform: 'translateX(0)'},
+          '30%': {transform: 'translateX(4px)'},
+        },
+      },
       colors: {
         // Brand neutrals
         ink: '#0E1526',

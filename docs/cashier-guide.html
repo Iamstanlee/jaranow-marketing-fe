@@ -189,21 +189,6 @@
     background:var(--box-edge);
   }
 
-  /* ---- price table ------------------------------------------------------ */
-  .table-wrap{overflow-x:auto;margin-top:1.15rem;max-width:var(--measure)}
-  table{border-collapse:collapse;width:100%;font-size:.9375rem}
-  th,td{text-align:left;padding:.6rem .9rem;border-bottom:1px solid var(--rule-soft)}
-  th{
-    font-size:.6875rem;
-    font-weight:600;
-    letter-spacing:.13em;
-    text-transform:uppercase;
-    color:var(--text-muted);
-    border-bottom:1px solid var(--rule);
-  }
-  td.price{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-  tbody tr:last-child td{border-bottom:0}
-
   /* ---- the market pitch: a line said out loud, so it is set as speech --- */
   .say{
     margin:1.15rem 0 0;
@@ -325,20 +310,10 @@
     </ul>
 
     <h3>Prices &mdash; say it plain</h3>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th scope="col">Wash</th><th scope="col">Price</th><th scope="col">Includes</th></tr></thead>
-        <tbody>
-          <tr><td>Exterior</td><td class="price">&#8358;2,000</td><td>Body, wheels, glass</td></tr>
-          <tr><td>Full</td><td class="price">&#8358;3,000</td><td>Inside cleaned too</td></tr>
-          <tr><td>Vacuum</td><td class="price">&#8358;4,000</td><td>Inside vacuumed too</td></tr>
-        </tbody>
-      </table>
-    </div>
     <ul class="tasks">
       <li>Same price for everybody. Don&rsquo;t bargain.</li>
       <li>If they beg, explain what they get. Don&rsquo;t drop the price.</li>
-      <li>Never quote a price that is not on this list. If unsure, ask the supervisor.</li>
+      <li>Never quote a price you are not sure of. If unsure, ask the supervisor.</li>
     </ul>
 
     <h3>Collect payment (after the wash)</h3>
@@ -354,10 +329,10 @@
     <h3>Loyalty card</h3>
     <ul class="tasks">
       <li>5 washes, then the 6th wash is free.</li>
-      <li>Stamp one box for each wash (boxes 1&ndash;5).</li>
-      <li>Write every stamp in the ledger by card number (LOY&#8209;001, LOY&#8209;002&hellip;).</li>
+      <li>Record each wash in the ledger by card number (LOY&#8209;001, LOY&#8209;002&hellip;) alongside the sale.</li>
       <li>The ledger is the real record, not the card. If a card is lost, the ledger still knows how many washes they&rsquo;ve had.</li>
-      <li>When they get the free 6th wash, mark it in the ledger and give a new card.</li>
+      <li>Only give a new card if the customer&rsquo;s card is lost.</li>
+      <li>When they get the free 6th wash, mark it in the ledger.</li>
     </ul>
   </section>
 
@@ -377,7 +352,7 @@
       <li>Money expected vs money received &mdash; they must match.</li>
       <li>Expenses and cash left.</li>
       <li>Loyalty stamps and free washes given.</li>
-      <li>Cars you brought from the market.</li>
+      <li>Any marketing done &mdash; flyers given out, new customers who came in.</li>
       <li>Anything else worth knowing &mdash; a complaint, a repeat customer, something we ran out of.</li>
     </ul>
     <div class="say">
@@ -386,22 +361,23 @@
   </section>
 
   <section>
-    <div class="sec-head"><span class="sec-num">4</span><h2>Bring cars from the market</h2></div>
-    <p>The market close by is full of people who would wash their car if it were easy. Our offer to them is simple: <b>wash it while you shop.</b></p>
-    <p>When the carwash is free, walk up to someone parked nearby and say:</p>
+    <div class="sec-head"><span class="sec-num">4</span><h2>Occasional offline marketing</h2></div>
+    <p>When the carwash is free, help bring in new customers. The simplest way is <b>handing out flyers</b> to people nearby &mdash; at the market, the shops and the busy spots close to us.</p>
     <div class="say">
       <span class="label">Say this</span>
-      <p>&ldquo;Hello sir, my name is [your name] from Jaranow Carwash. Come and park at our space, let&rsquo;s wash your car while you shop.&rdquo;</p>
+      <p>&ldquo;Hello sir, here is a flyer for Jaranow Carwash, just here on 6th Avenue. Come and try us.&rdquo;</p>
     </div>
     <ul class="tasks">
+      <li>Hand flyers to drivers and car owners &mdash; people passing or parked nearby.</li>
       <li>Say &ldquo;sir&rdquo; or &ldquo;ma&rdquo; to match who you are talking to.</li>
+      <li>Tell them what we offer: a good wash close by, pay by POS or transfer, and a loyalty card.</li>
       <li>If they say no, say thank you and leave them. Don&rsquo;t follow anyone.</li>
       <li>Don&rsquo;t block traffic or crowd people at their car.</li>
     </ul>
   </section>
 
   <section>
-    <div class="sec-head"><span class="sec-num">&#10003;</span><h2>Daily checklist</h2></div>
+    <div class="sec-head"><span class="sec-num">5</span><h2>Daily checklist</h2></div>
     <div class="checklist">
       <div>
         <h3>Opening</h3>
@@ -416,9 +392,9 @@
         <ul>
           <li><label><input type="checkbox"><span>Greet every customer, state prices plainly</span></label></li>
           <li><label><input type="checkbox"><span>Take payment after each wash, check it landed, say thank you</span></label></li>
-          <li><label><input type="checkbox"><span>Stamp and log every loyalty card by its number</span></label></li>
+          <li><label><input type="checkbox"><span>Log every loyalty card in the ledger by its number</span></label></li>
           <li><label><input type="checkbox"><span>Write down every wash, payment and expense as it happens</span></label></li>
-          <li><label><input type="checkbox"><span>Talk to people at the market when the carwash is free</span></label></li>
+          <li><label><input type="checkbox"><span>Hand out flyers when the carwash is free</span></label></li>
         </ul>
       </div>
       <div>

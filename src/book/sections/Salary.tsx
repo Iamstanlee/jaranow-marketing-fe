@@ -161,7 +161,7 @@ export function AttendantMonth({staff, attendance, roster, payouts, loading, wee
                                     : <>
                                         <dl className={`space-y-2 tabular-nums ${cashier ? 'mt-3' : 'mt-4 border-t border-slate-200 pt-4'}`}>
                                             <Row label="Base salary" value={money(pay.base)}/>
-                                            {pay.missed > 0 && <Row label={`${pay.unmarked ? 'Absent or not marked' : 'Absences'} · ${pay.missed} × ${money(Math.round(pay.rate))}`}
+                                            {pay.missed > 0 && <Row label={`${pay.unmarked ? 'Absent or not marked' : 'Absences'} · ${plural(pay.missed, 'day')}`}
                                                                      value={`− ${money(pay.deduction)}`}/>}
                                             {!cashier && <Row label={current ? 'Salary so far' : 'Salary for the month'} value={money(pay.earned)} strong/>}
                                             {pay.advance > 0 && <Row label="Advances" value={`− ${money(pay.advance)}`}/>}

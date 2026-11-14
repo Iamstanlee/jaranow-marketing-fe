@@ -1,11 +1,12 @@
 import {type ReactNode, useMemo, useState} from 'react';
 import {Check, ChevronLeft, ChevronRight, Pencil, Plus, UserPlus, Users, X} from 'lucide-react';
-import {DUTIES, type Duty} from '../constants';
-import {addDays, isoDay, startOfDay, startOfWeek} from '../format';
+import {DUTIES, type Duty, LEFT_REASONS, type LeftReason} from '../constants';
+import {addDays, dateText, isoDay, startOfDay, startOfWeek} from '../format';
 import {ATTENDANCE_START, isAttendant, type Mark, markOn, presentOn} from '../payments';
 import {nameOf, rotation, slotLabel, weekRoster, weekSpan, type Assignment} from '../roster';
 import type {Attendance, Role, RosterEntry, Staff as Person} from '../types';
-import {ConfirmDelete} from '../components/Confirm';
+import {Confirm, ConfirmDelete} from '../components/Confirm';
+import {SELECT} from '../components/Fields';
 import {DutyModal} from '../components/DutyModal';
 import {RowActions} from '../components/RowActions';
 import {Skeleton} from '../components/Skeleton';
@@ -14,7 +15,7 @@ import {DUTY_STYLE, exemptionOf} from './Roster';
 
 type Editing = { entry?: RosterEntry; day: string; duty?: Duty; staffId?: string };
 
-export function Staff({staff, roster, attendance, role, loading, attendanceLoading, onSetMark, onAddStaff, onUpdateStaff, onRemoveStaff, onAssign, onUpdateDuty, onRemoveDuty}: {
+export function Staff({staff, roster, attendance, role, loading, attendanceLoading, onSetMark, onAddStaff, onUpdateStaff, onArchiveStaff, onRestoreStaff, onRemoveStaff, onAssign, onUpdateDuty, onRemoveDuty}: {
     staff: Person[];
     roster: RosterEntry[];
     attendance: Attendance[];
@@ -23,7 +24,9 @@ export function Staff({staff, roster, attendance, role, loading, attendanceLoadi
     attendanceLoading: boolean;
     onSetMark: (day: string, person: Person, mark: Mark | null) => Promise<void>;
     onAddStaff: (record: StaffRecord) => Promise<void>;
-    onUpdateStaff: (id: string, patch: Partial<StaffRecord & Pick<Person, 'active'>>) => Promise<void>;
+    onUpdateStaff: (id: string, patch: Partial<StaffRecord>) => Promise<void>;
+    onArchiveStaff: (person: Person, leftAt: string, leftReason: LeftReason) => Promise<void>;
+    onRestoreStaff: (person: Person) => Promise<void>;
     onRemoveStaff: (person: Person) => Promise<void>;
     onAssign: (record: Omit<RosterEntry, 'id' | 'createdAt'>) => Promise<void>;
     onUpdateDuty: (id: string, record: Omit<RosterEntry, 'id' | 'createdAt'>) => Promise<void>;
@@ -33,6 +36,7 @@ export function Staff({staff, roster, attendance, role, loading, attendanceLoadi
     const [editing, setEditing] = useState<Editing | null>(null);
     const [person, setPerson] = useState<Person | 'new' | null>(null);
     const [removing, setRemoving] = useState<Person | null>(null);
+    const [archiving, setArchiving] = useState<Person | null>(null);
     const cycling = DUTIES.some(d => rotation(staff, d).length > 0);
     const presentToday = presentOn(isoDay(new Date()), staff, attendance).map(p => p.id);
 
@@ -61,7 +65,7 @@ export function Staff({staff, roster, attendance, role, loading, attendanceLoadi
 
         <TeamCard staff={staff} presentToday={presentToday} admin={admin} loading={loading}
                   onEdit={setPerson} onRemove={setRemoving}
-                  onToggleActive={p => onUpdateStaff(p.id, {active: !p.active})}/>
+                  onToggleActive={p => p.active ? setArchiving(p) : onRestoreStaff(p)}/>
 
         {editing && <DutyModal entry={editing.entry} day={editing.day} duty={editing.duty} staffId={editing.staffId}
                                staff={staff} close={() => setEditing(null)}
@@ -70,6 +74,8 @@ export function Staff({staff, roster, attendance, role, loading, attendanceLoadi
                                removeLabel={cycling ? 'Undo swap — back to whose turn it is' : 'Remove from duties'}/>}
         {person && <StaffModal person={person === 'new' ? undefined : person} close={() => setPerson(null)}
                                save={record => person === 'new' ? onAddStaff(record) : onUpdateStaff(person.id, record)}/>}
+        {archiving && <ArchiveModal person={archiving} close={() => setArchiving(null)}
+                                    confirm={(leftAt, reason) => onArchiveStaff(archiving, leftAt, reason)}/>}
         {removing && <ConfirmDelete title={`Remove ${removing.name}?`}
                                     detail={`${removing.name} comes off the team and off every week they have a duty. Archive them instead to keep their name on the weeks they worked.`}
                                     close={() => setRemoving(null)} confirm={() => onRemoveStaff(removing)}/>}
@@ -277,6 +283,8 @@ function TeamCard({staff, presentToday, admin, loading, onEdit, onRemove, onTogg
                             <p className={`truncate font-medium ${p.active ? '' : 'text-slate-500'}`}>{p.name}</p>
                             <div className="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-slate-500">
                                 {!p.active && <span className={`${tag} bg-slate-200 text-slate-600`}>Archived</span>}
+                                {!p.active && p.leftAt && <span className="text-xs text-slate-400">
+                                    Left {dateText(p.leftAt)}{p.leftReason ? ` · ${p.leftReason}` : ''}</span>}
                                 {p.active && <span className={`${tag} bg-blue-50 text-blue-700`}>
                                     {p.attendantPay ? 'Car Washer' : 'Cashier'}</span>}
                                 {presentToday.includes(p.id) && <span className={`${tag} bg-emerald-50 text-emerald-700`}>In today</span>}
@@ -291,6 +299,30 @@ function TeamCard({staff, presentToday, admin, loading, onEdit, onRemove, onTogg
                     </div>}
                 </li>)}</ul>}
     </section>;
+}
+
+// When and why they left is what tenure and retention are measured from.
+function ArchiveModal({person, close, confirm}: {
+    person: Person;
+    close: () => void;
+    confirm: (leftAt: string, reason: LeftReason) => Promise<void>
+}) {
+    const today = isoDay(new Date());
+    const [leftAt, setLeftAt] = useState(today), [reason, setReason] = useState<LeftReason>('Resigned');
+    return <Confirm title={`Archive ${person.name}?`} action="Archive"
+                    detail="They come off attendance and the rota, and stay on the weeks they worked."
+                    close={close} confirm={() => confirm(leftAt || today, reason)}>
+        <div className="mt-5 grid grid-cols-2 gap-3">
+            <label className="block text-sm font-medium">Last day<input type="date" value={leftAt} max={today}
+                                                                       onChange={e => setLeftAt(e.target.value)}
+                                                                       className={SELECT}/></label>
+            <label className="block text-sm font-medium">Reason<select value={reason}
+                                                                      onChange={e => setReason(e.target.value as LeftReason)}
+                                                                      className={SELECT}>
+                {LEFT_REASONS.map(r => <option key={r}>{r}</option>)}
+            </select></label>
+        </div>
+    </Confirm>;
 }
 
 function Initials({name, on, muted}: { name: string; on?: boolean; muted?: boolean }) {

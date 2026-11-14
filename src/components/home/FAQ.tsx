@@ -10,7 +10,7 @@ const faqs: FaqItem[] = [
     },
     {
         question: 'How do I book a car wash?',
-        answer: 'Use the booking form on the car wash page or message us on WhatsApp with your car and a preferred time, and we will confirm your slot.',
+        answer: 'Use the booking form on the car wash page, or send us a WhatsApp message with your car and the time that suits you. We will confirm your slot.',
     },
     {
         question: 'How does laundry pickup and delivery work?',
@@ -18,7 +18,7 @@ const faqs: FaqItem[] = [
     },
     {
         question: 'Which parts of Abuja do you cover?',
-        answer: 'The car wash is in Gwarinpa. Laundry is collected and delivered across Abuja - send us your address on WhatsApp and we will confirm your pickup. Lagos, Port Harcourt and Ibadan are next.',
+        answer: 'The car wash is in Gwarinpa. Laundry is picked up and delivered across Abuja - send us your area and a nearby landmark on WhatsApp and we will confirm your pickup. Lagos, Port Harcourt and Ibadan are next.',
     },
     {
         question: 'How much do the car wash and laundry cost?',
@@ -34,7 +34,7 @@ const faqs: FaqItem[] = [
     },
     {
         question: 'What if something is not right?',
-        answer: 'Tell us on WhatsApp at +234 903 862 2012. We will look at it with you and put it right.',
+        answer: 'Tell us on WhatsApp at +234 903 862 2012. We will look at it with you and make it right.',
     },
 ];
 

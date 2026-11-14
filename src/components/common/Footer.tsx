@@ -126,6 +126,8 @@ const Footer: React.FC = () => {
                     <div className="flex flex-col md:flex-row justify-between items-center text-sm text-paper/60 gap-3">
                         <div>© {new Date().getFullYear()} Beanslabs Technologies. All rights reserved.</div>
                         <div className="flex items-center space-x-2">
+                            <Link to="/careers" className="hover:text-white transition-colors">We&apos;re hiring</Link>
+                            <span>·</span>
                             <span>Part of the Jaranow family</span>
                             <span>·</span>
                             <span>Made with ❤️ in Nigeria</span>

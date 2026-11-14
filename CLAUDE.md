@@ -2,7 +2,7 @@
 
 Marketing site for Jaranow: home (`/`), car wash (`/carwash`), laundry
 (`/laundry`), rug cleaning (`/rugs`), fleet & corporate car wash
-(`/business`), pricing (`/pricing`), pitch deck (`/pitch-deck`), internal books
+(`/business`), pricing (`/pricing`), careers (`/careers`), pitch deck (`/pitch-deck`), internal books
 app (`/__/book`).
 
 ## Tech stack
@@ -76,8 +76,19 @@ render. Keep it fast on a tablet on mobile data:
   `new Intl.*` or `toLocale*String` per row.
 - Derive per-day sales through `payments.ts`'s per-array day index rather than
   scanning `sales` once per day.
-- Heavy sections (`Reports`, `Payments`, `Staff`) are lazy-loaded in
+- Heavy sections (`Reports`, `Payments`, `Staff`, `Hiring`) are lazy-loaded in
   `Bookkeeping.tsx`. Overview, Sales, Expenses and End of day stay eager.
+
+### Hiring (`/careers` → Book → Hiring)
+
+The `/careers` form writes straight to `car_wash_applicants` (Firebase is imported on
+submit only); it does not go through WhatsApp. `firestore.rules` lets the public create
+an application only in that exact shape - keep its `hasOnly()` list in step with
+`APPLICATION_FIELDS` in `src/data/hiring.ts`, and deploy rules after changing either.
+Stages: new → training (two days from `trainingFrom`) → hired, with bench and declined
+on the side. Hiring writes the `Staff` doc and the applicant's `stage` in one batch.
+The section and its listener are admin-only. The process behind it is `docs/hiring-playbook.html`; keep the two in step. Attendants are offered salary only. Archiving
+a team member records `leftAt` and `leftReason`, which tenure and retention are measured from.
 
 ### Header and Footer
 
@@ -105,7 +116,8 @@ Page sections are built from `components/common/ui.tsx` (`SectionHeader`,
 by hand, so every page stays one system. Sections alternate Ink / Paper / white.
 
 Enquiry forms that hand off to WhatsApp (the business quote, the rug pickup)
-use `components/common/WhatsAppForm.tsx`: fields are a config array, so a new
+use `components/common/WhatsAppForm.tsx`, a thin wrapper over `EnquiryForm.tsx` (which
+the careers form uses directly with its own `onSubmit`): fields are a config array, so a new
 enquiry type is data rather than another copy of the carwash `BookingForm`.
 Each page closes on `CtaBand`, the one full-accent surface per page.
 
@@ -197,6 +209,7 @@ are published as Artifacts and printed:
 | Employee Handbook — work rules, offences and sanctions, revenue sharing | `employee-handbook.html` |
 | Attendant Guide | `attendant-guide.html` |
 | Cashier Guide | `cashier-guide.html` |
+| Hiring Playbook — the always-hiring pipeline and why | `hiring-playbook.html` |
 
 They share one token set with the print pieces (Ink / Paper / accent, Archivo
 Black over Rubik), so a document and a wall sheet read as the same brand.
@@ -814,7 +827,7 @@ mirrors the `/` entry in `routes.json`.
 ## Section links
 
 Booking sections have stable ids - `/carwash#booking`, `/laundry#pricing`,
-`/laundry#plan-recommendation`, `/rugs#pickup`, `/business#quote` - and a URL
+`/laundry#plan-recommendation`, `/rugs#pickup`, `/business#quote`, `/careers#apply` - and a URL
 carrying one opens on that section (`useLandingScroll`). In-page buttons scroll
 through `scrollToElement()`, which also writes the id into the address bar with
 `history.replaceState` (not push, so Back still leaves the page), so the URL is

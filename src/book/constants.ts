@@ -35,7 +35,8 @@ export const COLLECTIONS = {
     staff: 'car_wash_staff',
     roster: 'car_wash_roster',
     payouts: 'car_wash_payouts',
-    attendance: 'car_wash_attendance'
+    attendance: 'car_wash_attendance',
+    applicants: 'car_wash_applicants'
 } as const;
 
 export const EXPENSE_CATEGORIES = ['Detergent/Soap', 'Water', 'Fuel', 'Supplies', 'Transport', 'Staff', 'Utilities', 'Maintenance', 'Other'] as const;
@@ -47,4 +48,7 @@ export type Duty = typeof DUTIES[number];
 // How many recent documents each live listener reads; older ones are fetched on demand
 // (useBook's history). Loyalty and staff are read whole: codeFor numbers members by position,
 // so a truncated loyalty list would hand out somebody else's code.
-export const LIVE_WINDOW = {sales: 300, expenses: 300, roster: 400, payouts: 400, attendance: 120} as const;
+export const LIVE_WINDOW = {sales: 300, expenses: 300, roster: 400, payouts: 400, attendance: 120, applicants: 300} as const;
+
+export const LEFT_REASONS = ['Resigned', 'Stopped coming', 'Let go', 'Other'] as const;
+export type LeftReason = typeof LEFT_REASONS[number];

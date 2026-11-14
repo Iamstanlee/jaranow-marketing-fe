@@ -27,7 +27,7 @@ const entries: ServiceEntry[] = [
         line: 'Laundry by Jaranow',
         title: 'Collected. Cared for. Returned folded.',
         facts: [
-            {icon: <Truck size={15}/>, text: 'Collected from your door'},
+            {icon: <Truck size={15}/>, text: 'Picked up from your door'},
             {icon: <Clock size={15}/>, text: 'Back in 48 hours'},
         ],
     },
@@ -54,8 +54,8 @@ const Hero: React.FC = () => {
                             variants={fadeInUp}
                             className="mt-7 max-w-xl text-lg leading-relaxed text-paper/75 sm:text-xl"
                         >
-                            Get your car washed properly at 6th Avenue, Gwarinpa, open every day. Or have your laundry
-                            collected from your door and returned ironed and folded within 48 hours.
+                            A properly washed car at 6th Avenue, Gwarinpa, any day of the week. Laundry picked up from
+                            your door and brought back ironed and folded in 48 hours, so your Saturday stays yours.
                         </motion.p>
 
                         <motion.div variants={fadeInUp} className="mt-10 flex flex-col gap-3 sm:flex-row">

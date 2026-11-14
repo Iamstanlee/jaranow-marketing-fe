@@ -1,6 +1,6 @@
 import {SERVICES} from './constants';
 import {addDays, isoDay, startOfWeek} from './format';
-import type {Attendance, Expense, Loyalty, Payout, RosterEntry, Sale, Staff} from './types';
+import type {Applicant, Attendance, Expense, Loyalty, Payout, RosterEntry, Sale, Staff} from './types';
 
 // Demo mode only (no Firebase config).
 
@@ -79,3 +79,9 @@ export const seedRoster: RosterEntry[] = [
 export const seedPayouts: Payout[] = [];
 
 export const seedAttendance: Attendance[] = [{id: isoDay(new Date()), day: isoDay(new Date()), present: ['p1', 'p2', 'p3']}];
+
+export const seedApplicants: Applicant[] = [
+    {id: 'a1', name: 'Ibrahim Sani', phone: '0809 222 3344', area: 'Dawaki', start: 'Immediately', experience: 'Yes, at a car wash', fullDay: 'Yes', source: 'Poster at the car wash', src: 'qrcode', stage: 'new'},
+    {id: 'a2', name: 'Grace Nwosu', phone: '0812 555 6677', area: 'Kubwa', start: 'Within one week', experience: 'No, but I am ready to learn', fullDay: 'Yes', source: 'Facebook or Instagram', stage: 'new'},
+    {id: 'a3', name: 'Daniel Okon', phone: '0703 888 9900', area: 'Gwarinpa', start: 'Immediately', experience: 'Yes, but not at a car wash', fullDay: 'Yes', source: 'Someone who works at Jaranow', stage: 'training', trainingFrom: isoDay(new Date())}
+];

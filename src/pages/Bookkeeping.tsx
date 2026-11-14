@@ -4,11 +4,10 @@ import {
     ClipboardCheck,
     Gift,
     LayoutDashboard,
-    LogOut,
     Menu, PiggyBank,
     Plus,
     WalletCards,
-    X, SquareUserRound, Gauge
+    X, SquareUserRound, Gauge, UserSearch
 } from 'lucide-react';
 import {greeting, longDate} from '../book/format';
 import {clearSession, readSession, type Session, writeSession} from '../book/session';
@@ -17,6 +16,7 @@ import {useBook} from '../book/hooks/useBook';
 import {useDayTick} from '../book/hooks/useDayTick';
 import {useDrawerSwipe} from '../book/hooks/useDrawerSwipe';
 import {useToasts} from '../book/hooks/useToasts';
+import {AccountMenu} from '../book/components/AccountMenu';
 import {ExpenseModal} from '../book/components/ExpenseModal';
 import {PinGate} from '../book/components/PinGate';
 import {SaleModal} from '../book/components/SaleModal';
@@ -31,6 +31,7 @@ import {Sales} from '../book/sections/Sales';
 const Payments = lazy(() => import('../book/sections/Payments').then(m => ({default: m.Payments})));
 const Reports = lazy(() => import('../book/sections/Reports').then(m => ({default: m.Reports})));
 const Staff = lazy(() => import('../book/sections/Staff').then(m => ({default: m.Staff})));
+const Hiring = lazy(() => import('../book/sections/Hiring').then(m => ({default: m.Hiring})));
 
 export default function Bookkeeping() {
     const [session, setSession] = useState<Session | null>(readSession), [pin, setPin] = useState(''), [pinError, setPinError] = useState('');
@@ -47,7 +48,7 @@ export default function Bookkeeping() {
         [menuOpen, setMenuOpen] = useState(false);
     const day = useDayTick();
     useDrawerSwipe(menuOpen, setMenuOpen);
-    const book = useBook(day, toast);
+    const book = useBook(day, toast, role === 'admin');
     const {ready} = book;
 
     // Client-side navigation only; installs rely on the prerendered manifest (see CLAUDE.md "SEO").
@@ -92,7 +93,7 @@ export default function Bookkeeping() {
 
     if (!role) return <><PinGate pin={pin} setPin={setPin} error={pinError} login={login}/><Toasts toasts={toasts}
                                                                                                    dismiss={dismiss}/></>;
-    // Reports are admin-only; sections enforce their own write permissions.
+    // Hiring and Reports are admin-only; sections enforce their own write permissions.
     const nav: Array<{ id: Section; label: string; icon: typeof LayoutDashboard }> = [{
         id: 'overview',
         label: 'Overview',
@@ -114,7 +115,7 @@ export default function Bookkeeping() {
         id: 'payments',
         label: 'Payments',
         icon: PiggyBank
-    }, ...(role === 'admin' ? [{id: 'reports' as const, label: 'Reports', icon: BarChart3}] : [])];
+    }, ...(role === 'admin' ? [{id: 'reports' as const, label: 'Reports', icon: BarChart3}, {id: 'hiring' as const, label: 'Hiring', icon: UserSearch}] : [])];
     const title = section === 'overview' ? greeting() : nav.find(x => x.id === section)?.label;
     return <div className="min-h-screen bg-[#f7f8fc] text-slate-900">
         <aside
@@ -133,13 +134,6 @@ export default function Bookkeeping() {
                                className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium ${section === item.id ? 'bg-blue-50 text-blue-700' : 'text-slate-500 hover:bg-slate-50'}`}>
                     <Icon size={19}/>{item.label}</button>;
             })}</nav>
-            <div className="absolute bottom-6 left-5 right-5 rounded-2xl bg-slate-900 p-4 text-white"><p
-                className="text-sm font-semibold">Jaranow car wash</p><p
-                className="mt-1 text-xs capitalize text-slate-400">{role} access</p>
-                <button onClick={lock}
-                        className="mt-4 flex items-center gap-2 text-xs text-slate-300"><LogOut size={14}/> Lock book
-                </button>
-            </div>
         </aside>
         {menuOpen && <button aria-label="Close menu" onClick={() => setMenuOpen(false)}
                              className="fixed inset-0 z-20 bg-slate-900/30 md:hidden"/>}
@@ -151,6 +145,7 @@ export default function Bookkeeping() {
                         className="text-xl font-bold">{title}</h1>
                     </div>
                 </div>
+                <AccountMenu role={role} onLogout={lock}/>
             </header>
             {book.syncError && <div role="alert"
                                     className="border-b border-amber-200 bg-amber-50 px-5 py-3 text-sm text-amber-800 md:px-9">{book.syncError}</div>}
@@ -175,7 +170,8 @@ export default function Bookkeeping() {
                 <Staff staff={book.staff} roster={book.roster} attendance={book.attendance} role={role}
                        loading={!ready.staff || !ready.roster} attendanceLoading={!ready.attendance}
                        onSetMark={book.setMark}
-                       onAddStaff={book.addStaff} onUpdateStaff={book.updateStaff} onRemoveStaff={book.removeStaff}
+                       onAddStaff={book.addStaff} onUpdateStaff={book.updateStaff}
+                       onArchiveStaff={book.archiveStaff} onRestoreStaff={book.restoreStaff} onRemoveStaff={book.removeStaff}
                        onAssign={book.assignDuty} onUpdateDuty={book.updateDuty}
                        onRemoveDuty={book.removeDuty}/>} {section === 'eod' &&
                 <Eod totals={book.totals} expenses={book.todayExpenses}
@@ -189,7 +185,10 @@ export default function Bookkeeping() {
                           loading={!ready.sales || !ready.staff || !ready.payouts || !ready.attendance || !ready.roster}
                           requestHistory={book.requestHistory} historyLoading={book.historyLoading}
                           onAddAdvance={book.addAdvance} onRemoveAdvance={book.removeAdvance}
-                          onPay={book.markPaid} onUndo={book.undoPayout}/>}</Suspense></div>
+                          onPay={book.markPaid} onUndo={book.undoPayout}/>} {section === 'hiring' && role === 'admin' &&
+                <Hiring applicants={book.applicants} loading={!ready.applicants}
+                        onUpdate={book.updateApplicant} onHire={book.hireApplicant}
+                        onRemove={book.removeApplicant}/>}</Suspense></div>
         </main>
         {saleModal && <SaleModal members={book.loyalty} close={() => setSaleModal(false)} save={book.addSale}/>}
         {expenseModal && <ExpenseModal close={() => setExpenseModal(false)} save={book.addExpense}/>}

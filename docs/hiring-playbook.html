@@ -1,0 +1,460 @@
+<title>Hiring Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Rubik:wght@400;500;600;700&display=swap">
+<style>
+  /* ---- Jaranow house tokens. Shared with the Employee Handbook. --------- */
+  :root{
+    --ink:#0E1526;
+    --paper:#F2F5FB;
+    --accent:#2563EB;
+
+    --bg:var(--paper);
+    --surface:#E7ECF6;         /* blue-biased, not grey */
+    --text:var(--ink);
+    --text-muted:#59637A;
+    --rule:#CBD5E8;
+    --rule-soft:#DCE3F0;
+    --box:#FFFFFF;
+    --box-edge:#A9B6D0;
+
+    --mark-ink:var(--ink);
+    --mark-accent:var(--accent);
+
+    --measure:34rem;
+    --gutter:2.25rem;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#0B111F;
+      --surface:#151D2F;
+      --text:var(--paper);
+      --text-muted:#96A1B8;
+      --rule:#26314A;
+      --rule-soft:#1C2438;
+      --box:#0F1728;
+      --box-edge:#3A4767;
+      --accent:#3B79F5;
+      --mark-ink:var(--paper);
+      --mark-accent:#6F9AF4;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0B111F;
+    --surface:#151D2F;
+    --text:var(--paper);
+    --text-muted:#96A1B8;
+    --rule:#26314A;
+    --rule-soft:#1C2438;
+    --box:#0F1728;
+    --box-edge:#3A4767;
+    --accent:#3B79F5;
+    --mark-ink:var(--paper);
+    --mark-accent:#6F9AF4;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:Rubik,"Helvetica Neue",Arial,sans-serif;
+    font-size:16px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* the accent bar that terminates every printed piece in this system */
+  .topbar{height:6px;background:var(--accent)}
+
+  .sheet{
+    max-width:calc(var(--measure) + var(--gutter) + 4rem);
+    margin:0 auto;
+    padding:3.5rem 1.5rem 5rem;
+  }
+
+  /* ---- masthead --------------------------------------------------------- */
+  .masthead{
+    display:flex;
+    flex-direction:column;
+    gap:2rem;
+    padding-bottom:1.75rem;
+    border-bottom:2px solid var(--text);
+  }
+  .lockup{width:172px;height:auto;display:block}
+  .role{
+    display:inline-block;
+    font-size:.6875rem;
+    font-weight:600;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:.5rem;
+  }
+  .masthead h1{
+    font-family:"Archivo Black",Rubik,Arial,sans-serif;
+    font-weight:400;
+    font-size:clamp(2rem,7vw,2.85rem);
+    line-height:1.02;
+    letter-spacing:-.015em;
+    text-wrap:balance;
+    margin:0;
+  }
+  .job{
+    margin:1rem 0 0;
+    max-width:var(--measure);
+    font-size:1.0625rem;
+  }
+  .values{
+    margin:.55rem 0 0;
+    max-width:var(--measure);
+    color:var(--text-muted);
+    font-size:.9375rem;
+  }
+  .values b{color:var(--text);font-weight:500}
+
+  .facts{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.35rem 2.25rem;
+    margin-top:1.9rem;
+    padding:0;
+    list-style:none;
+  }
+  .facts div{display:flex;flex-direction:column;gap:.1rem}
+  .label{
+    font-size:.6875rem;
+    font-weight:600;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .facts b{font-weight:500;font-size:.9375rem;font-variant-numeric:tabular-nums}
+
+  /* ---- sections --------------------------------------------------------- */
+  section{margin-top:3rem}
+  .sec-head{
+    display:flex;
+    align-items:baseline;
+    gap:.85rem;
+    padding-bottom:.7rem;
+    border-bottom:1px solid var(--rule);
+  }
+  .sec-num{
+    font-family:"Archivo Black",Rubik,Arial,sans-serif;
+    font-size:1.05rem;
+    color:var(--accent);
+    font-variant-numeric:tabular-nums;
+  }
+  .sec-head h2{
+    font-family:"Archivo Black",Rubik,Arial,sans-serif;
+    font-weight:400;
+    font-size:1.3125rem;
+    letter-spacing:-.005em;
+    margin:0;
+  }
+  h3{
+    font-size:.8125rem;
+    font-weight:600;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    margin:1.9rem 0 .75rem;
+  }
+  section > p{margin:1.1rem 0 0;max-width:var(--measure)}
+
+  /* ---- task lists: accent tick in a fixed gutter ------------------------ */
+  .tasks{list-style:none;margin:1.15rem 0 0;padding:0;max-width:var(--measure)}
+  .tasks li{
+    position:relative;
+    padding:0 0 0 var(--gutter);
+    margin-top:.62rem;
+  }
+  .tasks li:first-child{margin-top:0}
+  .tasks li::before{
+    content:"";
+    position:absolute;
+    left:.4rem;
+    top:.66em;
+    width:.4rem;
+    height:.4rem;
+    border-radius:50%;
+    background:var(--accent);
+  }
+  .tasks b{font-weight:600}
+  .tasks .nested{list-style:none;margin:.45rem 0 0;padding:0}
+  .tasks .nested li{padding-left:1.15rem;margin-top:.3rem;font-size:.9375rem}
+  .tasks .nested li::before{
+    left:0;top:.72em;width:.32rem;height:.32rem;border-radius:0;
+    background:var(--box-edge);
+  }
+
+  /* ---- price table ------------------------------------------------------ */
+  .table-wrap{overflow-x:auto;margin-top:1.15rem;max-width:var(--measure)}
+  table{border-collapse:collapse;width:100%;font-size:.9375rem}
+  th,td{text-align:left;padding:.6rem .9rem;border-bottom:1px solid var(--rule-soft)}
+  th{
+    font-size:.6875rem;
+    font-weight:600;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    border-bottom:1px solid var(--rule);
+  }
+  td.price{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+  tbody tr:last-child td{border-bottom:0}
+
+  /* ---- the market pitch: a line said out loud, so it is set as speech --- */
+  .say{
+    margin:1.15rem 0 0;
+    max-width:var(--measure);
+    padding:1.05rem 1.3rem;
+    background:var(--surface);
+    border-left:3px solid var(--accent);
+    font-size:1.0625rem;
+    line-height:1.5;
+  }
+  .say p{margin:0}
+  .say .label{display:block;margin-bottom:.5rem}
+
+  /* ---- checklist -------------------------------------------------------- */
+  .checklist{margin-top:1.4rem;display:grid;gap:1.75rem;grid-template-columns:1fr}
+  /* A scan grid, not prose - so it is allowed out past the text measure once
+     the viewport can pay for it. Three columns inside the measure squeeze
+     each item to about three words a line. */
+  @media(min-width:44rem){.checklist{grid-template-columns:repeat(3,1fr);gap:2rem}}
+  @media(min-width:62rem){.checklist{margin-inline:-6rem;gap:2.5rem}}
+  .checklist h3{margin-top:0}
+  .checklist ul{list-style:none;margin:0;padding:0}
+  .checklist li{margin-top:.7rem}
+  .checklist li:first-child{margin-top:0}
+  .checklist label{
+    display:grid;
+    grid-template-columns:1.15rem minmax(0,1fr);
+    gap:.65rem;
+    align-items:start;
+    font-size:.9375rem;
+    cursor:pointer;
+  }
+  .checklist input{
+    appearance:none;-webkit-appearance:none;
+    margin:0;
+    width:1.15rem;height:1.15rem;
+    margin-top:.16rem;
+    border:1.5px solid var(--box-edge);
+    border-radius:2px;
+    background:var(--box);
+    display:grid;place-content:center;
+  }
+  .checklist input::before{
+    content:"";
+    width:.62rem;height:.62rem;
+    transform:scale(0);
+    background:var(--accent);
+    clip-path:polygon(14% 44%,0 60%,39% 100%,100% 18%,84% 3%,37% 68%);
+  }
+  .checklist input:checked::before{transform:scale(1)}
+  .checklist input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .checklist input:checked + span{color:var(--text-muted);text-decoration:line-through}
+
+  /* ---- closing note ----------------------------------------------------- */
+  .closing{
+    margin-top:2.75rem;
+    padding:1.15rem 1.35rem;
+    background:var(--surface);
+    border-left:3px solid var(--accent);
+    max-width:var(--measure);
+  }
+  .closing p{margin:0;font-size:.9375rem}
+
+  footer{
+    margin-top:3.25rem;
+    padding-top:1.1rem;
+    border-top:1px solid var(--rule);
+    display:flex;
+    flex-wrap:wrap;
+    gap:.35rem 1.5rem;
+    justify-content:space-between;
+    font-size:.8125rem;
+    color:var(--text-muted);
+  }
+
+  @media print{
+    :root{--bg:#fff;--text:#0E1526;--rule:#bbb;--rule-soft:#ddd;--surface:#f2f5fb;--box:#fff;--box-edge:#888}
+    body{font-size:10.5pt}
+    .sheet{max-width:none;padding:0 0 1rem}
+    section{margin-top:1.9rem}
+    .sec-head,.sec-note,h3{break-after:avoid}
+    .tasks li,.say,.closing,.checklist>div,tr{break-inside:avoid}
+    .masthead,.facts{break-inside:avoid}
+    .checklist{grid-template-columns:repeat(3,1fr);gap:1.25rem}
+    .topbar,.tasks li::before,.checklist input{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="topbar"></div>
+
+<div class="sheet">
+
+  <header class="masthead">
+    <svg class="lockup" xmlns="http://www.w3.org/2000/svg" viewBox="-27 -4 625.7 207" role="img" aria-label="carwash by Jaranow" fill="none" stroke="var(--mark-ink)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(-10.4,34.5) scale(1.3)"><path fill-rule="evenodd" fill="var(--mark-accent)" stroke="none" d="M50 8 L81 44 A34 34 0 1 1 19 44 Z M50 51 A13 13 0 1 1 50 77 A13 13 0 1 1 50 51 Z"/></g><g transform="translate(150.7,0)"><g><path d="M21 53 V108 A14 14 0 0 1 7 122"/><path d="M14 23 H28 V37 H14 Z" fill="var(--mark-ink)" stroke="none"/></g><g transform="translate(40,0)"><path d="M47 53 V100 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"/></g><g transform="translate(106,0)"><path d="M7 100 V67 A14 14 0 0 1 21 53 H30"/></g><g transform="translate(155,0)"><path d="M47 53 V100 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"/></g><g transform="translate(221,0)"><path d="M7 100 V67 A14 14 0 0 1 21 53 H33 A14 14 0 0 1 47 67 V100"/></g><g transform="translate(287,0)"><path d="M7 67 A14 14 0 0 1 21 53 H33 A14 14 0 0 1 47 67 V79 A14 14 0 0 1 33 93 H21 A14 14 0 0 1 7 79 Z"/></g><g transform="translate(353,0)"><path d="M7 53 L20 100 L34 56 L48 100 L61 53"/></g></g><g transform="translate(150.7,136) scale(0.4)" stroke="var(--mark-accent)"><g><path d="M47 62 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 84"/></g><g transform="translate(100,0)"><path d="M47 53 V100 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"/></g><g transform="translate(200,0)"><path d="M7 100 V67 A14 14 0 0 1 21 53 H30"/></g><g transform="translate(283,0)"><path d="M7 53 L20 100 L34 56 L48 100 L61 53"/></g><g transform="translate(397,0)"><path d="M47 53 V100 M47 67 A14 14 0 0 0 33 53 H21 A14 14 0 0 0 7 67 V79 A14 14 0 0 0 21 93 H33 A14 14 0 0 0 47 79"/></g><g transform="translate(497,0)"><path d="M47 60 C47 49 7 48 7 63 C7 77 47 74 47 88 C47 101 9 102 9 89"/></g><g transform="translate(597,0)"><path d="M7 100 V16 M7 67 A14 14 0 0 1 21 53 H33 A14 14 0 0 1 47 67 V100"/></g></g></svg>
+
+    <div>
+      <span class="role">People &amp; process</span>
+      <h1>Hiring Playbook</h1>
+      <p class="job"><b>The goal:</b> a full team of attendants who stay &mdash; by hiring all the time, moving fast, and choosing carefully.</p>
+      <p class="values">We hire for <b>care, detail, timekeeping and honesty</b>. We train the rest.</p>
+    </div>
+  </header>
+
+  <ul class="facts">
+    <div><span class="label">Applications</span><b>jaranow.com/careers</b></div>
+    <div><span class="label">Managed in</span><b>Book &rarr; Hiring</b></div>
+    <div><span class="label">Training</span><b>Two days at 6th Avenue</b></div>
+  </ul>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">1</span><h2>Why we are always hiring</h2></div>
+    <p>Car wash work has high turnover everywhere. People leave for school, for a better offer, to travel home, or because the work is not for them. That is normal. What hurts us is being caught short &mdash; a busy Saturday with two attendants missing and nobody ready to step in.</p>
+    <p>So we do not open a vacancy when someone leaves. Applications come in all year, we keep good people warm on a bench, and when a space opens we fill it in days, not weeks. Big employers of hourly staff, such as McDonald&rsquo;s and Chipotle, learnt the same lessons:</p>
+    <ul class="tasks">
+      <li><b>Applying is easy.</b> Seven questions on a phone, no CV, no email, no fee. Every extra step loses good people.</li>
+      <li><b>Speed wins.</b> A good applicant takes the first job that calls them back, so every applicant is contacted within one day.</li>
+      <li><b>The real job is shown, not described.</b> Two days of training beside the team tells us more than any interview, and lets them decide with their eyes open.</li>
+      <li><b>There is always a bench.</b> Good people without a space yet are the first called when someone leaves.</li>
+      <li><b>The first 90 days decide who stays.</b> Most people who leave, leave early. Settling them in is part of hiring.</li>
+      <li><b>Everything is measured.</b> Where good hires come from, and why people leave, decides where effort goes.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">2</span><h2>The pipeline</h2></div>
+    <p>Every application lands in <b>Book &rarr; Hiring</b> as soon as it is sent. Each one sits in one stage.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Stage</th><th>What happens</th><th>Aim</th></tr></thead>
+        <tbody>
+          <tr><td><b>New</b></td><td>The application is reviewed and the applicant is called or messaged on WhatsApp. Outcome: training, bench, or decline.</td><td>Within 1 day</td></tr>
+          <tr><td><b>Training</b></td><td>Two days working beside the team at 6th Avenue. Outcome: hire, bench, or decline.</td><td>Within 3 days of the call</td></tr>
+          <tr><td><b>Hired</b></td><td>The new attendant is added to Staff on salary in one step.</td><td>Same day as training ends</td></tr>
+          <tr><td><b>Bench</b></td><td>Good, but no space yet. First to be called when a space opens.</td><td>Keep 3&ndash;5 warm</td></tr>
+          <tr><td><b>Declined</b></td><td>Not a fit. The applicant is told politely; nobody is left waiting without an answer.</td><td>&mdash;</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">3</span><h2>Where applicants come from</h2></div>
+    <p>Every poster, flyer and ad points to the careers page with its own link, so the Book shows which ones bring people who stay &mdash; not just people who apply.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Where</th><th>Link</th></tr></thead>
+        <tbody>
+          <tr><td>Poster at the car wash (QR code)</td><td>jaranow.com/careers?src=qrcode</td></tr>
+          <tr><td>WhatsApp status and groups</td><td>jaranow.com/careers?src=whatsapp</td></tr>
+          <tr><td>Facebook and Instagram ads</td><td>jaranow.com/careers?src=meta</td></tr>
+          <tr><td>Shared by someone from the page</td><td>jaranow.com/careers?src=share</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The best source is usually our own team. People recommended by an attendant who is doing well tend to stay, so the team is asked regularly who they know.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">4</span><h2>Reading an application</h2></div>
+    <p>The Book tags each application to show who to call first.</p>
+    <ul class="tasks">
+      <li><b>Close by</b> &mdash; stays in or near Gwarinpa. A short, cheap journey to work is one of the best signs someone will stay.</li>
+      <li><b>Car wash experience</b> &mdash; helpful, but not required. A careful person with no experience beats a careless one with five years.</li>
+      <li><b>Fewer days</b> &mdash; cannot work 5&ndash;6 days a week, 8am to 7pm. This is raised on the call and is usually a no.</li>
+    </ul>
+    <h3>Never a reason to hire or reject</h3>
+    <ul class="tasks">
+      <li>A CV, school certificate or how well they write.</li>
+      <li>Tribe, religion, state of origin, or who they know.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">5</span><h2>The first call</h2></div>
+    <p>The first call is short and friendly. It confirms the applicant is real, understands the job, and can get to work on every working day.</p>
+    <div class="say">
+      <span class="label">Opening line</span>
+      <p>&ldquo;Good afternoon, my name is [name] from Jaranow Carwash, 6th Avenue, Gwarinpa. You applied for the car wash attendant job. Is this a good time to talk for five minutes?&rdquo;</p>
+    </div>
+    <ul class="tasks">
+      <li><b>The job, plainly:</b> 5&ndash;6 days a week, 8am to 7pm, on their feet and in the sun, salary paid monthly.</li>
+      <li><b>Getting to work:</b> how they will reach 6th Avenue on each working day, and what it will cost them.</li>
+      <li><b>Motivation:</b> why they want this job, and why they left their last one.</li>
+      <li><b>Booking training:</b> if it is a fit, two training days are booked in the Book, and the applicant is given the dates, the arrival time (7:45am) and what to wear.</li>
+      <li><b>Training pay:</b> applicants know before they come whether the training days are paid, and how much.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">6</span><h2>The two training days</h2></div>
+    <p>Trainees work beside an experienced attendant on real cars. Day one is watching and helping; on day two they wash with the attendant checking. Observations go into the applicant&rsquo;s notes in the Book.</p>
+    <h3>What is assessed</h3>
+    <ul class="tasks">
+      <li><b>Detail</b> &mdash; do they go back for what they missed, or wait to be told?</li>
+      <li><b>Timekeeping</b> &mdash; did they arrive on time both days?</li>
+      <li><b>Honesty</b> &mdash; how do they handle what is inside a customer&rsquo;s car?</li>
+      <li><b>Attitude</b> &mdash; do they take correction well, and help without being asked?</li>
+      <li><b>Pace</b> &mdash; slow is fine on day one. Careless is not.</li>
+    </ul>
+    <p>The decision is made on the evening of day two and given to the trainee the same day.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">7</span><h2>Hiring and the first 90 days</h2></div>
+    <ul class="tasks">
+      <li>Attendants are offered a <b>monthly salary</b>. Revenue share is only by agreement, if they ask for it and management agrees.</li>
+      <li><b>Hire</b> in the Book records the salary and adds the new attendant to Staff, ready for attendance and the rota.</li>
+      <li>Before their first day, they read and sign the Employee Handbook and receive the Attendant Guide.</li>
+      <li><b>Week one:</b> each new attendant is paired with one experienced attendant as their shadow.</li>
+      <li><b>Day 7, day 30 and day 90:</b> a short private check-in about what is hard, and what can be fixed.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">8</span><h2>When someone leaves</h2></div>
+    <ul class="tasks">
+      <li>The leaver is archived in Staff with their last day and the reason. This is what shows how long people stay, and why they go.</li>
+      <li>Every leaver is asked, kindly, the real reason they are leaving, and the answer is recorded.</li>
+      <li>The bench is called first. New applications are used only if nobody on the bench can come.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">9</span><h2>Rules we never break</h2></div>
+    <ul class="tasks">
+      <li><b>Applying is free.</b> Nobody at Jaranow asks an applicant for money, a &ldquo;form fee&rdquo; or a favour. Anyone who does is dismissed.</li>
+      <li><b>Never promise what is not confirmed</b> &mdash; a salary, an allowance or a day off that management has not agreed.</li>
+      <li><b>Applicants&rsquo; details are private.</b> They are used only for hiring and never shared. Applications that will not be used again are deleted.</li>
+      <li><b>Everyone gets an answer.</b> Yes, bench, or no &mdash; never silence.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">10</span><h2>Monthly review</h2></div>
+    <ul class="tasks">
+      <li>How many applications came in, and from where.</li>
+      <li>How long from application to first call.</li>
+      <li>How many trainees were hired.</li>
+      <li>How many new hires are still on the team after 30 and 90 days, by source.</li>
+      <li>The reasons people left. A reason that keeps coming up is a cause to fix.</li>
+    </ul>
+  </section>
+
+  <div class="closing">
+    <p>Hiring is never finished. A little attention every day keeps the team full and the bench ready.</p>
+  </div>
+
+  <footer>
+    <span>Carwash by Jaranow &middot; 6th Avenue, Gwarinpa, Abuja</span>
+    <span>Hiring Playbook &middot; November 2026</span>
+  </footer>
+
+</div>

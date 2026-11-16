@@ -43,3 +43,15 @@ export function PriceField({service, value, onChange, free = false}: {
         </span>
     </label>;
 }
+
+export function AmountField({label, value, onChange, note}: {
+    label: string;
+    value: string;
+    onChange: (v: string) => void;
+    note?: string
+}) {
+    return <label className="block text-sm font-medium">{label}
+        <input required inputMode="numeric" value={value} onChange={e => onChange(e.target.value)} className={SELECT}/>
+        {note && <span className="mt-1 block text-xs font-normal text-slate-400">{note}</span>}
+    </label>;
+}

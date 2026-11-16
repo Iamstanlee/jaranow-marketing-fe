@@ -20,20 +20,22 @@ import {
 } from 'firebase/firestore';
 import type {DocumentData, Query} from 'firebase/firestore';
 import {authReady, db, firebaseEnabled} from '../../lib/firebase';
-import {COLLECTIONS, DUTIES, earnsPoints, type LeftReason, LIVE_WINDOW} from '../constants';
+import {COLLECTIONS, DUTIES, earnsPoints, isRug, type LeftReason, LIVE_WINDOW} from '../constants';
 import {addDays, codeFor, dateOf, dayFrom, dayLabel, money} from '../format';
 import {slotLabel, weekSpan} from '../roster';
+import {nextRugTag} from '../rugs';
 import {type Mark, SHARE_RATE} from '../payments';
 import {seedApplicants, seedAttendance, seedExpenses, seedLoyalty, seedPayouts, seedRoster, seedSales, seedStaff} from '../seed';
 import {totalSales} from '../totals';
-import type {Advance, Applicant, Attendance, Expense, Loyalty, Payout, RosterEntry, Sale, Staff, Timestamp} from '../types';
+import type {Advance, Applicant, Attendance, Expense, Loyalty, Payout, RosterEntry, Sale, SalePatch, Staff, Timestamp} from '../types';
+import {who} from '../components/SalesTable';
 import type {StaffRecord} from '../components/StaffModal';
 import type {Notify} from './useToasts';
 
 type Dated = { id: string; createdAt?: Timestamp };
 
-type Feed = 'sales' | 'loyalty' | 'expenses' | 'staff' | 'roster' | 'payouts' | 'attendance' | 'applicants';
-const FEEDS: Feed[] = ['sales', 'loyalty', 'expenses', 'staff', 'roster', 'payouts', 'attendance', 'applicants'];
+type Feed = 'sales' | 'owing' | 'loyalty' | 'expenses' | 'staff' | 'roster' | 'payouts' | 'attendance' | 'applicants';
+const FEEDS: Feed[] = ['sales', 'owing', 'loyalty', 'expenses', 'staff', 'roster', 'payouts', 'attendance', 'applicants'];
 type Ready = Record<Feed, boolean>;
 
 // Ledgers with a capped live window and an on-demand history behind it.
@@ -41,12 +43,13 @@ type Ledger = 'sales' | 'expenses';
 const LEDGERS: Ledger[] = ['sales', 'expenses'];
 type Archive = { sales: Sale[]; expenses: Expense[] };
 
-type NewMember = { code: string; customer: string; phone: string };
+type NewMember = { code: string; phone: string };
 type Fields<T> = Omit<T, 'id' | 'createdAt'>;
 
 /** Every Firestore read and write the desk makes. `day` is today's midnight (useDayTick); applicants are read on admin only. */
 export function useBook(day: number, toast: Notify, admin: boolean) {
     const [sales, setSales] = useState<Sale[]>(firebaseEnabled ? [] : seedSales);
+    const [owingLive, setOwingLive] = useState<Sale[]>([]);
     const [loyalty, setLoyalty] = useState<Loyalty[]>(firebaseEnabled ? [] : seedLoyalty);
     const [expenseRecords, setExpenseRecords] = useState<Expense[]>(firebaseEnabled ? [] : seedExpenses);
     const [staff, setStaff] = useState<Staff[]>(firebaseEnabled ? [] : seedStaff);
@@ -81,6 +84,8 @@ export function useBook(day: number, toast: Notify, admin: boolean) {
                 query(collection(db!, name), orderBy(field, 'desc'), limit(cap));
             offs = [
                 watch<Sale>('sales', recent(COLLECTIONS.sales, 'createdAt', LIVE_WINDOW.sales), setSales),
+                // Its own listener: a rug can come back after its deposit has left the live window.
+                watch<Sale>('owing', query(collection(db, COLLECTIONS.sales), where('balance', '>', 0), limit(LIVE_WINDOW.owing)), setOwingLive),
                 // Unbounded: codeFor numbers members by position in this list.
                 watch<Loyalty>('loyalty', collection(db, COLLECTIONS.loyalty), setLoyalty),
                 watch<Expense>('expenses', recent(COLLECTIONS.expenses, 'createdAt', LIVE_WINDOW.expenses), setExpenseRecords),
@@ -180,6 +185,9 @@ export function useBook(day: number, toast: Notify, admin: boolean) {
     const todaySales = useMemo(() => sales.filter(isToday), [sales, isToday]);
     const todayExpenses = useMemo(() => expenseRecords.filter(isToday), [expenseRecords, isToday]);
     const totals = useMemo(() => totalSales(todaySales), [todaySales]);
+    // Rugs still owed on, longest-waiting first.
+    const owing = useMemo(() => (db ? owingLive : sales.filter(s => (s.balance ?? 0) > 0))
+        .slice().sort((a, b) => dateOf(a).getTime() - dateOf(b).getTime()), [owingLive, sales]);
 
     // --- Sales -------------------------------------------------------------------------
     // The sale, the new card and the point move commit as one batch: one round trip, and no
@@ -188,10 +196,18 @@ export function useBook(day: number, toast: Notify, admin: boolean) {
         const loyal = earnsPoints(record.service);
         if (!loyal) record = {...record, redeemed: false};
         const delta = record.redeemed ? {points: -5, redeemed: 1} : {points: 1, redeemed: 0};
-        const joining = loyal && newMember ? {...newMember, points: delta.points, redeemed: delta.redeemed} : null;
+        const joining = loyal && newMember ? {...newMember, customer: '', points: delta.points, redeemed: delta.redeemed} : null;
         const existing = loyal && !joining ? member : undefined;
         const holder = joining ?? existing;
-        const sale = {...record, customer: holder?.customer || 'Walk-in', loyaltyCode: holder ? record.loyaltyCode : '—'};
+        const {balance, ...paid} = record;
+        const rug = isRug(record.service);
+        const owed = rug && balance && balance > 0 ? balance : 0;
+        // From this tablet's view of today; two tablets recording a rug in the same moment can match.
+        const tag = rug ? nextRugTag(sales) : '';
+        const sale = {
+            ...paid, customer: holder?.customer || 'Walk-in', loyaltyCode: holder ? record.loyaltyCode : '—',
+            ...(tag ? {tag} : {}), ...(owed ? {balance: owed} : {})
+        };
         if (db) {
             const batch = writeBatch(db);
             if (joining) batch.set(doc(collection(db, COLLECTIONS.loyalty)), joining);
@@ -210,14 +226,35 @@ export function useBook(day: number, toast: Notify, admin: boolean) {
         }
         const code = holder ? sale.loyaltyCode : '';
         toast(record.redeemed ? `Free wash redeemed for ${code} — 5 points spent.`
+            : rug ? `${record.service} ${owed ? 'deposit ' : ''}recorded · ${money(record.amount)}${owed ? ` · ${money(owed)} due on delivery` : ''} · label it ${tag}`
             : `${record.service} recorded · ${money(record.amount)}${joining ? ` · new card ${code} · 1 point` : code ? ` · ${code} +1 point` : ''}`);
-    }, [toast]);
+    }, [sales, toast]);
 
     // Code and redemption are fixed once written; correcting those means delete and re-record.
-    const updateSale = useCallback(async (id: string, patch: Pick<Sale, 'service' | 'payment' | 'amount'>) => {
+    const updateSale = useCallback(async (id: string, {balance, ...rest}: SalePatch) => {
+        // Firestore rejects undefined, so the balance is written only where there is one.
+        const patch = {...rest, ...(balance === undefined ? {} : {balance})};
         if (db) await updateDoc(doc(db, COLLECTIONS.sales, id), patch);
         else setSales(list => list.map(s => s.id === id ? {...s, ...patch} : s));
         toast(`Sale updated · ${patch.service} · ${money(patch.amount)}`, 'info');
+    }, [toast]);
+
+    // The balance payment is its own sale, dated the day the money comes in, so that day's
+    // takings and end-of-day cash include it. The deposit sale's balance moves in the same batch.
+    const collectBalance = useCallback(async (sale: Sale, payment: string) => {
+        const amount = sale.balance ?? 0;
+        if (amount <= 0) return;
+        const paid = {
+            loyaltyCode: '—', customer: sale.customer, service: sale.service, payment, amount, balanceOf: sale.id,
+            ...(sale.phone ? {phone: sale.phone} : {}), ...(sale.tag ? {tag: sale.tag} : {})
+        };
+        if (db) {
+            const batch = writeBatch(db);
+            batch.set(doc(collection(db, COLLECTIONS.sales)), {...paid, createdAt: serverTimestamp()});
+            batch.update(doc(db, COLLECTIONS.sales, sale.id), {balance: increment(-amount)});
+            await batch.commit();
+        } else setSales(list => [{id: crypto.randomUUID(), ...paid}, ...list.map(s => s.id === sale.id ? {...s, balance: 0} : s)]);
+        toast(`${sale.service} balance collected · ${money(amount)} · ${who(sale)}`);
     }, [toast]);
 
     // Gives back exactly what the sale moved. increment() cannot clamp, so a balance can go
@@ -225,22 +262,27 @@ export function useBook(day: number, toast: Notify, admin: boolean) {
     const removeSale = useCallback(async (sale: Sale) => {
         const member = loyalty.find((x, i) => codeFor(x, i) === sale.loyaltyCode);
         const delta = sale.redeemed ? {points: 5, redeemed: -1} : {points: -1, redeemed: 0};
+        // Deleting a balance payment puts the rug back to owing. Skipped if the deposit sale is
+        // gone (or not loaded): a batch that updates a missing document fails whole.
+        const deposit = sale.balanceOf ? allSales.find(s => s.id === sale.balanceOf) : undefined;
         if (db) {
             const batch = writeBatch(db);
             batch.delete(doc(db, COLLECTIONS.sales, sale.id));
+            if (deposit) batch.update(doc(db, COLLECTIONS.sales, deposit.id), {balance: increment(sale.amount)});
             if (member) batch.update(doc(db, COLLECTIONS.loyalty, member.id), {
                 points: increment(delta.points),
                 redeemed: increment(delta.redeemed)
             });
             await batch.commit();
         } else {
-            setSales(list => list.filter(s => s.id !== sale.id));
+            setSales(list => list.filter(s => s.id !== sale.id)
+                .map(s => s.id === deposit?.id ? {...s, balance: (s.balance ?? 0) + sale.amount} : s));
             if (member) setLoyalty(list => list.map(x => x.id === member.id ? {
                 ...x, points: x.points + delta.points, redeemed: x.redeemed + delta.redeemed
             } : x));
         }
-        toast(`Sale deleted · ${money(sale.amount)}${member ? ` · ${sale.loyaltyCode} ${sale.redeemed ? '+5 points back' : '−1 point'}` : ''}`, 'warning');
-    }, [loyalty, toast]);
+        toast(`Sale deleted · ${money(sale.amount)}${deposit ? ` · ${money(sale.amount)} due again` : ''}${member ? ` · ${sale.loyaltyCode} ${sale.redeemed ? '+5 points back' : '−1 point'}` : ''}`, 'warning');
+    }, [loyalty, allSales, toast]);
 
     // Manual correction, backed by no sale (admin only). Applied against the balance on screen,
     // which is floored at 0, so +1 from a stored −1 lands on 1 rather than looking like a no-op.
@@ -469,10 +511,10 @@ export function useBook(day: number, toast: Notify, admin: boolean) {
     return {
         // Live window merged with any fetched history. Today's figures come from the live window only.
         sales: allSales, loyalty, expenseRecords: allExpenses, staff, roster, payouts, attendance, applicants,
-        todaySales, todayExpenses, totals,
+        todaySales, todayExpenses, totals, owing,
         ready, syncError,
         requestHistory, historyLoading,
-        addSale, updateSale, removeSale,
+        addSale, updateSale, removeSale, collectBalance,
         adjustPoints,
         addExpense, updateExpense, removeExpense,
         addStaff, updateStaff, archiveStaff, restoreStaff, removeStaff,

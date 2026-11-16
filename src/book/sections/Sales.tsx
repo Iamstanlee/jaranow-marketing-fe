@@ -2,25 +2,29 @@ import {useMemo, useState} from 'react';
 import {Plus} from 'lucide-react';
 import {dateOf, dayLabel, money, timeLabel} from '../format';
 import {rangeKey, rangeLabel, rangeTest} from '../period';
-import type {Role, Sale} from '../types';
+import type {Role, Sale, SalePatch} from '../types';
 import {useHistory} from '../hooks/useHistory';
 import {usePage} from '../hooks/usePage';
 import {useRange} from '../hooks/useRange';
 import {ConfirmDelete} from '../components/Confirm';
+import {RugBalances} from '../components/RugBalances';
 import {Pagination} from '../components/Pagination';
 import {PeriodFilter} from '../components/PeriodFilter';
 import {SalesTable} from '../components/SalesTable';
 import {Skeleton} from '../components/Skeleton';
 import {EditSaleModal} from '../components/SaleModal';
 
-export function Sales({sales, role, loading, requestHistory, historyLoading, onSale, onUpdate, onDelete}: {
+export function Sales({sales, owing, owingLoading, role, loading, requestHistory, historyLoading, onSale, onUpdate, onCollect, onDelete}: {
     sales: Sale[];
+    owing: Sale[];
+    owingLoading: boolean;
     role: Role;
     loading: boolean;
     requestHistory: (from: number) => void;
     historyLoading: boolean;
     onSale: () => void;
-    onUpdate: (id: string, patch: Pick<Sale, 'service' | 'payment' | 'amount'>) => Promise<void>;
+    onUpdate: (id: string, patch: SalePatch) => Promise<void>;
+    onCollect: (s: Sale, payment: string) => Promise<void>;
     onDelete?: (s: Sale) => Promise<void>
 }) {
     // All time, so nothing looks missing; staff fall back to Today. Opening this pulls history.
@@ -42,6 +46,7 @@ export function Sales({sales, role, loading, requestHistory, historyLoading, onS
                 <Plus size={18}/> Record sale
             </button>
         </div>
+        <RugBalances owing={owing} loading={owingLoading} onCollect={onCollect} className="mb-7"/>
         <section className="rounded-2xl border border-slate-200 bg-white">
             <div
                 className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -56,7 +61,7 @@ export function Sales({sales, role, loading, requestHistory, historyLoading, onS
                         onDelete={onDelete && setDeleting}/><Pagination {...pager}/></section>
         {editing && <EditSaleModal sale={editing} close={() => setEditing(null)} save={onUpdate}/>}
         {deleting && onDelete && <ConfirmDelete title="Delete this sale?"
-                                                detail={`${deleting.service} · ${money(deleting.amount)} · ${dayLabel(dateOf(deleting))} at ${timeLabel(dateOf(deleting))}. This cannot be undone${deleting.loyaltyCode !== '—' ? `, and ${deleting.loyaltyCode} ${deleting.redeemed ? 'gets its 5 points back' : 'loses the point it earned'}` : ''}.`}
+                                                detail={`${deleting.service} · ${money(deleting.amount)} · ${dayLabel(dateOf(deleting))} at ${timeLabel(dateOf(deleting))}. This cannot be undone${deleting.balanceOf ? `, and the rug goes back to ${money(deleting.amount)} due` : deleting.balance ? `, and the ${money(deleting.balance)} still due is dropped with it` : ''}${deleting.loyaltyCode !== '—' ? `, and ${deleting.loyaltyCode} ${deleting.redeemed ? 'gets its 5 points back' : 'loses the point it earned'}` : ''}.`}
                                                 close={() => setDeleting(null)}
                                                 confirm={() => onDelete(deleting)}/>}
     </>

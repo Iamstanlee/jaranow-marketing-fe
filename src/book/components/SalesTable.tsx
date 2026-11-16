@@ -4,10 +4,16 @@ import {RowActions} from './RowActions';
 import {Skeleton} from './Skeleton';
 
 function Reward({sale}: { sale: Sale }) {
+    if (sale.balance) return <span className="rounded bg-amber-50 px-2 py-1 text-xs text-amber-700">Deposit · {money(sale.balance)} due</span>;
+    if (sale.balance === 0) return <span className="text-xs text-slate-500">Deposit</span>;
+    if (sale.balanceOf) return <span className="text-xs text-slate-500">Balance</span>;
     if (sale.redeemed) return <span className="rounded bg-emerald-50 px-2 py-1 text-xs text-emerald-700">Redeemed</span>;
     if (sale.loyaltyCode && sale.loyaltyCode !== '—') return <span className="text-xs text-blue-600">+1 point</span>;
     return <span className="text-xs text-slate-300">—</span>;
 }
+
+// A rug has no card: its tag and phone number identify it.
+export const who = (sale: Sale) => [sale.tag, sale.phone].filter(Boolean).join(' · ') || sale.loyaltyCode;
 
 // Cards below lg, table from lg (five columns do not fit a phone).
 export function SalesTable({sales, empty = 'No sales recorded yet.', loading = false, rows = 3, onEdit, onDelete}: {
@@ -23,7 +29,7 @@ export function SalesTable({sales, empty = 'No sales recorded yet.', loading = f
     return <>
         <ul className="divide-y divide-slate-100 lg:hidden">{sales.map(s => <li key={s.id} className="px-5 py-4">
             <div className="flex items-baseline justify-between gap-3"><span
-                className="font-medium">{s.loyaltyCode}</span><b className="shrink-0">{money(s.amount)}</b></div>
+                className="font-medium">{who(s)}</span><b className="shrink-0">{money(s.amount)}</b></div>
             <p className="mt-1 text-sm text-slate-500">{s.service} · {s.payment}</p>
             <div className="mt-2 flex items-center justify-between gap-3"><Reward sale={s}/>
                 <div className="flex shrink-0 items-center gap-3"><span
@@ -37,7 +43,7 @@ export function SalesTable({sales, empty = 'No sales recorded yet.', loading = f
             <tbody>{sales.map(s => <tr key={s.id} className="border-b border-slate-100 last:border-0">
                 <td className="whitespace-nowrap px-5 py-4 text-slate-500">{dayLabel(dateOf(s))}<span
                     className="block text-xs text-slate-400">{timeLabel(dateOf(s))}</span></td>
-                <td className="px-5 py-4 font-medium">{s.loyaltyCode}</td>
+                <td className="px-5 py-4 font-medium">{who(s)}</td>
                 <td className="px-5 py-4 text-slate-500">{s.service}</td>
                 <td className="px-5 py-4 text-slate-500">{s.payment}</td>
                 <td className="px-5 py-4"><Reward sale={s}/></td>

@@ -41,11 +41,11 @@ const totalsByDay = (sales: Sale[]) => {
     if (!index) {
         index = new Map();
         for (const s of sales) {
-            const key = isoDay(dateOf(s)), entry = index.get(key);
+            const key = isoDay(dateOf(s)), entry = index.get(key), washes = s.balanceOf ? 0 : 1;
             if (entry) {
                 entry.revenue += s.amount;
-                entry.washes += 1;
-            } else index.set(key, {revenue: s.amount, washes: 1});
+                entry.washes += washes;
+            } else index.set(key, {revenue: s.amount, washes});
         }
         dayIndex.set(sales, index);
     }

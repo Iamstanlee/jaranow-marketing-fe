@@ -39,6 +39,14 @@ describe('weekPay', () => {
         expect(amounts(pay.lines)).toEqual([['a', 1000 + 900, 2], ['b', 1000, 1], ['c', 0, 2]]);
     });
 
+    it('shares a rug balance on the day it is collected, without counting the rug twice', () => {
+        const deposit: Sale = {...sale('2026-11-02', 5000), id: 'rug', service: 'Small rug', balance: 0};
+        const balance: Sale = {...sale('2026-11-03', 5000), id: 'rest', service: 'Small rug', balanceOf: 'rug'};
+        const pay = weekPay(monday, [deposit, balance], team, [], [sheet('2026-11-02', 'a'), sheet('2026-11-03', 'b')], afterWeek);
+        expect([pay.revenue, pay.washes]).toEqual([10000, 1]);
+        expect(amounts(pay.lines).slice(0, 2)).toEqual([['a', 1500, 1], ['b', 1500, 1]]);
+    });
+
     it('pays nobody for a day with no attendance, and flags it', () => {
         const pay = weekPay(monday, sales, team, [], [sheet('2026-11-02', 'a')], afterWeek);
         expect(amounts(pay.lines)).toEqual([['a', 3000, 1], ['b', 0, 0], ['c', 0, 0]]);

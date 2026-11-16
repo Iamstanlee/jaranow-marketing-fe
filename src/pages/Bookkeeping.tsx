@@ -151,15 +151,16 @@ export default function Bookkeeping() {
                                     className="border-b border-amber-200 bg-amber-50 px-5 py-3 text-sm text-amber-800 md:px-9">{book.syncError}</div>}
             <div className="mx-auto max-w-7xl p-5 md:p-9"><Suspense fallback={<div role="status" aria-busy aria-label="Loading" className="h-40 animate-pulse rounded-2xl bg-slate-100"/>}>{section === 'overview' &&
                 <Overview totals={book.totals} sales={book.todaySales} expenses={book.todayExpenses}
+                          owing={book.owing} owingLoading={!ready.owing} onCollect={book.collectBalance}
                           staff={book.staff} roster={book.roster}
                           loading={!ready.sales || !ready.expenses}
                           rosterLoading={!ready.staff || !ready.roster}
                           onSale={() => setSaleModal(true)}
                           onChange={setSection}/>} {section === 'sales' &&
-                <Sales sales={book.sales} role={role} loading={!ready.sales}
+                <Sales sales={book.sales} owing={book.owing} owingLoading={!ready.owing} role={role} loading={!ready.sales}
                        requestHistory={book.requestHistory} historyLoading={book.historyLoading}
                        onSale={() => setSaleModal(true)}
-                       onUpdate={book.updateSale}
+                       onUpdate={book.updateSale} onCollect={book.collectBalance}
                        onDelete={role === 'admin' ? book.removeSale : undefined}/>} {section === 'loyalty' &&
                 <LoyaltySection members={book.loyalty} loading={!ready.loyalty}
                                 onAdjust={role === 'admin' ? book.adjustPoints : undefined}/>} {section === 'expenses' &&

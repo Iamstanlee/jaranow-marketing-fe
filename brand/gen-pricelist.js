@@ -40,7 +40,9 @@ const FIGURE = {
 const FONT_HREF =
     "https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Archivo:wght@900&display=block";
 
-/* `cover` ({headline?, sub}) also emits <file>-front.html; it sells on care,
+/* `cards` sets a section as a row of cards (the three everyday washes, as
+   /pricing shows them).
+   `cover` ({headline?, sub}) also emits <file>-front.html; it sells on care,
    never price. An empty section is skipped with a warning, so one can be stubbed
    before its prices are confirmed. `price`: number (grouped) or string (verbatim).
    `badge` names a tier; it is not a sales line. */
@@ -51,7 +53,8 @@ const LISTS = [
         kicker: "Price list",
         sections: [
             {
-                title: "Car",
+                title: "Everyday washes",
+                cards: true,
                 items: [
                     {
                         name: "Body wash",
@@ -68,6 +71,11 @@ const LISTS = [
                         note: "Body wash · inside vacuumed",
                         price: 4000,
                     },
+                ],
+            },
+            {
+                title: "More car care",
+                items: [
                     {
                         name: "Full wash + engine",
                         note: "Body wash · inside cleaned · engine area washed · note: engine wash is 100% at owners risk",
@@ -200,9 +208,10 @@ function mark(name, height) {
     return s.replace("<svg ", `<svg style="height:${height}px;width:auto;display:block" `);
 }
 
-function watermark() {
+function watermark(fill = PAPER) {
     let s = fs.readFileSync(path.join(SVG, "jaranow-symbol-white.svg"), "utf8").trim();
     s = s.replace(/\swidth="[^"]*"/, "").replace(/\sheight="[^"]*"/, "");
+    s = s.replace(/fill="#[0-9A-Fa-f]{6}"/g, `fill="${fill}"`);
     return s.replace("<svg ", '<svg class="wm" ');
 }
 
@@ -234,6 +243,12 @@ function listHeight(l, m) {
         if (n) h += m.gap;
         n++;
         if (s.title) h += m.title * 1.25 + 4 + 2; // line + padding + margin
+        if (s.cards) {
+            // one row of cards, as tall as its longest note (49mm inside a card)
+            const lines = Math.max(...s.items.map((it) => Math.ceil(((it.note || "").length * METRIC.bodyAdvance * m.note) / 49)), 1);
+            h += 3 + m.rowPad * 2 + m.name * 0.8 * 1.15 + 2 + m.note * 1.4 * lines + 5 + m.price;
+            continue;
+        }
         for (const it of s.items) {
             let row = m.rowPad * 2 + m.name * 1.15;
             if (it.note) {
@@ -295,7 +310,8 @@ const CSS = `
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{width:${PAGE_W}px;height:${PAGE_H}px;overflow:hidden}
   body{
-    background:${INK}; color:${PAPER};
+    --fg:242,245,251; --bg:${INK};
+    background:var(--bg); color:rgb(var(--fg));
     font-family:${BODY.stack};
     position:relative;
     display:flex; flex-direction:column;
@@ -306,7 +322,7 @@ const CSS = `
   /* dot field — echoes the site hero, the share cards and the pocket cards */
   .dots{
     position:absolute; inset:0;
-    background-image:radial-gradient(rgba(242,245,251,.10) ${mm(0.5)}px, transparent ${mm(0.5)}px);
+    background-image:radial-gradient(rgba(var(--fg),.10) ${mm(0.5)}px, transparent ${mm(0.5)}px);
     background-size:${mm(9)}px ${mm(9)}px;
   }
   /* Bleeds off the right edge only. Crop it top or bottom as well and the drop
@@ -340,15 +356,15 @@ const CSS = `
   }
   .section-title{
     font-size:var(--title); font-weight:500; letter-spacing:.26em;
-    text-transform:uppercase; color:rgba(242,245,251,.5);
+    text-transform:uppercase; color:rgba(var(--fg),.5);
     padding-bottom:${mm(4)}px; margin-bottom:${mm(2)}px;
-    border-bottom:${mm(0.3)}px solid rgba(242,245,251,.16);
+    border-bottom:${mm(0.3)}px solid rgba(var(--fg),.16);
   }
   .row{
     display:flex; align-items:baseline; justify-content:space-between;
     gap:${mm(10)}px;
     padding:var(--rowPad) 0;
-    border-bottom:${mm(0.3)}px solid rgba(242,245,251,.10);
+    border-bottom:${mm(0.3)}px solid rgba(var(--fg),.10);
   }
   .row:last-child{border-bottom:none}
   .name{font-size:var(--name); font-weight:500; line-height:1.15}
@@ -356,7 +372,7 @@ const CSS = `
      duvet sets, curtains") on one line against the price column. */
   .item-note{
     font-size:var(--note); font-weight:400; line-height:1.4;
-    color:rgba(242,245,251,.56); margin-top:${mm(2)}px;
+    color:rgba(var(--fg),.56); margin-top:${mm(2)}px;
   }
 
   /* Tier marker. Accent fill, Paper text - the same "this one is the special
@@ -389,20 +405,32 @@ const CSS = `
   .unit{
     font-family:${BODY.stack};
     font-size:var(--unit); font-weight:400; letter-spacing:0;
-    color:rgba(242,245,251,.56);
+    color:rgba(var(--fg),.56);
   }
+
+  /* Paper cards on the Ink sheet - the one light block, so the eye starts here. */
+  .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:${mm(4)}px; margin-top:${mm(3)}px}
+  .card{
+    display:flex; flex-direction:column;
+    background:${PAPER}; color:${INK};
+    border-top:${mm(1.4)}px solid ${ACCENT}; border-radius:${mm(3)}px;
+    padding:var(--rowPad) ${mm(5)}px;
+  }
+  .card .name{font-size:calc(var(--name) * .8)}
+  .card .item-note{flex:1; color:rgba(14,21,38,.62)}
+  .card .price{text-align:left; margin-top:${mm(5)}px}
 
   .foot{
     position:relative; z-index:2;
-    border-top:${mm(0.3)}px solid rgba(242,245,251,.16);
+    border-top:${mm(0.3)}px solid rgba(var(--fg),.16);
     padding-top:${mm(6)}px;
     display:flex; align-items:baseline; justify-content:space-between; gap:${mm(10)}px;
   }
   .foot span{font-size:${mm(5)}px; font-weight:500; letter-spacing:.02em}
-  .foot .right{color:rgba(242,245,251,.62); font-weight:400; text-align:right}
+  .foot .right{color:rgba(var(--fg),.62); font-weight:400; text-align:right}
   .note{
     position:relative; z-index:2; margin-top:${mm(4)}px;
-    font-size:${mm(4)}px; line-height:1.45; color:rgba(242,245,251,.5);
+    font-size:${mm(4)}px; line-height:1.45; color:rgba(var(--fg),.5);
   }
 
   /* The bar must survive the cut: BLEED of its height is trimmed away, so it
@@ -430,7 +458,7 @@ const CSS = `
   .cover-sub{
     position:relative; z-index:2; margin-top:${mm(10)}px;
     font-size:${mm(5.4)}px; font-weight:400; line-height:1.5;
-    color:rgba(242,245,251,.6); max-width:${mm(140)}px;
+    color:rgba(var(--fg),.6); max-width:${mm(140)}px;
   }
   /* When there is no headline the sub follows the lockup directly and needs
      the gap the headline would otherwise have carried. */
@@ -439,7 +467,7 @@ const CSS = `
   .cover-foot{
     position:absolute; left:${SAFE}px; bottom:${mm(FOOT_MM)}px; z-index:2;
     font-size:${mm(4.6)}px; font-weight:500; letter-spacing:.02em;
-    color:rgba(242,245,251,.72);
+    color:rgba(var(--fg),.72);
   }
 `;
 
@@ -451,12 +479,18 @@ const row = (it) => `<div class="row">
     <div class="price">${naira(it.price)}${it.unit ? `<span class="unit">${it.unit}</span>` : ""}</div>
   </div>`;
 
+const card = (it) => `<div class="card">
+    <div class="name">${it.name}</div>
+    ${it.note ? `<div class="item-note">${it.note}</div>` : ""}
+    <div class="price">${naira(it.price)}</div>
+  </div>`;
+
 const section = (s) =>
     !s.items.length
         ? ""
         : `<div class="section">
   ${s.title ? `<div class="section-title">${s.title}</div>` : ""}
-  ${s.items.map(row).join("\n  ")}
+  ${s.cards ? `<div class="cards">${s.items.map(card).join("\n  ")}</div>` : s.items.map(row).join("\n  ")}
 </div>`;
 
 const page = (cls, body, m = metrics(1)) => `<!doctype html><html lang="en"><head><meta charset="utf-8">

@@ -9,8 +9,18 @@ export type Sale = {
     payment: string;
     amount: number;
     redeemed?: boolean;
+    // Rug sales only: who to call when the rug is ready.
+    phone?: string;
+    // Rug sales only, from nextRugTag; the balance payment carries the same one.
+    tag?: string;
+    // A rug taken on a deposit: `amount` is what was paid upfront, `balance` what is still owed.
+    // Present (0 once settled) only on a deposit sale.
+    balance?: number;
+    // The balance payment, a sale of its own on the day it is collected; names the deposit sale.
+    balanceOf?: string;
     createdAt?: Timestamp
 };
+export type SalePatch = Pick<Sale, 'service' | 'payment' | 'amount' | 'balance'>;
 export type Loyalty = { id: string; code?: string; customer: string; phone: string; points: number; redeemed: number };
 export type Expense = { id: string; category: string; note: string; payment: string; amount: number; createdAt?: Timestamp };
 export type Staff = {

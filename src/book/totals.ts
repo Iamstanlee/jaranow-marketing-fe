@@ -1,8 +1,10 @@
 import type {Sale} from './types';
 
 export function totalSales(sales: Sale[]) {
-    const totals = {revenue: 0, count: sales.length, cash: 0, transfer: 0, pos: 0, redemptions: 0};
+    const totals = {revenue: 0, count: 0, cash: 0, transfer: 0, pos: 0, redemptions: 0};
     for (const s of sales) {
+        // A balance payment is money in, not a second job.
+        if (!s.balanceOf) totals.count += 1;
         totals.revenue += s.amount;
         if (s.payment === 'Cash') totals.cash += s.amount;
         else if (s.payment === 'Transfer') totals.transfer += s.amount;

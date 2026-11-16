@@ -15,8 +15,9 @@ export const SERVICES = {
 export type Service = keyof typeof SERVICES;
 
 // Rugs earn no loyalty point and cannot be the free wash.
-const NO_LOYALTY: readonly Service[] = ['Small rug', 'Medium rug', 'Large rug'];
-export const earnsPoints = (service: Service) => !NO_LOYALTY.includes(service);
+const RUGS: readonly Service[] = ['Small rug', 'Medium rug', 'Large rug'];
+export const isRug = (service: Service) => RUGS.includes(service);
+export const earnsPoints = (service: Service) => !isRug(service);
 
 // Stored sales keep the name they were sold under; map renamed services to today's name.
 const RENAMED: Record<string, Service> = {
@@ -48,7 +49,7 @@ export type Duty = typeof DUTIES[number];
 // How many recent documents each live listener reads; older ones are fetched on demand
 // (useBook's history). Loyalty and staff are read whole: codeFor numbers members by position,
 // so a truncated loyalty list would hand out somebody else's code.
-export const LIVE_WINDOW = {sales: 300, expenses: 300, roster: 400, payouts: 400, attendance: 120, applicants: 300} as const;
+export const LIVE_WINDOW = {sales: 300, owing: 100, expenses: 300, roster: 400, payouts: 400, attendance: 120, applicants: 300} as const;
 
 export const LEFT_REASONS = ['Resigned', 'Stopped coming', 'Let go', 'Other'] as const;
 export type LeftReason = typeof LEFT_REASONS[number];

@@ -1,32 +1,38 @@
 import React, {useState} from 'react';
-import {currentService, earnsPoints, SERVICES, type Service} from '../constants';
-import {codeFor, dateOf, dayLabel, timeLabel} from '../format';
-import type {Loyalty, Sale} from '../types';
+import {currentService, earnsPoints, isRug, SERVICES, type Service} from '../constants';
+import {codeFor, dateOf, dayLabel, money, timeLabel} from '../format';
+import type {Loyalty, Sale, SalePatch} from '../types';
 import {Modal} from './Modal';
-import {PaymentField, PriceField, ServiceField} from './Fields';
+import {AmountField, PaymentField, PriceField, SELECT, ServiceField} from './Fields';
+import {who} from './SalesTable';
+
+const half = (price: string) => String(Math.round((Number(price) || 0) / 2));
 
 export function SaleModal({members, close, save}: {
     members: Loyalty[];
     close: () => void;
     save: (r: Omit<Sale, 'id' | 'createdAt'>, m?: Loyalty, newMember?: {
         code: string;
-        customer: string;
         phone: string
     }) => Promise<void>
 }) {
-    const [code, setCode] = useState(''), [service, setService] = useState<Service>('Body wash'), [payment, setPayment] = useState('Transfer'), [redeem, setRedeem] = useState(false), [customer, setCustomer] = useState(''), [phone, setPhone] = useState('');
+    const [code, setCode] = useState(''), [service, setService] = useState<Service>('Body wash'), [payment, setPayment] = useState('Transfer'), [redeem, setRedeem] = useState(false), [phone, setPhone] = useState('');
     const [price, setPrice] = useState(String(SERVICES['Body wash']));
+    const [part, setPart] = useState(false), [deposit, setDeposit] = useState(''), [rugPhone, setRugPhone] = useState('');
     const [submitting, setSubmitting] = useState(false), [error, setError] = useState('');
+    const rug = isRug(service), onDeposit = rug && part;
+    const upfront = Number(deposit) || 0, balance = (Number(price) || 0) - upfront;
     // Padded to LOY-001 so a typed "1" matches. Ignored (not cleared) for a rug.
     const loyal = earnsPoints(service);
     const normalizedCode = loyal && code ? `LOY-${code.replace(/\D/g, '').padStart(3, '0')}` : '';
     const member = members.find((x, i) => codeFor(x, i) === normalizedCode);
     const newCode = Boolean(normalizedCode && !member);
     const canRedeem = Boolean(member && member.points >= 5);
-    const amount = redeem ? 0 : Number(price) || 0;
+    const amount = redeem ? 0 : onDeposit ? upfront : Number(price) || 0;
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (submitting) return;
+        if (onDeposit && (upfront <= 0 || balance <= 0)) return setError('The deposit must be more than ₦0 and less than the amount.');
         setSubmitting(true);
         setError('');
         try {
@@ -36,8 +42,10 @@ export function SaleModal({members, close, save}: {
                 service,
                 payment,
                 amount,
-                redeemed: redeem
-            }, member, newCode ? {code: normalizedCode, customer, phone} : undefined);
+                redeemed: redeem,
+                ...(rug ? {phone: rugPhone.trim()} : {}),
+                ...(onDeposit ? {balance} : {})
+            }, member, newCode ? {code: normalizedCode, phone} : undefined);
             close();
         } catch (err) {
             console.error('Failed to record sale', err);
@@ -67,9 +75,7 @@ export function SaleModal({members, close, save}: {
                                                                           value={codeFor(m, i).replace(/\D/g, '')}/>)}</datalist>
         </label>{newCode &&
             <div className="space-y-3 rounded-xl bg-blue-50 p-3"><p className="text-sm font-semibold text-blue-900">New
-                loyalty customer</p><input value={customer} onChange={e => setCustomer(e.target.value)}
-                                        placeholder="Customer name (optional)"
-                                        className="w-full rounded-xl border-blue-100"/><input value={phone}
+                loyalty customer</p><input value={phone}
                                                                                               onChange={e => setPhone(e.target.value)}
                                                                                               placeholder="Phone number (optional)"
                                                                                               className="w-full rounded-xl border-blue-100"/>
@@ -80,16 +86,35 @@ export function SaleModal({members, close, save}: {
         </div>}<ServiceField value={service} onChange={next => {
             setService(next);
             setPrice(String(SERVICES[next]));
+            setDeposit(half(String(SERVICES[next])));
             if (!earnsPoints(next)) setRedeem(false);
-        }}/>{canRedeem && <label
+        }}/>{rug && <>
+            <label className="block text-sm font-medium">Phone number
+                <input required type="tel" inputMode="tel" value={rugPhone} onChange={e => setRugPhone(e.target.value)}
+                       className={SELECT}/>
+            </label>
+            <label className="block text-sm font-medium">Paying<select value={part ? 'Deposit' : 'Full payment'}
+                                                                       onChange={e => {
+                                                                           setPart(e.target.value === 'Deposit');
+                                                                           setDeposit(half(price));
+                                                                       }} className={SELECT}>
+                <option>Full payment</option>
+                <option>Deposit</option>
+            </select></label>
+        </>}{canRedeem && <label
             className="flex cursor-pointer items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-sm font-medium text-emerald-900"><input
             type="checkbox" checked={redeem} onChange={e => setRedeem(e.target.checked)}
             className="rounded text-emerald-600"/>Redeem 5 points for this wash</label>}<PaymentField value={payment}
                                                                                                       onChange={setPayment}/><PriceField
-            service={service} value={price} onChange={setPrice} free={redeem}/>
+            service={service} value={price} onChange={next => {
+            setPrice(next);
+            setDeposit(half(next));
+        }} free={redeem}/>
+            {onDeposit && <AmountField label="Deposit paid now (₦)" value={deposit} onChange={setDeposit}
+                                       note={balance > 0 && upfront > 0 ? `${money(balance)} to collect on delivery` : undefined}/>}
             {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
             <button disabled={submitting}
-                    className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white disabled:opacity-60">{submitting ? 'Saving…' : member && !redeem ? 'Save sale · +1 point' : 'Save sale'}</button>
+                    className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white disabled:opacity-60">{submitting ? 'Saving…' : onDeposit ? 'Save deposit' : member && !redeem ? 'Save sale · +1 point' : 'Save sale'}</button>
         </form>
     </Modal>
 }
@@ -98,19 +123,27 @@ export function SaleModal({members, close, save}: {
 export function EditSaleModal({sale, close, save}: {
     sale: Sale;
     close: () => void;
-    save: (id: string, patch: Pick<Sale, 'service' | 'payment' | 'amount'>) => Promise<void>
+    save: (id: string, patch: SalePatch) => Promise<void>
 }) {
     const [service, setService] = useState<Service>(currentService(sale.service)), [payment, setPayment] = useState(sale.payment);
-    const [price, setPrice] = useState(String(sale.amount));
+    const [price, setPrice] = useState(String(sale.amount)), [balance, setBalance] = useState(String(sale.balance ?? 0));
     const [submitting, setSubmitting] = useState(false), [error, setError] = useState('');
     const onCard = sale.loyaltyCode !== '—' || Boolean(sale.redeemed);
+    const owing = (sale.balance ?? 0) > 0;
+    // One half of a rug paid in two parts, both halves written: only how it was paid can change,
+    // or the two would stop adding up to the rug.
+    const settled = Boolean(sale.balanceOf) || sale.balance === 0;
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (submitting) return;
+        if (owing && !(Number(price) > 0 && Number(balance) > 0)) return setError('Enter the deposit paid and the balance still due.');
         setSubmitting(true);
         setError('');
         try {
-            await save(sale.id, {service, payment, amount: sale.redeemed ? 0 : Number(price) || 0});
+            await save(sale.id, settled ? {service: sale.service, payment, amount: sale.amount} : {
+                service, payment, amount: sale.redeemed ? 0 : Number(price) || 0,
+                ...(owing ? {balance: Number(balance)} : {})
+            });
             close();
         } catch (err) {
             console.error('Failed to update sale', err);
@@ -123,14 +156,18 @@ export function EditSaleModal({sale, close, save}: {
             <div className="rounded-xl bg-slate-100 p-3 text-sm"><span
                 className="font-semibold">{sale.loyaltyCode}</span><span
                 className="float-right text-slate-500">{dayLabel(dateOf(sale))} · {timeLabel(dateOf(sale))}</span><p
-                className="mt-1 text-xs text-slate-500">{sale.redeemed ? 'Free wash — 5 points already spent.' : 'To change the code, delete the sale and record it again.'}{onCard && ' It cannot become a rug sale.'}</p>
+                className="mt-1 text-xs text-slate-500">{settled ? `${sale.service} · ${money(sale.amount)} · ${sale.balanceOf ? 'balance payment' : 'deposit, balance since collected'}. To change the amount, delete the balance payment and collect it again.` : owing ? `${who(sale)} · deposit paid, balance due on delivery.` : sale.redeemed ? 'Free wash — 5 points already spent.' : 'To change the code, delete the sale and record it again.'}{onCard && ' It cannot become a rug sale.'}</p>
             </div>
-            <ServiceField value={service} disabled={onCard ? s => !earnsPoints(s) : undefined} onChange={next => {
-                setService(next);
-                setPrice(String(SERVICES[next]));
-            }}/><PaymentField value={payment} onChange={setPayment}/><PriceField service={service} value={price}
-                                                                                 onChange={setPrice}
-                                                                                 free={sale.redeemed}/>
+            {!settled && <ServiceField value={service}
+                                       disabled={onCard ? s => !earnsPoints(s) : owing ? s => !isRug(s) : undefined}
+                                       onChange={next => {
+                                           setService(next);
+                                           setPrice(owing ? half(String(SERVICES[next])) : String(SERVICES[next]));
+                                           if (owing) setBalance(String(SERVICES[next] - Number(half(String(SERVICES[next])))));
+                                       }}/>}<PaymentField value={payment} onChange={setPayment}/>
+            {owing ? <><AmountField label="Deposit paid (₦)" value={price} onChange={setPrice}/><AmountField
+                    label="Balance on delivery (₦)" value={balance} onChange={setBalance}/></>
+                : !settled && <PriceField service={service} value={price} onChange={setPrice} free={sale.redeemed}/>}
             {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
             <button disabled={submitting}
                     className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white disabled:opacity-60">{submitting ? 'Saving…' : 'Save changes'}</button>

@@ -65,7 +65,7 @@ export function Payments({sales, staff, payouts, attendance, roster, role, loadi
             present. Salaries are paid on the {SALARY_DUE_DAY}th.
         </p>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {admin && <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Stat title="This week so far" note='Revenue share earned this week' icon={CalendarClock} tint="bg-sky-50 text-sky-600" loading={loading}
                   value={money(thisWeek)}/>
             <Stat title="Owed from past weeks" icon={DollarSign} loading={loading || historyLoading}
@@ -74,7 +74,7 @@ export function Payments({sales, staff, payouts, attendance, roster, role, loadi
             <Stat title="Total pending" icon={PiggyBank} tint="bg-slate-100 text-slate-600" loading={loading || historyLoading}
                   value={money(salaries + thisWeek + owed)}
                   note={`${money(salaries)} salary, due ${dayMonth(salaryDue(thisMonth))} · ${money(thisWeek + owed)} revenue share`}/>
-        </div>
+        </div>}
 
         <AttendantMonth staff={staff} attendance={attendance} roster={roster} payouts={payouts} loading={loading}
                         weeksLoading={historyLoading} weekOf={weekOf}

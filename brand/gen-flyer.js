@@ -1,12 +1,13 @@
 /* Jaranow — A5 hand-out flyer, 148x210mm trim + 3mm bleed at 300dpi;
    rasterize-flyer.sh shoots it. General, no prices, no service list - deliberate,
-   see CLAUDE.md "A5 flyer". Fixed height: copy that outgrows A5 slides the note
-   under the bar, so eyeball the PNG after any copy change.
+   see CLAUDE.md "A5 flyer". Fixed height with fixed blocks: copy that outgrows a
+   block collides with the car or the bar, so eyeball the PNG after any copy change.
 
    Usage: node gen-flyer.js <outdir>
 */
 const fs = require("fs");
 const path = require("path");
+const {sparkle, car, CAR_FOAM, bubbles, DROP} = require("./art");
 
 const OUT = process.argv[2] || path.join(__dirname, "flyer");
 const SVG = path.join(__dirname, "jaranow-blue", "svg");
@@ -27,25 +28,32 @@ const PAGE_W = mm(148 + BLEED * 2); // 1819
 const PAGE_H = mm(210 + BLEED * 2); // 2551
 // 10mm, not the A4 sheets' 12: same optical margin at A5.
 const SAFE = mm(BLEED + 10);
+// The accent field's depth. Its bottom edge is the ground the car stands on.
+const FIELD = BLEED + 128;
 
-/* headline ~40 chars; points: three lines of 3-4 words, no second line.
-   Language: plain and spoken ("we wash your car well", not "meticulous attention
-   to detail") - read in seconds, one hand on a steering wheel. */
+/* headline: two lines, breaks only at \n. sub: two lines against 78mm or it runs
+   into the lather. points: three, two or three words each. Plain and spoken -
+   read in seconds, one hand on a steering wheel.
+   loyalty: five washes then the sixth free, never "a free fifth" (CLAUDE.md
+   "Pocket cards") - the slot row draws exactly that. */
 const FLYERS = [
     {
         file: "flyer-carwash",
         lockup: "jaranow-carwash-by-jaranow-white",
-        kicker: "6th Avenue, Gwarinpa",
-        headline: "We wash your car well.",
-        sub: "Bring your car to us and we will take our time with it.",
+        headline: "We take our time\nwith your car.",
+        sub: "The small places are where a good wash shows. That is where we look.",
         points: [
-            "We don't rush your car",
-            "We clean inside and outside",
-            "You see it before you pay",
+            {icon: "clock", text: "Never rushed"},
+            {icon: "sparkle", text: "Every corner cleaned"},
+            {icon: "shield", text: "Your things stay safe"},
         ],
-        offer: "Ask for a loyalty card. Wash five times and the sixth one is on us.",
-        contact: {whatsapp: "0903 862 2012", web: "jaranow.com", social: "@jara_now"},
-        note: "Drive in any day, 8am–7pm.",
+        loyalty: {title: "Wash 5 times. The 6th is on us.", sub: "Ask for your loyalty card."},
+        contact: {
+            label: "Book on WhatsApp",
+            whatsapp: "0903 862 2012",
+            place: "6th Avenue, Gwarinpa",
+            lines: ["Open daily · 8am–7pm", "jaranow.com · @jara_now"],
+        },
     },
 ];
 
@@ -55,148 +63,126 @@ function mark(name, height) {
     return s.replace("<svg ", `<svg style="height:${height}px;width:auto;display:block" `);
 }
 
-function watermark() {
-    let s = fs.readFileSync(path.join(SVG, "jaranow-symbol-white.svg"), "utf8").trim();
-    s = s.replace(/\swidth="[^"]*"/, "").replace(/\sheight="[^"]*"/, "");
-    return s.replace("<svg ", '<svg class="wm" ');
-}
+const stroke = `fill="none" stroke="${PAPER}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"`;
+const ICONS = {
+    clock: `<circle cx="12" cy="12" r="8.5" ${stroke}/><path d="M12 7.5V12l3.2 2" ${stroke}/>`,
+    sparkle: `${sparkle(10.5, 12.5, 7.5, PAPER)}${sparkle(18.5, 6, 3.4, PAPER)}`,
+    shield: `<path d="M12 3.2l7 2.6v5.4c0 4.4-2.9 7.9-7 9.6-4.1-1.7-7-5.2-7-9.6V5.8z" ${stroke}/><path d="M8.6 12.2l2.5 2.5 4.4-5" ${stroke}/>`,
+};
 
 const CSS = `
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{width:${PAGE_W}px;height:${PAGE_H}px;overflow:hidden}
-  body{
-    background:${INK}; color:${PAPER};
-    font-family:'Rubik',system-ui,sans-serif;
-    position:relative;
-    display:flex; flex-direction:column;
-    /* Bottom clears the accent bar as well as the bleed. */
-    padding:${SAFE}px ${SAFE}px ${mm(BLEED + 7 + 8)}px;
-  }
+  body{background:${PAPER}; color:${INK}; font-family:'Rubik',system-ui,sans-serif; position:relative}
 
-  /* dot field — echoes the site hero, the share cards and the price lists */
+  /* A full accent field with the car standing on its bottom edge: the sheet is
+     the wash, not a notice about one. The only piece that leads on accent. */
+  .field{
+    position:relative; height:${mm(FIELD)}px; overflow:hidden;
+    background:${ACCENT}; color:${PAPER};
+    padding:${SAFE}px ${SAFE}px 0;
+  }
   .dots{
     position:absolute; inset:0;
-    /* Finer and fainter than the A4 sheets': at A5 the same dot sits over the
-       headline as visible noise rather than as a field behind it. */
-    background-image:radial-gradient(rgba(242,245,251,.09) ${mm(0.38)}px, transparent ${mm(0.38)}px);
+    background-image:radial-gradient(rgba(242,245,251,.16) ${mm(0.38)}px, transparent ${mm(0.38)}px);
     background-size:${mm(6)}px ${mm(6)}px;
   }
-  /* Bleeds off the right edge only. Cropping it top or bottom as well leaves
-     the tip on the page, which reads as a triangular smudge, not a drop. */
-  .wm{
-    position:absolute; right:${-mm(38)}px; bottom:${mm(14)}px;
-    height:${mm(104)}px; width:auto; opacity:.05;
-  }
-
-  .head{position:relative; z-index:2}
-  .kicker{
-    display:block; margin-top:${mm(6)}px;
-    font-size:${mm(3.6)}px; font-weight:500; letter-spacing:.3em;
-    text-transform:uppercase; color:${ACCENT};
-  }
-
-  /* Everything between the lockup and the contact block centres in the space
-     left, so the page sits properly whether the copy runs short or long. */
-  .body{
-    position:relative; z-index:2; flex:1;
-    display:flex; flex-direction:column; justify-content:center;
-    gap:${mm(5)}px;
-  }
-  /* With the service rows gone the headline is what the sheet is, so it takes
-     the space they were using. 13mm in Archivo Black sets this headline on two
-     lines against the 124mm measure - the face is far wider than Rubik at the
-     same size, so a longer headline wraps to three and the block starts
-     crowding the points. Check the PNG if you lengthen it. */
+  .field > *:not(.dots):not(.car){position:relative; z-index:2}
+  /* Archivo Black is far wider than Rubik: two lines against the 128mm measure. */
   .headline{
+    margin-top:${mm(11)}px;
     font-family:'${HEADLINE.family}',system-ui,sans-serif;
-    font-size:${mm(13)}px; font-weight:${HEADLINE.weight}; line-height:1.02;
-    /* Looser than the Rubik setting was: heavy letters need air between them. */
-    letter-spacing:-.008em; max-width:${mm(124)}px;
-    /* Evens the lines. Without it the last word hangs on its own. */
-    text-wrap:balance;
+    font-size:${mm(14)}px; font-weight:${HEADLINE.weight}; line-height:1.02;
+    letter-spacing:-.012em; white-space:pre;
   }
   .sub{
-    font-size:${mm(4.6)}px; font-weight:400; line-height:1.5;
-    color:rgba(242,245,251,.72); max-width:${mm(120)}px;
+    margin-top:${mm(4.4)}px; max-width:${mm(78)}px;
+    font-size:${mm(4.2)}px; font-weight:400; line-height:1.42; color:rgba(242,245,251,.88);
   }
+  /* Bleeds off the right edge so it reads as driving in, not as a clip-art. */
+  .car{position:absolute; right:${-mm(12)}px; bottom:0; width:${mm(126)}px; height:auto; display:block; z-index:1}
 
-  /* How the work is done - three short lines, no rules, no second line under
-     each. What was here before was the wash list, which read as a menu and
-     answered a question nobody in a car park is asking yet. These sell the
-     work; the figures and the wash types live on the wall list and /pricing. */
-  .points{margin-top:${mm(6)}px; display:flex; flex-direction:column; gap:${mm(4.4)}px}
-  .point{
-    position:relative; padding-left:${mm(7)}px;
-    font-size:${mm(5.6)}px; font-weight:500; line-height:1.2;
+  .rest{padding:${mm(7)}px ${SAFE}px 0}
+  .points{display:grid; grid-template-columns:repeat(3,1fr); gap:${mm(4)}px}
+  .point{display:flex; align-items:center; gap:${mm(2.6)}px; font-size:${mm(3.9)}px; font-weight:500; line-height:1.18}
+  .icon{
+    flex:none; width:${mm(10.5)}px; height:${mm(10.5)}px; border-radius:50%; background:${INK};
+    display:flex; align-items:center; justify-content:center;
   }
-  /* Square accent tick rather than a bullet glyph - the dot is the drop's job. */
-  .point::before{
-    content:""; position:absolute; left:0; top:${mm(2)}px;
-    width:${mm(2.4)}px; height:${mm(2.4)}px; background:${ACCENT};
-  }
+  .icon svg{width:58%; height:58%}
 
-  /* The loyalty line. Accent, so it reads as the one thing on the page worth
-     asking about at the desk - and the reason the sheet gets kept. */
-  .offer{
-    position:relative; z-index:2; margin-top:${mm(4)}px;
-    font-size:${mm(4.1)}px; font-weight:500; line-height:1.4;
-    color:${ACCENT};
+  /* The loyalty card drawn as itself - five stamps then the free one - so the
+     offer is read off the picture. The reason the sheet gets kept. */
+  .loyalty{
+    margin-top:${mm(6.5)}px; padding:${mm(4.4)}px ${mm(5)}px;
+    background:${INK}; color:${PAPER}; border-radius:${mm(4)}px;
+    display:flex; align-items:center; justify-content:space-between; gap:${mm(4)}px;
   }
+  .loyalty .t{font-size:${mm(4.2)}px; font-weight:700; letter-spacing:-.01em; line-height:1.15; white-space:nowrap}
+  .loyalty .d{margin-top:${mm(1.2)}px; font-size:${mm(3.4)}px; color:rgba(242,245,251,.66)}
+  .slots{display:flex; flex:none; gap:${mm(1.4)}px}
+  .slot{
+    width:${mm(6.8)}px; height:${mm(6.8)}px; border-radius:50%;
+    border:${mm(0.5)}px solid rgba(242,245,251,.4);
+    display:flex; align-items:center; justify-content:center;
+    font-size:${mm(3.2)}px; font-weight:500; color:rgba(242,245,251,.6);
+  }
+  .slot.free{border-color:${ACCENT}; background:${ACCENT}}
+  .slot.free svg{width:58%; height:58%}
 
   /* The block people photograph or keep. */
-  .contact{
-    position:relative; z-index:2; margin-top:${mm(4)}px;
-    border-top:${mm(0.3)}px solid rgba(242,245,251,.16);
-    padding-top:${mm(4)}px;
-  }
-  .wa{display:flex; align-items:baseline; gap:${mm(3)}px}
+  .contact{margin-top:${mm(6.5)}px; display:flex; align-items:flex-end; justify-content:space-between; gap:${mm(4)}px}
   .wa .via{
-    font-size:${mm(3.4)}px; font-weight:500; letter-spacing:.22em;
+    display:block; font-size:${mm(2.9)}px; font-weight:500; letter-spacing:.22em;
     text-transform:uppercase; color:${ACCENT};
   }
-  /* The number is the other thing on the sheet that has to carry across a
-     forecourt, so it takes the headline face too. */
+  /* The number has to carry across a forecourt, so it takes the headline face too. */
   .wa .num{
+    display:block; margin-top:${mm(1)}px;
     font-family:'${HEADLINE.family}',system-ui,sans-serif;
-    font-size:${mm(7.6)}px; font-weight:${HEADLINE.weight}; letter-spacing:-.01em;
+    font-size:${mm(7.6)}px; font-weight:${HEADLINE.weight}; letter-spacing:-.01em; line-height:1;
   }
-  .rest{
-    margin-top:${mm(2.4)}px;
-    font-size:${mm(4.1)}px; font-weight:500; color:rgba(242,245,251,.72);
-  }
-  .note{
-    position:relative; z-index:2; margin-top:${mm(3)}px;
-    font-size:${mm(3.5)}px; line-height:1.45; color:rgba(242,245,251,.5);
-  }
+  .where{text-align:right; font-size:${mm(3.5)}px; line-height:1.42; color:rgba(14,21,38,.66)}
+  .where b{display:block; font-size:${mm(4)}px; font-weight:700; color:${INK}}
 
-  /* The bar must survive the cut: BLEED of its height is trimmed away, so it
-     has to be taller than the bleed to leave anything on the finished page.
-     10mm here prints as a 7mm band along the bottom edge. */
-  .bar{position:absolute; left:0; right:0; bottom:0; height:${mm(BLEED + 7)}px; background:${ACCENT}}
+  /* 10mm prints as a 7mm band: the bar must be taller than the bleed. Ink here,
+     because the accent is already the top of the sheet. */
+  .bar{position:absolute; left:0; right:0; bottom:0; height:${mm(BLEED + 7)}px; background:${INK}}
 `;
 
-const flyerBody = (f) => `<div class="dots"></div>
-${watermark()}
-<div class="head">
-  ${mark(f.lockup, mm(15))}
-  <span class="kicker">${f.kicker}</span>
-</div>
-<div class="body">
+const carArt = () => `<svg class="car" viewBox="330 150 650 328" xmlns="http://www.w3.org/2000/svg">
+  ${car()}${CAR_FOAM}
+  ${bubbles([[806, 226, 10], [834, 200, 6], [900, 290, 7], [560, 216, 6]])}
+  ${sparkle(700, 172, 20, PAPER)}${sparkle(906, 214, 14, PAPER)}${sparkle(420, 290, 11, PAPER)}
+</svg>`;
+
+const slots = () =>
+    [1, 2, 3, 4, 5].map((n) => `<span class="slot">${n}</span>`).join("") +
+    `<span class="slot free"><svg viewBox="12 2 76 100"><path fill-rule="evenodd" fill="${PAPER}" d="${DROP}"/></svg></span>`;
+
+const flyerBody = (f) => `<div class="field">
+  <div class="dots"></div>
+  ${mark(f.lockup, mm(16))}
   <h1 class="headline">${f.headline}</h1>
   <p class="sub">${f.sub}</p>
+  ${carArt()}
+</div>
+<div class="rest">
   <div class="points">
-${(f.points || []).map((p) => `    <div class="point">${p}</div>`).join("\n")}
+${f.points.map((p) => `    <div class="point"><span class="icon"><svg viewBox="0 0 24 24">${ICONS[p.icon]}</svg></span>${p.text}</div>`).join("\n")}
   </div>
-</div>
-${f.offer ? `<p class="offer">${f.offer}</p>` : ""}
-<div class="contact">
-  <div class="wa">
-    <span class="via">WhatsApp</span>
-    <span class="num">${f.contact.whatsapp}</span>
+  <div class="loyalty">
+    <div><p class="t">${f.loyalty.title}</p><p class="d">${f.loyalty.sub}</p></div>
+    <div class="slots">${slots()}</div>
   </div>
-  <div class="rest">${[f.contact.web, f.contact.social].filter(Boolean).join(" · ")}</div>
-</div>
-${f.note ? `<p class="note">${f.note}</p>` : ""}`;
+  <div class="contact">
+    <div class="wa">
+      <span class="via">${f.contact.label}</span>
+      <span class="num">${f.contact.whatsapp}</span>
+    </div>
+    <div class="where"><b>${f.contact.place}</b>${f.contact.lines.join("<br>")}</div>
+  </div>
+</div>`;
 
 const page = (body) => `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -209,7 +195,7 @@ ${body}
 
 for (const f of FLYERS) {
     fs.writeFileSync(path.join(OUT, "html", `${f.file}.html`), page(flyerBody(f)));
-    console.log(`template  ${f.file}.html  ${(f.points || []).length} points`);
+    console.log(`template  ${f.file}.html  ${f.points.length} points`);
 }
 
 console.log(`\n${FLYERS.length} flyers written to ${path.join(OUT, "html")}`);

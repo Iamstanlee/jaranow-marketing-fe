@@ -1,6 +1,6 @@
-/* Jaranow — carwash tee mockups (front + back per cloth colour); rasterize-tee.sh
-   shoots them. MOCKUP, NOT PRINT ARTWORK - printers get the SVGs and the mm in the
-   captions. The back address lives inside its SVG; don't re-add it as text.
+/* Jaranow — carwash crew tee mockups (front + back per cloth colour);
+   rasterize-tee.sh shoots them. MOCKUP, NOT PRINT ARTWORK - printers get the SVGs,
+   the mm in the captions, and CAR / WASH converted to outlines.
    See CLAUDE.md "Tee mockups".
 
    Usage: node gen-tee.js <outdir>
@@ -28,8 +28,11 @@ const pxPerUnit = TEE_W / VB_W;
 const pxPerMm = (pxPerUnit * CHEST_UNITS) / CHEST_MM;
 const mm = (n) => +(n * pxPerMm).toFixed(1);
 
-const CHEST_PRINT_MM = 90; // left chest
+const SYMBOL_MM = 45; // the drop alone, left chest
 const BACK_PRINT_MM = 280; // across the shoulder blades
+// "WASH" is 3.313x its font size wide in Archivo Black (gen-sign.js), and it sets the block width.
+const SHOUT_MM = BACK_PRINT_MM / 3.313;
+const LOGO_MM = 190; // master lockup above the shout
 
 const PAGE_W = 1800;
 const PAGE_H = 1100;
@@ -43,13 +46,12 @@ const GARMENTS = {
     rib: "#0A1020",
     mark: "white",
   },
-  paper: {
-    base: PAPER,
-    edge: "#D7DEEC",
-    // Not #FFF - a white highlight misrepresents the Paper cloth being approved.
-    lift: "#FBFCFE",
-    rib: "#E4E9F4",
-    mark: "black",
+  accent: {
+    base: ACCENT,
+    edge: "#1A47B8",
+    lift: "#3F7BF2",
+    rib: "#1D4FCC",
+    mark: "white",
   },
 };
 
@@ -127,6 +129,8 @@ const CSS = `
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{width:${PAGE_W}px;height:${PAGE_H}px;overflow:hidden}
   body{
+    --fg:${INK}; --muted:rgba(14,21,38,.5); --dot:rgba(14,21,38,.09);
+    background:${PAPER}; color:${INK};
     font-family:'Rubik',system-ui,sans-serif;
     position:relative;
     display:flex; flex-direction:column;
@@ -157,10 +161,15 @@ const CSS = `
   .print{position:absolute; z-index:2}
   /* Left chest sits on the VIEWER'S right - a front view shows the wearer
      mirrored. Top edges are ~85mm below the shoulder, the usual placement. */
-  .chest{top:25%; left:63%; transform:translateX(-50%)}
-  /* The back print is a single piece of artwork - lockup, rule and address are
-     all inside the one SVG, so there is nothing to position beside it. */
-  .back{top:21%; left:50%; transform:translateX(-50%)}
+  .chest{top:25%; left:64%; transform:translateX(-50%)}
+  /* The back is the roadside panel worn: the logo, then CAR / WASH stacked flush
+     left. No address - the shirt leaves the site, the sign does not. */
+  .back{top:17%; left:50%; transform:translateX(-50%)}
+  .shout{
+    font-family:'Archivo Black',system-ui,sans-serif; font-weight:400; white-space:nowrap;
+    font-size:${mm(SHOUT_MM)}px; line-height:.84; letter-spacing:-.005em; color:${PAPER};
+  }
+  .logo{margin-bottom:${mm(26)}px}
 
   .cap{
     margin-top:34px; text-align:center;
@@ -172,30 +181,23 @@ const CSS = `
   .bar{position:absolute; left:0; right:0; bottom:0; height:10px; background:${ACCENT}}
 `;
 
-const SHEETS = Object.entries(GARMENTS).map(([name, g]) => {
-  const ground = name === "ink" ? PAPER : INK;
-  const fg = name === "ink" ? INK : PAPER;
-  const muted = name === "ink" ? "rgba(14,21,38,.5)" : "rgba(242,245,251,.5)";
-  const dot = name === "ink" ? "rgba(14,21,38,.09)" : "rgba(242,245,251,.10)";
-
-  return {
-    file: `mockup-carwash-tee-${name}`,
-    vars: `--fg:${fg};--muted:${muted};--dot:${dot};background:${ground};color:${fg}`,
-    title: `Carwash by Jaranow — crew tee`,
-    kicker: `${name} cloth · ${g.mark} mark`,
-    front: tee(g, `F${name}`, 46),
-    back: tee(g, `B${name}`, 22),
-    chestMark: mark(`jaranow-carwash-by-jaranow-${g.mark}`, mm(CHEST_PRINT_MM)),
-    backMark: mark(`jaranow-carwash-address-${g.mark}`, mm(BACK_PRINT_MM)),
-  };
-});
+const SHEETS = Object.entries(GARMENTS).map(([name, g]) => ({
+  file: `mockup-carwash-tee-${name}`,
+  title: `Carwash by Jaranow — crew tee`,
+  kicker: `${name} cloth · ${g.mark} print`,
+  front: tee(g, `F${name}`, 46),
+  back: tee(g, `B${name}`, 22),
+  symbol: mark(`jaranow-symbol-${g.mark}`, mm(SYMBOL_MM)),
+  // Master lockup, not the carwash one: the back says "car wash" once, in the shout.
+  logo: mark(`jaranow-lockup-horizontal-${g.mark}`, mm(LOGO_MM)),
+}));
 
 for (const s of SHEETS) {
   const html = `<!doctype html><html><head><meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=block" rel="stylesheet">
-<style>${CSS}</style></head><body style="${s.vars}">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Rubik:wght@400;500;700&display=block" rel="stylesheet">
+<style>${CSS}</style></head><body>
 <div class="dots"></div>
 <div class="head">
   <span class="title">${s.title}</span>
@@ -205,16 +207,16 @@ for (const s of SHEETS) {
   <div class="view">
     <div class="frame">
       ${s.front}
-      <div class="print chest">${s.chestMark}</div>
+      <div class="print chest">${s.symbol}</div>
     </div>
-    <div class="cap">Front · left chest <b>${CHEST_PRINT_MM}mm</b></div>
+    <div class="cap">Front · left chest, symbol <b>${SYMBOL_MM}mm</b></div>
   </div>
   <div class="view">
     <div class="frame">
       ${s.back}
-      <div class="print back">${s.backMark}</div>
+      <div class="print back"><div class="logo">${s.logo}</div><div class="shout">CAR<br>WASH</div></div>
     </div>
-    <div class="cap">Back · across shoulders <b>${BACK_PRINT_MM}mm</b></div>
+    <div class="cap">Back · logo <b>${LOGO_MM}mm</b> · CAR / WASH <b>${BACK_PRINT_MM}mm</b> wide, outlined</div>
   </div>
 </div>
 <div class="bar"></div>

@@ -3,18 +3,22 @@ import {money} from '../format';
 import type {Totals} from '../totals';
 import type {Expense, RosterEntry, Sale, Section, Staff} from '../types';
 import {Stat} from '../components/Stat';
+import {RugBalances} from '../components/RugBalances';
 import {SalesTable} from '../components/SalesTable';
 import {RosterSummary} from './Roster';
 
-export function Overview({totals, sales, expenses, staff, roster, loading, rosterLoading, onSale, onChange}: {
+export function Overview({totals, sales, owing, owingLoading, expenses, staff, roster, loading, rosterLoading, onSale, onCollect, onChange}: {
     totals: Totals;
     sales: Sale[];
+    owing: Sale[];
+    owingLoading: boolean;
     expenses: Expense[];
     staff: Staff[];
     roster: RosterEntry[];
     loading: boolean;
     rosterLoading: boolean;
     onSale: () => void;
+    onCollect: (s: Sale, payment: string) => Promise<void>;
     onChange: (s: Section) => void
 }) {
     const spent = expenses.reduce((sum, x) => sum + x.amount, 0);
@@ -39,6 +43,7 @@ export function Overview({totals, sales, expenses, staff, roster, loading, roste
                                                                                tint="bg-amber-50 text-amber-600"
                                                                                note="Ready to reconcile"
                                                                                loading={loading}/></div>
+        <RugBalances owing={owing} loading={owingLoading} onCollect={onCollect} className="mt-7"/>
         <RosterSummary staff={staff} roster={roster} loading={rosterLoading} onOpen={() => onChange('roster')}/>
         <section className="mt-7 rounded-2xl border border-slate-200 bg-white">
             <div className="flex items-center justify-between p-5">

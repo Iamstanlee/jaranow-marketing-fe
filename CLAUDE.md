@@ -74,6 +74,14 @@ render. Keep it fast on a tablet on mobile data:
 - Filter by date with `rangeTest(range)` (bounds resolved once), not per-row date
   maths. Format with the module-level `Intl` formatters in `format.ts`; never call
   `new Intl.*` or `toLocale*String` per row.
+- A rug can be sold on a deposit: the sale's `amount` is what was paid upfront and
+  `balance` what is still owed. Collecting it writes a second sale (`balanceOf`), dated
+  that day, and zeroes the balance in the same batch - so every total stays money
+  actually received, and nothing downstream needs to know about deposits. Don't book the
+  full price upfront. Outstanding balances have their own listener (`owing`), since a
+  rug can come back after its deposit has left the `LIVE_WINDOW`. Every rug sale takes
+  a required phone number and a `tag` (`RUG-<ddmm>-<n>`, `nextRugTag` in `rugs.ts`)
+  that staff write on the rug's label; the balance payment carries the same tag.
 - Derive per-day sales through `payments.ts`'s per-array day index rather than
   scanning `sales` once per day.
 - Heavy sections (`Reports`, `Payments`, `Staff`, `Hiring`) are lazy-loaded in
@@ -381,6 +389,12 @@ A list may carry a `cover` (`{ headline, sub }`), which emits a matching front
 sheet as `<file>-front.png`. The cover sells on **care and detail, never price**,
 and its foot reuses `footer.left` — don't repeat the address in `sub`.
 
+The carwash sheet puts the three everyday washes in a `cards` section (Paper
+cards, as `/pricing` shows them) above "More car care" and "Rug" as rows. The
+plain all-rows sheet it replaced is gone, and so is a car drawing tried in the
+header - removed on the owner's instruction; the sheet is figures, not a picture.
+`src/data/carwashPrices.ts` still mirrors these rows; only the grouping differs.
+
 Two things that look like bugs and are not: the list block is centred between
 header and footer, so a two-row card sits with a lot of air around it; and the
 drop watermark bleeds off the **right edge only** on the price page (crop it top
@@ -392,43 +406,81 @@ nothing on it may be true of only one place, campaign or day. A market-specific
 pitch was removed deliberately; re-adding a campaign line is a regression, and
 something that specific wants its own entry in `FLYERS`.
 
-**No prices, and no service list.** It sells *how the work is done* — a headline,
-one sentence, three `points` about the care taken. It used to carry the wash
-types with inclusions, which is a price list with the figures removed. The wash
-types and figures live on the laminated wall list and `/pricing`, where someone
-who has already decided goes looking; this sheet's job is to make them want to
-come at all. **The flyer is therefore not one of the places the carwash services
-must stay in step.**
+**No prices, and no service list.** It sells *how the work is done*: a full
+accent field carrying the headline ("We take our time with your car."), one
+sentence, and the lathered car from `brand/art.js` standing on the field's bottom
+edge and bleeding off the right; then on Paper three icon `points` about the care
+taken, the loyalty offer drawn as the card itself (five numbered slots and the
+accent sixth - never a free fifth), and the number. It is the one piece that
+leads on accent, with an Ink bar because the accent is already the top of the
+sheet. It used to carry the wash types with inclusions, which is a price list
+with the figures removed. The wash types and figures live on the laminated wall
+list and `/pricing`; this sheet's job is to make someone want to come at all.
+**The flyer is therefore not one of the places the carwash services must stay in
+step.** Its copy describes booking and hours positively ("Book on WhatsApp",
+"Open daily") - the site's removed lines ("just drive in", how to pay, "checked
+before you leave") stay off it too.
 
 Headline and WhatsApp number are **Archivo Black** — the face the roadside panels
 use for `CAR WASH`, so the sheet in a hand and the sign they drove past read as
-one thing. A5 has a third of A4's area: a fourth point, a second line of `sub`,
-or a three-line headline pushes the closing note under the bar.
+one thing. A5 has a third of A4's area and every block is fixed: a third headline
+line or a longer `sub` runs into the car's lather, so check the PNG.
 
 **Recruitment posters.** One sheet, three canvases: `a4` 2551×3579 (print),
 `feed` 1080×1350 (Meta 4:5 — the one to run if you run one), `story` 1080×1920
-(Stories/Reels). Every format is authored in one design-mm space 216mm wide and
+(Stories/Reels/WhatsApp status). Every format is authored in one design-mm space 216mm wide and
 rendered at its own px/mm.
 
-A posting is `role`, optional `blurb`, the `meta` chip row, optional `pay`, the
-bulleted `sections`, and the `apply` band. **Keep it short** — what ships is one
-section of three bullets, no blurb, one contact. The first draft carried two
-sections of four and read as a busy job spec.
+**The attendant sheet has four concepts, built to be tested against each other**
+(same idea as the Meta ads). Each is **one blunt headline over one picture** - a
+first cut of B (a where-you-stay diagram) and C (a numbered steps card) was
+dropped because it had to be worked out, so do not bring back a diagram or a list:
+**A "the work"** (Paper, `split`, the wash scene - "Sharp eyes? We have work for
+you."), **B "the place"** (Ink, `stage`, the same scene under the bay's canopy -
+"Car wash job in Gwarinpa."), **C "applying"**
+(Navy, `stage`, the form on a phone with a thumb on the button - "Apply free on
+your phone."), **D "the announcement"** (Ink, `split`, the scene with a second attendant -
+"We're hiring car wash attendants."). Pick one for the wall; run them as ads and
+let the Book's source report choose. Copy is Nigerian English as the careers form speaks it
+("stay", "resume", "form fee"), not Pidgin.
 
-Per-format knobs: `type` multiplies every type size (a4 1.18, feed 1.12, story
-1.32 — a phone reads a 1080px image at a fraction of its size); `cols` sets
-section columns (story uses 1). `story` carries big `padTop`/`padBottom` to clear
-Meta's UI. Print pins an exact `pxH` because rounding 216mm to a whole 2551px
-loses half a pixel.
+Each carries the lockup and a `We're hiring` tag, the role as kicker, an Archivo
+Black headline (the one loud line, §6.2; a script shrinks it to fit), one line of
+`sub`, three `facts`, and the apply band. **They apply through `/careers`, not
+WhatsApp** - that is the playbook's whole pipeline. Print carries a QR to
+`?src=qrcode`, the typed URL, and the WhatsApp number as a "can't scan" fallback
+(whoever answers enters that applicant in the Book, or they are lost to it); feed
+and story carry a button-shaped pill and the URL, and the ad's own link takes
+`?src=meta` (`?src=whatsapp` when the story goes on a status). The QR is
+hand-rolled in the script (version 3-M, 42 bytes) so the brand scripts stay
+dependency-free; **scan the printed A4 after changing it**.
 
-4:5 runs out of room first — if you grow a posting, that is where it breaks and
-its `type` has to come back toward 1. Chip values never wrap by design, so keep
-them short ("6th Avenue, Gwarinpa" is about the longest that works on 9:16).
-Three chips sit in a row; four go 2×2. `pay` is optional and printed verbatim in
-accent (carwash roles: ₦50,000–70,000/month). **Do not print a wage, shift
-pattern or benefit that has not been confirmed** — a sheet on a wall outlives the
-conversation that set it. Meta throttles text-heavy creative; pair these with
-short primary text rather than adding copy to the image.
+Drawings use palette colours only, so people are Ink (no skin brown, §4.2) and
+need a light field: on a dark ground set `panel: "paper"`. The art panel takes
+whatever height a format has left, so nothing is tuned per format; `type` still
+scales text (a4 1.18, feed 1.12, story 1.32) and `story` keeps big
+`padTop`/`padBottom` to clear Meta's UI. Print pins an exact `pxH` because
+rounding 216mm to a whole 2551px loses half a pixel.
+
+The cashier sheet uses the same layout (Navy, a cashier at the counter - "We're
+hiring a cashier.") but **applies by WhatsApp**, because `/careers` only takes
+attendants: `apply.whatsapp` swaps the QR to the `wa.me` link and the big line to
+the number. Its facts are its own (8am–7pm daily) - do not copy the attendant's
+"5–6 days a week" or "No CV · No form fee" onto it unconfirmed.
+
+**A, B and D draw one shared scene**, `WASH_SCENE` in `brand/art.js` (an
+attendant on the hose, a Navy car in lather); the A5 flyer borrows the car from it. Change the scene there, never per piece. Lather
+is one soft white mass with a tinted under-layer and water is a solid fan in
+`WATER` (a tint of the accent) - an earlier cut used outlined circles and dashed
+lines, which read as a diagram. The attendant wears the accent crew tee. The car
+is Navy on a light field and accent on a dark one (`car(ACCENT)`), because Navy
+disappears into Ink.
+
+Facts are the ones confirmed on `/careers` (₦50,000–₦70,000 a month, 5–6 days a
+week, 8am–7pm). **Do not print a wage, shift pattern or benefit that has not been
+confirmed** - a sheet on a wall outlives the conversation that set it - and sell
+the job on care and integrity, never on out-paying. Meta throttles text-heavy
+creative; pair these with short primary text rather than adding copy to the image.
 
 **Meta ads.** Two concepts per offer, built to be A/B tested against each
 other - they differ in idea *and* look, so a winner tells you something:
@@ -647,26 +699,30 @@ Archivo Black runs ~0.706 × font size per capital at this tracking, so "PARKING
 is 4.94× and "NO PARKING" 7.06×. Every size leaves ~10% slack either side; do not
 spend it.
 
-**Tee mockups.** Two 1800×1100 sheets showing front and back. **Mockups, not
-print artwork** — they approve placement and colourway. A printer gets the SVGs
-from `brand/jaranow-blue/svg/` plus the millimetre figures in the captions:
+**Tee mockups.** Two 1800×1100 sheets (Ink cloth, accent cloth) showing front and
+back. **Mockups, not print artwork** — they approve placement and cloth. A printer
+gets the SVGs from `brand/jaranow-blue/svg/`, the millimetre figures in the
+captions, and the back's type converted to outlines:
 
 | print | artwork | size |
 |---|---|---|
-| front, left chest | `jaranow-carwash-by-jaranow-<way>.svg` | 90mm |
-| back, across shoulders | `jaranow-carwash-address-<way>.svg` | 280mm |
+| front, left chest | `jaranow-symbol-white.svg` | 45mm |
+| back, top | `jaranow-lockup-horizontal-white.svg` | 190mm |
+| back, under it | `CAR / WASH` stacked, Archivo Black | 280mm wide |
 
-Both prints are whole SVGs inlined as-is, and **the back carries its address
-inside the artwork** rather than as text beside it — a caption in a mockup is not
-something a printer can reproduce, and the two drift the moment the address
-changes. Do not re-add a separate address line. The garment is drawn at real
-size-L proportions (530mm pit to pit) and every print size derives from
-`CHEST_UNITS`, so the millimetres stay honest. Soft shading is on the *cloth*; the
-mark stays flat (§4.2).
+The back is the roadside panel worn: the **master** lockup, then `CAR / WASH`
+stacked flush left, so the crew and the sign read as one. It is the master and
+not the carwash lockup on purpose - the back says "car wash" once, in the shout.
+**No address on the shirt** — removed deliberately; the earlier design (lockup on
+the chest, address lockup across the back) and the Paper cloth are gone. The
+block's width is set by `WASH` (3.313× its font size).
+The accent cloth is what the attendants wear in the poster drawings. The garment
+is drawn at real size-L proportions (530mm pit to pit) and every print size
+derives from `CHEST_UNITS`, so the millimetres stay honest. Soft shading is on the
+*cloth*; the print stays flat (§4.2).
 
 **Address lockup.** `jaranow-carwash-address-<way>.svg` is the sub-brand block
-with a rule and `6th avenue · gwarinpa` locked under it — for garment backs,
-vehicle panels and anything that must say *where* as well as *who*. A separate
+with a rule and `6th avenue · gwarinpa` locked under it — for vehicle panels and anything that must say *where* as well as *who*. A separate
 asset, not a lockup variant: §3's 625.7 × 207 frame is fixed, so this extends to
 625.7 × 314.3 and leaves the block above untouched. The address is drawn, so a
 printer needs no font. Its tracking is **solved, not chosen** — the line justifies

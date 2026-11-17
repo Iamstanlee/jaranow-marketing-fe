@@ -162,14 +162,15 @@ const CSS = `
   /* Left chest sits on the VIEWER'S right - a front view shows the wearer
      mirrored. Top edges are ~85mm below the shoulder, the usual placement. */
   .chest{top:25%; left:64%; transform:translateX(-50%)}
-  /* The back is the roadside panel worn: the logo, then CAR / WASH stacked flush
-     left. No address - the shirt leaves the site, the sign does not. */
-  .back{top:17%; left:50%; transform:translateX(-50%)}
+  /* The back is the roadside panel worn: the logo, then CAR / WASH stacked, all
+     on the centre line of the back. No address - the shirt leaves the site, the sign does not. */
+  .back{top:17%; left:50%; transform:translateX(-50%); text-align:center}
   .shout{
     font-family:'Archivo Black',system-ui,sans-serif; font-weight:400; white-space:nowrap;
     font-size:${mm(SHOUT_MM)}px; line-height:.84; letter-spacing:-.005em; color:${PAPER};
   }
   .logo{margin-bottom:${mm(26)}px}
+  .logo svg{margin:0 auto}
 
   .cap{
     margin-top:34px; text-align:center;

@@ -7,7 +7,7 @@
 */
 const fs = require("fs");
 const path = require("path");
-const {sparkle, DROP, attendant, SPONGE, GROUND_LINE, WASH_SCENE} = require("./art");
+const {sparkle, DROP, attendant, SPONGE, KIT, GROUND_LINE, WASH_SCENE} = require("./art");
 
 const OUT = process.argv[2] || path.join(__dirname, "poster");
 const SVG = path.join(__dirname, "jaranow-blue", "svg");
@@ -311,23 +311,22 @@ const plain = (content, box = "0 0 1000 560") =>
 
 // A, B and D share one scene (art.js) so the three read as one campaign.
 function washArt() {
-    return plain(`${GROUND_LINE}${WASH_SCENE}`, "10 76 960 424");
+    return plain(`${GROUND_LINE}${WASH_SCENE}${KIT}`, "20 96 1050 404");
 }
 
 // The same scene under the bay's canopy, which says what and where.
 function bayArt() {
     return plain(`
-    <rect x="68" y="80" width="904" height="398" fill="${INK}" opacity=".04"/>
-    <rect x="52" y="80" width="16" height="398" fill="${INK}"/>
-    <rect x="972" y="80" width="16" height="398" fill="${INK}"/>
-    <rect x="36" y="14" width="968" height="58" rx="8" fill="${INK}"/>
-    <rect x="36" y="72" width="968" height="10" fill="${ACCENT}"/>
-    <text x="72" y="53" font-family="Rubik" font-weight="700" font-size="27" letter-spacing="9" fill="${PAPER}">CAR WASH</text>
-    <path d="M664 28 a13 13 0 0 1 13 13 c0 10 -13 22 -13 22 s-13 -12 -13 -22 a13 13 0 0 1 13 -13z" fill="${ACCENT}"/>
-    <circle cx="664" cy="41" r="5" fill="${INK}"/>
-    <text x="972" y="51" text-anchor="end" font-family="Rubik" font-weight="500" font-size="19" letter-spacing="2.4" fill="${PAPER}">6TH AVENUE, GWARINPA</text>
-    <line x1="30" y1="478" x2="1010" y2="478" stroke="${INK}" stroke-opacity=".16" stroke-width="4"/>
-    ${WASH_SCENE}`, "20 4 1000 490");
+    <rect x="30" y="96" width="1020" height="382" fill="${INK}" opacity=".04"/>
+    <rect x="14" y="96" width="16" height="382" fill="${INK}"/>
+    <rect x="1050" y="96" width="16" height="382" fill="${INK}"/>
+    <rect x="-2" y="30" width="1084" height="58" rx="8" fill="${INK}"/>
+    <rect x="-2" y="88" width="1084" height="10" fill="${ACCENT}"/>
+    <text x="38" y="69" font-family="Rubik" font-weight="700" font-size="27" letter-spacing="9" fill="${PAPER}">CAR WASH</text>
+    <path d="M742 44 a13 13 0 0 1 13 13 c0 10 -13 22 -13 22 s-13 -12 -13 -22 a13 13 0 0 1 13 -13z" fill="${ACCENT}"/>
+    <circle cx="742" cy="57" r="5" fill="${INK}"/>
+    <text x="1050" y="67" text-anchor="end" font-family="Rubik" font-weight="500" font-size="19" letter-spacing="2.4" fill="${PAPER}">6TH AVENUE, GWARINPA</text>
+    ${GROUND_LINE}${WASH_SCENE}${KIT}`, "-6 20 1092 480");
 }
 
 // Applying is the picture: the form on a phone, a thumb on the button, what it does not ask for.
@@ -364,13 +363,12 @@ function phoneArt() {
     ${sparkle(320, 44, 16, PAPER)}${sparkle(930, 290, 20, PAPER)}${sparkle(700, 50, 12, PAPER)}${sparkle(250, 400, 14, PAPER)}`, "0 0 1000 460");
 }
 
-// The scene with a second pair of hands - the first attendant mirrored about x=645.
+// The scene with a second pair of hands on the far side - the first attendant mirrored.
 function crewArt() {
     return plain(`
-    <line x1="30" y1="478" x2="1260" y2="478" stroke="${INK}" stroke-opacity=".16" stroke-width="4"/>
+    <line x1="24" y1="478" x2="1072" y2="478" stroke="${INK}" stroke-opacity=".14" stroke-width="3"/>
     ${WASH_SCENE}
-    <g transform="translate(1290,0) scale(-1,1)">${attendant(SPONGE)}</g>
-    ${sparkle(1180, 130, 14, ACCENT)}`, "10 76 1270 424");
+    <g transform="translate(1244,0) scale(-1,1)">${attendant(SPONGE)}</g>`, "20 96 1060 404");
 }
 
 // The counter: a cashier behind it, the Book on a tablet, a card machine, a receipt.

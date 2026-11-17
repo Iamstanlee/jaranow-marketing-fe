@@ -7,7 +7,7 @@
 */
 const fs = require("fs");
 const path = require("path");
-const {sparkle, car, CAR_FOAM, bubbles, DROP} = require("./art");
+const {sparkle, car, bubbles, DROP} = require("./art");
 
 const OUT = process.argv[2] || path.join(__dirname, "flyer");
 const SVG = path.join(__dirname, "jaranow-blue", "svg");
@@ -31,8 +31,8 @@ const SAFE = mm(BLEED + 10);
 // The accent field's depth. Its bottom edge is the ground the car stands on.
 const FIELD = BLEED + 128;
 
-/* headline: two lines, breaks only at \n. sub: two lines against 78mm or it runs
-   into the lather. points: three, two or three words each. Plain and spoken -
+/* headline: two lines, breaks only at \n. sub: three lines against 56mm or it runs
+   into the car. points: three, two or three words each. Plain and spoken -
    read in seconds, one hand on a steering wheel.
    loyalty: five washes then the sixth free, never "a free fifth" (CLAUDE.md
    "Pocket cards") - the slot row draws exactly that. */
@@ -96,11 +96,10 @@ const CSS = `
     letter-spacing:-.012em; white-space:pre;
   }
   .sub{
-    margin-top:${mm(4.4)}px; max-width:${mm(78)}px;
+    margin-top:${mm(4.4)}px; max-width:${mm(56)}px;
     font-size:${mm(4.2)}px; font-weight:400; line-height:1.42; color:rgba(242,245,251,.88);
   }
-  /* Bleeds off the right edge so it reads as driving in, not as a clip-art. */
-  .car{position:absolute; right:${-mm(12)}px; bottom:0; width:${mm(126)}px; height:auto; display:block; z-index:1}
+  .car{position:absolute; right:${mm(BLEED + 5)}px; bottom:${-mm(1.2)}px; width:${mm(70)}px; height:auto; display:block; z-index:1}
 
   .rest{padding:${mm(7)}px ${SAFE}px 0}
   .points{display:grid; grid-template-columns:repeat(3,1fr); gap:${mm(4)}px}
@@ -150,10 +149,12 @@ const CSS = `
   .bar{position:absolute; left:0; right:0; bottom:0; height:${mm(BLEED + 7)}px; background:${INK}}
 `;
 
-const carArt = () => `<svg class="car" viewBox="330 150 650 328" xmlns="http://www.w3.org/2000/svg">
-  ${car()}${CAR_FOAM}
-  ${bubbles([[806, 226, 10], [834, 200, 6], [900, 290, 7], [560, 216, 6]])}
-  ${sparkle(700, 172, 20, PAPER)}${sparkle(906, 214, 14, PAPER)}${sparkle(420, 290, 11, PAPER)}
+// Washed and gleaming, no lather: suds only make sense with someone working them.
+const carArt = () => `<svg class="car" viewBox="462 104 476 392" xmlns="http://www.w3.org/2000/svg">
+  ${car()}
+  ${bubbles([[900, 150, 7], [916, 124, 4], [488, 250, 5]])}
+  ${sparkle(766, 196, 13, "#fff")}${sparkle(846, 278, 9, "#fff")}${sparkle(590, 330, 10, "#fff")}${sparkle(770, 372, 8, "#fff")}
+  ${sparkle(512, 150, 13, PAPER)}${sparkle(880, 210, 9, PAPER)}
 </svg>`;
 
 const slots = () =>

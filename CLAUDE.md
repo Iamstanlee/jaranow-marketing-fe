@@ -408,8 +408,8 @@ something that specific wants its own entry in `FLYERS`.
 
 **No prices, and no service list.** It sells *how the work is done*: a full
 accent field carrying the headline ("We take our time with your car."), one
-sentence, and the lathered car from `brand/art.js` standing on the field's bottom
-edge and bleeding off the right; then on Paper three icon `points` about the care
+sentence, and the photographed car from `brand/art.js` standing on the field's
+bottom edge at the right; then on Paper three icon `points` about the care
 taken, the loyalty offer drawn as the card itself (five numbered slots and the
 accent sixth - never a free fifth), and the number. It is the one piece that
 leads on accent, with an Ink bar because the accent is already the top of the
@@ -424,7 +424,7 @@ before you leave") stay off it too.
 Headline and WhatsApp number are **Archivo Black** — the face the roadside panels
 use for `CAR WASH`, so the sheet in a hand and the sign they drove past read as
 one thing. A5 has a third of A4's area and every block is fixed: a third headline
-line or a longer `sub` runs into the car's lather, so check the PNG.
+line or a longer `sub` runs into the car, so check the PNG.
 
 **Recruitment posters.** One sheet, three canvases: `a4` 2551×3579 (print),
 `feed` 1080×1350 (Meta 4:5 — the one to run if you run one), `story` 1080×1920
@@ -468,13 +468,30 @@ attendants: `apply.whatsapp` swaps the QR to the `wa.me` link and the big line t
 the number. Its facts are its own (8am–7pm daily) - do not copy the attendant's
 "5–6 days a week" or "No CV · No form fee" onto it unconfirmed.
 
-**A, B and D draw one shared scene**, `WASH_SCENE` in `brand/art.js` (an
-attendant on the hose, a Navy car in lather); the A5 flyer borrows the car from it. Change the scene there, never per piece. Lather
-is one soft white mass with a tinted under-layer and water is a solid fan in
-`WATER` (a tint of the accent) - an earlier cut used outlined circles and dashed
-lines, which read as a diagram. The attendant wears the accent crew tee. The car
-is Navy on a light field and accent on a dark one (`car(ACCENT)`), because Navy
-disappears into Ink.
+**A, B and D draw one shared scene**, `WASH_SCENE` in `brand/art.js`: a drawn
+attendant on a pressure-washer lance, working a **photographed** car. The A5
+flyer takes the car from it. Change the scene there, never per piece.
+
+*The car is a photo, on the owner's instruction.* It is their reference shot of a
+Mercedes GLE Coupe from behind (`brand/gle-coupe.png`), cut out along `CUT` and
+placed by `REF`; four drawn cars were rejected first, the last two as "nothing
+like the GLE". It keeps its own colours (black paint, red lamps) and badge - a
+photograph is not a palette choice, so §4.2 does not apply to it. Only the
+number plate is covered, with a Paper plate carrying the drop: never print a
+stranger's registration. **The photo is a 1050px Instagram screenshot of someone
+else's picture**, used knowingly: it is soft at A4 (about 1.4x upscaled) and not
+ours by right. Replace it with the owner's own photo of a car in the bay when
+there is one - a new photo needs a new `CUT` and `REF`, and the cut edge wants
+checking for slivers of background.
+
+*The attendant stays drawn*, like a stock illustration and not a pictogram: true
+proportions (about seven and a half heads), faceless, in the accent crew tee,
+with a soft ground shadow. Two cartoon cuts were rejected before it (a stick
+silhouette, then a smiling big-headed figure), so do not drift back. Lather is a
+small cluster of bubbles where the water lands - never clouds - and water is a
+soft white fan with mist. The figure is palette-only, skin included (`SKIN`),
+which is why it needs a light field. D's second attendant is the first mirrored,
+holding a sponge to the far side.
 
 Facts are the ones confirmed on `/careers` (₦50,000–₦70,000 a month, 5–6 days a
 week, 8am–7pm). **Do not print a wage, shift pattern or benefit that has not been
@@ -711,7 +728,8 @@ captions, and the back's type converted to outlines:
 | back, under it | `CAR / WASH` stacked, Archivo Black | 280mm wide |
 
 The back is the roadside panel worn: the **master** lockup, then `CAR / WASH`
-stacked flush left, so the crew and the sign read as one. It is the master and
+stacked, **everything on the back's centre line** (flush left looked off-centre on
+a body, because `CAR` is shorter than `WASH`), so the crew and the sign read as one. It is the master and
 not the carwash lockup on purpose - the back says "car wash" once, in the shout.
 **No address on the shirt** — removed deliberately; the earlier design (lockup on
 the chest, address lockup across the back) and the Paper cloth are gone. The

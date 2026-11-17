@@ -61,10 +61,10 @@ function SalesHead({actions}: { actions: boolean }) {
     return <thead className="border-y border-slate-100 bg-slate-50 text-xs uppercase tracking-wide text-slate-400">
     <tr>
         <th className="px-5 py-3">Date</th>
-        <th className="px-5 py-3">Loyalty code</th>
+        <th className="px-5 py-3">Code</th>
         <th className="px-5 py-3">Service</th>
         <th className="px-5 py-3">Payment</th>
-        <th className="px-5 py-3">Reward</th>
+        <th className="px-5 py-3">Note</th>
         <th className="px-5 py-3 text-right">Amount</th>
         {actions && <th className="px-5 py-3 text-right"><span className="sr-only">Actions</span></th>}
     </tr>

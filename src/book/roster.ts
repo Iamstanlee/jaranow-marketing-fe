@@ -1,11 +1,12 @@
-import {DUTIES, type Duty} from './constants';
+import {DUTIES, type Duty, OFF_DAYS, type OffDay} from './constants';
 import {addDays, dayFrom, isoDay, startOfDay, startOfWeek} from './format';
 import type {RosterEntry, Staff} from './types';
 
-// Cleaning is a WEEK (anchored on its Monday); Off is a SUNDAY (anchored on the Sunday). Any
-// picked date snaps to the slot containing it.
-export const sundayOf = (date: Date) => addDays(startOfWeek(date), 6);
-export const slotOf = (duty: Duty, date: Date) => isoDay(duty === 'Off' ? sundayOf(date) : startOfWeek(date));
+// Cleaning is a WEEK (anchored on its Monday); Off is the day itself.
+export const slotOf = (duty: Duty, date: Date) => isoDay(duty === 'Cleaning' ? startOfWeek(date) : date);
+// One entry per person per duty per week, whatever day it sits on.
+export const sameSlot = (a: Pick<RosterEntry, 'day' | 'duty' | 'staffId'>, b: Pick<RosterEntry, 'day' | 'duty' | 'staffId'>) =>
+    a.duty === b.duty && a.staffId === b.staffId && isoDay(startOfWeek(dayFrom(a.day))) === isoDay(startOfWeek(dayFrom(b.day)));
 
 export const weekSpan = (monday: Date) => `${monday.toLocaleDateString('en-NG', {
     day: 'numeric',
@@ -32,71 +33,50 @@ const WEEK_MS = 604_800_000;
 // Math.round so a DST shift elsewhere cannot rotate the team by one.
 export const weekNumber = (monday: Date) => Math.round((startOfDay(monday).getTime() - EPOCH.getTime()) / WEEK_MS);
 
-// Separate turn order per duty: exemptions apply to one rotation at a time.
+// Exemptions apply to one duty at a time.
 export const inRotation = (person: Staff, duty: Duty) => person.active && !(person.exempt || []).includes(duty);
 
-// Join order, so a newcomer goes to the end instead of reshuffling everyone's turn.
-const joined = (person: Staff) => person.createdAt?.toDate().getTime() ?? 0;
+// The order they were added, so a newcomer goes to the end instead of reshuffling everyone's turn or day.
+const added = (person: Staff) => person.createdAt?.toDate().getTime() ?? 0;
 export const rotation = (staff: Staff[], duty: Duty) => staff.filter(p => inRotation(p, duty))
-    .sort((a, b) => joined(a) - joined(b) || a.name.localeCompare(b.name));
+    .sort((a, b) => added(a) - added(b) || a.name.localeCompare(b.name));
+// Midnight of their first day. A missing createdAt (pending write) counts as always on the team.
+export const joinedAt = (person: Staff) => person.joinedOn ? dayFrom(person.joinedOn).getTime()
+    : person.createdAt ? startOfDay(person.createdAt.toDate()).getTime() : 0;
 
 // Weeks before the epoch give a negative turn, and JS % keeps the sign.
 const turnAt = (order: Staff[], turn: number) => order[((turn % order.length) + order.length) % order.length];
-const gcd = (a: number, b: number): number => b ? gcd(b, a % b) : a;
-
-// Cleaning is the plain cycle. Off is that cycle offset by one so the week's cleaner is not
-// also off on its Sunday. With exemptions the two lists differ in length and the offset can
-// collide; stepping past the clash steals the next person's turn. So one full period —
-// lcm(off, cleaning) weeks — is laid out by backtracking search, each run of `n` weeks a
-// permutation of the `n` people: everyone is off once every `n` weeks, never twice running.
-// Small enough to recompute per call; caching would hold a stale team.
-const offPeriod = (staff: Staff[]): Staff[] => {
-    const off = rotation(staff, 'Off'), cleaning = rotation(staff, 'Cleaning');
-    const n = off.length, span = cleaning.length || 1;
-    const length = n / gcd(n, span) * span;
-    const cleanerOn = (p: number) => cleaning.length ? turnAt(cleaning, p) : null;
-    // `clear`: Sunday off is not the week's cleaner. `apart`: nobody off two Sundays running.
-    // Some teams cannot have both; `apart` is dropped first.
-    const lay = (apart: boolean, clear: boolean): Staff[] | null => {
-        const picks: Staff[] = [];
-        // Only a shape with no answer exhausts this.
-        let budget = 5000;
-        const allowed = (p: number, person: Staff) => {
-            if (clear && cleanerOn(p)?.id === person.id) return false;
-            if (!apart) return true;
-            if (p > 0 && picks[p - 1].id === person.id) return false;
-            // The period repeats, so the week after the last one is the first one.
-            return !(p > 0 && p === length - 1 && picks[0].id === person.id);
-        };
-        const fill = (p: number): boolean => {
-            if (p === length) return true;
-            if (budget-- < 0) return false;
-            const taken = picks.slice(p - (p % n), p);
-            // Cycle order from whoever's turn it plainly is, so an unconstrained team keeps the plain cycle.
-            for (let step = 0; step < n; step++) {
-                const person = turnAt(off, p + 1 + step);
-                if (taken.some(t => t.id === person.id) || !allowed(p, person)) continue;
-                picks[p] = person;
-                if (fill(p + 1)) return true;
-            }
-            picks.length = p;
-            return false;
-        };
-        return fill(0) ? picks : null;
-    };
-    // Last resort: the plain cycle (a team of one is off on its own cleaning week).
-    return lay(true, true) || lay(false, true) || lay(true, false)
-        || Array.from({length}, (_, p) => turnAt(off, p + 1));
+// --- Weekly days off ---------------------------------------------------------------------
+const OFFSET: Record<OffDay, number> = {Monday: 0, Tuesday: 1, Sunday: 6};
+const isOffDay = (day: unknown): day is OffDay => OFF_DAYS.includes(day as OffDay);
+const count = (days: OffDay[]) => OFF_DAYS.map(d => days.filter(x => x === d).length);
+const leastOf = (days: OffDay[]) => {
+    const counts = count(days);
+    return OFF_DAYS[counts.indexOf(Math.min(...counts))];
 };
 
+// A stored `offDay` is kept; anyone without one takes the least-taken day, in join order, so the
+// team stays spread over the quiet days.
+export const offDays = (staff: Staff[]): { person: Staff; day: OffDay }[] => {
+    const order = rotation(staff, 'Off');
+    const taken = order.map(p => p.offDay).filter(isOffDay);
+    return order.map(person => {
+        if (isOffDay(person.offDay)) return {person, day: person.offDay};
+        const day = leastOf(taken);
+        taken.push(day);
+        return {person, day};
+    });
+};
+// What a newcomer (or `person`, re-picking) should default to.
+export const quietestDay = (staff: Staff[], person?: Staff) =>
+    leastOf(offDays(staff.filter(p => p.id !== person?.id)).map(o => o.day));
+export const offCount = (staff: Staff[], day: OffDay, person?: Staff) =>
+    offDays(staff).filter(o => o.day === day && o.person.id !== person?.id).length;
+
 // Swaps are not consulted: the rotation is derived from the team alone.
-export const dueFor = (duty: Duty, monday: Date, staff: Staff[]): Staff | null => {
-    const order = rotation(staff, duty);
-    if (!order.length) return null;
-    const week = weekNumber(monday);
-    if (duty !== 'Off') return turnAt(order, week);
-    const period = offPeriod(staff);
-    return period[((week % period.length) + period.length) % period.length];
+export const cleanerFor = (monday: Date, staff: Staff[]): Staff | null => {
+    const order = rotation(staff, 'Cleaning');
+    return order.length ? turnAt(order, weekNumber(monday)) : null;
 };
 
 // A derived turn, shaped like a stored entry and never written; `auto` marks it.
@@ -104,14 +84,18 @@ export type Assignment = RosterEntry & { auto?: boolean };
 const turnOf = (duty: Duty, day: string, person: Staff): Assignment =>
     ({id: `auto:${duty}:${day}`, day, duty, staffId: person.id, staffName: person.name, auto: true});
 
-// A swap replaces the turn for its slot outright.
+// A cleaning swap replaces the week's turn outright; an Off swap moves only that person's day.
 export const weekRoster = (roster: RosterEntry[], staff: Staff[], monday: Date) => {
-    const week = isoDay(monday), sunday = isoDay(sundayOf(monday));
-    const slot = (duty: Duty, day: string): Assignment[] => {
-        const overrides = ordered(roster.filter(r => r.duty === duty && r.day === day), staff);
-        if (overrides.length) return overrides;
-        const due = dueFor(duty, monday, staff);
-        return due ? [turnOf(duty, day, due)] : [];
-    };
-    return {week, sunday, cleaning: slot('Cleaning', week), off: slot('Off', sunday)};
+    const week = isoDay(monday), sunday = isoDay(addDays(monday, 6));
+    const swapped = ordered(roster.filter(r => r.duty === 'Cleaning' && r.day === week), staff);
+    const cleaner = cleanerFor(monday, staff);
+    const cleaning: Assignment[] = swapped.length ? swapped : cleaner ? [turnOf('Cleaning', week, cleaner)] : [];
+    const moved = roster.filter(r => r.duty === 'Off' && r.day >= week && r.day <= sunday);
+    // No day off before they joined.
+    const standing = offDays(staff).filter(({person}) => !moved.some(r => r.staffId === person.id))
+        .map(({person, day}) => ({person, date: addDays(monday, OFFSET[day])}))
+        .filter(({person, date}) => date.getTime() >= joinedAt(person))
+        .map(({person, date}) => turnOf('Off', isoDay(date), person));
+    const off: Assignment[] = [...moved, ...standing].sort((a, b) => a.day.localeCompare(b.day) || nameOf(a, staff).localeCompare(nameOf(b, staff)));
+    return {week, cleaning, off};
 };

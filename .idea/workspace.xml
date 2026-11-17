@@ -5,12 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Update CLAUDE.md">
-      <change beforePath="$PROJECT_DIR$/SEO_IMPLEMENTATION_GUIDE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/brand/art.js" beforeDir="false" afterPath="$PROJECT_DIR$/brand/art.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brand/gen-flyer.js" beforeDir="false" afterPath="$PROJECT_DIR$/brand/gen-flyer.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brand/gen-poster.js" beforeDir="false" afterPath="$PROJECT_DIR$/brand/gen-poster.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brand/gen-tee.js" beforeDir="false" afterPath="$PROJECT_DIR$/brand/gen-tee.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/components/SalesTable.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/components/SalesTable.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/firestore.rules" beforeDir="false" afterPath="$PROJECT_DIR$/firestore.rules" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/components/DutyModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/components/DutyModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/components/StaffModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/components/StaffModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/constants.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/constants.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/format.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/format.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/hooks/useBook.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/hooks/useBook.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/roster.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/roster.test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/roster.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/roster.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/salary.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/salary.test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/salary.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/salary.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/sections/Hiring.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Hiring.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/sections/Payments.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Payments.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/sections/Roster.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Roster.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/sections/Staff.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Staff.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/types.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -201,7 +213,7 @@
       <workItem from="1793841939686" duration="4155000" />
       <workItem from="1794090518923" duration="1279000" />
       <workItem from="1794658324079" duration="10258000" />
-      <workItem from="1794676827398" duration="39344000" />
+      <workItem from="1794676827398" duration="47140000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

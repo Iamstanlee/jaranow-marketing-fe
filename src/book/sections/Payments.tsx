@@ -61,7 +61,7 @@ export function Payments({sales, staff, payouts, attendance, roster, role, loadi
 
     return <>
         <p className="mb-7 text-sm text-slate-500">
-            Revenue share is paid every Sunday: {percent(SHARE_RATE)} of each day's washes, split between the car washers
+            Revenue share is paid every Sunday: {percent(SHARE_RATE)} of each day's washes, split between the carwash attendants
             present. Salaries are paid on the {SALARY_DUE_DAY}th.
         </p>
 

@@ -46,6 +46,10 @@ export const PAYMENT_METHODS = ['Cash', 'Transfer', 'POS'] as const;
 export const DUTIES = ['Cleaning', 'Off'] as const;
 export type Duty = typeof DUTIES[number];
 
+// The quiet days, in week order, which is also the tie-break when spreading the team over them.
+export const OFF_DAYS = ['Monday', 'Tuesday', 'Sunday'] as const;
+export type OffDay = typeof OFF_DAYS[number];
+
 // How many recent documents each live listener reads; older ones are fetched on demand
 // (useBook's history). Loyalty and staff are read whole: codeFor numbers members by position,
 // so a truncated loyalty list would hand out somebody else's code.

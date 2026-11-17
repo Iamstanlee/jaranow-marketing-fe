@@ -86,6 +86,10 @@ render. Keep it fast on a tablet on mobile data:
   scanning `sales` once per day.
 - Heavy sections (`Reports`, `Payments`, `Staff`, `Hiring`) are lazy-loaded in
   `Bookkeeping.tsx`. Overview, Sales, Expenses and End of day stay eager.
+- Days off: everybody in the Off rotation gets one day off a week, on a quiet day
+  (`OFF_DAYS`: Monday, Tuesday, Sunday). The day is stored on the Staff doc as `offDay` and
+  falls back to the day fewest people already have. An Off swap moves only that person's day
+  for that week. The old one-Sunday rotation is gone, past weeks included.
 
 ### Hiring (`/careers` → Book → Hiring)
 
@@ -407,11 +411,12 @@ pitch was removed deliberately; re-adding a campaign line is a regression, and
 something that specific wants its own entry in `FLYERS`.
 
 **No prices, and no service list.** It sells *how the work is done*: a full
-accent field carrying the headline ("We take our time with your car."), one
+accent field carrying the headline ("Your car deserves a proper wash."), one
 sentence, and the photographed car from `brand/art.js` standing on the field's
 bottom edge at the right; then on Paper three icon `points` about the care
-taken, the loyalty offer drawn as the card itself (five numbered slots and the
-accent sixth - never a free fifth), and the number. It is the one piece that
+taken (each set on exactly two lines, so the row sits level), the loyalty offer drawn as the card itself (five numbered slots and the
+accent sixth - never a free fifth), and the number beside the full address
+("6th Avenue, Gwarinpa · Opp. Royal Care Specialist Hospital", owner-supplied). It is the one piece that
 leads on accent, with an Ink bar because the accent is already the top of the
 sheet. It used to carry the wash types with inclusions, which is a price list
 with the figures removed. The wash types and figures live on the laminated wall
@@ -435,16 +440,22 @@ rendered at its own px/mm.
 (same idea as the Meta ads). Each is **one blunt headline over one picture** - a
 first cut of B (a where-you-stay diagram) and C (a numbered steps card) was
 dropped because it had to be worked out, so do not bring back a diagram or a list:
-**A "the work"** (Paper, `split`, the wash scene - "Sharp eyes? We have work for
-you."), **B "the place"** (Ink, `stage`, the same scene under the bay's canopy -
-"Car wash job in Gwarinpa."), **C "applying"**
-(Navy, `stage`, the form on a phone with a thumb on the button - "Apply free on
+**A "the work"** (Paper, `split`, the wash scene - "Looking for work? Come and
+join us."), **B "the place"** (Ink, `stage`, the same scene under the bay's canopy -
+"Car wash work in Gwarinpa."), **C "applying"**
+(Navy, `stage`, the form on a phone with a thumb on the button - "Apply free with
 your phone."), **D "the announcement"** (Ink, `split`, the scene with a second attendant -
-"We're hiring car wash attendants."). Pick one for the wall; run them as ads and
-let the Book's source report choose. Copy is Nigerian English as the careers form speaks it
-("stay", "resume", "form fee"), not Pidgin.
+"Vacancy! Car wash attendants."). Pick one for the wall; run them as ads and
+let the Book's source report choose.
 
-Each carries the lockup and a `We're hiring` tag, the role as kicker, an Archivo
+**Poster and flyer copy speaks everyday Nigerian English, direct and common** -
+the owner's instruction: the way a notice on a gate says it. "Vacancy", "we
+need", "where you stay", "collect money", "chat us", "every day", "a proper
+wash", one "no wahala". Pidgin as a headline ("well well") was rejected as weird. Short sentences, nothing that needs working
+out, and not full Pidgin. The rest of the copy rules still bind it: nothing
+unconfirmed, no selling on price.
+
+Each carries the lockup and a `Vacancy` tag, the role as kicker, an Archivo
 Black headline (the one loud line, §6.2; a script shrinks it to fit), one line of
 `sub`, three `facts`, and the apply band. **They apply through `/careers`, not
 WhatsApp** - that is the playbook's whole pipeline. Print carries a QR to
@@ -462,8 +473,8 @@ scales text (a4 1.18, feed 1.12, story 1.32) and `story` keeps big
 `padTop`/`padBottom` to clear Meta's UI. Print pins an exact `pxH` because
 rounding 216mm to a whole 2551px loses half a pixel.
 
-The cashier sheet uses the same layout (Navy, a cashier at the counter - "We're
-hiring a cashier.") but **applies by WhatsApp**, because `/careers` only takes
+The cashier sheet uses the same layout (Navy, a cashier at the counter - "We need
+a cashier.") but **applies by WhatsApp**, because `/careers` only takes
 attendants: `apply.whatsapp` swaps the QR to the `wa.me` link and the big line to
 the number. Its facts are its own (8am–7pm daily) - do not copy the attendant's
 "5–6 days a week" or "No CV · No form fee" onto it unconfirmed.
@@ -716,15 +727,15 @@ Archivo Black runs ~0.706 × font size per capital at this tracking, so "PARKING
 is 4.94× and "NO PARKING" 7.06×. Every size leaves ~10% slack either side; do not
 spend it.
 
-**Tee mockups.** Two 1800×1100 sheets (Ink cloth, accent cloth) showing front and
+**Tee mockups.** Three 1800×1100 sheets (Ink, black, white) showing front and
 back. **Mockups, not print artwork** — they approve placement and cloth. A printer
 gets the SVGs from `brand/jaranow-blue/svg/`, the millimetre figures in the
 captions, and the back's type converted to outlines:
 
 | print | artwork | size |
 |---|---|---|
-| front, left chest | `jaranow-symbol-white.svg` | 45mm |
-| back, top | `jaranow-lockup-horizontal-white.svg` | 190mm |
+| front, left chest | `jaranow-symbol-<white\|black>.svg` | 45mm |
+| back, top | `jaranow-lockup-horizontal-<white\|black>.svg` | 190mm |
 | back, under it | `CAR / WASH` stacked, Archivo Black | 280mm wide |
 
 The back is the roadside panel worn: the **master** lockup, then `CAR / WASH`
@@ -734,7 +745,10 @@ not the carwash lockup on purpose - the back says "car wash" once, in the shout.
 **No address on the shirt** — removed deliberately; the earlier design (lockup on
 the chest, address lockup across the back) and the Paper cloth are gone. The
 block's width is set by `WASH` (3.313× its font size).
-The accent cloth is what the attendants wear in the poster drawings. The garment
+Cloths are **Ink, black and white**, each printed in one colour (white on Ink
+and black, black on white) - the owner's choice; accent-blue and two-tone
+(white body, black sleeves) cloths were tried and dropped, so the accent tee the drawn attendants wear on the posters is no longer
+a real garment. The garment
 is drawn at real size-L proportions (530mm pit to pit) and every print size
 derives from `CHEST_UNITS`, so the millimetres stay honest. Soft shading is on the
 *cloth*; the print stays flat (§4.2).

@@ -68,11 +68,9 @@ export function DutyModal({entry, day, duty: initialDuty, staffId: initialStaffI
                                                                          className="mt-1 w-full rounded-xl border-slate-200">
                     {DUTIES.map(d => <option key={d}>{d}</option>)}
                 </select>
-                    <span className="mt-1 block text-xs font-normal text-slate-400">{duty === 'Off'
-                        ? 'A day off is always a Sunday.'
-                        : 'Cleaning is set for a whole week, Monday to Sunday.'}</span>
+                    {duty === 'Cleaning' && <span className="mt-1 block text-xs font-normal text-slate-400">Cleaning is set for a whole week, Monday to Sunday.</span>}
                 </label>
-                <label className="block text-sm font-medium">{duty === 'Off' ? 'Sunday' : 'Week'}
+                <label className="block text-sm font-medium">{duty === 'Off' ? 'Day off' : 'Week'}
                     <input required type="date" value={picked} onChange={e => setPicked(e.target.value)}
                            className="mt-1 w-full rounded-xl border-slate-200"/>
                     <span className="mt-1 block text-xs font-normal text-blue-600">{slotLabel(duty, slot)}</span></label>
@@ -81,8 +79,9 @@ export function DutyModal({entry, day, duty: initialDuty, staffId: initialStaffI
                                                                                    onChange={e => setNote(e.target.value)}
                                                                                    placeholder={duty === 'Off' ? 'Why they are off' : 'Anything extra this week'}
                                                                                    className="mt-1 w-full rounded-xl border-slate-200"/></label>
-                <p className="text-xs text-slate-400">A one-off swap. Every
-                    other {duty === 'Off' ? 'Sunday' : 'week'} keeps taking turns.</p>
+                <p className="text-xs text-slate-400">{duty === 'Off'
+                    ? 'Moves their day off for that week only. Other weeks keep their usual day.'
+                    : 'A one-off swap. Every other week keeps taking turns.'}</p>
                 {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
                 <button disabled={submitting}
                         className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white disabled:opacity-60">{submitting ? 'Saving…' : entry ? 'Save changes' : 'Assign duty'}</button>

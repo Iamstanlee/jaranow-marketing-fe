@@ -22,7 +22,7 @@ import type {DocumentData, Query} from 'firebase/firestore';
 import {authReady, db, firebaseEnabled} from '../../lib/firebase';
 import {COLLECTIONS, DUTIES, earnsPoints, isRug, type LeftReason, LIVE_WINDOW} from '../constants';
 import {addDays, codeFor, dateOf, dayFrom, dayLabel, money} from '../format';
-import {slotLabel, weekSpan} from '../roster';
+import {sameSlot, slotLabel, weekSpan} from '../roster';
 import {nextRugTag} from '../rugs';
 import {type Mark, SHARE_RATE} from '../payments';
 import {seedApplicants, seedAttendance, seedExpenses, seedLoyalty, seedPayouts, seedRoster, seedSales, seedStaff} from '../seed';
@@ -346,7 +346,7 @@ export function useBook(day: number, toast: Notify, admin: boolean) {
         } : p).sort((a, b) => a.name.localeCompare(b.name)));
         const person = staff.find(p => p.id === id);
         const name = rest.name ?? person?.name ?? 'Team member';
-        if (role && person && (attendantPay ?? undefined) !== person.attendantPay) toast(`${name} · ${attendantPay === 'share' ? 'revenue share' : attendantPay === 'salary' ? 'car washer on salary' : 'cashier'}.`, 'info');
+        if (role && person && (attendantPay ?? undefined) !== person.attendantPay) toast(`${name} · ${attendantPay === 'share' ? 'revenue share' : attendantPay === 'salary' ? 'carwash attendant on salary' : 'cashier'}.`, 'info');
         else toast(`${name} updated.`, 'info');
     }, [staff, toast]);
 
@@ -384,9 +384,9 @@ export function useBook(day: number, toast: Notify, admin: boolean) {
         toast(dutyLine(record), 'info');
     }, [toast]);
 
-    // One entry per person per slot: a repeat overwrites rather than stacking.
+    // One entry per person per duty per week: a repeat overwrites rather than stacking.
     const assignDuty = useCallback(async (record: Fields<RosterEntry>) => {
-        const clash = roster.find(r => r.day === record.day && r.duty === record.duty && r.staffId === record.staffId);
+        const clash = roster.find(r => sameSlot(r, record));
         if (clash) return updateDuty(clash.id, record);
         if (db) await setDoc(doc(collection(db, COLLECTIONS.roster)), {...record, createdAt: serverTimestamp()});
         else setRoster(list => [{id: crypto.randomUUID(), ...record}, ...list]);
@@ -396,7 +396,9 @@ export function useBook(day: number, toast: Notify, admin: boolean) {
     const removeDuty = useCallback(async (entry: RosterEntry) => {
         if (db) await deleteDoc(doc(db, COLLECTIONS.roster, entry.id));
         else setRoster(list => list.filter(r => r.id !== entry.id));
-        toast(`Swap undone · ${slotLabel(entry.duty, entry.day)} is back to taking turns.`, 'warning');
+        toast(entry.duty === 'Off'
+            ? `Swap undone · ${entry.staffName} is back on their usual day off.`
+            : `Swap undone · ${slotLabel(entry.duty, entry.day)} is back to taking turns.`, 'warning');
     }, [toast]);
 
     // --- Pay ---------------------------------------------------------------------------

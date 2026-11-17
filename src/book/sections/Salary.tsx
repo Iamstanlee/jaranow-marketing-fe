@@ -27,7 +27,8 @@ const LOOK: Record<DayStatus, { cell: string; label: string; mark?: string }> = 
     absent: {cell: 'bg-red-50 font-semibold text-red-700 ring-1 ring-inset ring-red-200', label: 'Absent'},
     unmarked: {cell: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200', label: 'Not marked', mark: '?'},
     upcoming: {cell: 'text-slate-400', label: 'Still to come'},
-    before: {cell: 'text-slate-300', label: 'Before attendance was kept'}
+    before: {cell: 'text-slate-300', label: 'Before attendance was kept'},
+    unjoined: {cell: 'text-slate-300', label: 'Before they joined'}
 };
 const LEGEND: DayStatus[] = ['worked', 'off', 'paidOff', 'absent', 'unmarked'];
 
@@ -161,6 +162,8 @@ export function AttendantMonth({staff, attendance, roster, payouts, loading, wee
                                     : <>
                                         <dl className={`space-y-2 tabular-nums ${cashier ? 'mt-3' : 'mt-4 border-t border-slate-200 pt-4'}`}>
                                             <Row label="Base salary" value={money(pay.base)}/>
+                                            {pay.unjoined > 0 && <Row label={`Before they joined · ${plural(pay.unjoined, 'day')}`}
+                                                                      value={`− ${money(pay.prorated)}`}/>}
                                             {pay.missed > 0 && <Row label={`${pay.unmarked ? 'Absent or not marked' : 'Absences'} · ${plural(pay.missed, 'day')}`}
                                                                      value={`− ${money(pay.deduction)}`}/>}
                                             {!cashier && <Row label={current ? 'Salary so far' : 'Salary for the month'} value={money(pay.earned)} strong/>}

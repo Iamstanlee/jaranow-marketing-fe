@@ -37,7 +37,9 @@ const LOGO_MM = 190; // master lockup above the shout
 const PAGE_W = 1800;
 const PAGE_H = 1100;
 
-// `mark` colourway per BRAND-STANDARD §5.
+/* Ink, black and white garments, printed in one colour. `mark` is the SVG
+   colourway (BRAND-STANDARD §5); `print` is the same colour for the type.
+   Accent-blue and two-tone cloths were tried and dropped. */
 const GARMENTS = {
   ink: {
     base: INK,
@@ -45,13 +47,23 @@ const GARMENTS = {
     lift: "#1B2740",
     rib: "#0A1020",
     mark: "white",
+    print: PAPER,
   },
-  accent: {
-    base: ACCENT,
-    edge: "#1A47B8",
-    lift: "#3F7BF2",
-    rib: "#1D4FCC",
+  black: {
+    base: "#14171D",
+    edge: "#07080B",
+    lift: "#262B35",
+    rib: "#0C0E12",
     mark: "white",
+    print: PAPER,
+  },
+  white: {
+    base: "#FFFFFF",
+    edge: "#D5DAE4",
+    lift: "#FFFFFF",
+    rib: "#E6EAF1",
+    mark: "black",
+    print: INK,
   },
 };
 
@@ -129,8 +141,7 @@ const CSS = `
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{width:${PAGE_W}px;height:${PAGE_H}px;overflow:hidden}
   body{
-    --fg:${INK}; --muted:rgba(14,21,38,.5); --dot:rgba(14,21,38,.09);
-    background:${PAPER}; color:${INK};
+    background:var(--bg); color:var(--fg);
     font-family:'Rubik',system-ui,sans-serif;
     position:relative;
     display:flex; flex-direction:column;
@@ -167,7 +178,7 @@ const CSS = `
   .back{top:17%; left:50%; transform:translateX(-50%); text-align:center}
   .shout{
     font-family:'Archivo Black',system-ui,sans-serif; font-weight:400; white-space:nowrap;
-    font-size:${mm(SHOUT_MM)}px; line-height:.84; letter-spacing:-.005em; color:${PAPER};
+    font-size:${mm(SHOUT_MM)}px; line-height:.84; letter-spacing:-.005em; color:var(--print);
   }
   .logo{margin-bottom:${mm(26)}px}
   .logo svg{margin:0 auto}
@@ -182,8 +193,15 @@ const CSS = `
   .bar{position:absolute; left:0; right:0; bottom:0; height:10px; background:${ACCENT}}
 `;
 
+// A white tee is shown on Ink and a black one on Paper, or the garment has no edge.
+const sheetVars = (name, g) =>
+  name === "white"
+    ? `--bg:${INK};--fg:${PAPER};--muted:rgba(242,245,251,.5);--dot:rgba(242,245,251,.10);--print:${g.print}`
+    : `--bg:${PAPER};--fg:${INK};--muted:rgba(14,21,38,.5);--dot:rgba(14,21,38,.09);--print:${g.print}`;
+
 const SHEETS = Object.entries(GARMENTS).map(([name, g]) => ({
   file: `mockup-carwash-tee-${name}`,
+  vars: sheetVars(name, g),
   title: `Carwash by Jaranow — crew tee`,
   kicker: `${name} cloth · ${g.mark} print`,
   front: tee(g, `F${name}`, 46),
@@ -198,7 +216,7 @@ for (const s of SHEETS) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Rubik:wght@400;500;700&display=block" rel="stylesheet">
-<style>${CSS}</style></head><body>
+<style>${CSS}</style></head><body style="${s.vars}">
 <div class="dots"></div>
 <div class="head">
   <span class="title">${s.title}</span>

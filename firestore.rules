@@ -48,8 +48,8 @@ service cloud.firestore {
       allow read, create, update, delete: if signedIn();
     }
 
-    // Duty roster — one document per person per slot. `day` anchors the slot: the Monday of
-    // the week for Cleaning, the Sunday itself for Off. See src/book/roster.ts.
+    // Duty roster — one document per person per duty per week. `day` is the Monday for Cleaning
+    // and the day itself for Off. See src/book/roster.ts.
     match /car_wash_roster/{dutyId} {
       allow read, create, update, delete: if signedIn();
     }

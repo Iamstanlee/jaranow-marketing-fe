@@ -1,7 +1,7 @@
 import {useMemo} from 'react';
 import {type LucideIcon, HouseHeart, Construction} from 'lucide-react';
 import {DUTIES, type Duty} from '../constants';
-import {startOfWeek} from '../format';
+import {startOfWeek, weekdayOf} from '../format';
 import {nameOf, weekRoster, weekSpan} from '../roster';
 import type {RosterEntry, Staff} from '../types';
 import {Skeleton} from '../components/Skeleton';
@@ -28,13 +28,17 @@ export function RosterSummary({staff, roster, loading, onOpen}: {
 }) {
     const monday = startOfWeek(new Date());
     const {cleaning, off} = useMemo(() => weekRoster(roster, staff, monday), [roster, staff, monday]);
+    // "Mon Ade, Bola · Tue Chidi": one group per day, in the order the days fall.
+    const byDay = (entries: RosterEntry[]) => Array.from(entries.reduce((days, e) =>
+        days.set(e.day, [...(days.get(e.day) || []), nameOf(e, staff)]), new Map<string, string[]>()))
+        .map(([day, names]) => `${weekdayOf(day)} ${names.join(', ')}`).join(' · ');
     const line = (duty: Duty, entries: RosterEntry[]) => {
         const {tint, icon: Icon} = DUTY_STYLE[duty];
         return <p className="flex min-w-0 items-center gap-2 text-sm">
             <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg ${tint}`}><Icon size={15}/></span>
-            <span className="shrink-0 text-slate-400">{duty === 'Off' ? 'Off Sunday' : 'Cleaning'}</span>
+            <span className="shrink-0 text-slate-400">{duty}</span>
             {loading ? <Skeleton className="h-4 w-20"/> : <span className="truncate font-medium">
-                {entries.length ? entries.map(e => nameOf(e, staff)).join(', ') : <span className="font-normal text-slate-400">Nobody</span>}</span>}
+                {entries.length ? duty === 'Off' ? byDay(entries) : entries.map(e => nameOf(e, staff)).join(', ') : <span className="font-normal text-slate-400">Nobody</span>}</span>}
         </p>;
     };
     return <section aria-busy={loading} aria-label={`This week’s duties, ${weekSpan(monday)}`}

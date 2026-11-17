@@ -32,27 +32,30 @@ const SAFE = mm(BLEED + 10);
 const FIELD = BLEED + 128;
 
 /* headline: two lines, breaks only at \n. sub: three lines against 56mm or it runs
-   into the car. points: three, two or three words each. Plain and spoken -
-   read in seconds, one hand on a steering wheel.
+   into the car. points: three, each exactly two lines broken at \n (~12 characters
+   a line) so the row sits level. Plain and spoken - read in seconds, one hand on
+   a steering wheel. Voice: everyday Nigerian English ("a proper wash", "chat
+   us", "every day"), direct, never Pidgin - "well well" was tried as the headline
+   and read as a joke.
    loyalty: five washes then the sixth free, never "a free fifth" (CLAUDE.md
    "Pocket cards") - the slot row draws exactly that. */
 const FLYERS = [
     {
         file: "flyer-carwash",
         lockup: "jaranow-carwash-by-jaranow-white",
-        headline: "We take our time\nwith your car.",
-        sub: "The small places are where a good wash shows. That is where we look.",
+        headline: "Your car deserves\na proper wash.",
+        sub: "Tyres, glass, door edges, everywhere. We don't rush and we don't skip.",
         points: [
-            {icon: "clock", text: "Never rushed"},
-            {icon: "sparkle", text: "Every corner cleaned"},
-            {icon: "shield", text: "Your things stay safe"},
+            {icon: "clock", text: "We don't\nrush your car"},
+            {icon: "sparkle", text: "We clean\nevery corner"},
+            {icon: "shield", text: "Your things\nare safe"},
         ],
-        loyalty: {title: "Wash 5 times. The 6th is on us.", sub: "Ask for your loyalty card."},
+        loyalty: {title: "Wash 5 times. Get 1 free wash.", sub: "Ask us for your loyalty card."},
         contact: {
-            label: "Book on WhatsApp",
+            label: "Chat us on WhatsApp",
             whatsapp: "0903 862 2012",
             place: "6th Avenue, Gwarinpa",
-            lines: ["Open daily · 8am–7pm", "jaranow.com · @jara_now"],
+            lines: ["Opp. Royal Care Specialist Hospital", "Open every day · 8am–7pm", "jaranow.com · @jara_now"],
         },
     },
 ];
@@ -92,7 +95,7 @@ const CSS = `
   .headline{
     margin-top:${mm(11)}px;
     font-family:'${HEADLINE.family}',system-ui,sans-serif;
-    font-size:${mm(14)}px; font-weight:${HEADLINE.weight}; line-height:1.02;
+    font-size:${mm(12.6)}px; font-weight:${HEADLINE.weight}; line-height:1.02;
     letter-spacing:-.012em; white-space:pre;
   }
   .sub{
@@ -141,7 +144,7 @@ const CSS = `
     font-family:'${HEADLINE.family}',system-ui,sans-serif;
     font-size:${mm(7.6)}px; font-weight:${HEADLINE.weight}; letter-spacing:-.01em; line-height:1;
   }
-  .where{text-align:right; font-size:${mm(3.5)}px; line-height:1.42; color:rgba(14,21,38,.66)}
+  .where{text-align:right; font-size:${mm(3.3)}px; line-height:1.4; color:rgba(14,21,38,.66); white-space:nowrap}
   .where b{display:block; font-size:${mm(4)}px; font-weight:700; color:${INK}}
 
   /* 10mm prints as a 7mm band: the bar must be taller than the bleed. Ink here,
@@ -170,7 +173,7 @@ const flyerBody = (f) => `<div class="field">
 </div>
 <div class="rest">
   <div class="points">
-${f.points.map((p) => `    <div class="point"><span class="icon"><svg viewBox="0 0 24 24">${ICONS[p.icon]}</svg></span>${p.text}</div>`).join("\n")}
+${f.points.map((p) => `    <div class="point"><span class="icon"><svg viewBox="0 0 24 24">${ICONS[p.icon]}</svg></span><span>${p.text.replace("\n", "<br>")}</span></div>`).join("\n")}
   </div>
   <div class="loyalty">
     <div><p class="t">${f.loyalty.title}</p><p class="d">${f.loyalty.sub}</p></div>

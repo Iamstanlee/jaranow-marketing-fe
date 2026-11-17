@@ -1,4 +1,4 @@
-import type {Duty, LeftReason, Service} from './constants';
+import type {Duty, LeftReason, OffDay, Service} from './constants';
 
 export type Timestamp = { toDate: () => Date };
 export type Sale = {
@@ -31,10 +31,15 @@ export type Staff = {
     active: boolean;
     // Rotations they sit out. Stored as the exception so an absent field means "takes every turn".
     exempt?: Duty[];
+    // Their weekly day off. Absent = given the least-taken quiet day (roster.ts `offDays`).
+    offDay?: OffDay;
     // Absent = cashier (fixed salary, not on the attendance sheet or in the share pool).
     attendantPay?: AttendantPay;
     salary?: number;
     advances?: Advance[];
+    // yyyy-mm-dd, set by hand. Absent = the day they were added (createdAt). Days off and salary
+    // start here; turn order stays on createdAt so correcting it reshuffles nobody.
+    joinedOn?: string;
     // Set on archive, cleared on restore: what tenure and retention are measured from.
     leftAt?: string;
     leftReason?: LeftReason;
@@ -61,8 +66,7 @@ export type Payout = {
     expenseId?: string;
     createdAt?: Timestamp
 };
-// `day` is a local yyyy-mm-dd that anchors the slot (Monday for Cleaning, Sunday for Off) — see
-// roster.ts. `staffName` is a fallback for a person since removed.
+// `day` is a local yyyy-mm-dd: the Monday for Cleaning, the date itself for Off — see roster.ts. `staffName` is a fallback for a person since removed.
 export type RosterEntry = {
     id: string;
     day: string;

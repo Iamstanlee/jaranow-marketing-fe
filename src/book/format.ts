@@ -6,6 +6,7 @@ const LONG_DATE = new Intl.DateTimeFormat('en-NG', {weekday: 'long', day: 'numer
 // hour12 explicit: en-NG resolves 12/24h differently across browsers.
 const TIME = new Intl.DateTimeFormat('en-NG', {hour: 'numeric', minute: '2-digit', hour12: true});
 const DAY_MONTH = new Intl.DateTimeFormat('en-NG', {day: 'numeric', month: 'short'});
+const WEEKDAY = new Intl.DateTimeFormat('en-NG', {weekday: 'short'});
 const DAY_MONTH_YEAR = new Intl.DateTimeFormat('en-NG', {day: 'numeric', month: 'short', year: 'numeric'});
 
 export const money = (value: number) => NAIRA.format(value);
@@ -55,6 +56,7 @@ export const codeFor = (member: Loyalty, index: number) => member.code || `LOY-$
 export const isoDay = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 // Local midnight. `new Date('2026-08-02')` parses as UTC and shifts a day west of Greenwich.
 export const dayFrom = (iso: string) => new Date(`${iso}T00:00:00`);
+export const weekdayOf = (iso: string) => WEEKDAY.format(dayFrom(iso));
 export const dateText = (iso: string) => DAY_MONTH_YEAR.format(dayFrom(iso));
 
 /** A share (0–1) as a percentage: one decimal under 10%, so small slices don't all read "0%". */

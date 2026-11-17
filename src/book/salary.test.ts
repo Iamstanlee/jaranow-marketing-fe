@@ -20,7 +20,7 @@ describe('monthPay', () => {
         sheet('2026-11-02', 'a', 'b'), sheet('2026-11-03', 'a', 'b'), sheet('2026-11-04', 'a', 'b'),
         {...sheet('2026-11-06', 'b'), absent: ['a']}, sheet('2026-11-07', 'a', 'b'), sheet('2026-11-08', 'a')
     ];
-    // Both Sundays are B's day off, so the rota never hands one to A.
+    // B's days off are moved to both Sundays.
     const roster = [off('2026-11-01', 'b'), off('2026-11-08', 'b')];
 
     it('deducts a day\'s rate for each absence and each unmarked day, and nothing for days ahead', () => {
@@ -31,7 +31,7 @@ describe('monthPay', () => {
         expect([pay.missed, pay.base, pay.deduction, pay.earned]).toEqual([3, 60000, 6000, 54000]);
     });
 
-    it('does not count a rota Sunday off as an absence', () => {
+    it('does not count a day off moved to Sunday as an absence', () => {
         const pay = monthPay(b, november, team, attendance, roster, [], today);
         expect(pay.days[7].status).toBe('off');
         // Thursday the 5th is unmarked for B too.
@@ -109,3 +109,42 @@ describe('monthPay', () => {
         expect([pay.worked, pay.absent, pay.base, pay.earned, pay.balance]).toEqual([5, 1, 0, 0, 0]);
     });
 });
+
+describe('monthPay from the weekly day off', () => {
+    it('does not deduct their own day off, and still deducts every other unmarked day', () => {
+        // A takes Mondays, B Tuesdays; nobody was marked Mon 23 – Sun 29 November.
+        const a = person('a', 60000), b = person('b', 60000), pay = monthPay(a, november, [a, b], [], [], [], dayFrom('2026-11-30'));
+        const status = (day: string) => pay.days.find(d => d.day === day)!.status;
+        expect(status('2026-11-23')).toBe('off');
+        expect(status('2026-11-24')).toBe('unmarked');
+        expect(status('2026-11-29')).toBe('unmarked');
+    });
+});
+
+describe('monthPay before they joined', () => {
+    it('does not pay or count as missed the days before they were added, and marks still win', () => {
+        // Added Wed 4 Nov; marked present on the 3rd (worked before being entered), nothing else marked.
+        const late: Staff = {...person('l', 60000), createdAt: {toDate: () => new Date('2026-11-04T15:00:00')}};
+        const pay = monthPay(late, november, [late], [sheet('2026-11-03', 'l')], [], [], today);
+        expect(statuses(pay)).toEqual(['unjoined', 'unjoined', 'worked', 'unmarked', 'unmarked', 'unmarked', 'unmarked', 'unmarked', 'upcoming']);
+        expect([pay.unjoined, pay.missed]).toEqual([2, 5]);
+        // ₦2,000 a day: two days before joining, five unmarked since.
+        expect([pay.prorated, pay.deduction, pay.earned]).toEqual([4000, 10000, 46000]);
+    });
+});
+
+describe('monthPay from the join date', () => {
+    it('pro-rates a cashier from the day they joined', () => {
+        const cashier: Staff = {id: 'k', name: 'K', phone: '', active: true, salary: 60000, joinedOn: '2026-11-11'};
+        const pay = monthPay(cashier, november, [cashier], [], [], [], today);
+        // Ten days of November before the 11th, at ₦2,000 a day.
+        expect([pay.unjoined, pay.prorated, pay.earned]).toEqual([10, 20000, 40000]);
+        expect(monthPay({...cashier, joinedOn: '2026-10-01'}, november, [cashier], [], [], [], today).earned).toBe(60000);
+    });
+
+    it('lets a set join date override when they were added', () => {
+        const late: Staff = {...person('l', 60000), createdAt: {toDate: () => new Date('2026-11-04T15:00:00')}, joinedOn: '2026-11-01'};
+        expect(monthPay(late, november, [late], [], [], [], today).unjoined).toBe(0);
+    });
+});
+

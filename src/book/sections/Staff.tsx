@@ -1,9 +1,9 @@
 import {type ReactNode, useMemo, useState} from 'react';
 import {Check, ChevronLeft, ChevronRight, Pencil, Plus, UserPlus, Users, X} from 'lucide-react';
 import {DUTIES, type Duty, LEFT_REASONS, type LeftReason} from '../constants';
-import {addDays, dateText, isoDay, startOfDay, startOfWeek} from '../format';
+import {addDays, dateText, isoDay, startOfDay, startOfWeek, weekdayOf} from '../format';
 import {ATTENDANCE_START, isAttendant, type Mark, markOn, presentOn} from '../payments';
-import {nameOf, rotation, slotLabel, weekRoster, weekSpan, type Assignment} from '../roster';
+import {nameOf, rotation, weekRoster, weekSpan, type Assignment} from '../roster';
 import type {Attendance, Role, RosterEntry, Staff as Person} from '../types';
 import {Confirm, ConfirmDelete} from '../components/Confirm';
 import {SELECT} from '../components/Fields';
@@ -72,7 +72,7 @@ export function Staff({staff, roster, attendance, role, loading, attendanceLoadi
                                save={record => editing.entry ? onUpdateDuty(editing.entry.id, record) : onAssign(record)}
                                remove={editing.entry && (() => onRemoveDuty(editing.entry!))}
                                removeLabel={cycling ? 'Undo swap — back to whose turn it is' : 'Remove from duties'}/>}
-        {person && <StaffModal person={person === 'new' ? undefined : person} close={() => setPerson(null)}
+        {person && <StaffModal person={person === 'new' ? undefined : person} staff={staff} close={() => setPerson(null)}
                                save={record => person === 'new' ? onAddStaff(record) : onUpdateStaff(person.id, record)}/>}
         {archiving && <ArchiveModal person={archiving} close={() => setArchiving(null)}
                                     confirm={(leftAt, reason) => onArchiveStaff(archiving, leftAt, reason)}/>}
@@ -162,7 +162,7 @@ function AttendanceCard({staff, attendance, role, loading, onSet}: {
         {loading ? <ul className="py-2">{[0, 1, 2].map(i => <li key={i} className="flex items-center gap-3 px-5 py-2.5">
                 <Skeleton className="h-8 w-8 rounded-full"/><Skeleton className="h-4 w-36"/></li>)}</ul>
             : !attendants.length ? <p className="px-5 pb-8 pt-4 text-center text-sm text-slate-400">
-                    No car washers set up yet. {role === 'admin' ? 'Edit a team member below and set their role to Car Washer.' : 'Ask an admin to set them up.'}</p>
+                    No carwash attendants set up yet. {role === 'admin' ? 'Edit a team member below and set their role to Carwash attendant.' : 'Ask an admin to set them up.'}</p>
                 : <ul className="py-2">{attendants.map(p => {
                     const state = markOn(day, p.id, attendance);
                     const busy = saving === p.id;
@@ -207,7 +207,7 @@ function DutiesCard({staff, roster, admin, loading, onEdit}: {
     onEdit: (editing: Editing) => void
 }) {
     const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
-    const {week, sunday, cleaning, off} = useMemo(() => weekRoster(roster, staff, weekStart), [roster, staff, weekStart]);
+    const {week, cleaning, off} = useMemo(() => weekRoster(roster, staff, weekStart), [roster, staff, weekStart]);
     const thisWeek = week === isoDay(startOfWeek(new Date()));
     const anyone = staff.some(p => p.active);
 
@@ -217,8 +217,8 @@ function DutiesCard({staff, roster, admin, loading, onEdit}: {
         return <li className="flex flex-1 gap-4 px-5 py-4">
             <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${tint}`}><Icon size={17}/></div>
             <div className="min-w-0 flex-1">
-                <p className="text-xs text-slate-400"><span className="font-semibold text-slate-600">{kind === 'Off' ? 'Sunday off' : 'Cleaning'}</span>
-                    {' · '}{kind === 'Off' ? slotLabel(kind, anchor) : 'All week'}</p>
+                <p className="text-xs text-slate-400"><span className="font-semibold text-slate-600">{kind === 'Cleaning' ? 'Cleaning' : 'Days off'}</span>
+                    {' · '}{kind === 'Cleaning' ? 'All week' : 'One day each'}</p>
                 {loading ? <Skeleton className="mt-2 h-5 w-32"/>
                     : !entries.length ? <p className="mt-1 text-sm text-slate-400">{!anyone ? 'Nobody on the team yet.' : 'Everybody is exempt.'}
                             {admin && anyone && <button type="button" onClick={() => onEdit({day: anchor, duty: kind})}
@@ -226,6 +226,7 @@ function DutiesCard({staff, roster, admin, loading, onEdit}: {
                         : <ul className="mt-1 space-y-0.5">{entries.map(entry => {
                             const name = nameOf(entry, staff);
                             const body = <>
+                                {kind === 'Off' && <span className="w-8 shrink-0 text-xs font-semibold text-amber-600">{weekdayOf(entry.day)}</span>}
                                 <span className="truncate font-medium">{name}</span>
                                 {!entry.auto && <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Swapped</span>}
                                 {entry.note && <span className="truncate text-xs text-slate-400">{entry.note}</span>}
@@ -248,7 +249,7 @@ function DutiesCard({staff, roster, admin, loading, onEdit}: {
                   onNext={() => setWeekStart(addDays(weekStart, 7))}/>
         <ul className="flex flex-1 flex-col divide-y divide-slate-100 border-t border-slate-100">
             {line('Cleaning', cleaning, week)}
-            {line('Off', off, sunday)}
+            {line('Off', off, week)}
         </ul>
     </section>;
 }
@@ -286,8 +287,7 @@ function TeamCard({staff, presentToday, admin, loading, onEdit, onRemove, onTogg
                                 {!p.active && p.leftAt && <span className="text-xs text-slate-400">
                                     Left {dateText(p.leftAt)}{p.leftReason ? ` · ${p.leftReason}` : ''}</span>}
                                 {p.active && <span className={`${tag} bg-blue-50 text-blue-700`}>
-                                    {p.attendantPay ? 'Car Washer' : 'Cashier'}</span>}
-                                {presentToday.includes(p.id) && <span className={`${tag} bg-emerald-50 text-emerald-700`}>In today</span>}
+                                    {p.attendantPay ? 'Carwash attendant' : 'Cashier'}</span>}
                                 {p.active && exemptionOf(p) && <span className={`${tag} bg-amber-50 text-amber-700`}>{exemptionOf(p)}</span>}
                             </div>
                         </div>

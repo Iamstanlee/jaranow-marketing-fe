@@ -1,11 +1,11 @@
 import type {Duty} from './constants';
 import {dayFrom} from './format';
-import {dueFor, inRotation, rotation, weekNumber, weekRoster} from './roster';
+import {cleanerFor, inRotation, offDays, quietestDay, rotation, sameSlot, slotOf, weekNumber, weekRoster} from './roster';
 import type {RosterEntry, Staff} from './types';
 
 // The rotation is the one piece of the rota with no UI to check it against: it decides whose
 // week it is for weeks nobody has opened yet, so a modulo that goes negative or an ordering
-// that reshuffles on a new joiner is invisible until somebody turns up on the wrong Sunday.
+// that reshuffles on a new joiner is invisible until somebody turns up on the wrong day.
 
 const person = (id: string, name: string, joinedOn: string, active = true): Staff => ({
     id, name, phone: '', active,
@@ -54,26 +54,15 @@ describe('exemptions', () => {
         const mixed = [team[0], exempt(team[1], 'Cleaning'), exempt(team[2], 'Off')];
         for (let i = 0; i < 12; i++) {
             const week = new Date(monday('2024-01-01').getTime() + i * 604_800_000);
-            expect(dueFor('Cleaning', week, mixed)!.id).not.toBe('b');
-            expect(dueFor('Off', week, mixed)!.id).not.toBe('c');
-        }
-    });
-
-    it('keeps cleaning and off apart even when the exemptions make them different lists', () => {
-        // Two lists of different lengths is exactly where offsetting inside one list stops
-        // guaranteeing two different names.
-        const mixed = [team[0], exempt(team[1], 'Cleaning'), team[2]];
-        for (let i = 0; i < 24; i++) {
-            const week = new Date(monday('2024-01-01').getTime() + i * 604_800_000);
-            expect(dueFor('Off', week, mixed)!.id).not.toBe(dueFor('Cleaning', week, mixed)!.id);
+            expect(cleanerFor(week, mixed)!.id).not.toBe('b');
         }
     });
 
     it('has nobody to pick when the whole team is exempt from that duty alone', () => {
         const noCleaners = team.map(p => exempt(p, 'Cleaning'));
-        expect(dueFor('Cleaning', monday('2024-01-01'), noCleaners)).toBeNull();
-        // The other rotation is untouched by it.
-        expect(dueFor('Off', monday('2024-01-01'), noCleaners)).not.toBeNull();
+        expect(cleanerFor(monday('2024-01-01'), noCleaners)).toBeNull();
+        // Days off are untouched by it.
+        expect(weekRoster([], noCleaners, monday('2024-03-04')).off).toHaveLength(3);
     });
 
     it('leaves the slot to a hand-written swap when everybody is exempt', () => {
@@ -94,70 +83,28 @@ describe('weekNumber', () => {
     });
 });
 
-describe('dueFor', () => {
+describe('cleanerFor', () => {
     it('advances one person per week and wraps', () => {
         const weeks = ['2024-01-01', '2024-01-08', '2024-01-15', '2024-01-22'];
-        expect(weeks.map(w => dueFor('Cleaning', monday(w), team)!.name))
+        expect(weeks.map(w => cleanerFor(monday(w), team)!.name))
             .toEqual(['Zara Musa', 'Ade Bello', 'Chidi Okonkwo', 'Zara Musa']);
     });
 
-    it('never puts the same person on cleaning and off in one week', () => {
-        for (let i = 0; i < 12; i++) {
-            const week = new Date(monday('2024-01-01').getTime() + i * 604_800_000);
-            expect(dueFor('Off', week, team)!.id).not.toBe(dueFor('Cleaning', week, team)!.id);
-        }
-    });
-
-    it('gives everybody one Sunday off per cycle, and never two weeks running', () => {
-        // The case the old rotation got wrong. Four people take Sundays off, three of them
-        // clean, so the two cycles are different lengths and the offset alone stops keeping
-        // them apart. Stepping past a clash used to consume the next week's turn a week
-        // early: one name took two Sundays running while another went six weeks without one.
-        const team4 = [...team, person('d', 'Bimpe Ali', '2024-04-01')];
-        const mixed = [team4[0], team4[1], team4[2], exempt(team4[3], 'Cleaning')];
-        const offs: string[] = [];
-        for (let i = 0; i < 24; i++) {
-            const week = new Date(monday('2024-01-01').getTime() + i * 604_800_000);
-            offs.push(dueFor('Off', week, mixed)!.id);
-            expect(dueFor('Off', week, mixed)!.id).not.toBe(dueFor('Cleaning', week, mixed)!.id);
-        }
-        expect(offs.slice(1).filter((id, i) => id === offs[i])).toEqual([]);
-        // Four in the rotation, so every four-week cycle holds all four exactly once.
-        for (let start = 0; start + 4 <= offs.length; start += 4)
-            expect(Array.from(new Set(offs.slice(start, start + 4)))).toHaveLength(4);
-    });
-
-    it('keeps the turns of the week either side of a cycle apart too', () => {
-        // A trade at the end of one cycle can hand the same person the start of the next,
-        // which is once per cycle and still two Sundays running. The period wraps for exactly
-        // this reason, so the boundary is checked like any other week.
-        const mixed = [team[0], exempt(team[1], 'Cleaning'), team[2]];
-        let previous = '';
-        for (let i = -12; i < 36; i++) {
-            const week = new Date(monday('2024-01-01').getTime() + i * 604_800_000);
-            const id = dueFor('Off', week, mixed)!.id;
-            expect(id).not.toBe(previous);
-            previous = id;
-        }
-    });
-
     it('gives a team of one both duties rather than nothing', () => {
-        const solo = [team[0]];
-        expect(dueFor('Cleaning', monday('2024-05-06'), solo)!.id).toBe('a');
-        expect(dueFor('Off', monday('2024-05-06'), solo)!.id).toBe('a');
+        const {cleaning, off} = weekRoster([], [team[0]], monday('2024-05-06'));
+        expect([cleaning[0].staffId, off[0].staffId]).toEqual(['a', 'a']);
     });
 
     it('resolves weeks before the epoch instead of running off the front of the list', () => {
         // JS % keeps the sign of the dividend, so a negative week is where an unguarded
         // modulo hands back undefined and the panel renders blank.
         expect(weekNumber(monday('2023-11-06'))).toBeLessThan(0);
-        expect(dueFor('Cleaning', monday('2023-11-06'), team)).not.toBeNull();
-        expect(dueFor('Off', monday('2023-12-25'), team)).not.toBeNull();
+        expect(cleanerFor(monday('2023-11-06'), team)).not.toBeNull();
     });
 
     it('has nobody to pick with an empty or fully archived team', () => {
-        expect(dueFor('Cleaning', monday('2024-01-01'), [])).toBeNull();
-        expect(dueFor('Cleaning', monday('2024-01-01'), team.map(p => ({...p, active: false})))).toBeNull();
+        expect(cleanerFor(monday('2024-01-01'), [])).toBeNull();
+        expect(cleanerFor(monday('2024-01-01'), team.map(p => ({...p, active: false})))).toBeNull();
     });
 });
 
@@ -169,9 +116,11 @@ describe('weekRoster', () => {
         expect(cleaning).toHaveLength(1);
         expect(cleaning[0].auto).toBe(true);
         expect(cleaning[0].staffName).toBe('Ade Bello');
-        // Off anchors to the Sunday, not the Monday.
-        expect(off[0].day).toBe('2024-01-14');
-        expect(off[0].staffName).toBe('Chidi Okonkwo');
+        // Ade and Chidi had not joined yet, so only Zara has a day off.
+        expect(off.map(e => [e.staffId, e.day])).toEqual([['a', '2024-01-08']]);
+        // Once all three have joined, each is off on their own day: Zara Monday, Ade Tuesday, Chidi Sunday.
+        expect(weekRoster([], team, monday('2024-03-04')).off.map(e => [e.staffId, e.day]))
+            .toEqual([['a', '2024-03-04'], ['b', '2024-03-05'], ['c', '2024-03-10']]);
     });
 
     it('lets a stored swap replace the turn outright', () => {
@@ -182,8 +131,8 @@ describe('weekRoster', () => {
         expect(cleaning).toHaveLength(1);
         expect(cleaning[0].id).toBe('r1');
         expect(cleaning[0].auto).toBeUndefined();
-        // Overriding one slot leaves the other still taking turns.
-        expect(off[0].auto).toBe(true);
+        // Overriding cleaning leaves days off alone.
+        expect(off.every(e => e.auto)).toBe(true);
     });
 
     it('ignores entries belonging to another week', () => {
@@ -191,5 +140,52 @@ describe('weekRoster', () => {
             id: 'r2', day: '2024-02-05', staffId: 'a', staffName: 'Zara Musa', duty: 'Cleaning'
         };
         expect(weekRoster([elsewhere], team, week)['cleaning'][0].auto).toBe(true);
+    });
+});
+
+describe('weekly days off', () => {
+    const week = monday('2026-11-23');
+    const days = (staff: Staff[]) => offDays(staff).map(o => o.day);
+
+    it('gives everybody in the rotation one quiet day, spread across Monday, Tuesday and Sunday', () => {
+        const team5 = [...team, person('d', 'Bimpe Ali', '2024-04-01'), person('e', 'Efe Obi', '2024-05-01')];
+        expect(days(team5)).toEqual(['Monday', 'Tuesday', 'Sunday', 'Monday', 'Tuesday']);
+        const {off} = weekRoster([], team5, week);
+        expect(off.map(e => e.day)).toEqual(['2026-11-23', '2026-11-23', '2026-11-24', '2026-11-24', '2026-11-29']);
+        expect(new Set(off.map(e => e.staffId)).size).toBe(5);
+    });
+
+    it('keeps a stored day and spreads everybody else around it', () => {
+        const pinned = [{...team[0], offDay: 'Tuesday' as const}, team[1], team[2]];
+        expect(days(pinned)).toEqual(['Tuesday', 'Monday', 'Sunday']);
+        expect(quietestDay(pinned.slice(0, 2))).toBe('Sunday');
+    });
+
+    it('gives nobody a day off who is exempt from it', () => {
+        const mixed = [team[0], exempt(team[1], 'Off'), team[2]];
+        expect(weekRoster([], mixed, week).off.map(e => e.staffId)).toEqual(['a', 'c']);
+    });
+
+    it('lets a swap move one person\'s day for that week and nobody else\'s', () => {
+        const moved: RosterEntry = {id: 'r1', day: '2026-11-26', staffId: 'a', staffName: 'Zara Musa', duty: 'Off'};
+        const {off} = weekRoster([moved], team, week);
+        expect(off.map(e => [e.staffId, e.day])).toEqual([['b', '2026-11-24'], ['a', '2026-11-26'], ['c', '2026-11-29']]);
+        expect(weekRoster([moved], team, monday('2026-11-30')).off.find(e => e.staffId === 'a')!.day).toBe('2026-11-30');
+    });
+
+    it('treats one Off entry per person per week as the slot', () => {
+        expect(slotOf('Off', dayFrom('2026-11-25'))).toBe('2026-11-25');
+        expect(sameSlot({day: '2026-11-23', duty: 'Off', staffId: 'a'}, {day: '2026-11-26', duty: 'Off', staffId: 'a'})).toBe(true);
+        expect(sameSlot({day: '2026-11-29', duty: 'Off', staffId: 'a'}, {day: '2026-11-30', duty: 'Off', staffId: 'a'})).toBe(false);
+    });
+
+    it('gives no day off before the day somebody was added', () => {
+        // Bimpe joins on Wednesday 25 Nov: her Monday has passed, so her first day off is the next week's.
+        const team4 = [...team, person('d', 'Bimpe Ali', '2026-11-25')];
+        expect(weekRoster([], team4, week).off.map(e => e.staffId)).toEqual(['a', 'b', 'c']);
+        expect(weekRoster([], team4, monday('2026-11-30')).off.map(e => e.staffId)).toContain('d');
+        // Joining on the day itself still counts.
+        const sameDay = [...team, person('d', 'Bimpe Ali', '2026-11-23')];
+        expect(weekRoster([], sameDay, week).off.map(e => e.staffId)).toContain('d');
     });
 });

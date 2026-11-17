@@ -75,10 +75,10 @@ const WA_LINK = "https://wa.me/2349038622012";
 // Figures as confirmed on /careers. A sheet on a wall outlives a deploy.
 const ATTENDANT = {
     lockup: "jaranow-carwash-by-jaranow",
-    tag: "We're hiring",
+    tag: "Vacancy",
     kicker: "Car wash attendant · Full-time · Gwarinpa",
     facts: [
-        {label: "Salary", value: "₦50,000–₦70,000", unit: "a month"},
+        {label: "Salary", value: "₦50,000–₦70,000", unit: "every month"},
         {label: "Work days", value: "5–6 days a week", unit: "8am–7pm"},
         {label: "Where", value: "6th Avenue", unit: "Gwarinpa, Abuja"},
     ],
@@ -86,7 +86,7 @@ const ATTENDANT = {
         button: "Apply now",
         promise: "No CV · No form fee",
         scan: "Scan to apply",
-        detail: "No CV. No form fee. Seven short questions on your phone.",
+        detail: "No CV. No form fee. Just seven short questions on your phone.",
     },
 };
 
@@ -98,6 +98,10 @@ const ATTENDANT = {
    card, which any drawing with a person in it needs on a dark ground.
    Headline breaks only at \n. Sell on care and integrity, never on out-paying.
 
+   Voice: everyday Nigerian English, the way a notice on a gate says it - short,
+   direct, "Vacancy", "we need", "where you stay", "collect money", one "no
+   wahala". Not full Pidgin, and never a line that needs working out.
+
    Also worth testing: "Stay near Gwarinpa?\nWork near home." (B),
    "No CV. No connection.\nJust good work." (C), "We dey hire." as the tag.
 */
@@ -108,8 +112,8 @@ const JOBS = [
         ground: "paper",
         layout: "split",
         art: "wash",
-        headline: "Sharp eyes?\nWe have work for you.",
-        sub: "Carwash by Jaranow is hiring attendants. Never washed cars before? We\u00a0will\u00a0teach\u00a0you.",
+        headline: "Looking for work?\nCome and join us.",
+        sub: "We need car wash attendants in Gwarinpa. Never washed car before? No\u00a0wahala, we will teach\u00a0you.",
     },
     {
         ...ATTENDANT,
@@ -118,8 +122,8 @@ const JOBS = [
         layout: "stage",
         art: "bay",
         panel: "paper",
-        headline: "Car wash job\nin Gwarinpa.",
-        sub: "We need attendants at 6th Avenue. Stay close by? Work near\u00a0home.",
+        headline: "Car wash work\nin Gwarinpa.",
+        sub: "We need attendants at 6th Avenue. You stay around here? Even\u00a0better.",
     },
     {
         ...ATTENDANT,
@@ -127,8 +131,8 @@ const JOBS = [
         ground: "navy",
         layout: "stage",
         art: "phone",
-        headline: "Apply free\non your phone.",
-        sub: "Car wash attendant job at 6th Avenue, Gwarinpa.",
+        headline: "Apply free\nwith your phone.",
+        sub: "No CV. No form fee. We will never collect money from you for this\u00a0job.",
     },
     {
         ...ATTENDANT,
@@ -140,8 +144,8 @@ const JOBS = [
         // The headline says it, so the tag and kicker carry the rest.
         tag: "Full-time",
         kicker: "Carwash by Jaranow · 6th Avenue, Gwarinpa",
-        headline: "We're hiring\ncar wash attendants.",
-        sub: "Join the team. Never washed cars before? We\u00a0will\u00a0teach\u00a0you.",
+        headline: "Vacancy!\nCar wash attendants.",
+        sub: "Serious and hardworking? Come and join our team. We will train\u00a0you.",
     },
     {
         // No /careers form for cashiers yet, so this one applies by WhatsApp.
@@ -151,21 +155,21 @@ const JOBS = [
         layout: "split",
         art: "cashier",
         panel: "paper",
-        tag: "We're hiring",
+        tag: "Vacancy",
         kicker: "Cashier · Full-time · Gwarinpa",
-        headline: "We're hiring\na cashier.",
-        sub: "Straight with money and good with numbers? WhatsApp us your name and where you\u00a0live.",
+        headline: "We need\na cashier.",
+        sub: "Honest and good with money? Chat us on WhatsApp with your name and where you\u00a0stay.",
         facts: [
-            {label: "Salary", value: "₦50,000–₦70,000", unit: "a month"},
-            {label: "Hours", value: "8am–7pm", unit: "Daily"},
+            {label: "Salary", value: "₦50,000–₦70,000", unit: "every month"},
+            {label: "Hours", value: "8am–7pm", unit: "Every day"},
             {label: "Where", value: "6th Avenue", unit: "Gwarinpa, Abuja"},
         ],
         apply: {
             whatsapp: true,
             button: "Apply now",
             promise: "On WhatsApp",
-            scan: "Scan to WhatsApp us",
-            detail: "Send your name and where you live.",
+            scan: "Scan to chat us",
+            detail: "Send your name and where you stay.",
         },
     },
 ];
@@ -503,9 +507,9 @@ const applyBand = (a, f) => {
   <div class="qr">${qrSvg(a.whatsapp ? WA_LINK : `https://${CAREERS}?src=${f.src}`)}</div>
   <div class="go">
     <p class="scan">${esc(a.scan)}</p>
-    <p class="or">${a.whatsapp ? "or message" : "or go to"} <b>${target}</b></p>
+    <p class="or">${a.whatsapp ? "or WhatsApp" : "or go to"} <b>${target}</b></p>
     <p class="detail">${esc(a.detail)}</p>
-    ${a.whatsapp ? "" : `<p class="wa">Can't scan? WhatsApp <b>${WHATSAPP}</b></p>`}
+    ${a.whatsapp ? "" : `<p class="wa">Can't scan? Chat us on WhatsApp <b>${WHATSAPP}</b></p>`}
   </div>
 </div>`
         : `<div class="cta">

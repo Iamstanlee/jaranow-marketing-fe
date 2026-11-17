@@ -200,7 +200,7 @@ function ApplicantModal({applicant: a, close, onUpdate, onHire, onRemove}: {
                 <input inputMode="numeric" value={salary} autoFocus onChange={e => setSalary(e.target.value.replace(/\D/g, ''))}
                        placeholder="e.g. 60000" className={SELECT}/>
             </label>
-            <p className="mt-2 text-xs text-slate-400">Added to the team as a car washer on salary. Change anything else from Staff.</p>
+            <p className="mt-2 text-xs text-slate-400">Added to the team as a carwash attendant on salary. Change anything else from Staff.</p>
             <div className="mt-4 flex gap-3">
                 <button type="button" onClick={() => setMode('view')} className={secondary}>Cancel</button>
                 <button type="button" disabled={busy} className={primary}

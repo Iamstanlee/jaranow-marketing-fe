@@ -148,3 +148,19 @@ describe('monthPay from the join date', () => {
     });
 });
 
+
+describe('monthPay after they left', () => {
+    it('pays an archived attendant up to and including their last day', () => {
+        const gone: Staff = {...person('g', 60000), active: false, leftAt: '2026-11-05', joinedOn: '2026-10-01'};
+        const worked = ['2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05'].map(d => sheet(d, 'g'));
+        const pay = monthPay(gone, november, [gone], worked, [], [], today);
+        expect(statuses(pay)).toEqual(['unmarked', 'worked', 'worked', 'worked', 'worked', 'left', 'left', 'left', 'left']);
+        // 25 days after the 5th at ₦2,000, and the unmarked 1st.
+        expect([pay.left, pay.afterLeft, pay.deduction, pay.earned]).toEqual([25, 50000, 2000, 8000]);
+    });
+
+    it('pro-rates an archived cashier to their last day', () => {
+        const cashier: Staff = {id: 'k', name: 'K', phone: '', active: false, salary: 60000, joinedOn: '2026-10-01', leftAt: '2026-11-10'};
+        expect(monthPay(cashier, november, [cashier], [], [], [], today)).toMatchObject({left: 20, earned: 20000});
+    });
+});

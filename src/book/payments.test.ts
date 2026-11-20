@@ -68,3 +68,13 @@ describe('weekPay', () => {
         expect(pay.lines.map(l => [l.name, l.amount, l.drift])).toEqual([['A', 900, 2100], ['GONE', 900, 0]]);
     });
 });
+
+describe('weekPay after someone left', () => {
+    it('keeps an archived attendant on the weeks up to their last day, and their days in the split', () => {
+        const gone = {...person('a', 'share', false), leftAt: '2026-11-02'};
+        const pay = weekPay(monday, sales, [gone, person('b', 'share')], [], [sheet('2026-11-02', 'a', 'b'), sheet('2026-11-03', 'b')], afterWeek);
+        // Monday split two ways (15% each), Tuesday B alone (30%).
+        expect(amounts(pay.lines)).toEqual([['a', 1500, 1], ['b', 1500 + 1800, 2]]);
+        expect(weekPay(dayFrom('2026-11-09'), sales, [gone], [], [], afterWeek).lines).toEqual([]);
+    });
+});

@@ -1,8 +1,8 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {CalendarClock, DollarSign, PiggyBank} from 'lucide-react';
 import {PAYMENT_METHODS} from '../constants';
-import {addDays, money, percent, startOfMonth, startOfWeek} from '../format';
-import {type PayLine, SHARE_RATE, SHARE_START, weekPay, type WeekPay} from '../payments';
+import {addDays, isoDay, money, percent, startOfMonth, startOfWeek} from '../format';
+import {onTeamOn, type PayLine, SHARE_RATE, SHARE_START, weekPay, type WeekPay} from '../payments';
 import {weekSpan} from '../roster';
 import {monthPay, SALARY_DUE_DAY, salaryDue} from '../salary';
 import type {Advance, Attendance, Payout, Role, RosterEntry, Sale, Staff} from '../types';
@@ -54,7 +54,7 @@ export function Payments({sales, staff, payouts, attendance, roster, role, loadi
 
     const unpaid = (list: WeekPay[]) => list.flatMap(w => w.lines).filter(l => !l.payout).reduce((sum, l) => sum + l.amount, 0);
     const thisWeek = unpaid(weeks.slice(0, 1)), owed = unpaid(weeks.slice(1));
-    const salaries = useMemo(() => staff.filter(p => p.active && p.attendantPay !== 'share')
+    const salaries = useMemo(() => staff.filter(p => onTeamOn(p, isoDay(thisMonth)) && p.attendantPay !== 'share')
             .reduce((sum, p) => sum + Math.max(0, monthPay(p, thisMonth, staff, attendance, roster, payouts).balance), 0),
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [staff, attendance, roster, payouts, thisMonth.getTime()]);

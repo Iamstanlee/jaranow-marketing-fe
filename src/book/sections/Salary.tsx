@@ -1,7 +1,7 @@
 import React, {useMemo, useState} from 'react';
 import {CalendarDays, ChevronLeft, ChevronRight, Plus, X} from 'lucide-react';
-import {addDays, money, startOfDay, startOfMonth, startOfWeek} from '../format';
-import {ATTENDANCE_START, payday, type PayLine, SHARE_START, type WeekPay} from '../payments';
+import {addDays, dayFrom, isoDay, money, startOfDay, startOfMonth, startOfWeek} from '../format';
+import {ATTENDANCE_START, onTeamOn, payday, type PayLine, SHARE_START, type WeekPay} from '../payments';
 import {type DayStatus, monthPay, salaryDue} from '../salary';
 import type {Advance, Attendance, Payout, RosterEntry, Staff} from '../types';
 import {Confirm} from '../components/Confirm';
@@ -28,7 +28,8 @@ const LOOK: Record<DayStatus, { cell: string; label: string; mark?: string }> = 
     unmarked: {cell: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200', label: 'Not marked', mark: '?'},
     upcoming: {cell: 'text-slate-400', label: 'Still to come'},
     before: {cell: 'text-slate-300', label: 'Before attendance was kept'},
-    unjoined: {cell: 'text-slate-300', label: 'Before they joined'}
+    unjoined: {cell: 'text-slate-300', label: 'Before they joined'},
+    left: {cell: 'text-slate-300', label: 'After their last day'}
 };
 const LEGEND: DayStatus[] = ['worked', 'off', 'paidOff', 'absent', 'unmarked'];
 
@@ -53,10 +54,10 @@ export function AttendantMonth({staff, attendance, roster, payouts, loading, wee
     onPayWeek?: (pay: WeekPay, line: PayLine) => void;
     onUndoWeek?: (payout: Payout) => void
 }) {
-    const attendants = useMemo(() => staff.filter(p => p.active), [staff]);
     const thisMonth = startOfMonth(new Date());
     const earliest = Math.max(startOfMonth(ATTENDANCE_START).getTime(), monthsFrom(thisMonth, 1 - MONTHS).getTime());
     const [month, setMonth] = useState(thisMonth);
+    const attendants = useMemo(() => staff.filter(p => onTeamOn(p, isoDay(month))), [staff, month]);
     const [chosen, setChosen] = useState<string | null>(null);
     const [adding, setAdding] = useState(false);
     const [removing, setRemoving] = useState<Advance | null>(null);
@@ -65,6 +66,7 @@ export function AttendantMonth({staff, attendance, roster, payouts, loading, wee
         [person, month, staff, attendance, roster, payouts]);
     const current = month.getTime() === thisMonth.getTime();
     const salaried = person?.attendantPay !== 'share', cashier = !person?.attendantPay;
+    const leftOn = person && !person.active && person.leftAt ? dayFrom(person.leftAt) : null;
 
     // A week belongs to the month of its payday. Someone now on salary keeps only paid weeks.
     const weeks = useMemo(() => {
@@ -111,7 +113,7 @@ export function AttendantMonth({staff, attendance, roster, payouts, loading, wee
                     <div className="flex flex-wrap gap-2" role="group" aria-label="Team member">{attendants.map(p =>
                         <button key={p.id} type="button" aria-pressed={p.id === person.id} onClick={() => setChosen(p.id)}
                                 className={`rounded-full px-3 py-1.5 text-sm font-medium ${p.id === person.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
-                            {p.name}</button>)}</div>
+                            {p.name}{p.active ? '' : ' · left'}</button>)}</div>
 
                     <div className={`mt-5 grid gap-6 ${cashier ? 'max-w-md' : 'lg:grid-cols-[minmax(0,1fr)_22rem]'}`}>
                         {!cashier && <div>
@@ -136,7 +138,7 @@ export function AttendantMonth({staff, attendance, roster, payouts, loading, wee
                         </div>}
 
                         <div className="rounded-xl bg-slate-50 p-4 text-sm">
-                            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{person.name} · {cashier ? 'Cashier · salary' : salaried ? 'Salary' : 'Revenue share'}</p>
+                            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{person.name} · {cashier ? 'Cashier · salary' : salaried ? 'Salary' : 'Revenue share'}{leftOn ? ` · Left ${shortDay(leftOn)}` : ''}</p>
                             {!cashier && <>
                                 <p className="mt-2 text-2xl font-bold tracking-tight">{plural(pay.worked, 'day')} worked</p>
                                 <p className="mt-1 text-xs text-slate-500">
@@ -164,9 +166,11 @@ export function AttendantMonth({staff, attendance, roster, payouts, loading, wee
                                             <Row label="Base salary" value={money(pay.base)}/>
                                             {pay.unjoined > 0 && <Row label={`Before they joined · ${plural(pay.unjoined, 'day')}`}
                                                                       value={`− ${money(pay.prorated)}`}/>}
+                                            {pay.left > 0 && <Row label={`After their last day · ${plural(pay.left, 'day')}`}
+                                                                  value={`− ${money(pay.afterLeft)}`}/>}
                                             {pay.missed > 0 && <Row label={`${pay.unmarked ? 'Absent or not marked' : 'Absences'} · ${plural(pay.missed, 'day')}`}
                                                                      value={`− ${money(pay.deduction)}`}/>}
-                                            {!cashier && <Row label={current ? 'Salary so far' : 'Salary for the month'} value={money(pay.earned)} strong/>}
+                                            {!cashier && <Row label={pay.left > 0 ? 'Salary to their last day' : current ? 'Salary so far' : 'Salary for the month'} value={money(pay.earned)} strong/>}
                                             {pay.advance > 0 && <Row label="Advances" value={`− ${money(pay.advance)}`}/>}
                                             {pay.sharePaid > 0 && <Row label="Revenue share paid" value={`− ${money(pay.sharePaid)}`}/>}
                                             <Row label={`Balance · due ${shortDay(salaryDue(month))}`} value={money(pay.balance)} strong/>

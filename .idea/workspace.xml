@@ -4,25 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Update CLAUDE.md">
-      <change beforePath="$PROJECT_DIR$/brand/gen-flyer.js" beforeDir="false" afterPath="$PROJECT_DIR$/brand/gen-flyer.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/brand/gen-poster.js" beforeDir="false" afterPath="$PROJECT_DIR$/brand/gen-poster.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/brand/gen-tee.js" beforeDir="false" afterPath="$PROJECT_DIR$/brand/gen-tee.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/firestore.rules" beforeDir="false" afterPath="$PROJECT_DIR$/firestore.rules" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/components/DutyModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/components/DutyModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/components/StaffModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/components/StaffModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/constants.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/constants.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/format.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/format.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/hooks/useBook.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/hooks/useBook.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/roster.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/roster.test.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/roster.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/roster.ts" afterDir="false" />
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add new off rotation">
+      <change beforePath="$PROJECT_DIR$/src/book/payments.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/payments.test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/payments.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/payments.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/book/salary.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/salary.test.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/book/salary.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/salary.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/sections/Hiring.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Hiring.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/book/sections/Payments.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Payments.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/sections/Roster.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Roster.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/book/sections/Salary.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Salary.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/book/sections/Staff.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Staff.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/types.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,28 +64,28 @@
     <option name="showMembers" value="true" />
     <option name="showScratchesAndConsoles" value="false" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "ScreenshotViewer.SavePath": "/Users/defconx1/Downloads",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/defconx1/Documents/DEV/beanslabs/jaranow/jaranow-marketing-fe/docs",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "npm.build.executor": "Run",
-    "npm.start.executor": "Run",
-    "settings.editor.selected.configurable": "com.anthropic.code.plugin.settings",
-    "show.migrate.to.gradle.popup": "false",
-    "ts.external.directory.path": "/Users/defconx1/Documents/DEV/beanslabs/jaranow/jaranow-marketing-fe/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;ScreenshotViewer.SavePath&quot;: &quot;/Users/defconx1/Downloads&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/defconx1/Documents/DEV/beanslabs/jaranow/jaranow-marketing-fe/docs&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.build.executor&quot;: &quot;Run&quot;,
+    &quot;npm.start.executor&quot;: &quot;Run&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.anthropic.code.plugin.settings&quot;,
+    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/defconx1/Documents/DEV/beanslabs/jaranow/jaranow-marketing-fe/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/docs" />
@@ -213,7 +202,9 @@
       <workItem from="1793841939686" duration="4155000" />
       <workItem from="1794090518923" duration="1279000" />
       <workItem from="1794658324079" duration="10258000" />
-      <workItem from="1794676827398" duration="47140000" />
+      <workItem from="1794676827398" duration="48774000" />
+      <workItem from="1795079906045" duration="112000" />
+      <workItem from="1795189240138" duration="464000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -471,7 +462,15 @@
       <option name="project" value="LOCAL" />
       <updated>1794686951199</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="Add new off rotation">
+      <option name="closed" value="true" />
+      <created>1794938339720</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1794938339720</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -489,7 +488,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Initial commit" />
     <MESSAGE value="Add jaranow landing page" />
     <MESSAGE value="Update pricing" />
     <MESSAGE value="Enhance page speed" />
@@ -514,7 +512,8 @@
     <MESSAGE value="Appwide enhancements" />
     <MESSAGE value="Add hiring playbook" />
     <MESSAGE value="Update CLAUDE.md" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update CLAUDE.md" />
+    <MESSAGE value="Add new off rotation" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add new off rotation" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

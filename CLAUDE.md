@@ -101,6 +101,8 @@ Stages: new → training (two days from `trainingFrom`) → hired, with bench an
 on the side. Hiring writes the `Staff` doc and the applicant's `stage` in one batch.
 The section and its listener are admin-only. The process behind it is `docs/hiring-playbook.html`; keep the two in step. Attendants are offered salary only. Archiving
 a team member records `leftAt` and `leftReason`, which tenure and retention are measured from.
+An archived person stays on Payments, the share split and past attendance sheets up to and
+including `leftAt` (`onTeamOn` in `payments.ts`); salary for the days after it is not paid.
 
 ### Header and Footer
 

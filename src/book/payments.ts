@@ -20,6 +20,7 @@ export const markOn = (iso: string, id: string, attendance: Attendance[]): Mark 
 };
 
 export const isAttendant = (person: Staff) => person.active && !!person.attendantPay;
+export const onTeamOn = (person: Staff, iso: string) => person.active || (!!person.leftAt && iso <= person.leftAt);
 export const onShare = (person: Staff) => isAttendant(person) && person.attendantPay === 'share';
 
 export const sharePerHead = (present: number) => present ? SHARE_RATE / present : 0;
@@ -29,7 +30,7 @@ export const payday = (monday: Date) => addDays(monday, 6);
 
 export const presentOn = (iso: string, staff: Staff[], attendance: Attendance[]) => {
     const sheet = attendance.find(a => a.day === iso)?.present || [];
-    return staff.filter(p => isAttendant(p) && sheet.includes(p.id));
+    return staff.filter(p => !!p.attendantPay && onTeamOn(p, iso) && sheet.includes(p.id));
 };
 
 // Revenue and wash count per local day, built once per sales array rather than once per day
@@ -93,7 +94,7 @@ export function weekPay(monday: Date, sales: Sale[], staff: Staff[], payouts: Pa
     const worked = (id: string) => days.filter(d => d.present.includes(id)).length;
     const paid = payouts.filter(p => p.week === week);
 
-    const lines: PayLine[] = staff.filter(isAttendant).map(person => {
+    const lines: PayLine[] = staff.filter(p => !!p.attendantPay && onTeamOn(p, week)).map(person => {
         const payout = paid.find(p => p.staffId === person.id);
         // A payout keeps the line a share line after a move to salary.
         const share = person.attendantPay === 'share' || !!payout;

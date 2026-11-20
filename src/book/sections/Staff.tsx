@@ -2,7 +2,7 @@ import {type ReactNode, useMemo, useState} from 'react';
 import {Check, ChevronLeft, ChevronRight, Pencil, Plus, UserPlus, Users, X} from 'lucide-react';
 import {DUTIES, type Duty, LEFT_REASONS, type LeftReason} from '../constants';
 import {addDays, dateText, isoDay, startOfDay, startOfWeek, weekdayOf} from '../format';
-import {ATTENDANCE_START, isAttendant, type Mark, markOn, presentOn} from '../payments';
+import {ATTENDANCE_START, type Mark, markOn, onTeamOn, presentOn} from '../payments';
 import {nameOf, rotation, weekRoster, weekSpan, type Assignment} from '../roster';
 import type {Attendance, Role, RosterEntry, Staff as Person} from '../types';
 import {Confirm, ConfirmDelete} from '../components/Confirm';
@@ -133,7 +133,7 @@ function AttendanceCard({staff, attendance, role, loading, onSet}: {
     const day = isoDay(date), isToday = day === isoDay(today);
     const editable = isToday || (role === 'admin' && date >= ATTENDANCE_START && date < today);
 
-    const attendants = staff.filter(isAttendant);
+    const attendants = staff.filter(p => !!p.attendantPay && onTeamOn(p, day));
     const present = presentOn(day, staff, attendance).map(p => p.id);
 
     const set = async (person: Person, mark: Mark | null) => {

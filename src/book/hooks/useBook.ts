@@ -14,6 +14,7 @@ import {
     query,
     serverTimestamp,
     setDoc,
+    Timestamp as FirestoreTimestamp,
     updateDoc,
     where,
     writeBatch
@@ -21,7 +22,7 @@ import {
 import type {DocumentData, Query} from 'firebase/firestore';
 import {authReady, db, firebaseEnabled} from '../../lib/firebase';
 import {COLLECTIONS, DUTIES, earnsPoints, isRug, type LeftReason, LIVE_WINDOW} from '../constants';
-import {addDays, codeFor, dateOf, dayFrom, dayLabel, money} from '../format';
+import {addDays, codeFor, dateOf, dayFrom, dayLabel, isoDay, money} from '../format';
 import {sameSlot, slotLabel, weekSpan} from '../roster';
 import {nextRugTag} from '../rugs';
 import {type Mark, SHARE_RATE} from '../payments';
@@ -45,6 +46,17 @@ type Archive = { sales: Sale[]; expenses: Expense[] };
 
 type NewMember = { code: string; phone: string };
 type Fields<T> = Omit<T, 'id' | 'createdAt'>;
+
+// A past day (admin backdating) keeps the current clock time on that date, so the day's rows
+// still sort in entry order. Today, or no day, stays on the server clock.
+const backdate = (on?: string) => {
+    if (!on || on >= isoDay(new Date())) return null;
+    const at = dayFrom(on), now = new Date();
+    at.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+    return at;
+};
+const stampFor = (at: Date | null) => at ? FirestoreTimestamp.fromDate(at) : serverTimestamp();
+const localStamp = (at: Date | null) => at ? {createdAt: {toDate: () => at}} : {};
 
 /** Every Firestore read and write the desk makes. `day` is today's midnight (useDayTick); applicants are read on admin only. */
 export function useBook(day: number, toast: Notify, admin: boolean) {
@@ -192,7 +204,8 @@ export function useBook(day: number, toast: Notify, admin: boolean) {
     // --- Sales -------------------------------------------------------------------------
     // The sale, the new card and the point move commit as one batch: one round trip, and no
     // sale without its point. Points move as increments so two tablets cannot lose one.
-    const addSale = useCallback(async (record: Fields<Sale>, member?: Loyalty, newMember?: NewMember) => {
+    const addSale = useCallback(async (record: Fields<Sale>, member?: Loyalty, newMember?: NewMember, on?: string) => {
+        const at = backdate(on);
         const loyal = earnsPoints(record.service);
         if (!loyal) record = {...record, redeemed: false};
         const delta = record.redeemed ? {points: -5, redeemed: 1} : {points: 1, redeemed: 0};
@@ -203,7 +216,7 @@ export function useBook(day: number, toast: Notify, admin: boolean) {
         const rug = isRug(record.service);
         const owed = rug && balance && balance > 0 ? balance : 0;
         // From this tablet's view of today; two tablets recording a rug in the same moment can match.
-        const tag = rug ? nextRugTag(sales) : '';
+        const tag = rug ? nextRugTag(sales, at ?? new Date()) : '';
         const sale = {
             ...paid, customer: holder?.customer || 'Walk-in', loyaltyCode: holder ? record.loyaltyCode : '—',
             ...(tag ? {tag} : {}), ...(owed ? {balance: owed} : {})
@@ -215,19 +228,20 @@ export function useBook(day: number, toast: Notify, admin: boolean) {
                 points: increment(delta.points),
                 redeemed: increment(delta.redeemed)
             });
-            batch.set(doc(collection(db, COLLECTIONS.sales)), {...sale, createdAt: serverTimestamp()});
+            batch.set(doc(collection(db, COLLECTIONS.sales)), {...sale, createdAt: stampFor(at)});
             await batch.commit();
         } else {
-            setSales(list => [{id: crypto.randomUUID(), ...sale}, ...list]);
+            setSales(list => [{id: crypto.randomUUID(), ...sale, ...localStamp(at)}, ...list]);
             if (joining) setLoyalty(list => [...list, {id: crypto.randomUUID(), ...joining}]);
             else if (existing) setLoyalty(list => list.map(x => x.id === existing.id ? {
                 ...x, points: x.points + delta.points, redeemed: x.redeemed + delta.redeemed
             } : x));
         }
         const code = holder ? sale.loyaltyCode : '';
-        toast(record.redeemed ? `Free wash redeemed for ${code} — 5 points spent.`
+        const dated = at ? ` · dated ${dayLabel(at)}` : '';
+        toast((record.redeemed ? `Free wash redeemed for ${code} — 5 points spent.`
             : rug ? `${record.service} ${owed ? 'deposit ' : ''}recorded · ${money(record.amount)}${owed ? ` · ${money(owed)} due on delivery` : ''} · label it ${tag}`
-            : `${record.service} recorded · ${money(record.amount)}${joining ? ` · new card ${code} · 1 point` : code ? ` · ${code} +1 point` : ''}`);
+            : `${record.service} recorded · ${money(record.amount)}${joining ? ` · new card ${code} · 1 point` : code ? ` · ${code} +1 point` : ''}`) + dated);
     }, [sales, toast]);
 
     // Code and redemption are fixed once written; correcting those means delete and re-record.
@@ -300,10 +314,11 @@ export function useBook(day: number, toast: Notify, admin: boolean) {
     }, [loyalty, toast]);
 
     // --- Expenses ----------------------------------------------------------------------
-    const addExpense = useCallback(async (record: Fields<Expense>) => {
-        if (db) await setDoc(doc(collection(db, COLLECTIONS.expenses)), {...record, createdAt: serverTimestamp()});
-        else setExpenseRecords(list => [{id: crypto.randomUUID(), ...record}, ...list]);
-        toast(`${record.category} expense recorded · ${money(record.amount)}`);
+    const addExpense = useCallback(async (record: Fields<Expense>, on?: string) => {
+        const at = backdate(on);
+        if (db) await setDoc(doc(collection(db, COLLECTIONS.expenses)), {...record, createdAt: stampFor(at)});
+        else setExpenseRecords(list => [{id: crypto.randomUUID(), ...record, ...localStamp(at)}, ...list]);
+        toast(`${record.category} expense recorded · ${money(record.amount)}${at ? ` · dated ${dayLabel(at)}` : ''}`);
     }, [toast]);
 
     const updateExpense = useCallback(async (id: string, record: Fields<Expense>) => {

@@ -1,21 +1,23 @@
 import React, {useState} from 'react';
 import {currentService, earnsPoints, isRug, SERVICES, type Service} from '../constants';
-import {codeFor, dateOf, dayLabel, money, timeLabel} from '../format';
+import {codeFor, dateOf, dayLabel, isoDay, money, timeLabel} from '../format';
 import type {Loyalty, Sale, SalePatch} from '../types';
 import {Modal} from './Modal';
-import {AmountField, PaymentField, PriceField, SELECT, ServiceField} from './Fields';
+import {AmountField, DayField, PaymentField, PriceField, SELECT, ServiceField} from './Fields';
 import {who} from './SalesTable';
 
 const half = (price: string) => String(Math.round((Number(price) || 0) / 2));
 
-export function SaleModal({members, close, save}: {
+export function SaleModal({members, admin = false, close, save}: {
     members: Loyalty[];
+    admin?: boolean;
     close: () => void;
     save: (r: Omit<Sale, 'id' | 'createdAt'>, m?: Loyalty, newMember?: {
         code: string;
         phone: string
-    }) => Promise<void>
+    }, on?: string) => Promise<void>
 }) {
+    const [on, setOn] = useState(() => isoDay(new Date()));
     const [code, setCode] = useState(''), [service, setService] = useState<Service>('Body wash'), [payment, setPayment] = useState('Transfer'), [redeem, setRedeem] = useState(false), [phone, setPhone] = useState('');
     const [price, setPrice] = useState(String(SERVICES['Body wash']));
     const [part, setPart] = useState(false), [deposit, setDeposit] = useState(''), [rugPhone, setRugPhone] = useState('');
@@ -45,7 +47,7 @@ export function SaleModal({members, close, save}: {
                 redeemed: redeem,
                 ...(rug ? {phone: rugPhone.trim()} : {}),
                 ...(onDeposit ? {balance} : {})
-            }, member, newCode ? {code: normalizedCode, phone} : undefined);
+            }, member, newCode ? {code: normalizedCode, phone} : undefined, admin ? on : undefined);
             close();
         } catch (err) {
             console.error('Failed to record sale', err);
@@ -54,7 +56,7 @@ export function SaleModal({members, close, save}: {
         }
     };
     return <Modal title="Record a sale" close={close}>
-        <form onSubmit={submit} className="space-y-4"><label className="block text-sm font-medium">Loyalty code <span
+        <form onSubmit={submit} className="space-y-4">{admin && <DayField value={on} onChange={setOn}/>}<label className="block text-sm font-medium">Loyalty code <span
             className="font-normal text-slate-400">(optional)</span>
             <div
                 className="mt-1 flex items-stretch overflow-hidden rounded-xl border border-slate-200 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">

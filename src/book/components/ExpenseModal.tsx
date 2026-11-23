@@ -1,13 +1,18 @@
 import React, {useState} from 'react';
 import {EXPENSE_CATEGORIES, PAYMENT_METHODS} from '../constants';
 import type {Expense} from '../types';
+import {isoDay} from '../format';
+import {DayField} from './Fields';
 import {Modal} from './Modal';
 
-export function ExpenseModal({record, close, save}: {
+export function ExpenseModal({record, admin = false, close, save}: {
     record?: Expense;
+    admin?: boolean;
     close: () => void;
-    save: (record: Omit<Expense, 'id' | 'createdAt'>) => Promise<void>
+    save: (record: Omit<Expense, 'id' | 'createdAt'>, on?: string) => Promise<void>
 }) {
+    const [on, setOn] = useState(() => isoDay(new Date()));
+    const dated = admin && !record;
     // Keep a retired category selectable, or editing would silently refile the expense.
     const options: string[] = record?.category && !EXPENSE_CATEGORIES.includes(record.category as typeof EXPENSE_CATEGORIES[number])
         ? [record.category, ...EXPENSE_CATEGORIES] : [...EXPENSE_CATEGORIES];
@@ -21,7 +26,7 @@ export function ExpenseModal({record, close, save}: {
         setSubmitting(true);
         setError('');
         try {
-            await save({category, payment, note, amount: Number(amount)});
+            await save({category, payment, note, amount: Number(amount)}, dated ? on : undefined);
             close();
         } catch (err) {
             console.error('Failed to save expense', err);
@@ -30,7 +35,7 @@ export function ExpenseModal({record, close, save}: {
         }
     };
     return <Modal title={record ? 'Edit expense' : 'Record an expense'} close={close}>
-        <form onSubmit={submit} className="space-y-4"><label className="block text-sm font-medium">Category<select value={category}
+        <form onSubmit={submit} className="space-y-4">{dated && <DayField value={on} onChange={setOn}/>}<label className="block text-sm font-medium">Category<select value={category}
                                                                                               onChange={e => setCategory(e.target.value)}
                                                                                               className="mt-1 w-full rounded-xl border-slate-200">
             {options.map(option => <option key={option}>{option}</option>)}

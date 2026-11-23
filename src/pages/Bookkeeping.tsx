@@ -191,7 +191,7 @@ export default function Bookkeeping() {
                         onUpdate={book.updateApplicant} onHire={book.hireApplicant}
                         onRemove={book.removeApplicant}/>}</Suspense></div>
         </main>
-        {saleModal && <SaleModal members={book.loyalty} close={() => setSaleModal(false)} save={book.addSale}/>}
-        {expenseModal && <ExpenseModal close={() => setExpenseModal(false)} save={book.addExpense}/>}
+        {saleModal && <SaleModal members={book.loyalty} admin={role === 'admin'} close={() => setSaleModal(false)} save={book.addSale}/>}
+        {expenseModal && <ExpenseModal admin={role === 'admin'} close={() => setExpenseModal(false)} save={book.addExpense}/>}
         <Toasts toasts={toasts} dismiss={dismiss}/></div>;
 }

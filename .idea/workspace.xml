@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add new off rotation">
-      <change beforePath="$PROJECT_DIR$/src/book/payments.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/payments.test.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/payments.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/payments.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/salary.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/salary.test.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/salary.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/salary.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/sections/Payments.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Payments.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/sections/Salary.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Salary.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/sections/Staff.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/book/sections/Staff.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="aa1907ab-f1c4-4785-9e13-6b5f61f2c565" name="Changes" comment="Add new off rotation" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -204,7 +196,9 @@
       <workItem from="1794658324079" duration="10258000" />
       <workItem from="1794676827398" duration="48774000" />
       <workItem from="1795079906045" duration="112000" />
-      <workItem from="1795189240138" duration="464000" />
+      <workItem from="1795189240138" duration="680000" />
+      <workItem from="1795197404377" duration="339000" />
+      <workItem from="1795197863573" duration="156000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />

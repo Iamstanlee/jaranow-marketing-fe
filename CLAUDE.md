@@ -82,6 +82,9 @@ render. Keep it fast on a tablet on mobile data:
   rug can come back after its deposit has left the `LIVE_WINDOW`. Every rug sale takes
   a required phone number and a `tag` (`RUG-<ddmm>-<n>`, `nextRugTag` in `rugs.ts`)
   that staff write on the rug's label; the balance payment carries the same tag.
+- On the admin PIN, Record a sale / Record an expense carry a Date field (`DayField`) for
+  booking a past day. The row is stamped on that date at the current clock time (`backdate`
+  in `useBook.ts`); today stays on `serverTimestamp()`. Staff always record today.
 - Derive per-day sales through `payments.ts`'s per-array day index rather than
   scanning `sales` once per day.
 - Heavy sections (`Reports`, `Payments`, `Staff`, `Hiring`) are lazy-loaded in

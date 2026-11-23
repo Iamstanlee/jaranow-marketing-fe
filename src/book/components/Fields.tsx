@@ -1,4 +1,4 @@
-import {money} from '../format';
+import {dateText, isoDay, money} from '../format';
 import {PAYMENT_METHODS, SERVICES, type Service} from '../constants';
 
 export const SELECT = 'mt-1 w-full rounded-xl border-slate-200';
@@ -53,5 +53,15 @@ export function AmountField({label, value, onChange, note}: {
     return <label className="block text-sm font-medium">{label}
         <input required inputMode="numeric" value={value} onChange={e => onChange(e.target.value)} className={SELECT}/>
         {note && <span className="mt-1 block text-xs font-normal text-slate-400">{note}</span>}
+    </label>;
+}
+
+// Admin-only: books a sale or expense against an earlier day. Today is the default and the ceiling.
+export function DayField({value, onChange}: { value: string; onChange: (v: string) => void }) {
+    const today = isoDay(new Date());
+    return <label className="block text-sm font-medium">Date<input required type="date" max={today} value={value}
+                                                                    onChange={e => onChange(e.target.value)}
+                                                                    className={SELECT}/>
+        {value !== today && <span className="mt-1 block text-xs font-normal text-amber-700">Recorded on {dateText(value)}, not today.</span>}
     </label>;
 }

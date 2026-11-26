@@ -72,7 +72,7 @@ blob at small sizes. Never fill it in.
 
 ### 2.4 Monogram
 
-A `J` in the wordmark's letterforms, for **internal tools only** — the back-office
+A capital `B` in the wordmark's letterforms, for **internal tools only** — the back-office
 app whose launcher icon has to match its own interface. Not part of the public
 identity.
 

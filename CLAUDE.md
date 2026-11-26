@@ -767,17 +767,15 @@ to the block width and re-justifies if the address changes; a string too long
 stops the generator rather than setting a cramped line. Only the carwash has one,
 because only the carwash is a place you drive to. See §3.1.
 
-**Book app icon.** The **one** asset using a monogram (the word `BOOK`) instead of the drop,
+**Book app icon.** The **one** asset using a monogram (a capital `B`) instead of the drop,
 and only because the books app is an internal tool sharing a home screen with the
 Jaranow app — the launcher icon matches the tile in its own sidebar. Anything
-public keeps the symbol (§2.4). Treatment "Ink desk": Ink tile, the word `BOOK`
-in Paper drawn on the wordmark's construction (not typed), no full stop, at 88%
-of the tile's width (72% on the maskable build — its safe-circle ceiling). The
-icon sets the letters at a 20-unit stroke, heavier than the face's 14, around
-the same centre lines; `gen-appicon.js` widens the spacing to match (keep
-`SW` ≤ 20 or the B's upper counter closes). Ink so it can't be
-mistaken for the blue Jaranow drop on a home screen. Capital `B`, `O`, `K` were
-drawn into `gen-marks.js`'s glyph table for it — the face's only capitals. The sidebar tile is
+public keeps the symbol (§2.4). Treatment "Ink desk": Ink tile, a `B` in Paper
+drawn on the wordmark's construction (not typed) at the face's own 14 stroke,
+sized by **height** - 66% of the tile (58% on the maskable build, corners inside
+the 80% safe circle). It replaced the word `BOOK`. Ink so it can't be mistaken for the blue Jaranow drop on
+a home screen. Capital `B`, `O`, `K` were drawn into `gen-marks.js`'s glyph table
+for the old word; only `B` is used now. The sidebar tile is
 `src/book/components/BookMark.tsx`, same geometry as `gen-appicon.js`; change
 both together. Do not reach for the monogram elsewhere, and do
 not point the site manifests at `public/book/`. The installed name is "Book"
@@ -786,7 +784,7 @@ for `/__/book` in `routes.json` (iOS reads the page title), and the
 `document.title` in `Bookkeeping.tsx`.
 
 Two builds, not interchangeable (§7.2): `any` carries the 22.37% radius,
-`maskable` is square-cornered with the word inside the 80% safe circle. Both are
+`maskable` is square-cornered with the letter inside the 80% safe circle. Both are
 authored in `vw`/`vh`, rendered **once at 1024px** and resampled with `sips`.
 `sync-appicon.sh` holds the generated-name → served-path mapping; keep it in step
 with the `icons` array in `public/bookkeeping-manifest.json` and `appleTouchIcon`

@@ -2,12 +2,16 @@ import React, {lazy, Suspense, useEffect, useState} from 'react';
 import {
     BarChart3,
     ClipboardCheck,
+    Gauge,
     Gift,
     LayoutDashboard,
-    Menu, PiggyBank,
+    Menu,
+    PiggyBank,
     Plus,
+    SquareUserRound,
+    UserSearch,
     WalletCards,
-    X, SquareUserRound, Gauge, UserSearch
+    X
 } from 'lucide-react';
 import {greeting, longDate} from '../book/format';
 import {clearSession, readSession, type Session, writeSession} from '../book/session';
@@ -108,14 +112,18 @@ export default function Bookkeeping() {
             label: 'End of day',
             icon: ClipboardCheck
         }, {
+            id: 'payments',
+            label: 'Payments',
+            icon: PiggyBank
+        }, {
         id: 'roster',
         label: 'Staff',
         icon: SquareUserRound
-    },  {
-        id: 'payments',
-        label: 'Payments',
-        icon: PiggyBank
-    }, ...(role === 'admin' ? [{id: 'reports' as const, label: 'Reports', icon: BarChart3}, {id: 'hiring' as const, label: 'Hiring', icon: UserSearch}] : [])];
+        }, ...(role === 'admin' ? [{id: 'hiring' as const, label: 'Hiring', icon: UserSearch}, {
+            id: 'reports' as const,
+            label: 'Reports',
+            icon: BarChart3
+        }] : [])];
     const title = section === 'overview' ? greeting() : nav.find(x => x.id === section)?.label;
     return <div className="min-h-screen bg-[#f7f8fc] text-slate-900">
         <aside

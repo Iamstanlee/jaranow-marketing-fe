@@ -28,8 +28,8 @@ export function periodStart(period: string) {
         case 'Last week': d.setDate(d.getDate() - ((d.getDay() + 6) % 7) - 7); break;
         case 'This month': d.setDate(1); break;
         case 'Last month': d.setMonth(d.getMonth() - 1, 1); break;
-        case 'Last 3 months': d.setMonth(d.getMonth() - 3); break;
-        case 'Last 6 months': d.setMonth(d.getMonth() - 6); break;
+        case 'Last 3 months': d.setMonth(d.getMonth() - 3, 1); break; // from the 1st, so the first month is whole
+        case 'Last 6 months': d.setMonth(d.getMonth() - 6, 1); break;
         case '1 year': d.setFullYear(d.getFullYear() - 1); break;
         case 'Last year': d.setFullYear(d.getFullYear() - 1, 0, 1); break;
     }

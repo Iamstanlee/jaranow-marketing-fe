@@ -7,7 +7,8 @@ import {Skeleton} from '../components/Skeleton';
 
 // Buckets span the whole window so a quiet day is a zero, not a gap the line skips over.
 // `weekday` is stored rather than re-parsed from `key`, which invites timezone off-by-ones.
-type Bucket = { key: string; label: string; weekday: string; revenue: number; count: number };
+// `from`/`to` are the bucket clipped to the window, so a part month compares like for like.
+type Bucket = { key: string; label: string; weekday: string; revenue: number; count: number; from: number; to: number };
 type Unit = 'day' | 'week' | 'month';
 // Daily buckets only.
 type Naming = 'date' | 'weekday';
@@ -40,24 +41,28 @@ function trendWindow(filtered: Sale[], range: Range) {
 
 function bucketRevenue(sales: Sale[], from: Date, to: Date) {
     const spanDays = Math.max(1, Math.round((to.getTime() - from.getTime()) / 86_400_000));
-    // Keeps any period to roughly 50 points or fewer.
-    const unit: Unit = spanDays <= 45 ? 'day' : spanDays <= 240 ? 'week' : 'month';
+    // 85 days, so "Last 3 months" and a three-month custom range read by month.
+    const unit: Unit = spanDays <= 45 ? 'day' : spanDays < 85 ? 'week' : 'month';
     const startOfBucket = (date: Date) => unit === 'day' ? startOfDay(date) : unit === 'week' ? startOfWeek(date) : startOfMonth(date);
     const labelOf = (date: Date) => unit === 'month' ? date.toLocaleDateString('en-NG', {month: 'short', year: 'numeric'})
         : `${unit === 'week' ? 'w/c ' : ''}${date.toLocaleDateString('en-NG', {day: 'numeric', month: 'short'})}`;
 
     const buckets: Bucket[] = [], index = new Map<string, Bucket>();
-    for (let cursor = startOfBucket(from); cursor <= to && buckets.length < 400; cursor = (() => {
-        const next = new Date(cursor);
+    const step = (date: Date) => {
+        const next = new Date(date);
         if (unit === 'day') next.setDate(next.getDate() + 1); else if (unit === 'week') next.setDate(next.getDate() + 7); else next.setMonth(next.getMonth() + 1);
         return next;
-    })()) {
+    };
+    for (let cursor = startOfBucket(from); cursor <= to && buckets.length < 400; cursor = step(cursor)) {
+        const next = step(cursor);
         const bucket: Bucket = {
             key: isoDay(cursor),
             label: labelOf(cursor),
             weekday: cursor.toLocaleDateString('en-NG', {weekday: 'short'}),
             revenue: 0,
-            count: 0
+            count: 0,
+            from: Math.max(cursor.getTime(), from.getTime()),
+            to: Math.min(next.getTime() - 1, to.getTime())
         };
         buckets.push(bucket);
         index.set(bucket.key, bucket);
@@ -70,6 +75,16 @@ function bucketRevenue(sales: Sale[], from: Date, to: Date) {
     }
     return {buckets, unit};
 }
+
+// Same day of the month, one month back; 31 Mar steps to 28/29 Feb rather than overflowing into March.
+const monthBack = (at: number) => {
+    const date = new Date(at), day = date.getDate();
+    date.setDate(1);
+    date.setMonth(date.getMonth() - 1);
+    date.setDate(Math.min(day, new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()));
+    return date.getTime();
+};
+const pctText = (pct: number) => `${pct >= 0 ? '+' : '−'}${Math.abs(pct).toFixed(pct !== 0 && Math.abs(pct) < 10 ? 1 : 0)}%`;
 
 export function SalesTrend({sales, filtered, range, loading}: {
     sales: Sale[];
@@ -108,6 +123,19 @@ export function SalesTrend({sales, filtered, range, loading}: {
         return {pct: ((current - previous) / previous) * 100, previous, days: Math.max(1, Math.round(span / 86_400_000))};
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sales, filtered, from, to, bounded, measure]);
+
+    // Each month against the same days of the month before, from all sales, so the first
+    // month has a comparison and a month to date isn't measured against a whole month.
+    const monthly = useMemo(() => {
+        if (unit !== 'month') return null;
+        const windows = buckets.map(b => ({from: monthBack(b.from), to: monthBack(b.to), total: 0}));
+        for (const s of sales) {
+            const at = dateOf(s).getTime();
+            for (const w of windows) if (at >= w.from && at <= w.to) w.total += amountOf(s);
+        }
+        return buckets.map((b, i) => windows[i].total ? (valueOf(b) - windows[i].total) / windows[i].total * 100 : null);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [sales, buckets, unit, measure]);
 
     const peak = Math.max(...buckets.map(valueOf), 0);
     // Even ceiling for cars so the midline is a whole number.
@@ -156,7 +184,7 @@ export function SalesTrend({sales, filtered, range, loading}: {
                     title={`Against the previous ${growth.days} day${growth.days === 1 ? '' : 's'} (${format(growth.previous)})`}
                     className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold ${growth.pct >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
                     {growth.pct >= 0 ? <TrendingUp size={15}/> : <TrendingDown size={15}/>}
-                    {growth.pct >= 0 ? '+' : '−'}{Math.abs(growth.pct).toFixed(growth.pct !== 0 && Math.abs(growth.pct) < 10 ? 1 : 0)}%
+                    {pctText(growth.pct)}
                     <span className="font-medium text-slate-500">vs previous</span></span>}
             </div>
         </div>
@@ -200,6 +228,7 @@ export function SalesTrend({sales, filtered, range, loading}: {
                                 <p className="text-sm font-bold tabular-nums">{format(valueOf(point))}</p>
                                 <p className="text-[11px] text-white/70">{nameOf(point)} · {measure === 'revenue'
                                     ? `${point.count} car${point.count === 1 ? '' : 's'}` : money(point.revenue)}</p>
+                                {monthly?.[hover] != null && <p className="text-[11px] text-white/70">{pctText(monthly[hover]!)} on the month before</p>}
                             </div>}
                         </div>
                         <div className="mt-2 flex justify-between text-[11px] text-slate-400">
@@ -218,13 +247,16 @@ export function SalesTrend({sales, filtered, range, loading}: {
                                     {byWeekday && <th className="py-1 font-medium">Date</th>}
                                     <th className="py-1 text-right font-medium">Cars</th>
                                     <th className="py-1 text-right font-medium">Revenue</th>
+                                    {monthly && <th className="py-1 text-right font-medium">{measure === 'revenue' ? 'Revenue' : 'Cars'} vs month before</th>}
                                 </tr>
                                 </thead>
-                                <tbody>{buckets.map(bucket => <tr key={bucket.key} className="border-t border-slate-50">
+                                <tbody>{buckets.map((bucket, i) => <tr key={bucket.key} className="border-t border-slate-50">
                                     <td className="py-1.5">{nameOf(bucket)}</td>
                                     {byWeekday && <td className="py-1.5 text-slate-500">{bucket.label}</td>}
                                     <td className="py-1.5 text-right tabular-nums text-slate-500">{bucket.count}</td>
                                     <td className="py-1.5 text-right font-medium tabular-nums">{money(bucket.revenue)}</td>
+                                    {monthly && <td className={`py-1.5 text-right tabular-nums ${monthly[i] == null ? 'text-slate-400' : monthly[i]! >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                                        {monthly[i] == null ? '—' : pctText(monthly[i]!)}</td>}
                                 </tr>)}</tbody>
                             </table>
                         </div>
